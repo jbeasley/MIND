@@ -1,0 +1,8 @@
+@model IEnumerable<SCM.Models.ViewModels.AttachmentRoleViewModel>
+
+<option value="">-- Select Role --</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.AttachmentRoleID">@item.Name</option>
+}

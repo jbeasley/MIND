@@ -1,0 +1,75 @@
+@model SCM.Models.ViewModels.BgpPeerViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Vif.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantVif/GetAllByAttachmentID/@ViewBag.Vif.AttachmentID">Tenant VIFs - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VifBgpPeer/GetAllByRoutingInstanceID?RoutingInstanceID=@ViewBag.Vif.RoutingInstanceID&VifID=@ViewBag.Vif.VifID">BGP Peers - [@ViewBag.Vif.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.IpAddress]</li>
+</ol>
+
+<h2>Details for BGP Peer '@Model.IpAddress'</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IpAddress)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IpAddress)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AutonomousSystem)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AutonomousSystem)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Md5Password)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Md5Password)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MaximumRoutes)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MaximumRoutes)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsBfdEnabled)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsBfdEnabled)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsMultiHop)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsMultiHop)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.Tenant.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+
+        @Html.ActionLink("Edit", "Edit", new { bgpPeerID = Model.BgpPeerID, vifID = ViewBag.Vif.VifID }) |
+        <a asp-action="GetAllByRoutingInstanceID" asp-route-RoutingInstanceID ="@Model.RoutingInstanceID" asp-route-VifID="@ViewBag.Vif.VifID">Back to BGP Peers List</a>   
+</div>

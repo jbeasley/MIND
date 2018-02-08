@@ -1,0 +1,57 @@
+﻿
+@if (ViewData["NetworkErrorMessage"] != null)
+{
+    <div id="networkErrorMessageContainer" class="alert alert-danger message-container" role="alert">
+        <div class="message-glyph">
+            <div class="glyphicon glyphicon-exclamation-sign glyphicon-lg" aria-hidden="true"></div>
+            <span class="sr-only">Error:</span>
+        </div>
+        <div class="message-content">@Html.Raw(ViewData["NetworkErrorMessage"])</div>
+    </div>
+}
+
+@if (ViewData["NetworkSuccessMessage"] != null)
+{
+    <div id="networkSuccessMessageContainer" class="alert alert-success message-container" role="alert">
+        <div class="message-glyph">
+            <div class="glyphicon glyphicon-ok-sign glyphicon-lg" aria-hidden="true"></div>
+            <span class="sr-only">Success:</span>
+        </div>
+        <div class="message-content">@Html.Raw(ViewData["NetworkSuccessMessage"])</div>
+    </div>
+}
+
+@if (ViewData["NetworkWarningMessage"] != null)
+{
+    <div id="networkWarningMessageContainer" class="alert alert-warning message-container" role="alert">
+        <div class="message-glyph">
+            <div class="glyphicon glyphicon-warning-sign glyphicon-lg" aria-hidden="true"></div>
+            <span class="sr-only">Warning:</span>
+        </div>
+        <div class="message-content">@Html.Raw(ViewData["NetworkWarningMessage"])</div>
+    </div>
+}
+
+<div id="successMessageContainer" class="alert alert-success message-container" style="display:none" role="alert">
+    <div class="message-glyph">
+        <div class="glyphicon glyphicon-ok-sign glyphicon-lg" aria-hidden="true"></div>
+        <span class="sr-only">Success:</span>
+    </div>
+    <div class="message-content" id="successMessage"></div>
+</div>
+
+<div id="errorMessageContainer" class="alert alert-danger message-container" style="display:none" role="alert">
+    <div class="message-glyph">
+        <div class="glyphicon glyphicon-exclamation-sign glyphicon-lg" aria-hidden="true"></div>
+        <span class="sr-only">Error:</span>
+    </div>
+    <div id="errorMessage" class="message-content"></div>
+</div>
+
+<div id="warningMessageContainer" class="alert alert-warning message-container" style="display:none" role="alert">
+    <div class="message-glyph">
+        <span class="glyphicon glyphicon-warning-sign glyphicon-lg" aria-hidden="true"></span>
+        <span class="sr-only">Warning:</span>
+    </div>
+    <div id="warningMessage" class="message-content"></div>
+</div>

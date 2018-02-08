@@ -1,0 +1,65 @@
+@model SCM.Models.ViewModels.LogicalInterfaceViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantVif/GetAllByAttachmentID/@ViewBag.Attachment.AttachmentID">Tenant VIFs - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantVif/GetAllLogicalInterfacesByVifID?vifID=@ViewBag.Vif.VifID">Logical Interfaces - [@ViewBag.Vif.Name]</a></li>
+    <li class="breadcrumb-item active">Logical Interface - [@Model.Name]</li>
+</ol>
+
+<h2>Details for Logical Interface '@Model.Name'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LogicalInterfaceType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LogicalInterfaceType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IpAddress)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IpAddress)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SubnetMask)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SubnetMask)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+    </dl>
+</div>
+<form asp-action="">
+    <input type="hidden" asp-for="LogicalInterfaceID" />
+    <div class="form-actions no-color">
+        @Html.ActionLink("Edit", "EditLogicalInterface", new { logicalInterfaceID = Model.LogicalInterfaceID, vifID = ViewBag.Vif.VifID }) |
+        <a asp-action="GetAllLogicalInterfacesByVifID" asp-route-vifID="@ViewBag.Vif.VifID">Back to Logical Interfaces List</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

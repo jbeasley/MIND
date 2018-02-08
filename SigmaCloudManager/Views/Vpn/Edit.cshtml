@@ -1,0 +1,112 @@
+@model SCM.Models.ViewModels.VpnUpdateViewModel
+@using SCM.Models.ViewModels;
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Vpn/GetAll">VPNs</a></li>
+    <li class="breadcrumb-item active">Edit - [@Model.Name]</li>
+</ol>
+
+@if (Model.VpnTopologyType.VpnProtocolType.ProtocolType == ProtocolType.IP)
+{
+    @if (Model.IsMulticastVpn)
+    {
+        <h2>Edit Multicast VPN '@Model.Name' </h2>
+    }
+    else
+    {
+        <h2>Edit IP VPN '@Model.Name'</h2>
+    }
+}
+else
+{
+    <h2>Edit Ethernet VPN '@Model.Name'</h2>
+}
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="VpnID" />
+        <input type="hidden" asp-for="IsMulticastVpn" />
+        <input type="hidden" asp-for="Name" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="form-group">
+            <label asp-for="Description" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Region" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="RegionID" class="form-control" asp-items="ViewBag.RegionID">
+                    <option value="">-- Optionally Select Region --</option>
+                </select>
+                <span asp-validation-for="RegionID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="VpnTenancyType" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="VpnTenancyTypeID" class="form-control" asp-items="ViewBag.VpnTenancyTypeID">
+                    <option value="">-- Select Tenancy Type --</option>
+                </select>
+                <span asp-validation-for="VpnTenancyTypeID" class="text-danger"></span>
+            </div>
+        </div>
+@{
+    if (@Model.VpnTopologyType.VpnProtocolType.ProtocolType == ProtocolType.IP)
+    {
+        if (@Model.VpnTopologyType.TopologyType == TopologyType.HubandSpoke)
+        {
+            if (Model.IsMulticastVpn)
+            {
+                <div id="multicastVpnDirectionTypeContainer" class="form-group">
+                    <label asp-for="MulticastVpnDirectionType" class="col-md-2 control-label"></label>
+                    <div class="col-md-10">
+                        <select asp-for="MulticastVpnDirectionTypeID" class="form-control" asp-items="ViewBag.MulticastVpnDirectionTypeID">
+                            <option value="">-- Select Multicast Direction Type --</option>
+                        </select>
+                        <span asp-validation-for="MulticastVpnDirectionTypeID" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+        }
+
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="IsExtranet" data-toggle="tooltip" title="Enable the VPN to support Extranet">
+                    <label asp-for="IsExtranet"></label>
+                    <span asp-validation-for="IsExtranet" class="text-danger"></span>
+                </label>
+            </div>
+        </div>
+    }
+}
+        
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;Save
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAll">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

@@ -1,0 +1,74 @@
+@model IEnumerable<SCM.Models.ViewModels.VlanViewModel>
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+@{
+    ViewData["Title"] = "Vlans";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantVif/GetAllByAttachmentID/@ViewBag.Attachment.AttachmentID">Tenant VIFs - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Vlans - [@ViewBag.Vif.Name]</li>
+</ol>
+
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+
+    // Show Network messages if Network Sync functionality is enabled
+    await Html.RenderPartialAsync("_NetworkMessagingPartial");
+}
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+<h2>Vlans for Tenant VIF '@ViewBag.Vif.Name'</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Interface)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VlanTag)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IpAddress)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SubnetMask)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Interface.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VlanTag)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IpAddress)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubnetMask)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "EditVlan", new { id = item.VlanID })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    <a asp-action="GetAllByAttachmentID" asp-controller="TenantVif" asp-route-id="@ViewBag.Attachment.AttachmentID">Back to Tenant VIFs List</a>
+</div>

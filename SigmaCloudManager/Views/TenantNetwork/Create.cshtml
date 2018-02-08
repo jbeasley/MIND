@@ -1,0 +1,80 @@
+@model SCM.Models.ViewModels.TenantNetworkViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantNetwork/GetAllByTenantID/@ViewBag.Tenant.TenantID">Networks - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+<h2>Create Network for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="TenantID" value="@ViewBag.Tenant.TenantID" />
+        <div class="form-group">
+            <label asp-for="IpPrefix" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="IpPrefix" class="form-control" />
+                <span asp-validation-for="IpPrefix" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Length" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Length" class="form-control" />
+                <span asp-validation-for="Length" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="LessThanOrEqualToLength" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="LessThanOrEqualToLength" class="form-control" />
+                <span asp-validation-for="LessThanOrEqualToLength" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="AllowExtranet" data-toggle="tooltip" title="Check to enable the network for Extranet"> 
+                    <label asp-for="AllowExtranet"></label>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Create" class="btn btn-success" asp-action="Create">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByTenantID" asp-route-id="@ViewBag.Tenant.TenantID" asp-route-tenantID="@Context.Request.Query["tenantID"]">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+}

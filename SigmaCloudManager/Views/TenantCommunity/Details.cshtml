@@ -1,0 +1,48 @@
+@model SCM.Models.ViewModels.TenantCommunityViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantCommunity/GetAllByTenantID/@Model.TenantID">Communities - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.Name]</li>
+</ol>
+
+<h2>Details for Tenant Community '@Model.Name'</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AutonomousSystemNumber)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AutonomousSystemNumber)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Number)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Number)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AllowExtranet)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AllowExtranet)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.TenantCommunityID, tenantID = Context.Request.Query["tenantID"] }) |
+    <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID">Back to List</a>
+</div>

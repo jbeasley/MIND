@@ -1,0 +1,99 @@
+@model SCM.Models.ViewModels.BgpPeerViewModel
+
+@{
+    ViewData["Title"] = "Create BGP Peer";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentBgpPeer/GetAllByRoutingInstanceID?routingInstanceID=@ViewBag.Attachment.RoutingInstance.RoutingInstanceID&attachmentID=@ViewBag.Attachment.AttachmentID">BGP Peers - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+<h2>Create BGP Peer for VRF '@ViewBag.Attachment.RoutingInstance.Name'</h2>
+
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="RoutingInstanceID" value="@ViewBag.Attachment.RoutingInstance.RoutingInstanceID" />
+        <input type="hidden" name="AttachmentID" value="@ViewBag.Attachment.AttachmentID" />
+        <div class="form-group">
+            <label asp-for="IpAddress" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="IpAddress" class="form-control" />
+                <span asp-validation-for="IpAddress" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AutonomousSystem" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="AutonomousSystem" class="form-control" />
+                <span asp-validation-for="AutonomousSystem" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Md5Password" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Md5Password" class="form-control" />
+                <span asp-validation-for="Md5Password" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="MaximumRoutes" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="MaximumRoutes" class="form-control" />
+                <span asp-validation-for="MaximumRoutes" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="IsBfdEnabled" data-toggle="tooltip" title="Enable the BGP Peer with BFD fast-failure detection">
+                    <label asp-for="IsBfdEnabled"></label>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="IsMultiHop" data-toggle="tooltip" title="Enable Multi-Hop Peering">
+                    <label asp-for="IsMultiHop"></label>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Create" class="btn btn-success" asp-action="Create">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+<div>
+    <a asp-action="GetAllByRoutingInstanceID" asp-route-routingInstanceID ="@ViewBag.Attachment.RoutingInstance.RoutingInstanceID" 
+       asp-route-attachmentID =" @ViewBag.Attachment.AttachmentID">Back to BGP Peers List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+    (function ($) {
+
+        // Initialise all tool-tips
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+    }(jQuery));
+
+    </script>
+}

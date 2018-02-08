@@ -1,0 +1,44 @@
+@model SCM.Models.ViewModels.VpnTenantNetworkCommunityInViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.VpnTenantNetworkIn.AttachmentSet.TenantID">Attachment Sets- [@Model.VpnTenantNetworkIn.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantNetworkIn/GetAllByVpnAttachmentSetID/@Model.VpnTenantNetworkIn.AttachmentSetID">Tenant Network Inbound Policy - [@Model.VpnTenantNetworkIn.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantNetworkCommunityIn/GetAllByVpnTenantNetworkInID/@Model.VpnTenantNetworkIn.VpnTenantNetworkInID">VPN Tenant Network Communities - [@Model.VpnTenantNetworkIn.TenantNetwork.CidrName]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.TenantCommunity.Name]</li>
+</ol>
+
+<h2>Details</h2>
+
+<div>
+    <h4>Tenant Community for Tenant Network '@Model.VpnTenantNetworkIn.TenantNetwork.CidrName'</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.VpnTenantNetworkIn.TenantNetwork.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VpnTenantNetworkIn.TenantNetwork.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VpnTenantNetworkIn.TenantNetwork)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VpnTenantNetworkIn.TenantNetwork.CidrName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TenantCommunity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantCommunity.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="GetAllByVpnTenantNetworkInID" asp-route-id="@Model.VpnTenantNetworkInID">Back to List</a>
+</div>

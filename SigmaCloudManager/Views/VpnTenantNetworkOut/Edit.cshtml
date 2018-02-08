@@ -1,0 +1,111 @@
+@model SCM.Models.ViewModels.VpnTenantNetworkOutViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantNetworkOut/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant Networks Outbound Policy - [@Model.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item active">Edit - [@Model.TenantNetwork.CidrName]</li>
+</ol>
+
+<h2>Edit Outbound Policy for Network '@Model.TenantNetwork.CidrName'</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="VpnTenantNetworkOutID" />
+        <input type="hidden" asp-for="TenantNetworkID" />
+        <input type="hidden" asp-for="AttachmentSetID" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="form-group">
+            <label asp-for="RoutingInstance" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="RoutingInstanceID" class="form-control" asp-items="ViewBag.RoutingInstanceID">
+                    <option value="">-- Select VRF --</option>
+                </select>
+                <span asp-validation-for="RoutingInstanceID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="BgpPeer" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="BgpPeerID" class="form-control" asp-items="ViewBag.BgpPeerID">
+                    <option value="">-- Select BGP Peer --</option>
+                </select>
+                <span asp-validation-for="BgpPeerID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AdvertisedIpRoutingPreference" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="AdvertisedIpRoutingPreference" class="form-control" />
+                <span asp-validation-for="AdvertisedIpRoutingPreference" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;Save
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByAttachmentSetID" asp-route-id="@Model.AttachmentSetID">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            var $vrf = $('#RoutingInstanceID'),
+                vrf = $vrf[0],
+                $bgpPeer = $('#BgpPeerID'),
+                bgpPeer = $bgpPeer[0],
+                $advertisedIpRoutingPreference = $('#AdvertisedIpRoutingPreference'),
+                advertisedIpRoutingPreference = $advertisedIpRoutingPreference[0];
+
+            $vrf.on('change', function (e) {
+
+                bgpPeer.selectedIndex = 0;
+                bgpPeer.disabled = true;
+                PopulateBgpPeersDropDownList(this.value);
+            });
+
+            function PopulateBgpPeersDropDownList(vrfID) {
+
+                if (vrfID != null && vrfID.length > 0) {
+
+                    PopulateHtmlFromUrl($bgpPeer, "/VpnTenantNetworkOut/BgpPeers", { vrfID: vrfID });
+                }
+            }
+            function PopulateHtmlFromUrl($e, url, data) {
+
+                $.get(url, data)
+                    .done(function (data) {
+
+                        // Enable the html element to be populated
+                        $e[0].disabled = false;
+
+                        $e.html(data);
+                    });
+            }
+
+        }(jQuery));
+
+</script>
+}

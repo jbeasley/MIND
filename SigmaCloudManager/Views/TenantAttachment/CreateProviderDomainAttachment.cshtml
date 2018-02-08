@@ -1,0 +1,450 @@
+@model SCM.Models.ViewModels.ProviderDomainAttachmentRequestViewModel
+
+@{
+    ViewData["Title"] = "Create Attachment";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantID">Tenant Attachments - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+
+<h2>Create Attachment for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<form asp-action="CreateProviderDomainAttachment">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="TenantID" value="@ViewBag.Tenant.TenantID" />
+        <div class="form-group">
+            <label asp-for="Region" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="RegionID" class="form-control" asp-items="ViewBag.RegionID">
+                    <option value="">-- Select Region --</option>
+                </select>
+                <span asp-validation-for="RegionID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="SubRegion" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="SubRegionID" class="form-control" asp-items="ViewBag.SubRegionID">
+                    <option value="">-- Select Sub-Region --</option>
+                </select>
+                <span asp-validation-for="SubRegionID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Location" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="LocationID" class="form-control" asp-items="ViewBag.LocationID">
+                    <option value="">-- Select Location --</option>
+                </select>
+                <span asp-validation-for="LocationID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PortPool" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="PortPoolID" class="form-control" asp-items="ViewBag.PortPoolID">
+                    <option value="">-- Select a Port Pool --</option>
+                </select>
+                <span asp-validation-for="PortPoolID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AttachmentRole" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="AttachmentRoleID" class="form-control" asp-items="ViewBag.AttachmentRoleID">
+                    <option value="">-- Select a Role --</option>
+                </select>
+                <span asp-validation-for="AttachmentRoleID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Plane" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="PlaneID" class="form-control" asp-items="ViewBag.PlaneID">
+                    <option value="">-- Optionally Select a Plane --</option>
+                </select>
+                <span asp-validation-for="PlaneID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Bandwidth" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="BandwidthID" class="form-control" asp-items="ViewBag.BandwidthID">
+                    <option value="">-- Select a Bandwidth --</option>
+                </select>
+                <span asp-validation-for="BandwidthID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-2">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="BundleRequired" data-toggle="tooltip" title="Request a bundle attachment">
+                    <label asp-for="BundleRequired"></label>
+                </label>
+            </div>
+            <div class="col-md-2">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="MultiPortRequired" data-toggle="tooltip" title="Request a multi-port attachment">
+                    <label asp-for="MultiPortRequired"></label>
+                </label>
+            </div>
+            <div class="col-md-6">
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-2">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="IsTagged" data-toggle="tooltip" title="Enable for IEEE802.1Q vlan tagging">
+                    <label asp-for="IsTagged"></label>
+                </label>
+            </div>
+            <div class="col-md-2">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="IsLayer3" data-toggle="tooltip" title="Enable for layer 3">
+                    <label asp-for="IsLayer3"></label>
+                </label>
+            </div>
+            <div class="col-md-6">
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="ContractBandwidth" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="ContractBandwidthID" class="form-control" asp-items="ViewBag.ContractBandwidthID">
+                    <option value="">Select Contract Bandwidth</option>
+                </select>
+                <span asp-validation-for="ContractBandwidthID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="TrustReceivedCosDscp" data-toggle="tooltip"
+                           title="Trust the COS and DSCP markings received in packets on this Attachment"> <label asp-for="TrustReceivedCosDscp"></label>
+                </label>
+            </div>
+        </div>
+        <div id="L3Components1">
+            <div class="form-group">
+                <label asp-for="IpAddress1" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="IpAddress1" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Enter an IP address for the Attachment" />
+                    <span asp-validation-for="IpAddress1" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubnetMask1" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="SubnetMask1" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Enter a subnet mask for the Attachment" />
+                    <span asp-validation-for="SubnetMask1" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div id="L3Components2">
+            <div class="form-group">
+                <label asp-for="IpAddress2" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="IpAddress2" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Enter an IP address for the second interface which comprises the Attachment" />
+                    <span asp-validation-for="IpAddress2" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubnetMask2" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="SubnetMask2" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Enter a subnet mask for the second interface which comprises the Attachment" />
+                    <span asp-validation-for="SubnetMask2" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div id="L3Components4">
+            <div class="form-group">
+                <label asp-for="IpAddress3" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="IpAddress3" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Enter an IP address for the third interface which comprises the Attachment" />
+                    <span asp-validation-for="IpAddress3" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubnetMask3" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="SubnetMask3" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Enter a subnet mask for the third interface which comprises the Attachment" />
+                    <span asp-validation-for="SubnetMask3" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="IpAddress4" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="IpAddress4" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Enter an IP address for the forth interface which comprises the Attachment" />
+                    <span asp-validation-for="IpAddress4" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="SubnetMask4" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="SubnetMask4" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Enter a subnet mask for the forth interface which comprises the Attachment" />
+                    <span asp-validation-for="SubnetMask4" class="text-danger"></span>
+                </div>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Description" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Notes" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Create" class="btn btn-success" asp-action="CreateProviderDomainAttachment">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantID">Back to Attachments List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            var $region = $('#RegionID'),
+                region = $region[0],
+                $subregion = $('#SubRegionID'),
+                subregion = $subregion[0],
+                $location = $('#LocationID'),
+                location = $location[0],
+                $bandwidth = $('#BandwidthID'),
+                bandwidth = $bandwidth[0],
+                $isLayer3 = $('#IsLayer3'),
+                isLayer3 = $isLayer3[0],
+                $isTagged = $('#IsTagged'),
+                isTagged = $isTagged[0],
+                $bundleRequired = $('#BundleRequired'),
+                bundleRequired = $bundleRequired[0],
+                $multiPortRequired = $('#MultiPortRequired'),
+                multiPortRequired = $multiPortRequired[0],
+                $contractBandwidth = $('#ContractBandwidthID'),
+                contractBandwidth = $contractBandwidth[0],
+                $portPool = $('#PortPoolID'),
+                portPool = $portPool[0],
+                $attachmentRole = $('#AttachmentRoleID'),
+                attachmentRole = $attachmentRole[0],
+                $trustReceivedCosDscp = $('#TrustReceivedCosDscp'),
+                trustReceivedCosDscp = $trustReceivedCosDscp[0],
+                $l3Components1 = $('#L3Components1'),
+                $l3Components2 = $('#L3Components2'),
+                $l3Components4 = $('#L3Components4');
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            if (location.value == null || location.value == "" || region.value == null || region.value == "") {
+
+                subregion.disabled = true;
+                location.disabled = true;
+            }
+
+            if (portPool.value == null || portPool.value == "") {
+
+                attachmentRole.disabled = true;
+            }
+
+            if (isTagged.checked) {
+
+                contractBandwidth.disabled = true;
+                trustReceivedCosDscp.disabled = true;
+            }
+
+            showHideL3Components();
+
+            $region.on('change', function (e) {
+
+                var regionID = this.value;
+
+                if (regionID == null || regionID == "") {
+
+                    subregion.selectedIndex = 0;
+                    subregion.disabled = true;
+                    location.selectedIndex = 0;
+                    location.disabled = true;
+                }
+                else {
+                    location.selectedIndex = 0;
+                    location.disabled = true;
+
+                    PopulateHtmlFromUrl($subregion, "/TenantAttachment/SubRegions", { id : regionID });
+                }
+            });
+
+            $subregion.on('change', function (e) {
+
+                var subRegionID = this.value;
+                PopulateHtmlFromUrl($location, "/TenantAttachment/Locations", { id: subRegionID });
+            });
+
+            $portPool.on('change', function (e) {
+
+                var portPoolID = this.value;
+                if (portPoolID == null || portPoolID == "") {
+
+                    attachmentRole.selectedIndex = 0;
+                    attachmentRole.disabled = true;
+                }
+                else {
+
+                    PopulateHtmlFromUrl($attachmentRole, "/TenantAttachment/AttachmentRoles", {
+                        portPoolID: portPoolID
+                    });
+                }
+            });
+
+            $isLayer3.on('click', function (e) {
+
+                var isLayer3Checked = this.checked;
+                showHideL3Components();
+
+                if (isLayer3Checked) {
+
+                    contractBandwidth.disabled = false;
+                    trustReceivedCosDscp.disabled = false;
+                    isTagged.checked = false;
+                }
+                else {
+
+                    // Clear any IP address and subnet mask information from the controls
+                    // to prevent it being sent to the server
+
+                    $l3Components1.find(":input").val('');
+                    $l3Components2.find(":input").val('');
+                    $l3Components4.find(":input").val('');
+
+                }
+            });
+
+            $isTagged.on('click', function (e) {
+
+                var isTaggedChecked = this.checked;
+
+                if (isTaggedChecked) {
+
+                    isLayer3.checked = false;
+                    showHideL3Components();
+                    contractBandwidth.selectedIndex = 0;
+                    contractBandwidth.disabled = true;
+                    trustReceivedCosDscp.disabled = true;
+
+                    // Clear any IP address and subnet mask information from the controls
+                    // to prevent it being sent to the server
+
+                    $l3Components1.find(":input").val('');
+                    $l3Components2.find(":input").val('');
+                    $l3Components4.find(":input").val('');
+                }
+                else {
+
+                    contractBandwidth.disabled = false;
+                    trustReceivedCosDscp.disabled = false;
+                }
+            });
+
+            $multiPortRequired.on('click', function (e) {
+
+                bundleRequired.checked = false;
+                showHideL3Components();
+            });
+
+            $bundleRequired.on('click', function (e) {
+
+                multiPortRequired.checked = false;
+                showHideL3Components();
+            });
+
+            $bandwidth.on('change', function (e) {
+
+                showHideL3Components();
+            });
+
+            function PopulateHtmlFromUrl($e, url, data) {
+
+                // Disable the element during loading
+                $e[0].disabled = true;
+
+                $.get(url, data)
+                    .done(function (data) {
+
+                        // Enable the html element to be populated
+                        $e[0].disabled = false;
+
+                        $e.html(data);
+                });
+            }
+
+            function showHideL3Components() {
+
+                $l3Components1.fadeOut();
+                $l3Components2.fadeOut();
+                $l3Components4.fadeOut();
+
+                if (!isLayer3.checked) {
+
+                   return;
+                }
+
+                $l3Components1.fadeIn();
+
+                var selectedBandwith = bandwidth.options[bandwidth.selectedIndex].text;
+
+                if (multiPortRequired.checked) {
+
+                    if (selectedBandwith == "20") {
+
+                        $l3Components2.fadeIn();
+                    }
+                    else if (selectedBandwith == "40") {
+
+                        $l3Components2.fadeIn();
+                        $l3Components4.fadeIn();
+                    }
+                }
+            }
+
+        }(jQuery));
+    
+    </script>
+}

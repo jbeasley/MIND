@@ -1,0 +1,78 @@
+@model IEnumerable<SCM.Models.ViewModels.LocationViewModel>
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+@{
+    ViewData["Title"] = "Locations";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item"><a href="/Region/GetAll">Regions</a></li>
+    <li class="breadcrumb-item"><a href="/SubRegion/GetAllByRegionID/@ViewBag.SubRegion.RegionID">Sub-Regions - [@ViewBag.SubRegion.Region.Name]</a></li>
+    <li class="breadcrumb-item active">Locations</li>
+</ol>
+
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+
+    // Show Network messages if Network Sync functionality is enabled
+    await Html.RenderPartialAsync("_NetworkMessagingPartial");
+}
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+<h2>Locations for Sub-Region '@ViewBag.SubRegion.Name'</h2>
+
+<p>
+    <a asp-action="Create" asp-route-id="@ViewBag.SubRegion.SubRegionID">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.SubRegion.Region)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SubRegion)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.SiteName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.LocaleCommunityName)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubRegion.Region.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SubRegion.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.SiteName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.LocaleCommunityName)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.LocationID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.LocationID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.LocationID })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<div>
+    <a asp-controller="SubRegion" asp-action="GetAllByRegionID" asp-route-id="@ViewBag.SubRegion.RegionID">Back to Sub-Regions List</a>
+</div>

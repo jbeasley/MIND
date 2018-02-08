@@ -1,0 +1,8 @@
+@model IEnumerable<SCM.Models.ViewModels.DeviceViewModel>
+
+<option value="">-- Select Device --</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.DeviceID">@item.Name</option>
+}

@@ -1,0 +1,51 @@
+@model SCM.Models.ViewModels.AttachmentSetRoutingInstanceRequestViewModel
+@{
+    ViewData["Title"] = "Add VRF #1";
+}
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@ViewBag.AttachmentSet.TenantID">Attachment Sets - [@ViewBag.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSetRoutingInstance/GetAllByAttachmentSetID/@ViewBag.AttachmentSet.AttachmentSetID">Attachment Set VRFs - [@ViewBag.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item active">Add VRF</li>
+</ol>
+<h2>Add VRF to Attachment Set '@ViewBag.AttachmentSet.Name'</h2>
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        <div asp-validation-summary="ModelOnly" class="alert alert-danger"></div>
+        <input type="hidden" asp-for="TenantID" value="@ViewBag.AttachmentSet.TenantID" />
+        <input type="hidden" asp-for="AttachmentSetID" value="@ViewBag.AttachmentSet.AttachmentSetID" />
+        <div class="form-group">
+            <label asp-for="Location" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="LocationID" class="form-control" asp-items="ViewBag.LocationID">
+                    <option value="">-- Select Location --</option>
+                </select>
+                <span asp-validation-for="LocationID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Plane" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="PlaneID" class="form-control" asp-items="ViewBag.PlaneID">
+                    <option value="">-- Optionally select a Plane --</option>
+                </select>
+                <span asp-validation-for="PlaneID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Next" class="btn btn-info" asp-action="CreateStep2">
+                    Next
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+<div>
+    <a asp-action="GetAllByAttachmentSetID" asp-route-id="@ViewBag.AttachmentSet.AttachmentSetID">Back to VRFs</a>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

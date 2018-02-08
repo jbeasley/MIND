@@ -1,0 +1,48 @@
+@model SCM.Models.ViewModels.ExtranetVpnMemberViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Vpn/GetAll">VPNs</a></li>
+    <li class="breadcrumb-item"><a href="/ExtranetVpnMember/GetAllByExtranetVpnID/@Model.ExtranetVpn.VpnID">Extranet VPN Members - [@Model.ExtranetVpn.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.ExtranetVpn.Name]</li>
+</ol>
+
+<h2>Details</h2>
+
+<div>
+    <h4>Member VPN for Extranet VPN '@Model.ExtranetVpn.Name'</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.ExtranetVpn.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ExtranetVpn.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ExtranetVpn)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ExtranetVpn.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MemberVpn.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MemberVpn.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MemberVpn)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MemberVpn.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="GetAllByExtranetVpnID" asp-route-id="@Model.ExtranetVpn.VpnID">Back to Extranet VPN Members</a>
+</div>

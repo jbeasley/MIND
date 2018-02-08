@@ -1,0 +1,69 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Net;
+
+namespace SCM.Models
+{
+    public class Attachment { 
+
+        [Key]
+        public int AttachmentID { get; set; }
+        [NotMapped]
+        public string Name
+        {
+            get
+            {
+                if (IsBundle)
+                {
+                    return $"Bundle{ID}";
+                }
+                else if (IsMultiPort)
+                {
+                    return $"MultiPort{ID}";
+                }
+                else
+                {
+                    var port = Interfaces.Single().Ports.Single();
+                    return $"{port.Type} {port.Name}";
+                }
+            }
+        }
+        [MaxLength(250)]
+        public string Description { get; set; }
+        [MaxLength(250)]
+        public string Notes { get; set; }
+        public bool IsTagged { get; set; }
+        public bool IsLayer3 { get; set; }
+        public bool IsBundle { get; set; }
+        public int? BundleMinLinks { get; set; }
+        public int? BundleMaxLinks { get; set; }
+        public bool IsMultiPort { get; set; }
+        public int? ID { get; set; }
+        public int AttachmentBandwidthID { get; set; }
+        public int? TenantID { get; set; }
+        public int DeviceID { get; set; }
+        public int? RoutingInstanceID { get; set; }
+        public int? ContractBandwidthPoolID { get; set; }
+        public int AttachmentRoleID { get; set; }
+        public int MtuID { get; set; }
+        public bool Created { get; set; }
+        public bool RequiresSync { get; set; }
+        public bool ShowCreatedAlert { get; set; }
+        public bool ShowRequiresSyncAlert { get; set; }
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+        [ForeignKey("TenantID")]
+        public virtual Tenant Tenant { get; set; }
+        public virtual Device Device { get; set; }
+        public virtual RoutingInstance RoutingInstance { get; set; }
+        public virtual AttachmentBandwidth AttachmentBandwidth { get; set; }
+        public virtual ContractBandwidthPool ContractBandwidthPool { get; set; }
+        public virtual Mtu Mtu { get; set; }
+        public virtual AttachmentRole AttachmentRole { get; set; }
+        public virtual ICollection<Interface> Interfaces { get; set; }
+        public virtual ICollection<Vif> Vifs { get; set; }
+    }
+}

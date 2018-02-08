@@ -1,0 +1,60 @@
+@model SCM.Models.ViewModels.VpnTenantNetworkCommunityInViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@ViewBag.VpnTenantNetworkIn.AttachmentSet.TenantID">Attachment Sets- [@ViewBag.VpnTenantNetworkIn.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantNetworkIn/GetAllByAttachmentSetID/@ViewBag.VpnTenantNetworkIn.AttachmentSetID">Tenant Network Inbound Policy - [@ViewBag.VpnTenantNetworkIn.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantNetworkCommunityIn/GetAllByVpnTenantNetworkID/@ViewBag.VpnTenantNetworkIn.VpnTenantNetworkInID">VPN Tenant Network Communities - [@ViewBag.VpnTenantNetworkIn.TenantNetwork.CidrName]</a></li>
+    <li class="breadcrumb-item active">Add Community</li>
+</ol>
+
+<h2>Add a Tenant Community to '@ViewBag.VpnTenantNetworkIn.TenantNetwork.CidrName'</h2>
+
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="VpnTenantNetworkInID" value="@ViewBag.VpnTenantNetworkIn.VpnTenantNetworkInID" />
+        <div class="form-group">
+            <label asp-for="TenantCommunity" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="TenantCommunityID" class="form-control" asp-items="ViewBag.TenantCommunityID">
+                    <option value="">-- Select Tenant Community --</option>
+                </select>
+                <span asp-validation-for="TenantCommunityID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Add" class="btn btn-success" asp-action="Create">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Add
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByVpnTenantNetworkInID" asp-route-id="@ViewBag.VpnTenantNetworkIn.VpnTenantNetworkInID" >Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+}

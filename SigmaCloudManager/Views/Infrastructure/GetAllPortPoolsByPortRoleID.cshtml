@@ -1,0 +1,45 @@
+@model IEnumerable<SCM.Models.ViewModels.PortPoolViewModel>
+
+@{
+    ViewData["Title"] = "Port Pools";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/GetAllDeviceRoles">Device Roles</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/GetAllPortRolesByDeviceRoleID?deviceRoleID=@ViewBag.DeviceRole.DeviceRoleID">Port Roles - [@ViewBag.DeviceRole.Name]</a></li>
+    <li class="breadcrumb-item active">Port Pools - [@ViewBag.PortRole.Name]</li>
+</ol>
+
+<h2>Port Pools for Port Role '@ViewBag.PortRole.Name'</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                <a asp-action="GetAllAttachmentRolesByPortPoolID" asp-route-portPoolID="@item.PortPoolID" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleID">Attachment Roles</a>
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<a asp-action="GetAllPortRolesByDeviceRoleID" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleID">Back to Port Roles</a>

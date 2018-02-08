@@ -1,0 +1,204 @@
+@model IEnumerable<SCM.Models.ViewModels.VpnViewModel>
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+@{
+    ViewData["Title"] = "VPNs";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item active">VPNs</li>
+</ol>
+
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+
+    // Show Network messages if Network Sync functionality is enabled
+    await Html.RenderPartialAsync("_NetworkMessagingPartial");
+}
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+@if (ViewData["SuccessMessage"] != null)
+{
+    @using (Html.BeginForm("ClearCreatedAlerts", "Vpn", FormMethod.Post))
+    {
+        <p>
+            <button type="submit" class="btn btn-info btn-default ">
+                <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;Clear Created Alerts
+            </button>
+        </p>
+    }
+}
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+    @if (ViewData["NetworkWarningMessage"] != null)
+    {
+        @using (Html.BeginForm("ClearRequiresSyncAlerts", "Vpn", FormMethod.Post))
+        {
+            <p>
+                <button type="submit" class="btn btn-info btn-default ">
+                    <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;Clear Requires Sync Alerts
+                </button>
+            </p>
+        }
+    }
+}
+<h2>VPNs</h2>
+
+<p>
+    <a asp-action="CreateStep1">Create New</a>
+</p>
+
+@using (Html.BeginForm("GetAll", "Vpn", FormMethod.Get))
+{
+    <p>
+        VPN Name: @Html.TextBox("SearchString")
+        <button type="submit" class="btn btn-info btn-default ">
+            <span class="glyphicon glyphicon-search"></span>&nbsp;Search
+        </button>
+    </p>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                <a asp-action="GetAll" asp-route-sortKey="@ViewBag.NameSort">@Html.DisplayNameFor(model => model.Name)</a>
+            </th>
+            <th>
+                <a asp-action="GetAll" asp-route-sortKey="@ViewBag.TenantSort">@Html.DisplayNameFor(model => model.Tenant)</a>
+            </th>
+            <th>
+                <a asp-action="GetAll" asp-route-sortKey="@ViewBag.PlaneSort">@Html.DisplayNameFor(model => model.Plane)</a>
+            </th>
+            <th>
+                <a asp-action="GetAll" asp-route-sortKey="@ViewBag.RegionSort">@Html.DisplayNameFor(model => model.Region)</a>
+            </th>
+            <th>
+                <a asp-action="GetAll" asp-route-sortKey="@ViewBag.TenancyTypeSort">@Html.DisplayNameFor(model => model.VpnTenancyType)</a>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VpnTopologyType.VpnProtocolType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VpnTopologyType)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsMulticastVpn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsNovaVpn)
+            </th>
+            @if (ApplicationConfiguration.Value.EnableNetworkSync)
+            {
+                <th>
+                @Html.DisplayNameFor(model => model.RequiresSync)
+                </th>
+            }
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Tenant.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Plane.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Region.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VpnTenancyType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VpnTopologyType.VpnProtocolType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VpnTopologyType.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsMulticastVpn)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsNovaVpn)
+                </td>
+                @if (ApplicationConfiguration.Value.EnableNetworkSync)
+                {
+                    <td id="requiresSync_@item.VpnID" class="checkbox-insync">
+                        @Html.DisplayFor(modelItem => item.RequiresSync)
+                    </td>
+                    <td>
+                        <button type="button" id="Sync_@item.VpnID" data-item='{"id" : "@item.VpnID"}' class="btn btn-info btn-danger btn-sync btn-margin-2">
+                            <span class="glyphicon glyphicon-refresh"></span>&nbsp;Sync
+                        </button>
+                        <button type="button" id="CheckSync_@item.VpnID" data-item='{"id" : "@item.VpnID"}' class="btn btn-info btn-warning btn-checksync btn-margin-2">
+                            <span class="glyphicon glyphicon-check"></span>&nbsp;Check Sync
+                        </button>
+                    </td>
+                    <td class="row-spinner spinner-element" id="syncStatus_@item.VpnID"></td>
+                }
+                else
+                {
+                    <td></td>
+                    <td></td>
+                }
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.VpnID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.VpnID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.VpnID }) |
+                    <a asp-controller="RouteTarget" asp-action="GetAllByVpnID" asp-route-id="@item.VpnID">Route Targets</a>
+                    @if (item.IsExtranet)
+                    {
+                        <span>|</span> <a asp-controller="ExtranetVpnMember" asp-action="GetAllByExtranetVpnID" asp-route-id="@item.VpnID">Extranet VPN Members</a>
+                    }
+                    else
+                    {
+                        <span>|</span> <a asp-controller="VpnAttachmentSet" asp-action="GetAllByVpnID" asp-route-id="@item.VpnID">Attachment Sets</a>
+                        @if (!item.IsMulticastVpn)
+                        {
+                            <span>|</span> <a asp-controller="ExtranetVpnMember" asp-action="GetAllByMemberVpnID" asp-route-id="@item.VpnID">Extranet VPN Memberships</a>
+                        }
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+    <button type="button" id="CheckSync" class="btn btn-info btn-warning">
+        <span class="glyphicon glyphicon-check"></span>&nbsp;Check Sync All
+    </button>
+
+    @section Scripts {
+
+        <script type="text/javascript">
+
+            (function ($) {
+
+                SCM.Utilities.connectToNetworkSyncHub({
+                    checkSyncUrl: '/api/v1/vpns/{id}/checksync',
+                    checkSyncAllUrl: '/api/v1/vpns/checksync',
+                    syncUrl: '/api/v1/vpns/{id}/sync',
+                    groupName: 'Vpns',
+                    itemKey: 'VpnID'
+                });
+
+            }(jQuery));
+
+        </script>
+    }
+}

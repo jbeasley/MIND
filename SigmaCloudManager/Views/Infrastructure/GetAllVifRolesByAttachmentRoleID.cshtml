@@ -1,0 +1,68 @@
+@model IEnumerable<SCM.Models.ViewModels.VifRoleViewModel>
+
+@{
+    ViewData["Title"] = "VIF Roles";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/GetAllDeviceRoles">Device Roles</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/GetAllPortRolesByDeviceRoleID?deviceRoleID=@ViewBag.DeviceRole.DeviceRoleID">Port Roles - [@ViewBag.DeviceRole.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/GetAllPortPoolsByPortRoleID?portRoleID=@ViewBag.AttachmentRole.PortPool.PortRoleID&&deviceRoleID=@ViewBag.DeviceRole.DeviceRoleID">Port Pools - [@ViewBag.AttachmentRole.PortPool.PortRole.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/GetAllAttachmentRolesByPortPoolID?portPoolID=@ViewBag.AttachmentRole.PortPoolID&&deviceRoleID=@ViewBag.DeviceRole.DeviceRoleID">Attachment Roles - [@ViewBag.AttachmentRole.PortPool.Name]</a></li>
+    <li class="breadcrumb-item active">VIF Roles - [@ViewBag.AttachmentRole.Name]</li>
+</ol>
+
+<h2>VIF Roles for Attachment Role '@ViewBag.AttachmentRole.Name'</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsLayer3Role)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RequireContractBandwidth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoutingInstanceType.IsVrf)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoutingInstanceType.IsDefault)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Description)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsLayer3Role)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RequireContractBandwidth)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoutingInstanceType.IsVrf)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.RoutingInstanceType.IsDefault)
+            </td>
+        </tr>
+}
+    </tbody>
+</table>
+<a asp-action="GetAllAttachmentRolesByPortPoolID" asp-route-portPoolID="@ViewBag.AttachmentRole.PortPoolID" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleID">Back to Attachment Roles</a>

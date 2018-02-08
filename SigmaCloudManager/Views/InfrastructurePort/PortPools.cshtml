@@ -1,0 +1,8 @@
+@model IEnumerable<SCM.Models.ViewModels.PortPoolViewModel>
+
+<option value="">-- Select Port Pool --</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.PortPoolID">@item.Name</option>
+}

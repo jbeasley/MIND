@@ -1,0 +1,76 @@
+@model SCM.Models.ViewModels.TenantCommunityViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantCommunity/GetAllByTenantID/@Model.TenantID">Communities - [@Model.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Edit - [@Model.Name]</li>
+</ol>
+
+<h2>Edit Tenant Community '@Model.Name'</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="TenantCommunityID" />
+        <input type="hidden" asp-for="TenantID" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="form-group">
+            <label asp-for="AutonomousSystemNumber" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="AutonomousSystemNumber" class="form-control" />
+                <span asp-validation-for="AutonomousSystemNumber" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Number" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Number" class="form-control" />
+                <span asp-validation-for="Number" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="AllowExtranet" data-toggle="tooltip" title="Check to enable the network for Extranet">
+                    <label asp-for="AllowExtranet"></label>
+                    <span asp-validation-for="AllowExtranet" class="text-danger"></span>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;Save
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+}

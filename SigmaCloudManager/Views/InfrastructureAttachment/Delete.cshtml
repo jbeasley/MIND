@@ -1,0 +1,107 @@
+@model SCM.Models.ViewModels.AttachmentViewModel
+
+@{
+    ViewData["Title"] = "Delete Attachment";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item"><a href="/InfrastructureAttachment/GetAll">Infrastructure Attachments - [@Model.Device.Name]</a></li>
+    <li class="breadcrumb-item active">Delete - [@Model.Name]</li>
+</ol>
+
+<h2>Delete Attachment '@Model.Name'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Device)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Device.Name)
+        </dd>
+        @if (Model.IsMultiPort)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.IsMultiPort)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.IsMultiPort)
+            </dd>
+        }
+        @if (Model.IsBundle)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.IsBundle)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.IsBundle)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.BundleMinLinks)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.BundleMinLinks)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.BundleMaxLinks)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.BundleMaxLinks)
+            </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.IsLayer3)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsLayer3)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsTagged)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsTagged)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentBandwidth)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentBandwidth.BandwidthGbps)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="AttachmentID" />
+        <input type="hidden" asp-for="RowVersion" />
+        <input type="hidden" name="LocationID" value="@Model.Device.LocationID" />
+        <div class="form-actions no-color">
+            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete">
+                <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete
+            </button> |
+            <a asp-action="GetAll">Back to Infrastructure Attachments List</a>
+        </div>
+    </form>
+</div>
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+}

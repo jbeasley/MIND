@@ -1,0 +1,89 @@
+@model SCM.Models.ViewModels.DeviceViewModel
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item"><a href="/InfrastructureDevice/GetAll">Devices</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.Name]</li>
+</ol>
+
+<h2>Details for Device '@Model.Name'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Plane)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Plane.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Location)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Location.SiteName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DeviceRole)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DeviceRole.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DeviceModel)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DeviceModel.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DeviceStatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DeviceStatus.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UseLayer2InterfaceMtu)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UseLayer2InterfaceMtu)
+        </dd>
+        @if (ApplicationConfiguration.Value.EnableNetworkSync)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.RequiresSync)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RequiresSync)
+            </dd>
+        }
+    </dl>
+</div>
+<form asp-action="">
+    <div class="form-actions no-color">
+        @Html.ActionLink("Edit", "Edit", new { id = Model.DeviceID }) |
+        <a asp-action="GetAll">Back to List</a>
+    </div>
+</form>

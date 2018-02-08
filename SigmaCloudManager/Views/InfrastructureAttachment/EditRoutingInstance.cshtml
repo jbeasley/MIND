@@ -1,0 +1,75 @@
+@model SCM.Models.ViewModels.InfrastructureAttachmentRoutingInstanceUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit VRF";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item"><a href="/InfrastructureAttachment/GetAll">Infrastructure Attachments</a></li>
+    <li class="breadcrumb-item"><a href="/InfrastructureAttachment/RoutingInstanceDetails/@ViewBag.Attachment.AttachmentID">VRF - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Edit - [@Model.Name]</li>
+</ol>
+
+<h2>Edit VRF '@Model.Name'</h2>
+
+<form asp-action="EditRoutingInstance">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="AttachmentID" value="@ViewBag.Attachment.AttachmentID" />
+        <input type="hidden" asp-for="RoutingInstanceID" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control rd-input" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        @if (Model.RoutingInstanceType.IsVrf)
+        {
+        <div class="form-group">
+            <label asp-for="AdministratorSubField" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="AdministratorSubField" class="form-control rd-input" />
+                <span asp-validation-for="AdministratorSubField" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AssignedNumberSubField" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="AssignedNumberSubField" class="form-control rd-input" />
+                <span asp-validation-for="AssignedNumberSubField" class="text-danger"></span>
+            </div>
+        </div>
+        }
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Edit" class="btn btn-success" 
+                        asp-action="EditRoutingInstance" asp-route-id="@ViewBag.Attachment.AttachmentID">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;Save
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="RoutingInstanceDetails" asp-route-id="@ViewBag.Attachment.AttachmentID">Back to VRF Details</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script type="text/javascript">
+
+    (function ($) {
+
+        // Initialise all tool-tips
+
+        $('[data-toggle="tooltip"]').tooltip();
+
+</script>
+}

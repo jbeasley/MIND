@@ -1,0 +1,125 @@
+@model SCM.Models.ViewModels.VifViewModel
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantVif/GetAllByAttachmentID/@ViewBag.Attachment.AttachmentID">Tenant VIFs - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Details</li>
+</ol>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
+<h2>Details for Tenant VIF '@Model.Name'</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Device)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Device.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VifRole)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VifRole.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsLayer3)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsLayer3)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VlanTag)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VlanTag)
+        </dd>
+        @if (Model.VifRole.RequireContractBandwidth)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.ContractBandwidthPool)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ContractBandwidthPool.Name)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.ContractBandwidthPool.ContractBandwidth)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+            </dd>
+        }
+        @if (Model.VifRole.RoutingInstanceTypeID != null)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.Name)
+            </dd>
+            @if (Model.VifRole.RoutingInstanceType.IsVrf)
+            {
+                <dt>
+                    @Html.DisplayNameFor(model => model.RoutingInstance.AdministratorSubField)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.RoutingInstance.AdministratorSubField)
+                </dd>
+                <dt>
+                    @Html.DisplayNameFor(model => model.RoutingInstance.AssignedNumberSubField)
+                </dt>
+                <dd>
+                    @Html.DisplayFor(model => model.RoutingInstance.AssignedNumberSubField)
+                </dd>
+            }
+        }
+        @if (Model.IsLayer3)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.IpAddress)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.IpAddress)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.SubnetMask)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.SubnetMask)
+            </dd>
+        }
+        @if (ApplicationConfiguration.Value.EnableNetworkSync)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.RequiresSync)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RequiresSync)
+            </dd>
+        }
+    </dl>
+</div>
+<form asp-action="">
+    <input type="hidden" asp-for="VifID" name="id" />
+    <div class="form-actions no-color">
+        <a asp-action="GetAllByAttachmentID" asp-route-id="@Model.AttachmentID">Back to Tenant VIFs List</a>
+    </div>
+</form>

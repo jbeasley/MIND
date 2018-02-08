@@ -1,0 +1,89 @@
+@model SCM.Models.ViewModels.AttachmentSetViewModel
+
+@{
+    ViewData["Title"] = "Create Attachment Set #2";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@ViewBag.Tenant.TenantID">Attachment Sets - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+<h2>Create Attachment Set for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="RegionID" value="@ViewBag.Region.RegionID" />
+        <input type="hidden" asp-for="TenantID" value="@ViewBag.Tenant.TenantID" id="id" />
+        <div class="form-group">
+            <label asp-for="SubRegion" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="SubRegionID" class="form-control" asp-items="ViewBag.SubRegionID">
+                    <option value="">-- Optionally Select Sub-Region --</option>
+                </select>
+                <span asp-validation-for="SubRegionID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AttachmentRedundancy" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="AttachmentRedundancyID" class="form-control" asp-items="ViewBag.AttachmentRedundancyID">
+                    <option value="">-- Select Attachment Redundancy --</option>
+                </select>
+                <span asp-validation-for="AttachmentRedundancyID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="IsLayer3" data-toggle="tooltip" title="Enable for Layer 3"> <label asp-for="IsLayer3"></label>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="MulticastVpnDomainType" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="MulticastVpnDomainTypeID" class="form-control" asp-items="ViewBag.MulticastVpnDomainTypeID"
+                        data-toggle="tooltip" data-placement="right" title="Select a Multicast Domain Type. You must select an option if this Attachment Set will be used to join any 
+                        multicast VPN services. If this Attachment Set is only to be used for unicast VPN services then you can leave this option unselected.">
+                    <option value="">-- Optionally Select Multicast Domain Type --</option>
+                </select>
+                <span asp-validation-for="MulticastVpnDomainTypeID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Create" class="btn btn-success" asp-action="Create">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByTenantID" asp-route-id="@ViewBag.Tenant.TenantID">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+    
+}

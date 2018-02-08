@@ -1,0 +1,61 @@
+@model SCM.Models.ViewModels.VpnTenantCommunityInViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantCommunityIn/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant Communities Inbound Policy - [@Model.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.TenantCommunity.Name]</li>
+</ol>
+
+<h2>Details</h2>
+
+<div>
+    <h4>Tenant Community for Attachment Set '@Model.AttachmentSet.Name'</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentSet.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentSet.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TenantCommunity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantCommunity.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AddToAllBgpPeersInAttachmentSet)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AddToAllBgpPeersInAttachmentSet)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BgpPeer.RoutingInstance)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BgpPeer.RoutingInstance.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.BgpPeer)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.BgpPeer.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LocalIpRoutingPreference)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LocalIpRoutingPreference)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="GetAllByAttachmentSetID" asp-route-id="@Model.AttachmentSetID">Back to List</a>
+</div>

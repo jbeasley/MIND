@@ -1,0 +1,69 @@
+@model IEnumerable<SCM.Models.ViewModels.VpnTenantCommunityRoutingInstanceViewModel>
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+@{
+    ViewData["Title"] = "Tenant Communities";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@ViewBag.AttachmentSet.TenantID">Attachment Sets- [@ViewBag.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Tenant Communities VRF Policy - [@ViewBag.AttachmentSet.Name]</li>
+</ol>
+
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+
+    // Show Network messages if Network Sync functionality is enabled
+    await Html.RenderPartialAsync("_NetworkMessagingPartial");
+}
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+<h2>VRF Tenant Community Policy for Attachment Set '@ViewBag.AttachmentSet.Name'</h2>
+
+<p>
+    <a asp-action="Create" asp-route-id="@ViewBag.AttachmentSet.AttachmentSetID">Add New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.AttachmentSet.Tenant)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TenantCommunity)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.TenantCommunitySet)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AttachmentSet.Tenant.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TenantCommunity.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.TenantCommunitySet.Name)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.VpnTenantCommunityRoutingInstanceID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.VpnTenantCommunityRoutingInstanceID }) |
+                    @Html.ActionLink("Remove", "Delete", new { id = item.VpnTenantCommunityRoutingInstanceID })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<a asp-controller="AttachmentSet" asp-action="GetAllByTenantID" asp-route-id="@ViewBag.AttachmentSet.TenantID">Back to Attachment Sets</a>

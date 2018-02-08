@@ -1,0 +1,20 @@
+@model SCM.Models.ViewModels.DeviceViewModel
+@{
+    ViewData["Title"] = "Device Deleted";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantDevice/GetAllByTenantID?tenantID=@Model.TenantID">Devices - [@Model.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Device Deleted</li>
+</ol>
+
+<h2>Device Deleted</h2>
+
+@if (@ViewData["DeviceDeletedMessage"] != null)
+{
+    <div class="alert alert-danger">@ViewData["DeviceDeletedMessage"]</div>
+}
+
+<a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantID">Back to List</a>

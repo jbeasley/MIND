@@ -1,0 +1,127 @@
+@model SCM.Models.ViewModels.TenantMulticastGroupViewModel
+
+@{
+    ViewData["Title"] = "Create";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantMulticastGroup/GetAllByTenantID/@ViewBag.Tenant.TenantID">Multicast Groups - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+<h2>Create Multicast Group Range for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="TenantID" value="@ViewBag.Tenant.TenantID" />
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="IsSsmGroup" data-toggle="tooltip" title="Check to enable the group range for Source-Specific Multicast">
+                    <label asp-for="IsSsmGroup"></label>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="SourceAddress" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="SourceAddress" class="form-control" />
+                <span asp-validation-for="SourceAddress" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="SourceMask" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="SourceMask" class="form-control" />
+                <span asp-validation-for="SourceMask" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="GroupAddress" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="GroupAddress" class="form-control" />
+                <span asp-validation-for="GroupAddress" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="GroupMask" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="GroupMask" class="form-control" />
+                <span asp-validation-for="GroupMask" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-10">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="AllowExtranet" data-toggle="tooltip" title="Check to enable the multicast group for Extranet"> 
+                    <label asp-for="AllowExtranet"></label>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Create" class="btn btn-success" asp-action="Create">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByTenantID" asp-route-id="@ViewBag.Tenant.TenantID">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            var $sourceAddress = $('#SourceAddress'),
+                sourceAddress = $sourceAddress[0],
+                $sourceMask = $('#SourceMask'),
+                sourceMask = $sourceMask[0],
+                $isSsmGroup = $('#IsSsmGroup'),
+                isSsmGroup = $isSsmGroup[0];
+
+            setSourceAddressAndMaskState(!isSsmGroup.checked);
+
+            $isSsmGroup.on('click', function (e) {
+
+                setSourceAddressAndMaskState(!this.checked);
+            });
+
+            function setSourceAddressAndMaskState(disable) {
+
+                if (disable) {
+
+                    sourceAddress.value = "";
+                    sourceAddress.disabled = true;
+                    sourceMask.value = "";
+                    sourceMask.disabled = true;
+                }
+                else {
+
+                    sourceAddress.disabled = false;
+                    sourceMask.disabled = false;
+                }
+            }
+
+        }(jQuery));
+
+    </script>
+}

@@ -1,0 +1,90 @@
+@model IEnumerable<SCM.Models.ViewModels.VifViewModel>
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+@{
+    ViewData["Title"] = "VIFs";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item"><a href="/InfrastructureAttachment/GetAll">Infrastructure Attachments</a></li>
+    <li class="breadcrumb-item active">Infrastructure VIFs - [@ViewBag.Attachment.Device.Name]</li>
+</ol>
+
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+
+    // Show Network messages if Network Sync functionality is enabled
+    await Html.RenderPartialAsync("_NetworkMessagingPartial");
+}
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+<h2>VIFs for Attachment '@ViewBag.Attachment.Name'</h2>
+
+<p>
+    <a asp-action="Create" asp-route-id="@ViewBag.Attachment.AttachmentID" asp-route-attachmentIsMultiPort="@ViewBag.Attachment.IsMultiPort">Create New</a>
+</p>
+
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.VlanTag)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.RoutingInstance)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.ContractBandwidthPool.ContractBandwidth)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsSharedContractBandwidthPool)
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.VlanTag)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.RoutingInstance.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsSharedContractBandwidthPool)
+                </td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.VifID, attachmentIsMultiPort = ViewBag.Attachment.IsMultiPort }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.VifID, attachmentIsMultiPort = ViewBag.Attachment.IsMultiPort }) |
+                    @Html.ActionLink("Delete", "Delete", new { ID = item.VifID, attachmentID = ViewBag.Attachment.AttachmentID })
+                    <span>|</span> <a asp-action="GetAllVlansByVifID" asp-route-id="@item.VifID">Vlans</a>
+                    <span>|</span> @Html.ActionLink("VRF", "RoutingInstanceDetails", new { ID = item.VifID })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<input type="hidden" id="AttachmentID" name="AttachmentID" value="@ViewBag.Attachment.AttachmentID" />
+<a asp-controller="InfrastructureAttachment" asp-action="GetAll">Back to Infrastructure Attachments</a>
+

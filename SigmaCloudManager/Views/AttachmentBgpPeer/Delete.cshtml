@@ -1,0 +1,73 @@
+@model SCM.Models.ViewModels.BgpPeerViewModel
+
+@{
+    ViewData["Title"] = "Delete BGP Peer";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.RoutingInstance.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentBgpPeer/GetAllByRoutingInstanceID?routingInstanceID=@ViewBag.Attachment.RoutingInstance.RoutingInstanceID&attachmentID=@ViewBag.Attachment.AttachmentID">BGP Peers - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Delete - [@Model.IpAddress]</li>
+</ol>
+
+<h2>Delete BGP Peer '@Model.IpAddress'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.IpAddress)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IpAddress)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AutonomousSystem)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AutonomousSystem)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.MaximumRoutes)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.MaximumRoutes)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsBfdEnabled)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsBfdEnabled)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="RoutingInstanceID" />
+        <input type="hidden" name="AttachmentID" value="@ViewBag.Attachment.AttachmentID" />
+        <input type="hidden" asp-for="BgpPeerID" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="form-actions no-color">
+            <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">
+                <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete
+            </button> |
+            <a asp-action="GetAllByRoutingInstanceID" asp-route-routingInstanceID="@Model.RoutingInstanceID"
+               asp-route-attachmentID="@ViewBag.Attachment.AttachmentID">Back to BGP Peers List</a>
+        </div>
+    </form>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

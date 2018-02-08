@@ -1,0 +1,106 @@
+@model SCM.Models.ViewModels.ExtranetVpnMemberViewModel
+
+@{
+    ViewData["Title"] = "Add Member VPN";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Vpn/GetAll">VPNs</a></li>
+    <li class="breadcrumb-item"><a href="/ExtranetVpnMember/GetAllByExtranetVpnID/@ViewBag.ExtranetVpn.VpnID">Extranet VPN Members - [@ViewBag.ExtranetVpn.Name]</a></li>
+    <li class="breadcrumb-item active">Add</li>
+</ol>
+
+<h2>Add Member VPN to Extranet VPN '@ViewBag.ExtranetVpn.Name'</h2>
+
+<form id="Create" asp-action="CreateByExtranetVpn">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="ExtranetVpnID" value="@ViewBag.ExtranetVpn.VpnID" />
+
+        <div class="form-group">
+            <label asp-for="Tenant" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="TenantID" class="form-control" asp-items="ViewBag.TenantID">
+                    <option value="">-- Select a Tenant Owner --</option>
+                </select>
+                <span asp-validation-for="TenantID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="MemberVpn" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="MemberVpnID" class="form-control" asp-items="ViewBag.MemberVpnID">
+                    <option value="">-- Select a VPN --</option>
+                </select>
+                <span asp-validation-for="MemberVpnID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Add" class="btn btn-success" asp-action="CreateByExtranetVpn">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Add
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByExtranetVpnID" asp-route-id="@ViewBag.ExtranetVpn.VpnID">Back to Extranet VPN Members</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            var $tenant = $('#TenantID'),
+                tenant = $tenant[0],
+                $memberVpn = $('#MemberVpnID'),
+                memberVpn = $memberVpn[0];
+
+            if (memberVpn.value == null || memberVpn.value == "") {
+
+                memberVpn.disabled = true;
+            }
+
+            $tenant.on('change', function (e) {
+
+                memberVpn.selectedIndex = 0;
+                memberVpn.disabled = true;
+                PopulateMemberVpnsDropDownList(this.value);
+            });
+
+            function PopulateMemberVpnsDropDownList(tenantID) {
+
+                if (tenantID != null && tenantID.length > 0) {
+
+                    PopulateHtmlFromUrl($memberVpn, "/ExtranetVpnMember/MemberVpns", { tenantID: tenantID });
+                }
+            }
+
+            function PopulateHtmlFromUrl($e, url, data) {
+
+                $.get(url, data)
+                    .done(function (data) {
+
+                        // Enable the html element to be populated
+                        $e[0].disabled = false;
+
+                        $e.html(data);
+                    });
+            }
+
+        }(jQuery));
+
+    </script>
+}
+

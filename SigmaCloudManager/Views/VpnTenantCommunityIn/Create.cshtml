@@ -1,0 +1,151 @@
+@model SCM.Models.ViewModels.VpnTenantCommunityInViewModel
+
+@{
+    ViewData["Title"] = "Add Tenant Community";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@ViewBag.AttachmentSet.TenantID">Attachment Sets- [@ViewBag.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantCommunityIn/GetAllByAttachmentSetID/@ViewBag.AttachmentSet.AttachmentSetID">Tenant Communities Inbound Policy - [@ViewBag.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item active">Add Tenant Community</li>
+</ol>
+
+<h2>Add Community to Inbound Policy</h2>
+
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="AttachmentSetID" value="@ViewBag.AttachmentSet.AttachmentSetID" />
+        <div class="form-group">
+            <label asp-for="TenantCommunity" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="TenantCommunityID" class="form-control" asp-items="ViewBag.TenantCommunityID">
+                    <option value="">-- Select Tenant Community --</option>
+                </select>
+                <span asp-validation-for="TenantCommunityID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-2">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="AddToAllBgpPeersInAttachmentSet" data-toggle="tooltip"
+                           title="Select if this network is learned from all BGP peers in the Attachment Set.">
+                    <label asp-for="AddToAllBgpPeersInAttachmentSet"></label>
+                </label>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="RoutingInstance" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="RoutingInstanceID" class="form-control" asp-items="ViewBag.RoutingInstanceID">
+                    <option value="">-- Select VRF --</option>
+                </select>
+                <span asp-validation-for="RoutingInstanceID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="BgpPeer" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="BgpPeerID" class="form-control" asp-items="ViewBag.BgpPeerID">
+                    <option value="">-- Select BGP Peer --</option>
+                </select>
+                <span asp-validation-for="BgpPeerID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="LocalIpRoutingPreference" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="LocalIpRoutingPreference" class="form-control" />
+                <span asp-validation-for="LocalIpRoutingPreference" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Add" class="btn btn-success" asp-action="Create">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Add
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByAttachmentSetID" asp-route-id="@ViewBag.AttachmentSet.AttachmentSetID" >Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            var $vrf = $('#RoutingInstanceID'),
+                vrf = $vrf[0],
+                $addToAllBgpPeers = $('#AddToAllBgpPeersInAttachmentSet'),
+                $bgpPeer = $('#BgpPeerID'),
+                bgpPeer = $bgpPeer[0],
+                $localIpRoutingPreference = $('#LocalIpRoutingPreference'),
+                localIpRoutingPreference = $localIpRoutingPreference[0];
+
+
+            $addToAllBgpPeers.on('click', function (e) {
+
+                if (this.checked) {
+
+                    vrf.selectedIndex = 0;
+                    vrf.disabled = true;
+                    bgpPeer.selectedIndex = 0;
+                    bgpPeer.disabled = true;
+                }
+                else {
+
+                    vrf.disabled = false;
+                }
+            });
+
+            if (vrf.value == null || vrf.value == "") {
+
+                bgpPeer.disabled = true;
+            }
+
+            $vrf.on('change', function (e) {
+
+                bgpPeer.selectedIndex = 0;
+                bgpPeer.disabled = true;
+                PopulateBgpPeersDropDownList(this.value);
+            });
+
+            function PopulateBgpPeersDropDownList(vrfID) {
+
+                if (vrfID != null && vrfID.length > 0) {
+
+                    PopulateHtmlFromUrl($bgpPeer, "/VpnTenantCommunityIn/BgpPeers", { vrfID: vrfID });
+                }
+            }
+
+            function PopulateHtmlFromUrl($e, url, data) {
+
+                $.get(url, data)
+                    .done(function (data) {
+
+                        // Enable the html element to be populated
+                        $e[0].disabled = false;
+
+                        $e.html(data);
+                    });
+            }
+
+        }(jQuery));
+
+    </script>
+}

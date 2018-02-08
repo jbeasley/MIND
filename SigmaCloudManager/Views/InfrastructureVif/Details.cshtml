@@ -1,0 +1,107 @@
+@model SCM.Models.ViewModels.VifViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item"><a href="/InfrastructureAttachment/GetAll">Infrastructure Attachments - [@ViewBag.Attachment.Device.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/InfrastructureVif/GetAllByAttachmentID/@ViewBag.Attachment.AttachmentID">Infrastructure VIFs - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Details</li>
+</ol>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
+<h2>Details for VIF '@Model.Name'</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Device)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Device.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Location)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Location.SiteName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Plane)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Plane.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VifRole)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VifRole.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsLayer3)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsLayer3)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VlanTag)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VlanTag)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ContractBandwidthPool)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ContractBandwidthPool.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.ContractBandwidthPool.ContractBandwidth)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance.AdministratorSubField)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.AdministratorSubField)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance.AssignedNumberSubField)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.AssignedNumberSubField)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IpAddress)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IpAddress)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.SubnetMask)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.SubnetMask)
+        </dd>
+    </dl>
+</div>
+<form asp-action="">
+    <input type="hidden" asp-for="VifID" name="id" />
+    <div class="form-actions no-color">
+        <a asp-action="GetAllByAttachmentID" asp-route-id="@Model.AttachmentID">Back to VIFs List</a>
+    </div>
+</form>

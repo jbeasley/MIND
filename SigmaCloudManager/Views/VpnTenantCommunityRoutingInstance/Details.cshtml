@@ -1,0 +1,61 @@
+@model SCM.Models.ViewModels.VpnTenantCommunityRoutingInstanceViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantCommunityRoutingInstance/GetAllByVpnAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant Communities VRF Policy - [@Model.AttachmentSet.Name]</a></li>
+    @if (Model.TenantCommunity != null)
+    {
+        <li class="breadcrumb-item active">Details - [@Model.TenantCommunity.Name]</li>
+    }
+    else
+    {
+        <li class="breadcrumb-item active">Details - [@Model.TenantCommunitySet.Name]</li>
+    }
+</ol>
+
+<h2>Details</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentSet.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentSet.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TenantCommunity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantCommunity.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TenantCommunitySet)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantCommunitySet.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LocalIpRoutingPreference)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LocalIpRoutingPreference)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="GetAllByAttachmentSetID" asp-route-id="@Model.AttachmentSetID">Back to List</a>
+</div>

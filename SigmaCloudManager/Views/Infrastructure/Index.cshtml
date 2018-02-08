@@ -1,0 +1,49 @@
+
+@{
+    ViewData["Title"] = "Infrastructure";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item active">Infrastructure</li>
+</ol>
+
+<h2>Infrastructure Menu</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <td>
+                @Html.ActionLink("Device Roles", "GetAllDeviceRoles")
+            </td>
+            <td>
+                View Device Roles and related profiles such as Port Roles, Port Pools, Attachment Roles, and VIF roles
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.ActionLink("Regions", "GetAll", "Region")
+            </td>
+            <td>
+                View Regions and Sub-Regions and manage Locations
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.ActionLink("Devices", "GetAll", "InfrastructureDevice")
+            </td>
+            <td>
+                Manage Infrastructure Devices and Ports
+            </td>
+        </tr>
+        <tr>
+            <td>
+                @Html.ActionLink("Infrastructure Attachments", "GetAll", "InfrastructureAttachment")
+            </td>
+            <td>
+                Manage Infrastructure Attachments
+                Add Tagged and Untagged Attachments for Core networks. Manage logical items such as VIFs
+            </td>
+        </tr>
+    </thead>
+</table>

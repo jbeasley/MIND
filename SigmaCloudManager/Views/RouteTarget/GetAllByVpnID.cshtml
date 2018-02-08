@@ -1,0 +1,83 @@
+@model IEnumerable<SCM.Models.ViewModels.RouteTargetViewModel>
+@using SCM.Models.ViewModels;
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+@{
+    ViewData["Title"] = "Route Targets";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Vpn/GetAll">VPNs</a></li>
+    <li class="breadcrumb-item active">Route Targets - [@ViewBag.Vpn.Name]</li>
+</ol>
+
+<h2>Route Targets for VPN '@ViewBag.Vpn.Name'</h2>
+
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+
+    // Show Network messages if Network Sync functionality is enabled
+    await Html.RenderPartialAsync("_NetworkMessagingPartial");
+}
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+<p>
+    <a asp-action="Create" asp-route-id="@ViewBag.Vpn.VpnID">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Vpn)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AdministratorSubField)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AssignedNumberSubField)
+            </th>
+            @if (ViewBag.Vpn.VpnTopologyType.TopologyType == TopologyType.HubandSpoke)
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.IsHubExport)
+                </th>
+            }
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Vpn.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AdministratorSubField)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AssignedNumberSubField)
+                </td>
+                @if (ViewBag.Vpn.VpnTopologyType.TopologyType == TopologyType.HubandSpoke)
+                {
+                    <td>
+                        @Html.DisplayFor(modelItem => item.IsHubExport)
+                    </td>
+                }
+                <td>
+                    @Html.ActionLink("Details", "Details", new { id = item.RouteTargetID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.RouteTargetID })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<div>
+    <a asp-controller="Vpn" asp-action="GetAll">Back to VPNs List</a>
+</div>

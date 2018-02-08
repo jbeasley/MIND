@@ -1,0 +1,252 @@
+@model SCM.Models.ViewModels.VpnRequestViewModel
+@using SCM.Models.ViewModels;
+
+@{
+    ViewData["Title"] = "CreateStep2";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Vpn/GetAll">VPN</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+@if (ViewBag.VpnProtocolType.ProtocolType == ProtocolType.IP)
+{
+    @if (Model.IsMulticastVpn)
+    {
+        <h2>Create a new Multicast VPN</h2>
+    }
+    else
+    {
+        <h2>Create a new IP VPN</h2>
+    }
+}
+else
+{
+    <h2>Create a new Ethernet VPN</h2>
+}
+
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        <input type="hidden" asp-for="VpnProtocolTypeID" />
+        <input type="hidden" asp-for="IsMulticastVpn" />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <div class="form-group">
+            <label asp-for="Tenant" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="TenantID" class="form-control" asp-items="ViewBag.TenantID" data-toggle="tooltip" data-placement="right" title="Select an Tenant Owner for this VPN">
+                    <option value="">-- Select Tenant --</option>
+                </select>
+                <span asp-validation-for="TenantID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Name" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Name" class="form-control" data-toggle="tooltip" data-placement="right" 
+                       title="Enter a 'friendly' name for the VPN" />
+                <span asp-validation-for="Name" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Description" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Region" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="RegionID" class="form-control" asp-items="ViewBag.RegionID" data-toggle="tooltip" data-placement="right" 
+                        title="Select a Region if you want Tenants of the VPN to be restricted to a particular Region">
+                    <option value="">-- Optionally Select Region --</option>
+                </select>
+                <span asp-validation-for="RegionID" class="text-danger" />
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Plane" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="PlaneID" class="form-control" asp-items="ViewBag.PlaneID" data-toggle="tooltip" data-placement="right" title="Select a Plane if you want the VPN to be isolated to the selected Plane">
+                    <option value="">-- Optionally Select Plane --</option>
+                </select>
+                <span asp-validation-for="PlaneID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="VpnTenancyType" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="VpnTenancyTypeID" class="form-control" asp-items="ViewBag.VpnTenancyTypeID" data-toggle="tooltip" data-placement="right" 
+                        title="Select a Tenancy Type. A Single Tenant VPN will allow only the Tenant Owner to use the VPN. 
+                        A Multi-Tenant VPN will allow any Tenant to use the VPN">
+                    <option value="">-- Select Tenancy Type --</option>
+                </select>
+                <span asp-validation-for="VpnTenancyTypeID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="VpnTopologyType" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="VpnTopologyTypeID" class="form-control" asp-items="ViewBag.VpnTopologyTypeID" data-toggle="tooltip" data-placement="right" 
+                        title="Select a Topology Type for the VPN. 
+                        This option will affect the way in which Route Targets are allocated to the VPN.">
+                    <option value="">-- Select Topology Type --</option>
+                </select>
+                <span asp-validation-for="VpnTopologyTypeID" class="text-danger"></span>
+            </div>
+        </div>
+        @if (ViewBag.VpnProtocolType.ProtocolType == ProtocolType.IP)
+        {
+            <div class="form-group">
+                <label asp-for="AddressFamily" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <select asp-for="AddressFamilyID" class="form-control" asp-items="ViewBag.AddressFamilyID" data-toggle="tooltip" data-placement="right"
+                            title="Select an Address Family for the VPN. IPv4 only is currently supported">
+                        <option value="">-- Select Address Family --</option>
+                    </select>
+                    <span asp-validation-for="AddressFamilyID" class="text-danger"></span>
+                </div>
+            </div>
+
+            @if (Model.IsMulticastVpn)
+            {
+                <div id="multicastVpnDirectionTypeContainer" class="form-group">
+                    <label asp-for="MulticastVpnDirectionType" class="col-md-2 control-label"></label>
+                    <div class="col-md-10">
+                        <select asp-for="MulticastVpnDirectionTypeID" class="form-control" asp-items="ViewBag.MulticastVpnDirectionTypeID" data-toggle="tooltip" data-placement="right"
+                                title="Select a Multicast VPN Direction Type. Unidirectional means that the flow of multicast data is from Hub to Spoke only.
+                                Bidirectional means that data can flow in either direction">
+                            <option value="">-- Select Multicast Direction Type --</option>
+                        </select>
+                        <span asp-validation-for="MulticastVpnDirectionTypeID" class="text-danger"></span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label asp-for="MulticastVpnServiceType" class="col-md-2 control-label"></label>
+                    <div class="col-md-10">
+                        <select asp-for="MulticastVpnServiceTypeID" class="form-control" asp-items="ViewBag.MulticastVpnServiceTypeID" data-toggle="tooltip" data-placement="right" title="Select a Multicast Service Type. 
+                                Select ASM for Any-Source Multicast. Select SSM for Source-Specific Multicast">
+                            <option value="">-- Select Multicast Service Type --</option>
+                        </select>
+                        <span asp-validation-for="MulticastVpnServiceTypeID" class="text-danger"></span>
+                    </div>
+                </div>
+            }
+            <div class="form-group">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-2">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" asp-for="IsNovaVpn" data-toggle="tooltip" title="Request a standard Nova VPN. 
+                                Disabling this option will create a non-standard VPN">
+                        <label asp-for="IsNovaVpn"></label>
+                    </label>
+                </div>
+                <div class="col-md-2">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" asp-for="IsExtranet" data-toggle="tooltip" title="Create an Extranet VPN">
+                        <label asp-for="IsExtranet"></label>
+                    </label>
+                </div>
+                <div class="col-md-6">
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="RouteTargetRange" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <select asp-for="RouteTargetRangeID" class="form-control" asp-items="ViewBag.RouteTargetRangeID" data-placement="right"
+                            data-toggle="tooltip" title="Select a Route Target Range. Route Targets for the VPN will 
+                            be automatically allocated from the selected range">
+                        <option value="">-- Select Route Target Range --</option>
+                    </select>
+                    <span asp-validation-for="RouteTargetRangeID" class="text-danger"></span>
+                </div>
+            </div>
+        }
+                    <div class="form-group">
+                        <div class="col-md-offset-2 col-md-10">
+                            <button type="submit" id="Create" class="btn btn-success" asp-action="Create">
+                                <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
+                            </button>
+                        </div>
+                    </div>
+                </div>
+</form>
+
+<div>
+    <a asp-action="GetAll">Back to List</a>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+            var $vpnTopologyType = $('#VpnTopologyTypeID'),
+                vpnTopologyType = $vpnTopologyType[0],
+                $multicastVpnDirectionType = $('#MulticastVpnDirectionTypeID'),
+                multicastVpnDirectionType = $multicastVpnDirectionType[0],
+                $isMulticastVpn = $('#IsMulticastVpn'),
+                isMulticastVpn = $isMulticastVpn[0],
+                $isNovaVpn = $('#IsNovaVpn'),
+                isNovaVpn = $isNovaVpn[0],
+                $routeTargetRange = $('#RouteTargetRangeID'),
+                routeTargetRange = $routeTargetRange[0];
+
+            var topologyType = vpnTopologyType.options[vpnTopologyType.selectedIndex].text;
+            if (isMulticastVpn.value == 'True' && topologyType != "Hub-and-Spoke") {
+
+                multicastVpnDirectionType.disabled = true;
+            }
+
+            if (isNovaVpn.checked) {
+
+                routeTargetRange.disabled = true;
+            }
+
+            $vpnTopologyType.on('change', function (e) {
+
+                if (isMulticastVpn.value == 'True') {
+
+                    if (vpnTopologyType.selectedIndex > 0) {
+
+                        var topologyType = vpnTopologyType.options[vpnTopologyType.selectedIndex].text;
+                        if (topologyType == "Hub-and-Spoke") {
+
+                            multicastVpnDirectionType.disabled = false;
+                            return;
+                        }
+                    }
+
+                    multicastVpnDirectionType.selectedIndex = 0;
+                    multicastVpnDirectionType.disabled = true;
+                }
+            });
+
+            $isNovaVpn.on('click', function (e) {
+
+                if (this.checked) {
+
+                    routeTargetRange.selectedIndex = 0;
+                    routeTargetRange.disabled = true;
+                }
+                else {
+
+                    routeTargetRange.disabled = false;
+                }
+            });
+
+
+        }(jQuery));
+
+</script>
+}

@@ -1,0 +1,46 @@
+@model SCM.Models.ViewModels.TenantCommunitySetCommunityViewModel
+
+@{
+    ViewData["Title"] = "Delete";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantCommunitySet/GetAllByTenantID/@Model.TenantCommunitySet.TenantID">Community Sets - [@Model.TenantCommunitySet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantCommunitySetCommunity/GetAllByTenantCommunitySetID/@Model.TenantCommunitySet.TenantCommunitySetID">Communities - [@Model.TenantCommunitySet.Name]</a></li>
+    <li class="breadcrumb-item active">Delete - [@Model.TenantCommunity.Name]</li>
+</ol>
+
+<h2>Remove Tenant Community '@Model.TenantCommunity.Name'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+<h3>Are you sure you want to remove this?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.TenantCommunity)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantCommunity.Name)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="TenantCommunitySetCommunityID" />
+        <input type="hidden" asp-for="TenantCommunitySetID" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="form-actions no-color">
+            <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">
+                <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete
+            </button> |
+            <a asp-action="GetAllByTenantCommunitySetID" asp-route-id="@Model.TenantCommunitySetID">Back to List</a>
+        </div>
+    </form>
+</div>
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

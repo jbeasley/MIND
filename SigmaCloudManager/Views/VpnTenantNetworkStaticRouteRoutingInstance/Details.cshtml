@@ -1,0 +1,54 @@
+@model SCM.Models.ViewModels.VpnTenantNetworkStaticRouteRoutingInstanceViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantNetworkIn/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant Network Static Routes - [@Model.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.TenantNetwork.CidrName]</li>
+</ol>
+
+<h2>Details</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentSet.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentSet.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TenantNetwork)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantNetwork.CidrName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.RoutingInstance)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.RoutingInstance.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.NextHopAddress)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.NextHopAddress)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsBfdEnabled)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsBfdEnabled)
+        </dd>
+    </dl>
+</div>
+<div>
+    <a asp-action="GetAllByAttachmentSetID" asp-route-id="@Model.AttachmentSetID">Back to List</a>
+</div>

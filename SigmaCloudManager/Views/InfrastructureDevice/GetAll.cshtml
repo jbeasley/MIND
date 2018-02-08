@@ -1,0 +1,186 @@
+@model IEnumerable<SCM.Models.ViewModels.DeviceViewModel>
+@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
+@using Microsoft.Extensions.Options;
+@using SCM;
+
+@{
+    ViewData["Title"] = "Devices";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Infrastructure/Index">Infrastructure</a></li>
+    <li class="breadcrumb-item active">Devices</li>
+</ol>
+
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+
+    // Show Network messages if Network Sync functionality is enabled
+    await Html.RenderPartialAsync("_NetworkMessagingPartial");
+}
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+@if (ViewData["SuccessMessage"] != null)
+{
+    @using (Html.BeginForm("ClearCreatedAlerts", "InfrastructureDevice", FormMethod.Post))
+    {
+        <p>
+            <button type="submit" class="btn btn-info btn-default ">
+                <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;Clear Created Alerts
+            </button>
+        </p>
+    }
+}
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+    @if (ViewData["NetworkWarningMessage"] != null)
+    {
+        @using (Html.BeginForm("ClearRequiresSyncAlerts", "InfrastructureDevice", FormMethod.Post))
+        {
+            <p>
+                <button type="submit" class="btn btn-info btn-default ">
+                    <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;Clear Requires Sync Alerts
+                </button>
+            </p>
+        }
+    }
+}
+<h2>Devices</h2>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+
+@using (Html.BeginForm("GetAll", "InfrastructureDevice", FormMethod.Get))
+{
+    <p>
+        Device Name: @Html.TextBox("SearchString")
+        <button type="submit" class="btn btn-info btn-default ">
+            <span class="glyphicon glyphicon-search"></span>&nbsp;Search
+        </button>
+    </p>
+}
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Description)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Plane)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Location)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeviceRole)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DeviceStatus)
+            </th>
+            @if (ApplicationConfiguration.Value.EnableNetworkSync)
+            {
+                <th>
+                    @Html.DisplayNameFor(model => model.RequiresSync)
+                </th>
+            }
+            <th></th>
+            <th></th>
+            <th></th>            
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Plane.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Location.SiteName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceRole.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceStatus.Name)
+                </td>
+                @if (ApplicationConfiguration.Value.EnableNetworkSync)
+                {
+                    if (item.DeviceRole.RequireSyncToNetwork)
+                    {
+
+                    <td id="requiresSync_@item.DeviceID" class="checkbox-insync">
+                        @Html.DisplayFor(modelItem => item.RequiresSync)
+                    </td>
+                    <td>
+                        <button type="button" id="Sync_@item.DeviceID" data-item='{"id" : "@item.DeviceID"}' class="btn btn-info btn-danger btn-sync btn-margin-2">
+                            <span class="glyphicon glyphicon-refresh"></span>&nbsp;Sync
+                        </button>
+                        <button type="button" id="CheckSync_@item.DeviceID" data-item='{"id" : "@item.DeviceID"}' class="btn btn-info btn-warning btn-checksync btn-margin-2">
+                            <span class="glyphicon glyphicon-check"></span>&nbsp;Check Sync
+                        </button>
+                    </td>
+                    <td class="row-spinner spinner-element" id="syncStatus_@item.DeviceID"></td>
+                    }
+                    else
+                    {
+                    <td></td>
+                    <td></td>
+                    <td></td>
+
+                    }
+                }
+
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { id = item.DeviceID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.DeviceID }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.DeviceID }) |
+                    <a asp-controller="InfrastructurePort" asp-action="GetAllByDeviceID" asp-route-id="@item.DeviceID">Ports</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+    <button type="button" id="CheckSync" class="btn btn-info btn-warning btn-checksync">
+        <span class="glyphicon glyphicon-check"></span>&nbsp;Check Sync All
+    </button>
+}
+<a asp-controller="Infrastructure" asp-action="Index">Back to Infrastructure Menu</a>
+
+@if (ApplicationConfiguration.Value.EnableNetworkSync)
+{
+    @section Scripts {
+
+        <script type="text/javascript">
+
+            (function ($) {
+
+                SCM.Utilities.connectToNetworkSyncHub({
+                    checkSyncAllUrl: '/api/v1/devices/checksync',
+                    checkSyncUrl: '/api/v1/devices/{id}/checksync',
+                    syncUrl: '/api/v1/devices/{id}/sync',
+                    groupName: 'Devices',
+                    itemKey: 'DeviceID'
+                });
+
+            }(jQuery));
+
+        </script>
+    }
+}

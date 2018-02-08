@@ -1,0 +1,37 @@
+@model SCM.Models.ViewModels.MulticastVpnRpViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/MulticastVpnRp/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Multicast Rendezvous-Points - [@Model.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.IpAddress]</li>
+</ol>
+
+
+<h2>Details for Multicast Rendezvous-Point '@Model.IpAddress'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.IpAddress)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IpAddress)
+        </dd>
+    </dl>
+</div>
+<form asp-action="">
+    <input type="hidden" asp-for="MulticastVpnRpID" name="id"/>
+    <div class="form-actions no-color">
+        @Html.ActionLink("Edit", "Edit", new { id = Model.MulticastVpnRpID }) |
+        <a asp-action="GetAllByAttachmentSetID" asp-route-id="@Model.AttachmentSetID">Back to List</a>
+    </div>
+</form>

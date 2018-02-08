@@ -1,0 +1,85 @@
+@model SCM.Models.ViewModels.PortViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantDevice/GetAllByTenantID?tenantID=@Model.Device.TenantID">Devices - [@Model.Device.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantPort/GetAllByDeviceID/@Model.DeviceID">Ports - [@ViewBag.Device.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.FullName]</li>
+</ol>
+
+<h2>Details for Port '@Model.FullName'</h2>
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Type)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Type)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Device)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Device.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PortBandwidth)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PortBandwidth.BandwidthGbps)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PortSfp)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PortSfp.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PortConnector)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PortConnector.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PortRole)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PortRole.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PortPool)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PortPool.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PortStatus)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PortStatus.Name)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.ID }) |
+    <a asp-action="GetAllByDeviceID" asp-route-id = "@Model.DeviceID">Back to Ports List</a>
+</div>

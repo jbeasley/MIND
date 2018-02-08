@@ -1,0 +1,54 @@
+@model SCM.Models.ViewModels.RoutingInstanceViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">VRF - [@ViewBag.Attachment.Name]</li>
+</ol>
+
+<h2>Details for VRF '@Model.Name'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        @if (Model.RoutingInstanceType.IsVrf)
+    {
+        <dt>
+            @Html.DisplayNameFor(model => model.AdministratorSubField)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AdministratorSubField)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AssignedNumberSubField)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AssignedNumberSubField)
+        </dd>
+}
+    </dl>
+</div>
+<form asp-action="">
+    <input type="hidden" asp-for="RoutingInstanceID" name="id" />
+    <div class="form-actions no-color">
+        @Html.ActionLink("Edit", "EditRoutingInstance", new { attachmentID = ViewBag.Attachment.AttachmentID }) |
+        <a asp-controller="TenantAttachment" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Attachment.TenantID">Back to Tenant Attachments List</a>
+    </div>
+</form>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

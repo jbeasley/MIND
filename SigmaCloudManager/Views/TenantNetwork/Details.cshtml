@@ -1,0 +1,55 @@
+@model SCM.Models.ViewModels.TenantNetworkViewModel
+
+@{
+    ViewData["Title"] = "Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/TenantNetwork/GetAllByTenantID/@Model.TenantID">Networks - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.IpPrefix/@Model.Length]</li>
+</ol>
+
+<h2>Details for Tenant Network '@Model.CidrName'</h2>
+
+<div>
+    <h4>Tenant Network</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Tenant)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Tenant.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IpPrefix)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IpPrefix)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Length)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Length)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.LessThanOrEqualToLength)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LessThanOrEqualToLength)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AllowExtranet)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AllowExtranet)
+        </dd>
+    </dl>
+</div>
+<div>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.TenantNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
+    <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID" asp-route-tenantID="@Context.Request.Query["tenantID"]">Back to List</a>
+</div>

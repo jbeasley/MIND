@@ -1,0 +1,69 @@
+@model SCM.Models.ViewModels.VpnTenantNetworkRoutingInstanceViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantNetworkRoutingInstance/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">VPN Tenant Networks - [@Model.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Edit - [@Model.TenantNetwork.CidrName]</li>
+</ol>
+
+<h2>Edit VRF Policy for Network '@Model.TenantNetwork.CidrName'</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="VpnTenantNetworkRoutingInstanceID" />
+        <input type="hidden" asp-for="TenantNetworkID" />
+        <input type="hidden" asp-for="AttachmentSetID" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="form-group">
+            <label asp-for="RoutingInstance" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="RoutingInstanceID" class="form-control" asp-items="ViewBag.RoutingInstanceID">
+                    <option value="">-- Select VRF --</option>
+                </select>
+                <span asp-validation-for="RoutingInstanceID" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="LocalIpRoutingPreference" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="LocalIpRoutingPreference" class="form-control" />
+                <span asp-validation-for="LocalIpRoutingPreference" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit">
+                    <span class="glyphicon glyphicon-save"></span>&nbsp;Save
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByAttachmentSetID" asp-route-id="@Model.AttachmentSetID">Back to List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+</script>
+}

@@ -2,6 +2,7 @@
 using SCM.Models;
 using SCM.Data;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 
 namespace SCM.Data
 {
@@ -79,10 +80,13 @@ namespace SCM.Data
         private GenericRepository<RouteDistinguisherRange> routeDistinguisherRangeRepository;
         private GenericRepository<VlanTagRange> vlanTagRangeRepository;
 
+
         public UnitOfWork(SigmaContext sigmaContext)
         {
             context = sigmaContext;
         }
+
+        public DatabaseFacade Database => context.Database;
 
         public GenericRepository<Attachment> AttachmentRepository
         {

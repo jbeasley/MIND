@@ -535,7 +535,7 @@ namespace SCM.Api.Controllers
             // of the attachment set context supplied in the result object
 
             HubContext.Clients.Group($"AttachmentSet_{attachmentSet.AttachmentSetID}")
-                .InvokeAsync("onSingleComplete",Mapper.Map<VpnApiModel>(vpn), result.IsSuccess);
+                .SendAsync("onSingleComplete",Mapper.Map<VpnApiModel>(vpn), result.IsSuccess);
         }
 
         /// <summary>
@@ -550,7 +550,7 @@ namespace SCM.Api.Controllers
             // Update all clients which have joined the Vpns group
 
             HubContext.Clients.Group("Vpns")
-                .InvokeAsync("onSingleComplete",Mapper.Map<VpnApiModel>(vpn), result.IsSuccess);
+                .SendAsync("onSingleComplete",Mapper.Map<VpnApiModel>(vpn), result.IsSuccess);
         }
     }
 }

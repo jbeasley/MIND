@@ -200,7 +200,7 @@ namespace SCM.Services
                 IsSuccess = true
             };
 
-            using (var transaction = UnitOfWork.AttachmentRepository.context.Database.BeginTransaction())
+            using (var transaction = UnitOfWork.Database.BeginTransaction())
             {
                 // Get the existing VIF for update
 
@@ -471,7 +471,7 @@ namespace SCM.Services
                 IsSuccess = true
             };
 
-            using (var transaction = UnitOfWork.VifRepository.context.Database.BeginTransaction())
+            using (var transaction = UnitOfWork.Database.BeginTransaction())
             {
                 // Delete vlans for the Vif
             

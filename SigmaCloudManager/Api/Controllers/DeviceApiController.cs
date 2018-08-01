@@ -370,7 +370,7 @@ namespace SCM.Api.Controllers
             // supplied in the result object
          
             HubContext.Clients.Group("Devices")
-                .InvokeAsync("onSingleComplete", Mapper.Map<DeviceApiModel>(device), result.IsSuccess);
+                .SendAsync("onSingleComplete", Mapper.Map<DeviceApiModel>(device), result.IsSuccess);
         }
     }
 }

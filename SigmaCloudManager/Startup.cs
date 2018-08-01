@@ -24,6 +24,9 @@ using SCM.Validators;
 using Newtonsoft.Json;
 using SCM.Hubs;
 using SCM.Api;
+using NSwag.AspNetCore;
+using System.Reflection;
+using NJsonSchema;
 
 namespace SCM
 {
@@ -223,7 +226,15 @@ namespace SCM
             }
 
             app.UseStaticFiles();
-            app.UseSignalR(routes => routes.MapHub<NetworkSyncHub>("networkSyncHub"));
+
+            // Enable the Swagger UI middleware and the Swagger generator
+            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings =>
+            {
+                settings.GeneratorSettings.DefaultPropertyNameHandling =
+                    PropertyNameHandling.CamelCase;
+            });
+
+            app.UseSignalR(routes => routes.MapHub<NetworkSyncHub>("/networkSyncHub"));
             app.UseWebSockets();
 
             app.UseMvc(routes =>

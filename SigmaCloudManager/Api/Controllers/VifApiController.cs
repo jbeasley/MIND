@@ -327,7 +327,7 @@ namespace SCM.Api.Controllers
             // supplied in the result object
 
             HubContext.Clients.Group($"Attachment_{attachment.AttachmentID}")
-                .InvokeAsync("onSingleComplete",Mapper.Map<VifApiModel>(vif), result.IsSuccess);
+                .SendAsync("onSingleComplete",Mapper.Map<VifApiModel>(vif), result.IsSuccess);
         }
     }
 }

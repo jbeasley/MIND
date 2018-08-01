@@ -156,7 +156,7 @@ namespace SCM.Services
                 IsSuccess = true
             };
 
-            using (var transaction = UnitOfWork.AttachmentRepository.context.Database.BeginTransaction())
+            using (var transaction = UnitOfWork.Database.BeginTransaction())
             {
                 var vifs = attachment.Vifs.ToList();
                 var ifaces = attachment.Interfaces;
@@ -260,7 +260,7 @@ namespace SCM.Services
                 IsSuccess = true
             };
 
-            using (var transaction = UnitOfWork.AttachmentRepository.context.Database.BeginTransaction())
+            using (var transaction = UnitOfWork.Database.BeginTransaction())
             {
                 // Get the existing Attachment for update
 
@@ -529,7 +529,7 @@ namespace SCM.Services
                 IsSuccess = true
             };
 
-            using (var transaction = UnitOfWork.AttachmentRepository.context.Database.BeginTransaction())
+            using (var transaction = UnitOfWork.Database.BeginTransaction())
             {
                 var attachmentFactoryResult = await AttachmentFactory.NewAsync(request);
                 var attachment = (Attachment)attachmentFactoryResult.Item;
@@ -573,7 +573,7 @@ namespace SCM.Services
             var attachment = (Attachment)attachmentFactoryResult.Item;
             result.Item = attachment;
 
-            using (var transaction = UnitOfWork.AttachmentRepository.context.Database.BeginTransaction())
+            using (var transaction = UnitOfWork.Database.BeginTransaction())
             {
                 UnitOfWork.AttachmentRepository.Insert(attachment);
                 await UnitOfWork.SaveAsync();
@@ -615,7 +615,7 @@ namespace SCM.Services
             var attachment = (Attachment)attachmentFactoryResult.Item;
             result.Item = attachment;
 
-            using (var transaction = UnitOfWork.AttachmentRepository.context.Database.BeginTransaction())
+            using (var transaction = UnitOfWork.Database.BeginTransaction())
             {
                 UnitOfWork.AttachmentRepository.Insert(attachment);
                 await UnitOfWork.SaveAsync();

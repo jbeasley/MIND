@@ -1,4 +1,5 @@
-﻿using SCM.Models;
+﻿using Microsoft.EntityFrameworkCore.Infrastructure;
+using SCM.Models;
 using System.Threading.Tasks;
 
 namespace SCM.Data
@@ -72,6 +73,7 @@ namespace SCM.Data
         GenericRepository<RouteDistinguisherRange> RouteDistinguisherRangeRepository { get; }
         GenericRepository<VlanTagRange> VlanTagRangeRepository { get; }
         GenericRepository<Vif> VifRepository { get; }
+        DatabaseFacade Database { get; }
         Task<int> SaveAsync();
     }
 }

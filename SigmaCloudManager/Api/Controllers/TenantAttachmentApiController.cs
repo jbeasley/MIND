@@ -348,7 +348,7 @@ namespace SCM.Api.Controllers
 
             var apiModel = Mapper.Map<AttachmentApiModel>(attachment);
             return HubContext.Clients.Group($"TenantAttachment_{tenant.TenantID}")
-                .InvokeAsync("onSingleComplete", apiModel, result.IsSuccess, string.Empty);
+                .SendAsync("onSingleComplete", apiModel, result.IsSuccess, string.Empty);
         }
     }
 }

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using SCM.Api.Models;
 using SCM.Models;
 using SCM.Models.RequestModels;
 

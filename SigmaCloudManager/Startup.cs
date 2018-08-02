@@ -11,34 +11,38 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using SCM.Models.RequestModels;
 using SCM.Models.ViewModels;
-using SCM.Api.Models;
 using SCM.Models.NetModels.IpVpnNetModels;
 using SCM.Models.NetModels.Ipv4MulticastVpnNetModels;
 using SCM.Models.NetModels.AttachmentNetModels;
 using SCM.Models.SerializableModels;
 using SCM.Data;
 using SCM.Services;
-using SCM.Api.Validators;
 using SCM.Factories;
 using SCM.Validators;
 using Newtonsoft.Json;
 using SCM.Hubs;
-using SCM.Api;
-using NSwag.AspNetCore;
-using System.Reflection;
-using NJsonSchema;
+using Newtonsoft.Json.Serialization;
+using Newtonsoft.Json.Converters;
+using Swashbuckle.AspNetCore.Swagger;
+using Swashbuckle.AspNetCore.SwaggerGen;
+using Mind.Api.Filters;
+using System.IO;
+using Mind.Api.Models;
 
 namespace SCM
 {
     public class Startup
     {
         private MapperConfiguration MapperConfiguration { get; set; }
+        private IConfiguration Configuration { get; }
+        private readonly IHostingEnvironment _hostingEnv;
 
-        public Startup(IConfiguration configuration)
+        public Startup(IHostingEnvironment env, IConfiguration configuration)
         {
             Configuration = configuration;
-        
-        MapperConfiguration = new MapperConfiguration(cfg =>
+            _hostingEnv = env;
+
+            MapperConfiguration = new MapperConfiguration(cfg =>
             {
                 cfg.AddProfile(new AutoMapperServiceModelProfileConfiguration());
                 cfg.AddProfile(new AutoMapperViewModelProfileConfiguration());
@@ -51,8 +55,6 @@ namespace SCM
                 cfg.AddProfile(new AutoMapperSerializableAttachmentServiceProfileConfiguration());
             });
         }
-
-        public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
@@ -70,7 +72,42 @@ namespace SCM
 
             // Add framework services.
             services.AddMvc()
-                .AddJsonOptions(o => o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore);
+                .AddJsonOptions(o =>
+                {
+                    o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                    o.SerializerSettings.Converters.Add(new StringEnumConverter
+                    {
+                        CamelCaseText = true
+                    });
+                });
+
+            services
+                .AddSwaggerGen(c =>
+                {
+                    c.SwaggerDoc("1.0.0", new Info
+                    {
+                        Version = "1.0.0",
+                        Title = "MIND API",
+                        Description = "MIND API (ASP.NET Core 2.0)",
+                        Contact = new Contact()
+                        {
+                            Name = "Swagger Codegen Contributors",
+                            Url = "https://github.com/swagger-api/swagger-codegen",
+                            Email = "jonathan.beasley@thomsonreuters.com"
+                        },
+                        TermsOfService = ""
+                    });
+                    c.CustomSchemaIds(type => type.FriendlyId(true));
+                    c.DescribeAllEnumsAsStrings();
+                    c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
+                    // Sets the basePath property in the Swagger document generated
+                    c.DocumentFilter<BasePathFilter>("/v1");
+
+                    // Include DataAnnotation attributes on Controller Action parameters as Swagger validation rules (e.g required, pattern, ..)
+                    // Use [ValidateModelState] on Actions to actually validate it in C# as well!
+                    c.OperationFilter<GeneratePathParamsValidationFilter>();
+                });
 
             // UnitOfWork for access to Repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -185,18 +222,8 @@ namespace SCM
             services.AddScoped<ILocationValidator, LocationValidator>();
             services.AddScoped<IVlanValidator, VlanValidator>();
 
-            // API Input Validators to perform extra validation for inbound web API requests
-            services.AddScoped<ITenantApiValidator, TenantApiValidator>();
-            services.AddScoped<IDeviceApiValidator, DeviceApiValidator>();
-            services.AddScoped<IAttachmentApiValidator, AttachmentApiValidator>();
-            services.AddScoped<IVifApiValidator, VifApiValidator>();
-            services.AddScoped<IVpnApiValidator, VpnApiValidator>();
-            services.AddScoped<IAttachmentSetApiValidator, AttachmentSetApiValidator>();
-            services.AddScoped<IAttachmentSetRoutingInstanceApiValidator, AttachmentSetRoutingInstanceApiValidator>();
-            services.AddScoped<IVpnAttachmentSetApiValidator, VpnAttachmentSetApiValidator>();
-
             // Filter attribute to validate the requests for network sync/checksync services
-            services.AddScoped<ValidateNetworkServiceRequestAttribute>();
+            //services.AddScoped<ValidateNetworkServiceRequestAttribute>();
 
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());
@@ -225,14 +252,8 @@ namespace SCM
                 app.UseExceptionHandler("/Home/Error");
             }
 
+            app.UseDefaultFiles();
             app.UseStaticFiles();
-
-            // Enable the Swagger UI middleware and the Swagger generator
-            app.UseSwaggerUi(typeof(Startup).GetTypeInfo().Assembly, settings =>
-            {
-                settings.GeneratorSettings.DefaultPropertyNameHandling =
-                    PropertyNameHandling.CamelCase;
-            });
 
             app.UseSignalR(routes => routes.MapHub<NetworkSyncHub>("/networkSyncHub"));
             app.UseWebSockets();
@@ -243,6 +264,16 @@ namespace SCM
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+
+            app.UseSwagger()
+                .UseSwaggerUI(c =>
+                {
+                    //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)
+                    c.SwaggerEndpoint("/swagger/1.0.0/swagger.json", "MIND API");
+
+                    //TODO: Or alternatively use the original Swagger contract that's included in the static files
+                    // c.SwaggerEndpoint("/swagger-original.json", "MIND API Original");
+                });
         }
     }
 }

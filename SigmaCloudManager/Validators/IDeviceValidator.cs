@@ -1,5 +1,4 @@
-﻿using SCM.Api.Models;
-using SCM.Models;
+﻿using SCM.Models;
 using SCM.Models.RequestModels;
 using System;
 using System.Collections.Generic;

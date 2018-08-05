@@ -23,34 +23,55 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using Mind.Api.Attributes;
 using Mind.Api.Models;
+using SCM.Models.RequestModels;
+using SCM.Services;
+using AutoMapper;
+using SCM.Data;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
     /// 
     /// </summary>
-    public class TenantAttachmentApiController : Controller
-    { 
+    public class ProviderDomainAttachmentApiController : Controller
+    {
+
+        private IAttachmentService _attachmentService;
+        private IUnitOfWork _unitOfWork;
+        private IMapper _mapper;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="attachmentService"></param>
+        /// <param name="mapper"></param>
+        public ProviderDomainAttachmentApiController(IAttachmentService attachmentService, IMapper mapper)
+        {
+            _attachmentService = attachmentService;
+            _mapper = mapper;
+        }
+
         /// <summary>
         /// Create a new network attachment
         /// </summary>
-        
+
         /// <param name="tenantId">ID of the tenant</param>
         /// <param name="body">attachment request object that generates a new attachment</param>
         /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/tenant/{tenantId}/attachment")]
+        [Route("/v1/tenant/{tenantId}/provider-attachment")]
         [ValidateModelState]
         [ValidateTenantExists]
-        [SwaggerOperation("AddTenantAttachment")]
+        [SwaggerOperation("AddProviderDomainAttachment")]
         [SwaggerResponse(statusCode: 201, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult AddTenantAttachment([FromRoute][Required]int? tenantId, [FromBody]TenantAttachmentRequest body)
+        public virtual async Task<IActionResult> AddProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body)
         {
-            throw new NotImplementedException();
+            var request = _mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentRequest>(body);
+
         }
 
         /// <summary>
@@ -166,7 +187,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult UpdateTenantAttachment([FromRoute][Required]int? attachmentId, [FromBody]AttachmentUpdate body)
+        public virtual IActionResult UpdateTenantAttachment([FromRoute][Required]int? attachmentId, [FromBody]Mind.Api.Models.AttachmentUpdate body)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(200, default(Attachment));

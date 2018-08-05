@@ -25,6 +25,13 @@ namespace SCM.Services
             return dbResult.SingleOrDefault();
         }
 
+        public async Task<Plane> GetByNameAsync(string planeName)
+        {
+            var dbResult = await this.UnitOfWork.PlaneRepository.GetAsync(q => q.Name == planeName,
+                AsTrackable: false);
+            return dbResult.SingleOrDefault();
+        }
+
         public async Task<int> AddAsync(Plane plane)
         {
             this.UnitOfWork.PlaneRepository.Insert(plane);

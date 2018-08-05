@@ -13,7 +13,7 @@ namespace SCM.Services
         Task<IEnumerable<AttachmentRole>> GetAllAsync(bool includeProperties = true);
         Task<IEnumerable<AttachmentRole>> GetAllByPortPoolIDAsync(int portPoolID, int? deviceRoleID = null, bool includeProperties = true);
         Task<AttachmentRole> GetByIDAsync(int id, bool includeProperties = true);
-        //Task<AttachmentRole> GetByNameAsync(string name, bool includeProperties = true);
+        Task<AttachmentRole> GetByPortPoolAndRoleName(string portPoolName, string attachmentRoleName, bool includeProperties = true);
         Task<int> AddAsync(AttachmentRole attachmentRole);
         Task<int> UpdateAsync(AttachmentRole attachmentRole);
         Task<int> DeleteAsync(AttachmentRole attachmentRole);

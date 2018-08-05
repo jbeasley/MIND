@@ -22,10 +22,10 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for requesting tenant attachment to the provider domain
     /// </summary>
     [DataContract]
-    public partial class TenantAttachmentRequest : IEquatable<TenantAttachmentRequest>
+    public partial class ProviderDomainAttachmentRequest : IEquatable<ProviderDomainAttachmentRequest>
     { 
         /// <summary>
         /// Determines if the attachment is enabled for layer 3
@@ -62,6 +62,23 @@ namespace Mind.Api.Models
         [Required]
         [DataMember(Name="locationName")]
         public string LocationName { get; set; }
+
+        /// <summary>
+        /// The name of a port pool which ports for the new attachment will be allocated from
+        /// </summary>
+        /// <value>The name of a port pool</value>
+        [Required]
+        [DataMember(Name = "portPoolName")]
+        public string PortPoolName { get; set; }
+
+        /// <summary>
+        /// The name of an attachment role which sets certain constrains on how the attachment must be configuted
+        /// </summary>
+        /// <value>The name of an attachment role</value>
+        [Required]
+        [DataMember(Name = "attachmentRoleName")]
+        public string AttachmentRoleName { get; set; }
+
         /// <summary>
         /// Optional name of the provider network plane within which the attachment will be provisioned
         /// </summary>
@@ -114,6 +131,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>IPv4 address assigned to the first connection in the attachment</value>
         [DataMember(Name="IpAddress1")]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string IpAddress1 { get; set; }
 
         /// <summary>
@@ -121,6 +140,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>IPv4 subnet mask assigned to the first connection in the attachment</value>
         [DataMember(Name="SubnetMask1")]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
         public string SubnetMask1 { get; set; }
 
         /// <summary>
@@ -128,6 +149,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>IPv4 address assigned to the second connection in the attachment</value>
         [DataMember(Name="IpAddress2")]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string IpAddress2 { get; set; }
 
         /// <summary>
@@ -135,6 +158,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>IPv4 subnet mask assigned to the second connection in the attachment</value>
         [DataMember(Name="SubnetMask2")]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
         public string SubnetMask2 { get; set; }
 
         /// <summary>
@@ -142,6 +167,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>IPv4 address assigned to the third connection in the attachment</value>
         [DataMember(Name="IpAddress3")]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string IpAddress3 { get; set; }
 
         /// <summary>
@@ -149,6 +176,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>IPv4 subnet mask assigned to the third connection in the attachment</value>
         [DataMember(Name="SubnetMask3")]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
         public string SubnetMask3 { get; set; }
 
         /// <summary>
@@ -156,6 +185,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>IPv4 address assigned to the fourth connection in the attachment</value>
         [DataMember(Name="IpAddress4")]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string IpAddress4 { get; set; }
 
         /// <summary>
@@ -163,6 +194,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>IPv4 subnet mask assigned to the fourth connection in the attachment</value>
         [DataMember(Name="SubnetMask4")]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
         public string SubnetMask4 { get; set; }
 
         /// <summary>
@@ -178,6 +211,8 @@ namespace Mind.Api.Models
             sb.Append("  MultiportRequired: ").Append(MultiportRequired).Append("\n");
             sb.Append("  IsTagged: ").Append(IsTagged).Append("\n");
             sb.Append("  LocationName: ").Append(LocationName).Append("\n");
+            sb.Append("  PortPoolName: ").Append(PortPoolName).Append("\n");
+            sb.Append("  AttachmentRoleName: ").Append(AttachmentRoleName).Append("\n");
             sb.Append("  PlaneName: ").Append(PlaneName).Append("\n");
             sb.Append("  AttachmentBandwidthGbps: ").Append(AttachmentBandwidthGbps).Append("\n");
             sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
@@ -212,7 +247,7 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((TenantAttachmentRequest)obj);
+            return obj.GetType() == GetType() && Equals((ProviderDomainAttachmentRequest)obj);
         }
 
         /// <summary>
@@ -220,7 +255,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <param name="other">Instance of TenantAttachmentRequest to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(TenantAttachmentRequest other)
+        public bool Equals(ProviderDomainAttachmentRequest other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -250,7 +285,17 @@ namespace Mind.Api.Models
                     LocationName == other.LocationName ||
                     LocationName != null &&
                     LocationName.Equals(other.LocationName)
-                ) && 
+                ) &&
+                                (
+                    PortPoolName == other.PortPoolName ||
+                    PortPoolName != null &&
+                    PortPoolName.Equals(other.PortPoolName)
+                ) &&
+                                (
+                    AttachmentRoleName == other.AttachmentRoleName ||
+                    AttachmentRoleName != null &&
+                    AttachmentRoleName.Equals(other.AttachmentRoleName)
+                ) &&
                 (
                     PlaneName == other.PlaneName ||
                     PlaneName != null &&
@@ -333,6 +378,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsTagged.GetHashCode();
                     if (LocationName != null)
                     hashCode = hashCode * 59 + LocationName.GetHashCode();
+                    if (PortPoolName != null)
+                    hashCode = hashCode * 59 + PortPoolName.GetHashCode();
+                    if (AttachmentRoleName != null)
+                    hashCode = hashCode * 59 + AttachmentRoleName.GetHashCode();
                     if (PlaneName != null)
                     hashCode = hashCode * 59 + PlaneName.GetHashCode();
                     if (AttachmentBandwidthGbps != null)
@@ -364,12 +413,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(TenantAttachmentRequest left, TenantAttachmentRequest right)
+        public static bool operator ==(ProviderDomainAttachmentRequest left, ProviderDomainAttachmentRequest right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(TenantAttachmentRequest left, TenantAttachmentRequest right)
+        public static bool operator !=(ProviderDomainAttachmentRequest left, ProviderDomainAttachmentRequest right)
         {
             return !Equals(left, right);
         }

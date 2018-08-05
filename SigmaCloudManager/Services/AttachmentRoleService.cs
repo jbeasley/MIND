@@ -38,6 +38,16 @@ namespace SCM.Services
             return attachmentRoles;
         }
 
+        public async Task<AttachmentRole> GetByPortPoolAndRoleName(string portPoolName, string attachmentRoleName, bool includeProperties = true)
+        {
+            var p = includeProperties ? Properties : string.Empty;
+            var attachmentRoles = await this.UnitOfWork.AttachmentRoleRepository.GetAsync(q => q.PortPool.Name == portPoolName 
+                && q.Name == attachmentRoleName,
+                includeProperties: p,
+                AsTrackable: false);
+
+            return attachmentRoles.SingleOrDefault();
+        }
 
         public async Task<AttachmentRole> GetByIDAsync(int id, bool includeProperties = true)
         {

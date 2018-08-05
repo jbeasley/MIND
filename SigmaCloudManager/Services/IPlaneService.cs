@@ -12,7 +12,7 @@ namespace SCM.Services
         IUnitOfWork UnitOfWork { get; }
         Task<IEnumerable<Plane>> GetAllAsync();
         Task<Plane> GetByIDAsync(int id);
-        //Task<Plane> GetByNameAsync(string name);
+        Task<Plane> GetByNameAsync(string name);
         Task<int> AddAsync(Plane plane);
         Task<int> UpdateAsync(Plane plane);
         Task<int> DeleteAsync(Plane plane);

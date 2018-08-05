@@ -57,6 +57,14 @@ namespace SCM.Services
                 AsTrackable: false);
         }
 
+        public async Task<IEnumerable<RoutingInstance>> GetAllByRouteDistinguisherRangeNameAsync(string routeDistinguisherRangeName, bool includeProperties = true)
+        {
+            var p = includeProperties ? Properties : string.Empty;
+            return await UnitOfWork.RoutingInstanceRepository.GetAsync(q => q.RouteDistinguisherRange.Name == routeDistinguisherRangeName,
+                includeProperties: p,
+                AsTrackable: false);
+        }
+
         public async Task<IEnumerable<RoutingInstance>> GetAllByDeviceIDAsync(int deviceID, int? tenantID = null, 
             bool? isDefault = null, bool? isLayer3 = null, bool? isTenantFacingVrf = null, bool? isInfrastructureVrf = false, 
             bool includeProperties = true)

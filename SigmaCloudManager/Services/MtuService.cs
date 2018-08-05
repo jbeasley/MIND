@@ -27,7 +27,7 @@ namespace SCM.Services
 
         public async Task<Mtu> GetByValueAsync(int mtuValue)
         {
-            var dbResult = await this.UnitOfWork.MtuRepository.GetAsync(q => q.MtuValue == mtuValue);
+            var dbResult = await this.UnitOfWork.MtuRepository.GetAsync(q => q.MtuValue == mtuValue, AsTrackable: false);
             return dbResult.SingleOrDefault();
         }
 

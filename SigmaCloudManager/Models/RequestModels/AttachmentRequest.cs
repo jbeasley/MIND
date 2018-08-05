@@ -1,10 +1,13 @@
-﻿using SCM.Services;
+﻿using AutoMapper;
+using Mind.Api.Models;
+using SCM.Data;
+using SCM.Services;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-
+using System.Threading.Tasks;
 
 namespace SCM.Models.RequestModels
 {
@@ -14,6 +17,7 @@ namespace SCM.Models.RequestModels
         {
             Ports = new List<Port>();
         }
+
         public bool BundleRequired { get; set; }
         public bool MultiPortRequired { get; set; }
         public bool IsLayer3 { get; set; }

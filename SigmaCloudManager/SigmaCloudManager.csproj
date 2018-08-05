@@ -5,8 +5,8 @@
     <Authors>Jon Beasley</Authors>
     <Company>Thomson Reuters</Company>
     <Product>Sigma Cloud Manager</Product>
-    <RootNamespace>MIND</RootNamespace>
-    <AssemblyName>MIND</AssemblyName>
+    <RootNamespace>Mind</RootNamespace>
+    <AssemblyName>Mind</AssemblyName>
   </PropertyGroup>
 
   <ItemGroup>

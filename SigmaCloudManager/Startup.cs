@@ -139,6 +139,7 @@ namespace SCM
             services.AddScoped<IExtranetVpnTenantNetworkInService, ExtranetVpnTenantNetworkInService>();
             services.AddScoped<IRouteTargetService, RouteTargetService>();
             services.AddScoped<IRouteTargetRangeService, RouteTargetRangeService>();
+            services.AddScoped<IRouteDistinguisherRangeService, RouteDistinguisherRangeService>();
             services.AddScoped<IAttachmentSetService, AttachmentSetService>();
             services.AddScoped<IAttachmentSetRoutingInstanceService, AttachmentSetRoutingInstanceService>();
             services.AddScoped<IVpnAttachmentSetService, VpnAttachmentSetService>();

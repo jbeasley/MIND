@@ -47,7 +47,7 @@ namespace Mind.Api.Attributes
                             if ((await _tenantService.GetByIDAsync(tenantId.Value)) == null)
                             {
                                 context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
-                                context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found" });
+                                context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
                                 return;
                             }
                         }

@@ -11,10 +11,6 @@ using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using SCM.Models.RequestModels;
 using SCM.Models.ViewModels;
-using SCM.Models.NetModels.IpVpnNetModels;
-using SCM.Models.NetModels.Ipv4MulticastVpnNetModels;
-using SCM.Models.NetModels.AttachmentNetModels;
-using SCM.Models.SerializableModels;
 using SCM.Data;
 using SCM.Services;
 using SCM.Factories;
@@ -28,6 +24,11 @@ using Swashbuckle.AspNetCore.SwaggerGen;
 using Mind.Api.Filters;
 using System.IO;
 using Mind.Api.Models;
+using Mind.Services;
+using Mind.Builders;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
+using Autofac;
 
 namespace SCM
 {
@@ -47,12 +48,6 @@ namespace SCM
                 cfg.AddProfile(new AutoMapperServiceModelProfileConfiguration());
                 cfg.AddProfile(new AutoMapperViewModelProfileConfiguration());
                 cfg.AddProfile(new AutoMapperApiModelProfileConfiguration());
-                cfg.AddProfile(new AutoMapperAttachmentServiceProfileConfiguration());
-                cfg.AddProfile(new AutoMapperIpv4VpnServiceProfileConfiguration());
-                cfg.AddProfile(new AutoMapperIpv4MulticastVpnServiceProfileConfiguration());
-                cfg.AddProfile(new AutoMapperSerializableIpv4VpnServiceProfileConfiguration());
-                cfg.AddProfile(new AutoMapperSerializableIpv4MulticastVpnServiceProfileConfiguration());
-                cfg.AddProfile(new AutoMapperSerializableAttachmentServiceProfileConfiguration());
             });
         }
 
@@ -182,9 +177,7 @@ namespace SCM
             services.AddScoped<IMulticastGeographicalScopeService, MulticastGeographicalScopeService>();
             services.AddScoped<ITenantMulticastGroupService, TenantMulticastGroupService>();
             services.AddScoped<IVpnTenantMulticastGroupService, VpnTenantMulticastGroupService>();
-
-            // Network service for managing REST API access to the network server (NSO)
-            services.AddScoped<INetworkSyncService, NetworkSyncService>();
+            services.AddScoped<IProviderDomainAttachmentService, ProviderDomainAttachmentService>();
 
             // Factories for creating complex objects
             services.AddScoped<IDeviceFactory, DeviceFactory>();
@@ -223,18 +216,42 @@ namespace SCM
             services.AddScoped<ILocationValidator, LocationValidator>();
             services.AddScoped<IVlanValidator, VlanValidator>();
 
-            // Filter attribute to validate the requests for network sync/checksync services
-            //services.AddScoped<ValidateNetworkServiceRequestAttribute>();
-
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());
+        }
 
-            // JSON serializer - need to ignore reference loops for cases where objects to be serialized by SignalR are self-referencing
-            // Create our own serializer to ignore reference loops and add to the DI container
+        /// <summary>
+        /// Register components with the AutoFac DI management service
+        /// </summary>
+        /// <param name="builder"></param>
+        public void ConfigureContainer(ContainerBuilder builder)
+        {
+            builder.RegisterType<ProviderDomainAttachmentService>().As<IProviderDomainAttachmentService>();
+            builder.RegisterType<ProviderDomainAttachmentDirector>().As<IProviderDomainAttachmentDirector>();
+            builder.RegisterType<AttachmentBuilder>().As<IAttachmentBuilder>().Keyed<IAttachmentBuilder>("Attachment");
+            builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IAttachmentBuilder>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (attachmentRequest) =>
+                {
+                    return context.ResolveKeyed<IAttachmentBuilder>("Attachment");
+                };
+            });
 
-            var settings = new JsonSerializerSettings { ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore };
-            var serializer = JsonSerializer.Create(settings);
-            services.AddSingleton(serializer);
+            builder.RegisterType<VrfRoutingInstanceBuilder>().As<IRoutingInstanceBuilder>().Keyed<IRoutingInstanceBuilder>("VRF");
+            builder.Register<Func<SCM.Models.RoutingInstanceType, IRoutingInstanceBuilder>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (routingInstanceType) =>
+                {
+                    if (routingInstanceType.IsVrf)
+                    {
+                        return context.ResolveKeyed<IRoutingInstanceBuilder>("VRF");
+                    }
+
+                    return null;
+                };
+            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

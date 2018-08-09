@@ -26,35 +26,34 @@ using SCM.Services;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Mind.Api.Attributes;
+using Mind.Services;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
     /// MIND API for tenant management
     /// </summary>
-    public class TenantApiController : Controller
+    public class TenantApiController : BaseApiController
     {
-
-        private ITenantService _tenantService;
-        private IMapper _mapper;
+        private readonly ITenantService _tenantService;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="tenantService"></param>
         /// <param name="mapper"></param>
-        public TenantApiController(ITenantService tenantService, IMapper mapper)
+        public TenantApiController(ITenantService tenantService, IMapper mapper) : base(tenantService, mapper)
         {
             _tenantService = tenantService;
-            _mapper = mapper;
         }
 
         /// <summary>
         /// Create a tenant
         /// </summary>
         /// <param name="body">Created tenant object</param>
-        /// <response code="200">Successful operation</response>
+        /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpPost]
         [Route("/v1/tenant")]
         [ValidateModelState]
@@ -62,19 +61,18 @@ namespace Mind.Api.Controllers
         [SwaggerOperation("CreateTenant")]
         [SwaggerResponse(statusCode: 201, type: typeof(Tenant), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> CreateTenant([FromBody]Tenant body)
         {
             try
             {
-                var tenant = _mapper.Map<SCM.Models.Tenant>(body);
+                var tenant = Mapper.Map<SCM.Models.Tenant>(body);
                 await _tenantService.AddAsync(tenant);
 
-                return CreatedAtRoute("GetTenant", new { tenantId = tenant.TenantID }, _mapper.Map<Tenant>(tenant));
+                return CreatedAtRoute("GetTenant", new { tenantId = tenant.TenantID }, Mapper.Map<Tenant>(tenant));
             }
             catch (DbUpdateException)
             {
-                //Log the error (uncomment ex variable name and write a log.
-
                 return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
                 {
                     Message = "Unable to save changes. " +
@@ -86,11 +84,51 @@ namespace Mind.Api.Controllers
         }
 
         /// <summary>
+        /// Update a tenant
+        /// </summary>
+        /// <param name="body">Updated tenant object</param>
+        /// <response code="200">Successful operation</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpPut]
+        [Route("/v1/tenant")]
+        [ValidateModelState]
+        [ValidateTenantNotExists]
+        [SwaggerOperation("UpdateTenant")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Tenant), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> UpdateTenant([FromBody]Tenant body)
+        {
+            try
+            {
+                var tenant = Mapper.Map<SCM.Models.Tenant>(body);
+                await _tenantService.UpdateAsync(tenant);
+
+                return Ok(Mapper.Map<Tenant>(tenant));
+            }
+            catch (DbUpdateException)
+            {
+                //Log the error (uncomment ex variable name and write a log.
+
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
+                {
+                    Message = "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator."
+
+                });
+            }
+        }
+
+        /// <summary>
         /// Deletes a tenant
         /// </summary>
         /// <param name="tenantId">ID of the tenant</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="422">Validation failed</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpDelete]
         [Route("/v1/tenant/{tenantId}")]
         [ValidateModelState]
@@ -98,6 +136,8 @@ namespace Mind.Api.Controllers
         [SwaggerOperation("DeleteTenant")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> DeleteTenant([FromRoute][Required]int? tenantId)
         {
             try
@@ -107,10 +147,13 @@ namespace Mind.Api.Controllers
                 return StatusCode(StatusCodes.Status204NoContent);
             }
 
+            catch (ServiceValidationException)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse(this.ModelState));
+            }
+
             catch (DbUpdateException)
             {
-                //Log the error (uncomment ex variable name and write a log.
-
                 return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
                 {
                     Message = "Unable to save changes. " +
@@ -134,7 +177,7 @@ namespace Mind.Api.Controllers
         public virtual async Task<IActionResult> GetAllTenants()
         {
             var tenants = await _tenantService.GetAllAsync();
-            return Ok(_mapper.Map<List<Tenant>>(tenants));
+            return Ok(Mapper.Map<List<Tenant>>(tenants));
         }
 
         /// <summary>
@@ -149,12 +192,12 @@ namespace Mind.Api.Controllers
         [ValidateModelState]
         [ValidateTenantExists]
         [SwaggerOperation("GetTenantById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Tenant), description: "successful operation")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Tenant), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetTenantById([FromRoute][Required]int? tenantId)
         {
             var tenant = await _tenantService.GetByIDAsync(tenantId.Value);
-            return Ok(_mapper.Map<Tenant>(tenant));
+            return Ok(Mapper.Map<Tenant>(tenant));
         }
     }
 }

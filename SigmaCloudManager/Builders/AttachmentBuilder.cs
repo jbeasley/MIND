@@ -18,18 +18,20 @@ namespace Mind.Builders
         private readonly IContractBandwidthService _contractBandwidthService;
         private readonly ILocationService _locationService;
         private readonly IPlaneService _planeService;
+        private readonly IRoutingInstanceTypeService _routingInstanceTypeService;
         private IRoutingInstanceBuilder _routingInstanceBuilder;
-        private IServiceProvider _serviceProvider;
         private int _portBandwidthRequired;
         private int _numPortsRequired = 1;
-        private Device _device;
         private Port _port;
         private AttachmentRole _attachmentRole;
         private readonly Attachment _attachment;
 
+        private readonly Func<RoutingInstanceType, IRoutingInstanceBuilder> _routingInstanceBuilderFactory;
+
         public AttachmentBuilder(IUnitOfWork unitOfWork, IMtuService mtuService, IAttachmentRoleService attachmentRoleService,
             IAttachmentBandwidthService attachmentBandwidthService, IContractBandwidthService contractBandwidthService,
-            ILocationService locationService)
+            ILocationService locationService, IPlaneService planeService, IRoutingInstanceTypeService routingInstanceTypeService,
+            Func<RoutingInstanceType,IRoutingInstanceBuilder> routingInstanceBuilderFactory)
         {
             _attachment = new Attachment();
             _unitOfWork = unitOfWork;
@@ -38,23 +40,17 @@ namespace Mind.Builders
             _attachmentBandwidthService = attachmentBandwidthService;
             _contractBandwidthService = contractBandwidthService;
             _locationService = locationService;
-
+            _planeService = planeService;
+            _routingInstanceTypeService = routingInstanceTypeService;
+            _routingInstanceBuilderFactory = routingInstanceBuilderFactory;
         }
 
         public IAttachmentBuilder Init(int tenantId)
         {
             _attachment.TenantID = tenantId;
-            _attachment.RequiresSync = _attachmentRole.RequireSyncToNetwork;
             _attachment.Created = true;
             _attachment.ShowCreatedAlert = true;
-            _attachment.ShowRequiresSyncAlert = _attachmentRole.RequireSyncToNetwork;
 
-            return this;
-        }
-
-        public IAttachmentBuilder UseRoutingInstanceBuilder<T>() where T : IRoutingInstanceBuilder
-        {
-            _routingInstanceBuilder = _serviceProvider.GetService<T>();
             return this;
         }
 
@@ -91,22 +87,25 @@ namespace Mind.Builders
 
         public async Task SetAttachmentRoleAsync(string portPoolName, string attachmentRoleName)
         {
-            _attachmentRole = await _attachmentRoleService.GetByPortPoolAndRoleName(portPoolName, attachmentRoleName);
+            _attachmentRole = await _attachmentRoleService.GetByPortPoolAndRoleName(portPoolName, attachmentRoleName, asTrackable: true);
             if (_attachmentRole == null)
             {
-                throw new BuilderBadArgumentsException($"Could not find an attachment role from the {attachmentRoleName} " +
-                    $"attachment role and {portPoolName} port pool arguments.");
+                throw new BuilderBadArgumentsException($"Could not find an attachment role from the supplied '{attachmentRoleName}' " +
+                    $"and '{portPoolName}' arguments.");
             }
 
             _attachment.AttachmentRoleID = _attachmentRole.AttachmentRoleID;
+            _attachment.AttachmentRole = _attachmentRole;
             _attachment.IsLayer3 = _attachmentRole.IsLayer3Role;
             _attachment.IsTagged = _attachmentRole.IsTaggedRole;
+            _attachment.RequiresSync = _attachmentRole.RequireSyncToNetwork;
+            _attachment.ShowRequiresSyncAlert = _attachmentRole.RequireSyncToNetwork;
         }
 
         public async Task SetMtuAsync()
         {
             Mtu mtu = null;
-            if (_device.UseLayer2InterfaceMtu)
+            if (_attachment.Device.UseLayer2InterfaceMtu)
             {
                 mtu = await _mtuService.GetByValueAsync(1514);
             }
@@ -117,7 +116,8 @@ namespace Mind.Builders
 
             if (mtu == null)
             {
-                throw new BuilderUnableToCompleteException($"The MTU for the attachment could not be set. Please contact your system administrator");
+                throw new BuilderUnableToCompleteException($"The MTU for the attachment could not be set. " +
+                    $"Please contact your system administrator to report this issue.");
             }
 
             _attachment.MtuID = mtu.MtuID;
@@ -142,24 +142,35 @@ namespace Mind.Builders
                 TenantID = tenantID,
                 Name = Guid.NewGuid().ToString("N")
             };
+
+            _attachment.ContractBandwidthPool = contractBandwidthPool;
         }
 
         public IAttachmentBuilder CreateInterfaces(string ipAddress, string subnetMask)
         {
             var iface = new Interface
             {
-                DeviceID = _device.DeviceID,
+                DeviceID = _attachment.Device.DeviceID,
                 IpAddress = ipAddress,
-                SubnetMask = subnetMask
+                SubnetMask = subnetMask,
+                Ports = new List<Port> { _port }
             };
 
-            _attachment.Interfaces.Add(iface);
+            _attachment.Interfaces = new List<Interface> { iface };
 
             return this;
         }
 
         public async Task CreateRoutingInstanceAsync()
         {
+            if (_attachmentRole.RoutingInstanceTypeID == null)
+            {
+                throw new BuilderUnableToCompleteException("A routing instance type is required for the attachment role but was not found.");
+            }
+
+            var routingInstanceType = await _routingInstanceTypeService.GetByIDAsync(_attachmentRole.RoutingInstanceTypeID.Value);
+            _routingInstanceBuilder = _routingInstanceBuilderFactory(routingInstanceType);
+            _routingInstanceBuilder.Init(_attachment.TenantID.Value, _attachment.Device.DeviceID, routingInstanceType.RoutingInstanceTypeID);
             await _routingInstanceBuilder.Create();
             _attachment.RoutingInstance = _routingInstanceBuilder.GetResult();
         }
@@ -170,11 +181,8 @@ namespace Mind.Builders
             _port = ports.Single();
             var assignedPortStatusResult = await _unitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusType.Assigned);
             var assignedPortStatus = assignedPortStatusResult.Single();
-            _port.TenantID = _attachment.TenantID;
             _port.PortStatusID = assignedPortStatus.PortStatusID;
-
-            _attachment.Interfaces.Single().Ports.Add(_port);
-      
+            _port.TenantID = _attachment.TenantID;
         }
 
         public Attachment GetResult()
@@ -211,7 +219,7 @@ namespace Mind.Builders
             var query = from d in await _unitOfWork.DeviceRepository.GetAsync(q => q.DeviceStatus.DeviceStatusType == DeviceStatusType.Production
                 && q.LocationID == location.LocationID
                 && q.DeviceRole.DeviceRoleAttachmentRoles.Where(x => x.AttachmentRoleID == _attachment.AttachmentRoleID).Any(),
-                includeProperties: "Ports.PortBandwidth,Ports.Device,Ports.PortStatus,Attachments")
+                includeProperties: "Ports.PortBandwidth,Ports.Device,Ports.PortStatus,Attachments", AsTrackable: true)
                         select d;
 
             // Filter devices collection to include only those devices which belong to the requested plane (if specified)
@@ -247,7 +255,7 @@ namespace Mind.Builders
             {
                 // Get device with the most free ports of the required Port Bandwidth
 
-                _device = devices.Aggregate((current, x) =>
+                _attachment.Device = devices.Aggregate((current, x) =>
                 (x.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusType.Free
                 && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
                 .Count() >
@@ -259,12 +267,12 @@ namespace Mind.Builders
             {
                 // Only one device found
 
-                _device = devices.Single();
+                _attachment.Device = devices.Single();
             }
 
             // Get the ports
 
-            var ports = _device.Ports.Where(q => q.PortStatus.PortStatusType == PortStatusType.Free
+            var ports = _attachment.Device.Ports.Where(q => q.PortStatus.PortStatusType == PortStatusType.Free
                   && q.PortBandwidth.BandwidthGbps == _portBandwidthRequired
                   && q.PortPoolID == _attachmentRole.PortPoolID);
 

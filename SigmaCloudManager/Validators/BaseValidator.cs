@@ -10,6 +10,12 @@ namespace SCM.Validators
         public BaseValidator()
         {
         }
+
         public IValidationDictionary ValidationDictionary { get; set; }
+        public bool IsValid { get
+            {
+                return ValidationDictionary.IsValid;
+            }
+        }
     }
 }

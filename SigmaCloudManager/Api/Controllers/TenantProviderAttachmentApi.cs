@@ -27,28 +27,26 @@ using SCM.Models.RequestModels;
 using SCM.Services;
 using AutoMapper;
 using SCM.Data;
+using Microsoft.EntityFrameworkCore;
+using Mind.Builders;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
     /// 
     /// </summary>
-    public class ProviderDomainAttachmentApiController : Controller
-    {
-
-        private IAttachmentService _attachmentService;
-        private IUnitOfWork _unitOfWork;
-        private IMapper _mapper;
+    public class ProviderDomainAttachmentApiController : BaseApiController
+    { 
+        private readonly IProviderDomainAttachmentService _attachmentService;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="attachmentService"></param>
         /// <param name="mapper"></param>
-        public ProviderDomainAttachmentApiController(IAttachmentService attachmentService, IMapper mapper)
+        public ProviderDomainAttachmentApiController(IProviderDomainAttachmentService attachmentService, IMapper mapper) : base(attachmentService, mapper)
         {
             _attachmentService = attachmentService;
-            _mapper = mapper;
         }
 
         /// <summary>
@@ -60,6 +58,7 @@ namespace Mind.Api.Controllers
         /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="400">Bad request</response>
         [HttpPost]
         [Route("/v1/tenant/{tenantId}/provider-attachment")]
         [ValidateModelState]
@@ -68,10 +67,43 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 201, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Bad request")]
         public virtual async Task<IActionResult> AddProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body)
         {
-            var request = _mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentRequest>(body);
+            try
+            {
+                var request = Mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentRequest>(body);
+                var attachment = await _attachmentService.AddAsync(tenantId.Value, request);
+                var attachmentApiModel = Mapper.Map<Mind.Api.Models.Attachment>(attachment);
+                return CreatedAtRoute("GetAttachment", new { attachmentId = attachment.AttachmentID }, attachmentApiModel);
+            }
 
+            catch (BuilderBadArgumentsException ex) 
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, new ApiResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse
+                {
+                    Message = ex.Message
+                });
+            }
+
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
+                {
+                    Message = "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator." + ex.Message
+
+                });
+            }
         }
 
         /// <summary>
@@ -115,7 +147,7 @@ namespace Mind.Api.Controllers
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/attachment/{attachmentId}")]
+        [Route("/v1/tenant/attachment/{attachmentId}", Name = "GetAttachment")]
         [ValidateModelState]
         [SwaggerOperation("GetTenantAttachmentById")]
         [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]

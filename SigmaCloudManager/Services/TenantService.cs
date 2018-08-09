@@ -5,13 +5,18 @@ using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Data;
 using Microsoft.EntityFrameworkCore;
+using SCM.Validators;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
     public class TenantService : BaseService, ITenantService
     {
-        public TenantService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly ITenantValidator _tenantValidator;
+
+        public TenantService(IUnitOfWork unitOfWork, ITenantValidator tenantValidator) : base(unitOfWork, tenantValidator)
         {
+            _tenantValidator = tenantValidator;
         }
 
         public async Task<IEnumerable<Tenant>> GetAllAsync()
@@ -45,6 +50,9 @@ namespace SCM.Services
 
         public async Task<int> DeleteAsync(Tenant tenant)
         {
+            await _tenantValidator.ValidateDeleteAsync(tenant);
+            if (!_tenantValidator.IsValid) throw new ServiceValidationException("Validation failed");
+
             this.UnitOfWork.TenantRepository.Delete(tenant);
             return await this.UnitOfWork.SaveAsync();
         }

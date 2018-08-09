@@ -1,8 +1,10 @@
 ﻿using AutoMapper;
+using Mind.Builders;
 using SCM.Data;
 using SCM.Factories;
 using SCM.Models;
 using SCM.Models.RequestModels;
+using SCM.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,11 +14,8 @@ namespace SCM.Services
 {
     public class InfrastructureAttachmentService : AttachmentService, IInfrastructureAttachmentService
     {
-        public InfrastructureAttachmentService(IUnitOfWork unitOfWork,
-            IMapper mapper,
-            INetworkSyncService netSync,
-            IAttachmentFactory attachmentFactory,
-            IRoutingInstanceFactory vrfFactory) : base(unitOfWork, mapper, netSync, attachmentFactory, vrfFactory)
+        public InfrastructureAttachmentService(IUnitOfWork unitOfWork, IMapper mapper, IAttachmentFactory factory, 
+            IRoutingInstanceFactory routingInstanceFactory) : base(unitOfWork, mapper, factory, routingInstanceFactory)
         {
         }
 

@@ -17,18 +17,19 @@ namespace SCM.Services
             + "PortPool.PortRole," 
             + "DeviceRoleAttachmentRoles.DeviceRole";
 
-        public async Task<IEnumerable<AttachmentRole>> GetAllAsync(bool includeProperties = true)
+        public async Task<IEnumerable<AttachmentRole>> GetAllAsync(bool deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            return await this.UnitOfWork.AttachmentRoleRepository.GetAsync(includeProperties: p, AsTrackable: false);
+            var p = deep ? Properties : string.Empty;
+            return await this.UnitOfWork.AttachmentRoleRepository.GetAsync(includeProperties: p, AsTrackable: asTrackable);
         }
 
-        public async Task<IEnumerable<AttachmentRole>> GetAllByPortPoolIDAsync(int portPoolID, int? deviceRoleID = null, bool includeProperties = true)
+        public async Task<IEnumerable<AttachmentRole>> GetAllByPortPoolIDAsync(int portPoolID, int? deviceRoleID = null, 
+            bool deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
+            var p = deep ? Properties : string.Empty;
             var attachmentRoles = await this.UnitOfWork.AttachmentRoleRepository.GetAsync(q => q.PortPoolID == portPoolID, 
                 includeProperties: p, 
-                AsTrackable: false);
+                AsTrackable: asTrackable);
 
             if (deviceRoleID != null)
             {
@@ -38,20 +39,21 @@ namespace SCM.Services
             return attachmentRoles;
         }
 
-        public async Task<AttachmentRole> GetByPortPoolAndRoleName(string portPoolName, string attachmentRoleName, bool includeProperties = true)
+        public async Task<AttachmentRole> GetByPortPoolAndRoleName(string portPoolName, string attachmentRoleName, 
+            bool deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
+            var p = deep ? Properties : string.Empty;
             var attachmentRoles = await this.UnitOfWork.AttachmentRoleRepository.GetAsync(q => q.PortPool.Name == portPoolName 
                 && q.Name == attachmentRoleName,
                 includeProperties: p,
-                AsTrackable: false);
+                AsTrackable: asTrackable);
 
             return attachmentRoles.SingleOrDefault();
         }
 
-        public async Task<AttachmentRole> GetByIDAsync(int id, bool includeProperties = true)
+        public async Task<AttachmentRole> GetByIDAsync(int id, bool deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
+            var p = deep ? Properties : string.Empty;
             var dbResult = await this.UnitOfWork.AttachmentRoleRepository.GetAsync(q => q.AttachmentRoleID == id, 
                 includeProperties: p, AsTrackable: false);
 

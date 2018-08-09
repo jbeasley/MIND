@@ -10,6 +10,7 @@ using SCM.Models;
 using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Validators;
+using Mind.Services;
 
 namespace SCM.Controllers
 {

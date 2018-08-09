@@ -28,13 +28,5 @@ namespace SCM.Services
         Task<ServiceResult> UpdateAsync(Vpn vpn);
         Task<int> UpdateAsync(IEnumerable<Vpn> vpns);
         Task<ServiceResult> DeleteAsync(Vpn vpn);
-        Task<ServiceResult> CheckNetworkSyncAsync(Vpn vpn);
-        Task<ServiceResult> CheckNetworkSyncAsync(Vpn vpn, AttachmentSet attachmentSetContext);
-        Task<IEnumerable<ServiceResult>> CheckNetworkSyncAsync(IEnumerable<Vpn> vpns, IProgress<ServiceResult> progress);
-        Task<IEnumerable<ServiceResult>> CheckNetworkSyncAsync(IEnumerable<Vpn> vpns, AttachmentSet attachmentSetContext, IProgress<ServiceResult> progress);
-        Task<ServiceResult> SyncToNetworkAsync(Vpn vpn);
-        Task<ServiceResult> SyncToNetworkAsync(Vpn vpn, AttachmentSet attachmentSetContext);
-        Task<IEnumerable<ServiceResult>> SyncToNetworkAsync(IEnumerable<Vpn> vpns, AttachmentSet attachmentSetContext, IProgress<ServiceResult> progress);
-        Task<ServiceResult> DeleteFromNetworkAsync(Vpn vpn);
     }
 }

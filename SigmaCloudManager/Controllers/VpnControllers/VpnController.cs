@@ -13,6 +13,7 @@ using SCM.Services;
 using SCM.Validators;
 using SCM.Factories;
 using SCM.Models.RequestModels;
+using Mind.Services;
 
 namespace SCM.Controllers
 {
@@ -379,14 +380,6 @@ namespace SCM.Controllers
                 VpnValidator.ValidateDelete(vpn);
                 if (VpnValidator.ValidationDictionary.IsValid)
                 {
-                    if (!vpn.Created)
-                    {
-                        // The VPN is operational in the network so 
-                        // delete the resource from the network first
-
-                        await VpnService.DeleteFromNetworkAsync(vpn);
-                    }
-
                     await VpnService.DeleteAsync(vpn);
                     return RedirectToAction("GetAll");
                 }

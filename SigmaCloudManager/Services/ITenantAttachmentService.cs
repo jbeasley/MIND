@@ -25,10 +25,5 @@ namespace SCM.Services
         Task<ServiceResult> UpdateAttachmentAsync(AttachmentUpdate update);
         Task<ServiceResult> UpdateAttachmentPortAsync(AttachmentPortUpdate update);
         Task<ServiceResult> DeleteAsync(Attachment attachment);
-        Task<IEnumerable<ServiceResult>> CheckNetworkSyncAsync(IEnumerable<Attachment> attachments, IProgress<ServiceResult> progress);
-        Task<ServiceResult> CheckNetworkSyncAsync(Attachment attachment);
-        Task<IEnumerable<ServiceResult>> SyncToNetworkAsync(IEnumerable<Attachment> attachments, IProgress<ServiceResult> progress);
-        Task<ServiceResult> SyncToNetworkAsync(Attachment attachment);
-        Task<ServiceResult> DeleteFromNetworkAsync(Attachment attachment);
     }
 }

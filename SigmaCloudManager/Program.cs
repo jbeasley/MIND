@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Autofac.Extensions.DependencyInjection;
 using SCM.Data;
 
 namespace SCM
@@ -42,6 +43,7 @@ namespace SCM
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
+                .ConfigureServices(services => services.AddAutofac())
                 .UseStartup<Startup>()
                 .Build();
     }

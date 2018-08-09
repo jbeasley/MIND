@@ -11,6 +11,7 @@ using SCM.Models.ViewModels;
 using SCM.Services;
 using Microsoft.EntityFrameworkCore;
 using SCM.Validators;
+using Mind.Services;
 
 namespace SCM.Controllers
 {

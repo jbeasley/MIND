@@ -105,7 +105,7 @@ namespace SCM.Controllers
         [HttpGet]
         public async Task<PartialViewResult> Devices(int locationID, int? planeID)
         {
-            var devices = await DeviceService.GetAllByLocationIDAsync(locationID, planeID, includeProperties: false);
+            var devices = await DeviceService.GetAllByLocationIDAsync(locationID, planeID, deep: false);
             return PartialView(Mapper.Map<List<DeviceViewModel>>(devices));
         }
 

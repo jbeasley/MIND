@@ -76,7 +76,7 @@ namespace Mind.Api.Models
         public Tenant Tenant { get; set; }
 
         /// <summary>
-        /// Gets or Sets InfrastructureDevice
+        /// Gets or Sets Device
         /// </summary>
         [DataMember(Name="infrastructureDevice")]
         public InfrastructureDevice InfrastructureDevice { get; set; }

@@ -225,14 +225,6 @@ namespace SCM.Controllers
                 DeviceValidator.ValidateDelete(device);
                 if (DeviceValidator.ValidationDictionary.IsValid)
                 {
-                    if (!device.Created)
-                    {
-                        // Device has been sync'd with the network (indicated by the 'Created = false' check.
-                        // Therefore, delete data on the Device from the network first.
-
-                        await DeviceService.DeleteFromNetworkAsync(device);
-                    }
-
                     await DeviceService.DeleteAsync(Mapper.Map<Device>(deviceModel));
                     return RedirectToAction("GetAll");
                 }
@@ -252,38 +244,6 @@ namespace SCM.Controllers
             }
 
             return View(Mapper.Map<DeviceViewModel>(device));
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> DeleteFromNetwork(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var device = await DeviceService.GetByIDAsync(id.Value);
-            if (device == null)
-            {
-                ViewData["DeviceDeletedMessage"] = "The Device has been deleted by another user. Return to the list.";
-                return View("DeviceDeleted");
-            }
-
-            try
-            {
-                await DeviceService.DeleteFromNetworkAsync(device);
-                ViewData["SuccessMessage"] = "The Device has been deleted from the network.";
-            }
-
-            catch (Exception /** ex **/)
-            {
-                ViewData["ErrorMessage"] = "Failed to complete this request. "
-                    + "This most likely happened because the network server is not available. "
-                    + "Try again later or contact your system administrator.";
-            }
-
-            device.RequiresSync = true;
-            return View("Delete", Mapper.Map<DeviceViewModel>(device));
         }
 
         private async Task PopulatePlanesDropDownList(object selectedPlane = null)

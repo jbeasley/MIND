@@ -9,17 +9,25 @@ namespace Mind.Builders
 {
     public class VrfRoutingInstanceBuilder : IRoutingInstanceBuilder
     {
-        private readonly IRoutingInstanceTypeService _routingInstanceTypeService;
         private readonly IRouteDistinguisherRangeService _routeDistinguisherRangeService;
         private readonly IRoutingInstanceService _routingInstanceService;
         private RoutingInstance _routingInstance;
 
-        public VrfRoutingInstanceBuilder(IRoutingInstanceTypeService routingInstanceTypeService, IRouteDistinguisherRangeService routeDistinguisherRangeService,
+        public VrfRoutingInstanceBuilder(IRouteDistinguisherRangeService routeDistinguisherRangeService,
             IRoutingInstanceService routingInstanceService)
         {
-            _routingInstanceTypeService = routingInstanceTypeService;
             _routeDistinguisherRangeService = routeDistinguisherRangeService;
             _routingInstanceService = routingInstanceService;
+        }
+
+        public void Init(int tenantId, int deviceId, int routingInstanceTypeID)
+        {
+            _routingInstance = new RoutingInstance {
+
+                TenantID = tenantId,
+                DeviceID = deviceId,
+                RoutingInstanceTypeID = routingInstanceTypeID
+            };
         }
 
         public async Task Create()
@@ -49,6 +57,7 @@ namespace Mind.Builders
             _routingInstance.AdministratorSubField = rdRange.AdministratorSubField;
             _routingInstance.AssignedNumberSubField = newRdAssignedNumberSubField.Value;
             _routingInstance.RouteDistinguisherRangeID = rdRange.RouteDistinguisherRangeID;
+
         }
 
         public RoutingInstance GetResult()

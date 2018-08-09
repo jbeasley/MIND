@@ -11,6 +11,7 @@ using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Validators;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Mind.Services;
 
 namespace SCM.Controllers
 {

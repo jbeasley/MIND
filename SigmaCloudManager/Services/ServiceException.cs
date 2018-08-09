@@ -28,26 +28,4 @@ namespace SCM.Services
             ServiceResult = result;
         }
     }
-
-    public class UnstartableServiceException : ServiceException
-    {
-        public UnstartableServiceException(string message) : base(message)
-        {
-        }
-        public UnstartableServiceException(string message,
-                    Exception innerException) : base(message, innerException)
-        {
-        }
-
-        public UnstartableServiceException(string message, ServiceResult result) : base(message)
-        {
-            ServiceResult = result;
-        }
-
-        public UnstartableServiceException(string message, ServiceResult result,
-                            Exception innerException) : base(message, innerException)
-        {
-            ServiceResult = result;
-        }
-    }
 }

@@ -51,39 +51,5 @@ namespace SCM.Controllers
 
             return View(vpn);
         }
-
-     
-        /// <summary>
-        /// Delete a VPN from the network but not from the database.
-        /// </summary>
-        /// <param name="vpnModel"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public async Task<IActionResult> DeleteFromNetwork(VpnViewModel vpnModel)
-        {
-
-            var item = await VpnService.GetByIDAsync(vpnModel.VpnID);
-            if (item == null)
-            {
-                ViewData["VpnDeletedMessage"] = "The VPN has been deleted by another user. Return to the list.";
-                return View("VpnDeleted");
-            }
-
-            try
-            {
-                await VpnService.DeleteFromNetworkAsync(item);
-                ViewData["SuccessMessage"] = "The VPN has been deleted from the network.";
-            }
-
-            catch (Exception /** ex **/)
-            {
-                ViewData["ErrorMessage"] = "Failed to complete this request. "
-                    + "This most likely happened because the network server is not available. "
-                    + "Try again later or contact your system administrator.";
-            }
-
-            var vpn = Mapper.Map<VpnViewModel>(item);
-            return View("Delete", vpn);
-        }
     }
 }

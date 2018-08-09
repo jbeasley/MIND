@@ -552,14 +552,6 @@ namespace SCM.Controllers
                 VifValidator.ValidateDelete(vif);
                 if (VifValidator.ValidationDictionary.IsValid)
                 {
-                    if (!vif.Created)
-                    {
-                        // The Vif is operational in the network so 
-                        // delete the resource from the network first
-
-                        await VifService.DeleteFromNetworkAsync(vif);
-                    }
-
                     // Copy over RowVersion to allow for concurrency checks to work
                     vif.RowVersion = vifModel.RowVersion;
 
@@ -624,46 +616,6 @@ namespace SCM.Controllers
             ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
 
             return await base.BaseDeleteLogicalInterface(logicalInterfaceModel, currentLogicalInterface, nav);
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteFromNetwork(VifViewModel vifModel)
-        {
-            var vif = await VifService.GetByIDAsync(vifModel.VifID);
-            if (vif == null)
-            {
-                ViewData["VifDeletedMessage"] = "The Vif has been deleted by another user. Return to the list.";
-                return View("VifDeleted", vifModel);
-            }
-
-            try
-            {
-                VifValidator.ValidationDictionary.Clear();
-                VifValidator.ValidateDelete(vif);
-                if (!VifValidator.ValidationDictionary.IsValid)
-                {
-                    ViewData["ErrorMessage"] = "The Vif cannot be deleted from the network.";
-                }
-                else
-                {
-                    await VifService.DeleteFromNetworkAsync(vif);
-                    ViewData["SuccessMessage"] = "The Vif has been deleted from the network.";
-                }
-            }
-
-            catch (Exception /** ex **/)
-            {
-                ViewData["ErrorMessage"] = "Failed to complete this request. "
-                    + "This most likely happened because the network server is not available. "
-                    + "Try again later or contact your system administrator.";
-            }
-
-            var attachment = await AttachmentService.GetByIDAsync(vifModel.AttachmentID);
-            ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
-            vif.RequiresSync = true;
-
-            return View("Delete", Mapper.Map<VifViewModel>(vif));
         }
 
         /// <summary>

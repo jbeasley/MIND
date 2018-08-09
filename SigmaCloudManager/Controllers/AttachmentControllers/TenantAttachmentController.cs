@@ -13,6 +13,7 @@ using SCM.Services;
 using SCM.Validators;
 using SCM.Models;
 using SCM.Factories;
+using Mind.Services;
 
 namespace SCM.Controllers
 {
@@ -652,25 +653,6 @@ namespace SCM.Controllers
                 return RedirectToAction("GetAllByTenantID", nav);
             }
 
-            if (!currentAttachment.Created || currentAttachment.Vifs.Any(x => !x.Created))
-            {
-                try {
-                    // The Attachment or any Vifs associated with the Attachment 
-                    // are in operation on the network so delete resources from the network first
-
-                    await TenantAttachmentService.DeleteFromNetworkAsync(currentAttachment);
-                }
-
-                catch (Exception /** ex **/ )
-                {
-                    ViewData["ErrorMessage"] = "Failed to delete the item from the network. "
-                        + "This most likely happened because the network server is not available. "
-                        + "Try again later or contact your system administrator.";
-
-                    return View(Mapper.Map<AttachmentViewModel>(currentAttachment));
-                }
-            }
-
             nav.RedirectAction = "GetAllByTenantID";
             ViewBag.Tenant = await TenantService.GetByIDAsync(currentAttachment.TenantID.Value);
 
@@ -704,41 +686,6 @@ namespace SCM.Controllers
             ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
 
             return await base.BaseDeleteLogicalInterface(logicalInterfaceModel, currentLogicalInterface, nav);
-        }
-
-        [ValidateAntiForgeryToken]
-        [HttpPost]
-        public async Task<IActionResult> DeleteFromNetwork(AttachmentViewModel attachment)
-        {
-            var item = await AttachmentService.GetByIDAsync(attachment.AttachmentID);
-            if (item == null)
-            {
-                ViewData["AttachmentDeletedMessage"] = "The Attachment has been deleted by another user. Return to the list.";
-                return View("AttachmentDeleted", attachment);
-            }
-
-            try
-            {
-                AttachmentValidator.ValidateDelete(item);
-                if (AttachmentValidator.ValidationDictionary.IsValid)
-                {
-                    await TenantAttachmentService.DeleteFromNetworkAsync(item);
-                    ViewData["SuccessMessage"] = "The Attachment has been deleted from the network.";
-                }
-            }
-
-            catch (Exception /** ex **/ )
-            {
-                ViewData["ErrorMessage"] = "Failed to complete this request. "
-                    + "This most likely happened because the network server is not available. "
-                    + "Try again later or contact your system administrator.";
-            }
-
-            var tenant = await TenantService.GetByIDAsync(item.TenantID.Value);
-            ViewBag.Tenant = tenant;
-            item.RequiresSync = true;
-
-            return View("Delete", Mapper.Map<AttachmentViewModel>(item));
         }
 
         [HttpGet]

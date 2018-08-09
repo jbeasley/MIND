@@ -6,10 +6,6 @@ using AutoMapper;
 using SCM.Factories;
 using SCM.Data;
 using SCM.Models;
-using SCM.Models.NetModels.Ipv4VpnNetModels;
-using SCM.Models.NetModels.Ipv4MulticastVpnNetModels;
-using SCM.Models.SerializableModels.SerializableIpv4VpnModels;
-using SCM.Models.SerializableModels.SerializableIpv4MulticastVpnModels;
 using SCM.Models.RequestModels;
 
 namespace SCM.Services
@@ -18,8 +14,7 @@ namespace SCM.Services
     {
         public VpnService(IUnitOfWork unitOfWork,
             IMapper mapper,
-            IVpnFactory vpnFactory,
-            INetworkSyncService netSync) : base(unitOfWork, mapper, netSync)
+            IVpnFactory vpnFactory) : base(unitOfWork, mapper)
         {
             VpnFactory = vpnFactory;
         }
@@ -477,136 +472,6 @@ namespace SCM.Services
 
             return result;
         }
-
-        /// <summary>
-        /// Check network sync of a collection of VPNs.
-        /// </summary>
-        /// <param name="vpns">The collection fo Vpns to check.</param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<ServiceResult>> CheckNetworkSyncAsync(IEnumerable<Vpn> vpns,
-           IProgress<ServiceResult> progress)
-        {
-            List<Task<ServiceResult>> tasks = (from vpn in vpns select CheckNetworkSyncHelperAsync(vpn)).ToList();
-            return await VpnTasksAsync(tasks, progress);
-        }
-
-        /// <summary>
-        /// Check network sync of a collection of VPNs.
-        /// </summary>
-        /// <param name="vpns">The collection of Vpns to check.</param>
-        /// <param name="attachmentSetContext"></param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<ServiceResult>> CheckNetworkSyncAsync(IEnumerable<Vpn> vpns, 
-            AttachmentSet attachmentSetContext, 
-            IProgress<ServiceResult> progress)
-        {
-            List<Task<ServiceResult>> tasks = (from vpn in vpns select CheckNetworkSyncHelperAsync(vpn, attachmentSetContext)).ToList();
-            return await VpnTasksAsync(tasks, progress);
-        }
-
-        /// <summary>
-        /// Check network sync of a Vpn.
-        /// </summary>
-        /// <param name="vpn">The Vpn to check.</param>
-        /// <returns></returns>
-        public async Task<ServiceResult> CheckNetworkSyncAsync(Vpn vpn)
-        {
-            var result = await CheckNetworkSyncHelperAsync(vpn);
-            UnitOfWork.VpnRepository.Update(vpn);
-            await UnitOfWork.SaveAsync();
-
-            return result;
-        }
-      
-        /// <summary>
-        /// Check network sync of a vpn.
-        /// </summary>
-        /// <param name="vpn">The Vpn to check.</param>
-        /// <param name="attachmentSetContext"></param>
-        /// <returns></returns>
-        public async Task<ServiceResult> CheckNetworkSyncAsync(Vpn vpn, AttachmentSet attachmentSetContext)
-        {
-            var result = await CheckNetworkSyncHelperAsync(vpn);
-            UnitOfWork.VpnRepository.Update(vpn);
-            await UnitOfWork.SaveAsync();
-            result.Context = attachmentSetContext;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Synchronise a collection of VPNs with the network.
-        /// </summary>
-        /// <param name="vpns">The collection of Vpns to sync.</param>
-        /// <param name="attachmentSetContext">
-        /// An Attachment Set which is bound to the VPN. The Attachment Set context is returned to the caller
-        /// to provide context when synchronisation is complete.
-        /// </param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<ServiceResult>> SyncToNetworkAsync(IEnumerable<Vpn> vpns, 
-            AttachmentSet attachmentSetContext, 
-            IProgress<ServiceResult> progress)
-        {
-            List<Task<ServiceResult>> tasks = (from vpn in vpns select SyncToNetworkHelperAsync(vpn, attachmentSetContext)).ToList();
-            return await VpnTasksAsync(tasks, progress);
-        }
-
-        /// <summary>
-        /// Sync a Vpn with the network.
-        /// </summary>
-        /// <param name="vpn">The Vpn to sync</param>
-        /// <returns></returns>
-        public async Task<ServiceResult> SyncToNetworkAsync(Vpn vpn)
-        {
-            var result = await SyncToNetworkHelperAsync(vpn);
-            UnitOfWork.VpnRepository.Update(vpn);
-            await UnitOfWork.SaveAsync();
-
-            return result;
-        }
-
-        /// <summary>
-        /// Sync a VPN with the network.
-        /// </summary>
-        /// <param name="vpn">The Vpn to sync</param>
-        /// <param name="attachmentSetContext">
-        /// An Attachment Set which is bound to the VPN. The Attachment Set context is returned to the caller
-        /// to provide context when synchronisation is complete.
-        /// </param>
-        /// <returns></returns>
-        public async Task<ServiceResult> SyncToNetworkAsync(Vpn vpn, AttachmentSet attachmentSetContext)
-        {
-            var result = await SyncToNetworkHelperAsync(vpn);
-            result.Context = attachmentSetContext;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Delete a VPN from the network.
-        /// </summary>
-        /// <param name="vpn">The Vpn to delete.</param>
-        /// <returns></returns>
-        public async Task<ServiceResult> DeleteFromNetworkAsync(Vpn vpn)
-        {
-            var result = new ServiceResult
-            {
-                IsSuccess = true
-            };
-
-            var syncResult = await NetSync.DeleteFromNetworkAsync("/vpn/instance/" + vpn.Name);
-            result.NetworkSyncServiceResults.Add(syncResult);
-
-            vpn.RequiresSync = true;
-            vpn.ShowRequiresSyncAlert = true;
-            UnitOfWork.VpnRepository.Update(vpn);
-            await UnitOfWork.SaveAsync();
-
-            return result;
-        }
        
         /// <summary>
         /// Helper to execute a collection of async tasks for a VPN
@@ -640,118 +505,6 @@ namespace SCM.Services
             }
 
             return results;
-        }
-
-        /// <summary>
-        /// Helper to check network sync of a Vpn.
-        /// </summary>
-        /// <param name="vpn"></param>
-        /// <returns></returns>
-        private async Task<ServiceResult> CheckNetworkSyncHelperAsync(Vpn vpn)
-        {
-            var result = new ServiceResult
-            {
-                Item = vpn
-            };
-
-            object vpnServiceNetModel;
-            object serializableVpnServiceModel;
-            if (vpn.IsMulticastVpn)
-            {
-                // Map to business object, then map to serializable object for sending to server
-                vpnServiceNetModel = Mapper.Map<Ipv4MulticastVpnServiceNetModel>(vpn);
-                serializableVpnServiceModel = Mapper.Map<SerializableIpv4MulticastVpnServiceModel>(vpnServiceNetModel);
-            }
-            else
-            {
-                // Map to business object, then map to serializable object for sending to server
-                vpnServiceNetModel = Mapper.Map<Ipv4VpnServiceNetModel>(vpn);
-                serializableVpnServiceModel = Mapper.Map<SerializableIpv4VpnServiceModel>(vpnServiceNetModel);
-            }
-
-            var syncResult = await NetSync.CheckNetworkSyncAsync(serializableVpnServiceModel, "/vpn/instance/" + vpn.Name);
-            if (!syncResult.IsSuccess)
-            {
-                result.Add($"'{vpn.Name}' is not in-sync with the network.");
-            }
-
-            vpn.RequiresSync = !syncResult.IsSuccess;
-            vpn.ShowRequiresSyncAlert = !syncResult.IsSuccess;
-            result.IsSuccess = syncResult.IsSuccess;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Helper to check network sync of a Vpn.
-        /// </summary>
-        /// <param name="vpn"></param>
-        /// <param name="attachmentSetContext"></param>
-        /// <returns></returns>
-        private async Task<ServiceResult> CheckNetworkSyncHelperAsync(Vpn vpn, AttachmentSet attachmentSetContext)
-        {
-            var result = await CheckNetworkSyncHelperAsync(vpn);
-            result.Context = attachmentSetContext;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Helper to sync VPN with the network.
-        /// </summary>
-        /// <param name="vpn"></param>
-        /// <returns></returns>
-        private async Task<ServiceResult> SyncToNetworkHelperAsync(Vpn vpn)
-        {
-            var result = new ServiceResult
-            {
-                IsSuccess = true,
-                Item = vpn
-            };
-
-            object vpnServiceNetModel;
-            object serializableVpnServiceModel;
-            if (vpn.IsMulticastVpn)
-            {
-                // Map to business object, then map to serializable object for sending to server
-                vpnServiceNetModel = Mapper.Map<Ipv4MulticastVpnServiceNetModel>(vpn);
-                serializableVpnServiceModel = Mapper.Map<SerializableIpv4MulticastVpnServiceModel>(vpnServiceNetModel);
-            }
-            else
-            {
-                // Map to business object, then map to serializable object for sending to server
-                vpnServiceNetModel = Mapper.Map<Ipv4VpnServiceNetModel>(vpn);
-                serializableVpnServiceModel = Mapper.Map<SerializableIpv4VpnServiceModel>(vpnServiceNetModel);
-            }
-
-
-            await NetSync.SyncNetworkAsync(serializableVpnServiceModel, $"/vpn/instance/{vpn.Name}");
-
-            // The VPN no longer requires sync
-
-            vpn.RequiresSync = false;
-            vpn.ShowRequiresSyncAlert = false;
-
-            // The VPN is now operational in the network
-
-            vpn.Created = false;
-            vpn.ShowCreatedAlert = false;
-
-            return result;
-        }
-
-        /// <summary>
-        /// Helper to sync a Vpn to the network.
-        /// </summary>
-        /// <param name="vpn"></param>
-        /// <param name="attachmentSetContext"></param>
-        /// <returns></returns>
-        private async Task<ServiceResult> SyncToNetworkHelperAsync(Vpn vpn, AttachmentSet attachmentSetContext)
-        {
-            var result = await SyncToNetworkHelperAsync(vpn);
-            result.Context = attachmentSetContext;
-
-            return result;
         }
     }
 }

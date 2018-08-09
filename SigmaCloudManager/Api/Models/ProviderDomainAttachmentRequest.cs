@@ -130,7 +130,7 @@ namespace Mind.Api.Models
         /// IPv4 address assigned to the first connection in the attachment
         /// </summary>
         /// <value>IPv4 address assigned to the first connection in the attachment</value>
-        [DataMember(Name="IpAddress1")]
+        [DataMember(Name="ipAddress1")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string IpAddress1 { get; set; }
@@ -139,7 +139,7 @@ namespace Mind.Api.Models
         /// IPv4 subnet mask assigned to the first connection in the attachment
         /// </summary>
         /// <value>IPv4 subnet mask assigned to the first connection in the attachment</value>
-        [DataMember(Name="SubnetMask1")]
+        [DataMember(Name="subnetMask1")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
         public string SubnetMask1 { get; set; }
@@ -148,7 +148,7 @@ namespace Mind.Api.Models
         /// IPv4 address assigned to the second connection in the attachment
         /// </summary>
         /// <value>IPv4 address assigned to the second connection in the attachment</value>
-        [DataMember(Name="IpAddress2")]
+        [DataMember(Name="ipAddress2")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string IpAddress2 { get; set; }
@@ -157,7 +157,7 @@ namespace Mind.Api.Models
         /// IPv4 subnet mask assigned to the second connection in the attachment
         /// </summary>
         /// <value>IPv4 subnet mask assigned to the second connection in the attachment</value>
-        [DataMember(Name="SubnetMask2")]
+        [DataMember(Name="subnetMask2")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
         public string SubnetMask2 { get; set; }
@@ -166,7 +166,7 @@ namespace Mind.Api.Models
         /// IPv4 address assigned to the third connection in the attachment
         /// </summary>
         /// <value>IPv4 address assigned to the third connection in the attachment</value>
-        [DataMember(Name="IpAddress3")]
+        [DataMember(Name="ipAddress3")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string IpAddress3 { get; set; }
@@ -175,7 +175,7 @@ namespace Mind.Api.Models
         /// IPv4 subnet mask assigned to the third connection in the attachment
         /// </summary>
         /// <value>IPv4 subnet mask assigned to the third connection in the attachment</value>
-        [DataMember(Name="SubnetMask3")]
+        [DataMember(Name="subnetMask3")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
         public string SubnetMask3 { get; set; }
@@ -184,7 +184,7 @@ namespace Mind.Api.Models
         /// IPv4 address assigned to the fourth connection in the attachment
         /// </summary>
         /// <value>IPv4 address assigned to the fourth connection in the attachment</value>
-        [DataMember(Name="IpAddress4")]
+        [DataMember(Name="ipAddress4")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string IpAddress4 { get; set; }
@@ -193,7 +193,7 @@ namespace Mind.Api.Models
         /// IPv4 subnet mask assigned to the fourth connection in the attachment
         /// </summary>
         /// <value>IPv4 subnet mask assigned to the fourth connection in the attachment</value>
-        [DataMember(Name="SubnetMask4")]
+        [DataMember(Name="subnetMask4")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
             ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
         public string SubnetMask4 { get; set; }

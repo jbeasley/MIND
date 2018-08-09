@@ -21,10 +21,5 @@ namespace SCM.Services
         Task<ServiceResult> UpdateAsync(VifUpdate vifUpdate);
         Task<int> UpdateAsync(IEnumerable<Vif> vifs);
         Task<ServiceResult> DeleteAsync(Vif vif);
-        Task<ServiceResult> CheckNetworkSyncAsync(Vif vif);
-        Task<IEnumerable<ServiceResult>> CheckNetworkSyncAsync(IEnumerable<Vif> vifs, IProgress<ServiceResult> progress);
-        Task<ServiceResult> SyncToNetworkAsync(Vif vif);
-        Task<IEnumerable<ServiceResult>> SyncToNetworkAsync(IEnumerable<Vif> vifs, IProgress<ServiceResult> progress);
-        Task<ServiceResult> DeleteFromNetworkAsync(Vif vif);
     }
 }

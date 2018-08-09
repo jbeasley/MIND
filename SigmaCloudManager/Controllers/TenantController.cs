@@ -9,30 +9,24 @@ using AutoMapper;
 using SCM.Models;
 using SCM.Models.ViewModels;
 using SCM.Services;
-using SCM.Validators;
+using SCM.Controllers;
+using Mind.Services;
 
-namespace SCM.Controllers
+namespace Mind.WebUI.Controllers
 {
     public class TenantController : BaseViewController
     {
-        public TenantController(ITenantService tenantService,
-            ITenantValidator tenantValidator,
-            IMapper mapper)
-        {
-            TenantService = tenantService;
-            TenantValidator = tenantValidator;
-            this.Validator = tenantValidator;
-            Mapper = mapper;
-        }
+        private readonly ITenantService _tenantService;
 
-        private ITenantService TenantService { get; set; }
-        private ITenantValidator TenantValidator { get; set; }
-        private IMapper Mapper { get; set; }
+        public TenantController(ITenantService tenantService, IMapper mapper) : base(tenantService, mapper)
+        {
+            _tenantService = tenantService;
+        }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var tenants = await TenantService.GetAllAsync();
+            var tenants = await _tenantService.GetAllAsync();
             return View(Mapper.Map<List<TenantViewModel>>(tenants));
         }
 
@@ -44,7 +38,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var item = await TenantService.GetByIDAsync(id.Value);
+            var item = await this._tenantService.GetByIDAsync(id.Value);
             if (item == null)
             {
                 return NotFound();
@@ -67,7 +61,7 @@ namespace SCM.Controllers
             {
                 try
                 {
-                    await TenantService.AddAsync(Mapper.Map<Tenant>(tenant));
+                    await _tenantService.AddAsync(Mapper.Map<Tenant>(tenant));
                     return RedirectToAction("GetAll");
                 }
 
@@ -91,7 +85,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var tenant = await TenantService.GetByIDAsync(id.Value);
+            var tenant = await _tenantService.GetByIDAsync(id.Value);
             if (tenant == null)
             {
                 return NotFound();
@@ -109,7 +103,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var tenant = await TenantService.GetByIDAsync(tenantModel.TenantID);
+            var tenant = await _tenantService.GetByIDAsync(tenantModel.TenantID);
             if (tenant == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The Tenant was deleted by another user.");
@@ -120,35 +114,45 @@ namespace SCM.Controllers
                 if (ModelState.IsValid)
                 {
                     var updateTenant = Mapper.Map<Tenant>(tenantModel);
-                    await TenantService.UpdateAsync(updateTenant);
+                    await _tenantService.UpdateAsync(updateTenant);
 
                     return RedirectToAction("GetAll");
                 }
             }
 
             catch (DbUpdateConcurrencyException ex)
-            {
+            { 
                 var exceptionEntry = ex.Entries.Single();
-
-                var proposedName = (string)exceptionEntry.Property("Name").CurrentValue;
-                if (tenant.Name != proposedName)
+                var clientValues = (Tenant)exceptionEntry.Entity;
+                var databaseEntry = exceptionEntry.GetDatabaseValues();
+                if (databaseEntry == null)
                 {
-                    ModelState.AddModelError("Name", $"Current value: {tenant.Name}");
+                    ModelState.AddModelError(string.Empty,
+                        "Unable to save changes. The item was deleted by another user.");
                 }
+                else
+                {
+                    var databaseValues = (Tenant)databaseEntry.ToObject();
 
-                ModelState.AddModelError(string.Empty, "The record you attempted to edit "
-                    + "was modified by another user after you got the original value. The "
-                    + "edit operation was cancelled and the current values in the database "
-                    + "have been displayed. If you still want to edit this record, click "
-                    + "the Save button again. Otherwise click the Back to List hyperlink.");
+                    if (databaseValues.Name != clientValues.Name)
+                    {
+                        ModelState.AddModelError("Name", $"Current value: {databaseValues.Name}");
+                    }
 
-                ModelState.Remove("RowVersion");
+                    ModelState.AddModelError(string.Empty, "The record you attempted to edit "
+                        + "was modified by another user after you got the original value. The "
+                        + "edit operation was cancelled and the current values in the database "
+                        + "have been displayed. If you still want to edit this record, click "
+                        + "the Save button again. Otherwise click the Back to List hyperlink.");
+
+                    ModelState.Remove("RowVersion");
+                }
             }
 
             catch (DbUpdateException /* ex */)
             {
                 //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError("", "Unable to save changes. " +
+                ModelState.AddModelError(string.Empty, "Unable to save changes. " +
                     "Try again, and if the problem persists " +
                     "see your system administrator.");
 
@@ -165,7 +169,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var tenant = await TenantService.GetByIDAsync(id.Value);
+            var tenant = await _tenantService.GetByIDAsync(id.Value);
             if (tenant == null)
             {
                 if (concurrencyError.GetValueOrDefault())
@@ -195,29 +199,24 @@ namespace SCM.Controllers
         {
             try
             {
-                var tenant = await TenantService.GetByIDAsync(tenantModel.TenantID);
-                if (tenant == null)
+                var tenant = await _tenantService.GetByIDAsync(tenantModel.TenantID);
+                if (tenant != null)
                 {
-                    return RedirectToAction("GetAll");
+                    await _tenantService.DeleteAsync(Mapper.Map<Tenant>(tenantModel));
                 }
 
-                this.Validator.ValidationDictionary.Clear();
-                await TenantValidator.ValidateDeleteAsync(tenant);
-                if (TenantValidator.ValidationDictionary.IsValid)
-                {
-                    await TenantService.DeleteAsync(Mapper.Map<Tenant>(tenantModel));
-                    return RedirectToAction("GetAll");
-                }
-                else
-                {
-                    return View(Mapper.Map<TenantViewModel>(tenant));
-                }
+                return RedirectToAction("GetAll");
             }
 
             catch (DbUpdateConcurrencyException /* ex */)
             {
                 //Log the error (uncomment ex variable name and write a log.)
                 return RedirectToAction("Delete", new { concurrencyError = true, id = tenantModel.TenantID });
+            }
+
+            catch (ServiceValidationException)
+            {
+                return View(tenantModel);
             }
         }
     }

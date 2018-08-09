@@ -7,9 +7,9 @@ using AutoMapper;
 using SCM.Data;
 using SCM.Models;
 using SCM.Models.RequestModels;
-using SCM.Models.NetModels.AttachmentNetModels;
-using SCM.Models.SerializableModels.SerializableAttachmentModels;
 using SCM.Factories;
+using SCM.Validators;
+using Mind.Builders;
 
 namespace SCM.Services
 {
@@ -18,19 +18,18 @@ namespace SCM.Services
     /// </summary>
     public class AttachmentService : BaseService, IAttachmentService
     {
+        protected readonly IAttachmentFactory AttachmentFactory;
+        protected readonly IRoutingInstanceFactory RoutingInstanceFactory;
+
 
         public AttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
-            INetworkSyncService netSync,
             IAttachmentFactory attachmentFactory,
-            IRoutingInstanceFactory vrfFactory) : base(unitOfWork, mapper, netSync)
+            IRoutingInstanceFactory vrfFactory) : base(unitOfWork, mapper)
         {
             AttachmentFactory = attachmentFactory;
             RoutingInstanceFactory = vrfFactory;
         }
-
-        protected IAttachmentFactory AttachmentFactory { get; }
-        protected IRoutingInstanceFactory RoutingInstanceFactory { get; }
 
         protected string Properties { get; } = "Tenant,"
                 + "AttachmentRole.PortPool.PortRole,"
@@ -62,9 +61,9 @@ namespace SCM.Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Attachment> GetByIDAsync(int id, bool includeProperties = true)
+        public async Task<Attachment> GetByIDAsync(int id, bool deep = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
+            var p = deep ? Properties : string.Empty;
             var dbResult = await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == id,
                 includeProperties: p,
                 AsTrackable: false);
@@ -78,9 +77,9 @@ namespace SCM.Services
         /// <param name="deviceName"></param>
         /// <param name="attachmentName"></param>
         /// <returns></returns>
-        public async Task<Attachment> GetByNameAsync(string deviceName, string attachmentName, bool includeProperties = true)
+        public async Task<Attachment> GetByNameAsync(string deviceName, string attachmentName, bool deep = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
+            var p = deep ? Properties : string.Empty;
             var dbResult = await UnitOfWork.AttachmentRepository.GetAsync(q => q.Device.Name == deviceName && q.Name == attachmentName,
                 includeProperties: p,
                 AsTrackable: false);
@@ -93,9 +92,9 @@ namespace SCM.Services
         /// </summary>
         /// <param name="routingInstanceID"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Attachment>> GetAllByRoutingInstanceIDAsync(int routingInstanceID, bool includeProperties = true)
+        public async Task<IEnumerable<Attachment>> GetAllByRoutingInstanceIDAsync(int routingInstanceID, bool deep = true)
         {
-            var p = includeProperties ? Properties : string.Empty;
+            var p = deep ? Properties : string.Empty;
 
             return await UnitOfWork.AttachmentRepository.GetAsync(q => q.RoutingInstanceID == routingInstanceID,
                 includeProperties: p,
@@ -107,9 +106,9 @@ namespace SCM.Services
         /// </summary>
         /// <param name= interfaceID"></param>
         /// <returns></returns>
-        public async Task<Attachment> GetByInterfaceIDAsync(int interfaceID, bool includeProperties = true)
+        public async Task<Attachment> GetByInterfaceIDAsync(int interfaceID, bool deep = true)
         {
-            var p = includeProperties ? Properties : string.Empty;
+            var p = deep ? Properties : string.Empty;
 
             var dbResult = await UnitOfWork.AttachmentRepository.GetAsync(q => q.Interfaces.Where(x => x.InterfaceID == interfaceID).Any(),
                 includeProperties: p,

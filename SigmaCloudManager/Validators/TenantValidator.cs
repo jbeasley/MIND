@@ -13,16 +13,14 @@ namespace SCM.Validators
     /// </summary>
     public class TenantValidator : BaseValidator, ITenantValidator
     {
-        public TenantValidator(ITenantService tenantService, ITenantAttachmentService tenantAttachmentService, IVpnService vpnService)
-        {
-            TenantService = tenantService;
-            TenantAttachmentService = tenantAttachmentService;
-            VpnService = vpnService;
-        }
+        private readonly ITenantAttachmentService _tenantAttachmentService;
+        private readonly IVpnService _vpnService;
 
-        private ITenantService TenantService { get; set; }
-        private ITenantAttachmentService TenantAttachmentService { get; set; }
-        private IVpnService VpnService { get; set; }
+        public TenantValidator(ITenantAttachmentService tenantAttachmentService, IVpnService vpnService)
+        {
+            _tenantAttachmentService = tenantAttachmentService;
+            _vpnService = vpnService;
+        }
 
         /// <summary>
         /// Validate deletion of a Tenant. The Tenant cannot be deleted if either Attachment 
@@ -31,14 +29,14 @@ namespace SCM.Validators
         /// <param name="tenant"></param>
         public async Task ValidateDeleteAsync(Tenant tenant)
         {
-            var attachments = await TenantAttachmentService.GetAllByTenantIDAsync(tenant.TenantID);
-            if (attachments.Count() > 0)
+            var attachments = await _tenantAttachmentService.GetAllByTenantIDAsync(tenant.TenantID, includeProperties: false);
+            if (attachments.Any())
             {
                 ValidationDictionary.AddError(string.Empty, $"Tenant '{tenant.Name}' cannot be deleted because Attachments are allocated.");
             }
 
-            var vpns = await VpnService.GetAllByTenantIDAsync(tenant.TenantID);
-            if (vpns.Count() > 0)
+            var vpns = await _vpnService.GetAllByTenantIDAsync(tenant.TenantID, includeProperties: false);
+            if (vpns.Any())
             {
                 ValidationDictionary.AddError(string.Empty, $"Tenant '{tenant.Name}' cannot be deleted because VPNs are allocated.");
             }

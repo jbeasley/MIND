@@ -4,12 +4,12 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Data;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
-    public interface ITenantService
+    public interface ITenantService : IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
         Task<IEnumerable<Tenant>> GetAllAsync();
         Task<Tenant> GetByIDAsync(int id);
         Task<Tenant> GetByNameAsync(string name);

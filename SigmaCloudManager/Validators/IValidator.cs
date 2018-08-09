@@ -8,5 +8,6 @@ namespace SCM.Validators
     public interface IValidator
     {
         IValidationDictionary ValidationDictionary { get; set; }
+        bool IsValid { get; }
     }
 }

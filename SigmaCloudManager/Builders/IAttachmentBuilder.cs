@@ -10,9 +10,7 @@ namespace Mind.Builders
     public interface IAttachmentBuilder
     {
         IAttachmentBuilder Init(int tenantId);
-        IAttachmentBuilder UseRoutingInstanceBuilder<T>() where T : IRoutingInstanceBuilder;
         IAttachmentBuilder CreateInterfaces(string IpAddress, string subnetMask);
-        IAttachmentBuilder SetTagging(bool isTagged);
         IAttachmentBuilder SetNumPortsRequired(int numPortsRequired);
         IAttachmentBuilder SetPortBandwidthRequired(int portBandwidthRequired);
         Task SetAttachmentRoleAsync(string portPoolName, string attachmentRoleName);

@@ -9,22 +9,15 @@ namespace SCM.Services
     {
         public ServiceResult()
         {
-            NetworkSyncServiceResults = new List<NetworkSyncServiceResult>();
         }
 
         private List<string> Messages = new List<string>();
 
         public bool IsSuccess { get; set; }
 
-        public string GetMessage()
-        {
-            var messages = Messages.Concat(NetworkSyncServiceResults.Select(q => q.GetMessage()));
-            return string.Concat(messages);
-        }
-
         public List<string> GetMessageList()
         {
-            return Messages.Concat(NetworkSyncServiceResults.SelectMany(q => q.Messages)).ToList();
+            return Messages.ToList();
         }
 
         public void Add(string message)
@@ -36,8 +29,6 @@ namespace SCM.Services
         {
             Messages.AddRange(messages);
         }
-
-        public List<NetworkSyncServiceResult> NetworkSyncServiceResults { get; set; }
 
         public object Item { get; set; }
         public object Context { get; set; }

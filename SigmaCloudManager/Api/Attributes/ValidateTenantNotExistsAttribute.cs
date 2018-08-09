@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.Api.Models;
-using SCM.Services;
+using Mind.Services;
 
 namespace Mind.Api.Attributes
 {

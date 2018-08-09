@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.Api.Models;
-using SCM.Services;
+using Mind.Services;
 
 namespace Mind.Api.Attributes
 {
@@ -43,13 +43,11 @@ namespace Mind.Api.Attributes
 
                     if (tenantId.HasValue)
                     {
+                        if ((await _tenantService.GetByIDAsync(tenantId.Value)) == null)
                         {
-                            if ((await _tenantService.GetByIDAsync(tenantId.Value)) == null)
-                            {
-                                context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
-                                context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
-                                return;
-                            }
+                            context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
+                            context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
+                            return;
                         }
                     }
                 }

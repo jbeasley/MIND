@@ -42,6 +42,20 @@ namespace Mind.Api.Models
         public string Name { get; set; }
 
         /// <summary>
+        /// The administrator sub-field of the routing instance
+        /// </summary>
+        /// <value>The assigned-number sub-field of the routing instance</value>
+        [DataMember(Name = "administrator-sub-field")]
+        public int? AdministratorSubField { get; set; }
+
+        /// <summary>
+        /// The assigned-number sub-field of the routing instance
+        /// </summary>
+        /// <value>The assigned-number sub-field of the routing instance</value>
+        [DataMember(Name = "assigned-number-sub-field")]
+        public int? AssignedNumberSubField { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -50,6 +64,8 @@ namespace Mind.Api.Models
             var sb = new StringBuilder();
             sb.Append("class RoutingInstance {\n");
             sb.Append("  RoutingInstanceId: ").Append(RoutingInstanceId).Append("\n");
+            sb.Append("  AdministratorSubField: ").Append(AdministratorSubField).Append("\n");
+            sb.Append("  AssignedNumberSubField: ").Append(AssignedNumberSubField).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -91,7 +107,17 @@ namespace Mind.Api.Models
                     RoutingInstanceId == other.RoutingInstanceId ||
                     RoutingInstanceId != null &&
                     RoutingInstanceId.Equals(other.RoutingInstanceId)
-                ) && 
+                ) &&
+                (
+                    AdministratorSubField == other.AdministratorSubField ||
+                    AdministratorSubField != null &&
+                    AdministratorSubField.Equals(other.AdministratorSubField)
+                ) &&
+                (
+                    AssignedNumberSubField == other.AssignedNumberSubField ||
+                    AssignedNumberSubField != null &&
+                    AssignedNumberSubField.Equals(other.AssignedNumberSubField)
+                ) &&
                 (
                     Name == other.Name ||
                     Name != null &&
@@ -109,9 +135,13 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (RoutingInstanceId != null)
+                if (RoutingInstanceId != null)
                     hashCode = hashCode * 59 + RoutingInstanceId.GetHashCode();
-                    if (Name != null)
+                if (AdministratorSubField != null)
+                    hashCode = hashCode * 59 + AdministratorSubField.GetHashCode();
+                if (AssignedNumberSubField != null)
+                    hashCode = hashCode * 59 + AssignedNumberSubField.GetHashCode();
+                if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
                 return hashCode;
             }

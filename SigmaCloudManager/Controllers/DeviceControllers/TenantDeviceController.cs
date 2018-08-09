@@ -14,6 +14,7 @@ using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Hubs;
 using SCM.Validators;
+using Mind.Services;
 
 namespace SCM.Controllers
 {

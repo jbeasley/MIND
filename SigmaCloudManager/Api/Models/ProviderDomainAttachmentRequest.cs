@@ -28,13 +28,6 @@ namespace Mind.Api.Models
     public partial class ProviderDomainAttachmentRequest : IEquatable<ProviderDomainAttachmentRequest>
     { 
         /// <summary>
-        /// Determines if the attachment is enabled for layer 3
-        /// </summary>
-        /// <value>Determines if the attachment is enabled for layer 3</value>
-        [DataMember(Name="isLayer3")]
-        public bool? IsLayer3 { get; set; }
-
-        /// <summary>
         /// Determines if a bundle style of attachment is required
         /// </summary>
         /// <value>Determines if a bundle style of attachment is required</value>
@@ -47,13 +40,6 @@ namespace Mind.Api.Models
         /// <value>Determines if a multi port style of attachment is required</value>
         [DataMember(Name="multiportRequired")]
         public bool? MultiportRequired { get; set; }
-
-        /// <summary>
-        /// Determines if the attachment should be enabled for tagging
-        /// </summary>
-        /// <value>Determines if the attachment should be enabled for tagging</value>
-        [DataMember(Name="isTagged")]
-        public bool? IsTagged { get; set; }
 
         /// <summary>
         /// The name of a provider network location within which the new attachment will be provisioned
@@ -86,16 +72,16 @@ namespace Mind.Api.Models
         public enum PlaneNameEnum
         { 
             /// <summary>
-            /// Enum RedEnum for Red
+            /// Enum member for the Red plane
             /// </summary>
             [EnumMember(Value = "Red")]
-            RedEnum = 1,
+            Red = 1,
             
             /// <summary>
-            /// Enum BlueEnum for Blue
+            /// Enum member for the Blue plane
             /// </summary>
             [EnumMember(Value = "Blue")]
-            BlueEnum = 2
+            Blue = 2
         }
 
         /// <summary>
@@ -127,76 +113,11 @@ namespace Mind.Api.Models
         public bool? TrustReceivedCosDscp { get; set; }
 
         /// <summary>
-        /// IPv4 address assigned to the first connection in the attachment
+        /// IPv4 addresses to be assigned to the interfaces of the attachment.
         /// </summary>
-        /// <value>IPv4 address assigned to the first connection in the attachment</value>
-        [DataMember(Name="ipAddress1")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
-        public string IpAddress1 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the first connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the first connection in the attachment</value>
-        [DataMember(Name="subnetMask1")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
-        public string SubnetMask1 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the second connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the second connection in the attachment</value>
-        [DataMember(Name="ipAddress2")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
-        public string IpAddress2 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the second connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the second connection in the attachment</value>
-        [DataMember(Name="subnetMask2")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
-        public string SubnetMask2 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the third connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the third connection in the attachment</value>
-        [DataMember(Name="ipAddress3")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
-        public string IpAddress3 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the third connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the third connection in the attachment</value>
-        [DataMember(Name="subnetMask3")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
-        public string SubnetMask3 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the fourth connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the fourth connection in the attachment</value>
-        [DataMember(Name="ipAddress4")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
-        public string IpAddress4 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the fourth connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the fourth connection in the attachment</value>
-        [DataMember(Name="subnetMask4")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
-        public string SubnetMask4 { get; set; }
+        /// <value>A list of IPv4 addresses and subnet masks</value>
+        [DataMember(Name="ipv4Addresses")]
+        public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -206,10 +127,8 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class TenantAttachmentRequest {\n");
-            sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
             sb.Append("  BundleRequired: ").Append(BundleRequired).Append("\n");
             sb.Append("  MultiportRequired: ").Append(MultiportRequired).Append("\n");
-            sb.Append("  IsTagged: ").Append(IsTagged).Append("\n");
             sb.Append("  LocationName: ").Append(LocationName).Append("\n");
             sb.Append("  PortPoolName: ").Append(PortPoolName).Append("\n");
             sb.Append("  AttachmentRoleName: ").Append(AttachmentRoleName).Append("\n");
@@ -217,14 +136,7 @@ namespace Mind.Api.Models
             sb.Append("  AttachmentBandwidthGbps: ").Append(AttachmentBandwidthGbps).Append("\n");
             sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
             sb.Append("  TrustReceivedCosDscp: ").Append(TrustReceivedCosDscp).Append("\n");
-            sb.Append("  IpAddress1: ").Append(IpAddress1).Append("\n");
-            sb.Append("  SubnetMask1: ").Append(SubnetMask1).Append("\n");
-            sb.Append("  IpAddress2: ").Append(IpAddress2).Append("\n");
-            sb.Append("  SubnetMask2: ").Append(SubnetMask2).Append("\n");
-            sb.Append("  IpAddress3: ").Append(IpAddress3).Append("\n");
-            sb.Append("  SubnetMask3: ").Append(SubnetMask3).Append("\n");
-            sb.Append("  IpAddress4: ").Append(IpAddress4).Append("\n");
-            sb.Append("  SubnetMask4: ").Append(SubnetMask4).Append("\n");
+            sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -260,27 +172,17 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
-                (
-                    IsLayer3 == other.IsLayer3 ||
-                    IsLayer3 != null &&
-                    IsLayer3.Equals(other.IsLayer3)
-                ) && 
+            return
                 (
                     BundleRequired == other.BundleRequired ||
                     BundleRequired != null &&
                     BundleRequired.Equals(other.BundleRequired)
-                ) && 
+                ) &&
                 (
                     MultiportRequired == other.MultiportRequired ||
                     MultiportRequired != null &&
                     MultiportRequired.Equals(other.MultiportRequired)
-                ) && 
-                (
-                    IsTagged == other.IsTagged ||
-                    IsTagged != null &&
-                    IsTagged.Equals(other.IsTagged)
-                ) && 
+                ) &&
                 (
                     LocationName == other.LocationName ||
                     LocationName != null &&
@@ -300,61 +202,26 @@ namespace Mind.Api.Models
                     PlaneName == other.PlaneName ||
                     PlaneName != null &&
                     PlaneName.Equals(other.PlaneName)
-                ) && 
+                ) &&
                 (
                     AttachmentBandwidthGbps == other.AttachmentBandwidthGbps ||
                     AttachmentBandwidthGbps != null &&
                     AttachmentBandwidthGbps.Equals(other.AttachmentBandwidthGbps)
-                ) && 
+                ) &&
                 (
                     ContractBandwidthMbps == other.ContractBandwidthMbps ||
                     ContractBandwidthMbps != null &&
                     ContractBandwidthMbps.Equals(other.ContractBandwidthMbps)
-                ) && 
+                ) &&
                 (
                     TrustReceivedCosDscp == other.TrustReceivedCosDscp ||
                     TrustReceivedCosDscp != null &&
                     TrustReceivedCosDscp.Equals(other.TrustReceivedCosDscp)
-                ) && 
+                ) &&
                 (
-                    IpAddress1 == other.IpAddress1 ||
-                    IpAddress1 != null &&
-                    IpAddress1.Equals(other.IpAddress1)
-                ) && 
-                (
-                    SubnetMask1 == other.SubnetMask1 ||
-                    SubnetMask1 != null &&
-                    SubnetMask1.Equals(other.SubnetMask1)
-                ) && 
-                (
-                    IpAddress2 == other.IpAddress2 ||
-                    IpAddress2 != null &&
-                    IpAddress2.Equals(other.IpAddress2)
-                ) && 
-                (
-                    SubnetMask2 == other.SubnetMask2 ||
-                    SubnetMask2 != null &&
-                    SubnetMask2.Equals(other.SubnetMask2)
-                ) && 
-                (
-                    IpAddress3 == other.IpAddress3 ||
-                    IpAddress3 != null &&
-                    IpAddress3.Equals(other.IpAddress3)
-                ) && 
-                (
-                    SubnetMask3 == other.SubnetMask3 ||
-                    SubnetMask3 != null &&
-                    SubnetMask3.Equals(other.SubnetMask3)
-                ) && 
-                (
-                    IpAddress4 == other.IpAddress4 ||
-                    IpAddress4 != null &&
-                    IpAddress4.Equals(other.IpAddress4)
-                ) && 
-                (
-                    SubnetMask4 == other.SubnetMask4 ||
-                    SubnetMask4 != null &&
-                    SubnetMask4.Equals(other.SubnetMask4)
+                    Ipv4Addresses == other.Ipv4Addresses ||
+                    Ipv4Addresses != null &&
+                    Ipv4Addresses.Equals(other.Ipv4Addresses)
                 );
         }
 
@@ -368,14 +235,10 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (IsLayer3 != null)
-                    hashCode = hashCode * 59 + IsLayer3.GetHashCode();
                     if (BundleRequired != null)
                     hashCode = hashCode * 59 + BundleRequired.GetHashCode();
                     if (MultiportRequired != null)
                     hashCode = hashCode * 59 + MultiportRequired.GetHashCode();
-                    if (IsTagged != null)
-                    hashCode = hashCode * 59 + IsTagged.GetHashCode();
                     if (LocationName != null)
                     hashCode = hashCode * 59 + LocationName.GetHashCode();
                     if (PortPoolName != null)
@@ -390,22 +253,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + ContractBandwidthMbps.GetHashCode();
                     if (TrustReceivedCosDscp != null)
                     hashCode = hashCode * 59 + TrustReceivedCosDscp.GetHashCode();
-                    if (IpAddress1 != null)
-                    hashCode = hashCode * 59 + IpAddress1.GetHashCode();
-                    if (SubnetMask1 != null)
-                    hashCode = hashCode * 59 + SubnetMask1.GetHashCode();
-                    if (IpAddress2 != null)
-                    hashCode = hashCode * 59 + IpAddress2.GetHashCode();
-                    if (SubnetMask2 != null)
-                    hashCode = hashCode * 59 + SubnetMask2.GetHashCode();
-                    if (IpAddress3 != null)
-                    hashCode = hashCode * 59 + IpAddress3.GetHashCode();
-                    if (SubnetMask3 != null)
-                    hashCode = hashCode * 59 + SubnetMask3.GetHashCode();
-                    if (IpAddress4 != null)
-                    hashCode = hashCode * 59 + IpAddress4.GetHashCode();
-                    if (SubnetMask4 != null)
-                    hashCode = hashCode * 59 + SubnetMask4.GetHashCode();
+                    if (Ipv4Addresses != null)
+                    hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
                 return hashCode;
             }
         }

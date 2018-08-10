@@ -229,11 +229,19 @@ namespace SCM
             builder.RegisterType<ProviderDomainAttachmentService>().As<IProviderDomainAttachmentService>();
             builder.RegisterType<ProviderDomainAttachmentDirector>().As<IProviderDomainAttachmentDirector>();
             builder.RegisterType<AttachmentBuilder>().As<IAttachmentBuilder>().Keyed<IAttachmentBuilder>("Attachment");
+            builder.RegisterType<BundleAttachmentBuilder>().As<IAttachmentBuilder>().Keyed<IAttachmentBuilder>("BundleAttachment");
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IAttachmentBuilder>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
                 return (attachmentRequest) =>
-                {
+                {   if (attachmentRequest.BundleRequired.HasValue)
+                    {
+                        if (attachmentRequest.BundleRequired.Value)
+                        {
+                            return context.ResolveKeyed<IAttachmentBuilder>("BundleAttachment");
+                        }
+                    }
+
                     return context.ResolveKeyed<IAttachmentBuilder>("Attachment");
                 };
             });

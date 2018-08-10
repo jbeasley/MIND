@@ -26,7 +26,7 @@ namespace SCM.Services
         public async Task<IEnumerable<AttachmentRole>> GetAllByPortPoolIDAsync(int portPoolID, int? deviceRoleID = null, 
             bool deep = false, bool asTrackable = false)
         {
-            var p = deep ? Properties : string.Empty;
+            var p = deep ? Properties : "DeviceRoleAttachmentRoles";
             var attachmentRoles = await this.UnitOfWork.AttachmentRoleRepository.GetAsync(q => q.PortPoolID == portPoolID, 
                 includeProperties: p, 
                 AsTrackable: asTrackable);

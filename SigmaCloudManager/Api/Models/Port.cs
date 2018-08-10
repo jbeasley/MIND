@@ -77,6 +77,20 @@ namespace Mind.Api.Models
         public string PortPool { get; set; }
 
         /// <summary>
+        /// Port connector type
+        /// </summary>
+        /// <value>Port connector type</value>
+        [DataMember(Name = "portConnector")]
+        public string PortConnector { get; set; }
+
+        /// <summary>
+        /// Port Bandwidth in Gbps
+        /// </summary>
+        /// <value>Port bandwidth in Gbps</value>
+        [DataMember(Name = "portBandwidthGbps")]
+        public int? PortBandwidthGbps { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -91,6 +105,8 @@ namespace Mind.Api.Models
             sb.Append("  PortStatus: ").Append(PortStatus).Append("\n");
             sb.Append("  PortRole: ").Append(PortRole).Append("\n");
             sb.Append("  PortPool: ").Append(PortPool).Append("\n");
+            sb.Append("  PortConnector: ").Append(PortConnector).Append("\n");
+            sb.Append("  PortBandwidthGbps: ").Append(PortBandwidthGbps).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -126,41 +142,51 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     PortId == other.PortId ||
                     PortId != null &&
                     PortId.Equals(other.PortId)
-                ) && 
+                ) &&
                 (
                     Type == other.Type ||
                     Type != null &&
                     Type.Equals(other.Type)
-                ) && 
+                ) &&
                 (
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
-                ) && 
+                ) &&
                 (
                     PortSfp == other.PortSfp ||
                     PortSfp != null &&
                     PortSfp.Equals(other.PortSfp)
-                ) && 
+                ) &&
                 (
                     PortStatus == other.PortStatus ||
                     PortStatus != null &&
                     PortStatus.Equals(other.PortStatus)
-                ) && 
+                ) &&
                 (
                     PortRole == other.PortRole ||
                     PortRole != null &&
                     PortRole.Equals(other.PortRole)
-                ) && 
+                ) &&
                 (
                     PortPool == other.PortPool ||
                     PortPool != null &&
                     PortPool.Equals(other.PortPool)
+                ) &&
+                (
+                    PortConnector == other.PortConnector ||
+                    PortConnector != null &&
+                    PortConnector.Equals(other.PortConnector)
+                ) &&
+                (
+                    PortBandwidthGbps == other.PortBandwidthGbps ||
+                    PortBandwidthGbps != null &&
+                    PortBandwidthGbps.Equals(other.PortBandwidthGbps)
                 );
         }
 
@@ -188,6 +214,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + PortRole.GetHashCode();
                     if (PortPool != null)
                     hashCode = hashCode * 59 + PortPool.GetHashCode();
+                    if (PortConnector != null)
+                    hashCode = hashCode * 59 + PortConnector.GetHashCode();
+                    if (PortBandwidthGbps != null)
+                    hashCode = hashCode * 59 + PortBandwidthGbps.GetHashCode();
                 return hashCode;
             }
         }

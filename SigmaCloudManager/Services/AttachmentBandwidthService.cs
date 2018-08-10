@@ -16,21 +16,21 @@ namespace SCM.Services
         {
         }
 
-        public async Task<IEnumerable<AttachmentBandwidth>> GetAllAsync()
+        public async Task<IEnumerable<AttachmentBandwidth>> GetAllAsync(bool asTrackable = false)
         {
-            return await this.UnitOfWork.AttachmentBandwidthRepository.GetAsync();
+            return await this.UnitOfWork.AttachmentBandwidthRepository.GetAsync(AsTrackable: asTrackable);
         }
    
-        public async Task<AttachmentBandwidth> GetAsync(int bandwidth)
+        public async Task<AttachmentBandwidth> GetAsync(int bandwidth, bool asTrackable = false)
         {
-            var dbResult = await this.UnitOfWork.AttachmentBandwidthRepository.GetAsync(q => q.BandwidthGbps == bandwidth);
+            var dbResult = await this.UnitOfWork.AttachmentBandwidthRepository.GetAsync(q => q.BandwidthGbps == bandwidth, AsTrackable: asTrackable);
             return dbResult.SingleOrDefault();
         }
 
-        public async Task<AttachmentBandwidth> GetByIDAsync(int id)
+        public async Task<AttachmentBandwidth> GetByIDAsync(int id, bool asTrackable = false)
         {
             var dbResult = await this.UnitOfWork.AttachmentBandwidthRepository.GetAsync(q => q.AttachmentBandwidthID == id, 
-                AsTrackable: false);
+                AsTrackable: asTrackable);
             return dbResult.SingleOrDefault();
         }
 

@@ -31,12 +31,15 @@ namespace Mind.Api.Models
             CreateMap<SCM.Models.Attachment, Mind.Api.Models.Attachment>()
                 .ForMember(dst => dst.InfrastructureDevice, conf => conf.MapFrom(src => src.Device))
                 .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps));
-
+            CreateMap<SCM.Models.Interface, Mind.Api.Models.Interface>();
             CreateMap<SCM.Models.Port, Mind.Api.Models.Port>()
+                .ForMember(dst => dst.PortId, conf => conf.MapFrom(src => src.ID))
                 .ForMember(dst => dst.PortPool, conf => conf.MapFrom(src => src.PortPool.Name))
                 .ForMember(dst => dst.PortRole, conf => conf.MapFrom(src => src.PortPool.PortRole.Name))
                 .ForMember(dst => dst.PortSfp, conf => conf.MapFrom(src => src.PortSfp.Name))
-                .ForMember(dst => dst.PortStatus, conf => conf.MapFrom(src => src.PortStatus.Name));
+                .ForMember(dst => dst.PortStatus, conf => conf.MapFrom(src => src.PortStatus.Name))
+                .ForMember(dst => dst.PortConnector, conf => conf.MapFrom(src => src.PortConnector.Name))
+                .ForMember(dst => dst.PortBandwidthGbps, conf => conf.MapFrom(src => src.PortBandwidth.BandwidthGbps));
 
             // Map API input request models to entity models
 

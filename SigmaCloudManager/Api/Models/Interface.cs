@@ -25,28 +25,35 @@ namespace Mind.Api.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class ContractBandwidthPool : IEquatable<ContractBandwidthPool>
+    public partial class Interface : IEquatable<Interface>
     { 
         /// <summary>
-        /// The name of the contract bandwidth pool 
+        /// The ID of the interface
         /// </summary>
-        /// <value>The name of the contract bandwidth pool </value>
-        [DataMember(Name="name")]
-        public string Name { get; set; }
+        /// <value>The ID of the interface</value>
+        [DataMember(Name="interfaceId")]
+        public int? InterfaceId { get; set; }
 
         /// <summary>
-        /// The contract bandwidth of the pool in Mbps
+        /// IPv4 address assigned to the interface
         /// </summary>
-        /// <value>The contract bandwidth of the pool in Mbps</value>
-        [DataMember(Name="contractBandwidthMbps")]
-        public int? ContractBandwidthMbps { get; set; }
+        /// <value>IPv4 address assigned to the interface</value>
+        [DataMember(Name = "ipAddress")]
+        public string IpAddress { get; set; }
 
         /// <summary>
-        /// Determines whether DSCP and COS markings of packets should be trusted by the provider
+        /// IPv4 subnet mask assigned to the interface
         /// </summary>
-        /// <value>Determines whether DSCP and COS markings of packets should be trusted by the provider</value>
-        [DataMember(Name = "trustReceivedCosDscp")]
-        public bool? TrustReceivedCosDscp { get; set; }
+        /// <value>IPv4 subnet mask assigned to the interface</value>
+        [DataMember(Name = "subnetMask")]
+        public string SubnetMask { get; set; }
+
+        /// <summary>
+        /// Ports which provide physical connectivity to the network for the interface
+        /// </summary>
+        /// <value>The ports of the interface</value>
+        [DataMember(Name = "ports")]
+        public List<Port> Ports { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -55,10 +62,11 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class ContractBandwidthPool {\n");
-            sb.Append("  Name: ").Append(Name).Append("\n");
-            sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
-            sb.Append("  TrustReceivedCosDscp: ").Append(TrustReceivedCosDscp).Append("\n");
+            sb.Append("class interface {\n");
+            sb.Append("  interfaceId: ").Append(InterfaceId).Append("\n");
+            sb.Append("  ipAddress: ").Append(IpAddress).Append("\n");
+            sb.Append("  subnetMask: ").Append(SubnetMask).Append("\n");
+            sb.Append("  ports: ").Append(Ports).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -81,34 +89,39 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ContractBandwidthPool)obj);
+            return obj.GetType() == GetType() && Equals((Interface)obj);
         }
 
         /// <summary>
-        /// Returns true if ContractBandwidthPool instances are equal
+        /// Returns true if Interface instances are equal
         /// </summary>
-        /// <param name="other">Instance of ContractBandwidthPool to be compared</param>
+        /// <param name="other">Instance of Interafce to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(ContractBandwidthPool other)
+        public bool Equals(Interface other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return
                 (
-                    Name == other.Name ||
-                    Name != null &&
-                    Name.Equals(other.Name)
+                    InterfaceId == other.InterfaceId ||
+                    InterfaceId != null &&
+                    InterfaceId.Equals(other.InterfaceId)
                 ) &&
                 (
-                    ContractBandwidthMbps == other.ContractBandwidthMbps ||
-                    ContractBandwidthMbps != null &&
-                    ContractBandwidthMbps.Equals(other.ContractBandwidthMbps)
+                    IpAddress == other.IpAddress ||
+                    IpAddress != null &&
+                    IpAddress.Equals(other.IpAddress)
                 ) &&
                 (
-                    TrustReceivedCosDscp == other.TrustReceivedCosDscp ||
-                    TrustReceivedCosDscp != null &&
-                    TrustReceivedCosDscp.Equals(other.TrustReceivedCosDscp)
+                    SubnetMask == other.SubnetMask ||
+                    SubnetMask != null &&
+                    SubnetMask.Equals(other.SubnetMask)
+                ) &&
+                (
+                    Ports == other.Ports ||
+                    Ports != null &&
+                    Ports.Equals(other.Ports)
                 );
         }
 
@@ -122,12 +135,15 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Name != null)
-                    hashCode = hashCode * 59 + Name.GetHashCode();
-                    if (ContractBandwidthMbps != null)
-                    hashCode = hashCode * 59 + ContractBandwidthMbps.GetHashCode();
-                    if (TrustReceivedCosDscp != null)
-                    hashCode = hashCode * 59 + TrustReceivedCosDscp.GetHashCode();
+                    if (InterfaceId != null)
+                    hashCode = hashCode * 59 + InterfaceId.GetHashCode();
+                    if (IpAddress != null)
+                    hashCode = hashCode * 59 + IpAddress.GetHashCode();
+                    if (SubnetMask != null)
+                    hashCode = hashCode * 59 + SubnetMask.GetHashCode();
+                    if (Ports != null)
+                    hashCode = hashCode * 59 + Ports.GetHashCode();
+
                 return hashCode;
             }
         }
@@ -135,12 +151,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(ContractBandwidthPool left, ContractBandwidthPool right)
+        public static bool operator ==(Interface left, Interface right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(ContractBandwidthPool left, ContractBandwidthPool right)
+        public static bool operator !=(Interface left, Interface right)
         {
             return !Equals(left, right);
         }

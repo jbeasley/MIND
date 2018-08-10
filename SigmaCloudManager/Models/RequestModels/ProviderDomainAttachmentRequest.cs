@@ -16,12 +16,6 @@ namespace SCM.Models.RequestModels
     public partial class ProviderDomainAttachmentRequest
     { 
         /// <summary>
-        /// Determines if the attachment is enabled for layer 3
-        /// </summary>
-        /// <value>Determines if the attachment is enabled for layer 3</value>
-        public bool? IsLayer3 { get; set; }
-
-        /// <summary>
         /// Determines if a bundle style of attachment is required
         /// </summary>
         /// <value>Determines if a bundle style of attachment is required</value>
@@ -32,13 +26,6 @@ namespace SCM.Models.RequestModels
         /// </summary>
         /// <value>Determines if a multi port style of attachment is required</value>
         public bool? MultiportRequired { get; set; }
-
-        /// <summary>
-        /// Determines if the attachment should be enabled for tagging
-        /// </summary>
-        /// <value>Determines if the attachment should be enabled for tagging</value>
-   
-        public bool? IsTagged { get; set; }
 
         /// <summary>
         /// The name of a provider network location within which the new attachment will be provisioned
@@ -68,14 +55,14 @@ namespace SCM.Models.RequestModels
         public enum PlaneNameEnum
         { 
             /// <summary>
-            /// Enum RedEnum for Red
+            /// Enum member for the Red plane
             /// </summary>
-            RedEnum = 1,
+            Red = 1,
             
             /// <summary>
-            /// Enum BlueEnum for Blue
+            /// Enum member for the Blue plane
             /// </summary>
-            BlueEnum = 2
+            Blue = 2
         }
 
         /// <summary>
@@ -102,54 +89,11 @@ namespace SCM.Models.RequestModels
         /// <value>Determines whether DSCP and COS markings of packets sent from the tenant network should be trusted by the provider</value>
         public bool? TrustReceivedCosDscp { get; set; }
 
-        /// <summary>
-        /// IPv4 address assigned to the first connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the first connection in the attachment</value>
-        public string IpAddress1 { get; set; }
 
         /// <summary>
-        /// IPv4 subnet mask assigned to the first connection in the attachment
+        /// IPv4 addresses to be assigned to the interfaces of the attachment.
         /// </summary>
-        /// <value>IPv4 subnet mask assigned to the first connection in the attachment</value>
-        public string SubnetMask1 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the second connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the second connection in the attachment</value>
-        public string IpAddress2 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the second connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the second connection in the attachment</value>
-        public string SubnetMask2 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the third connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the third connection in the attachment</value>
-        public string IpAddress3 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the third connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the third connection in the attachment</value>
-        public string SubnetMask3 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the fourth connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the fourth connection in the attachment</value>
-        public string IpAddress4 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the fourth connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the fourth connection in the attachment</value>
-        public string SubnetMask4 { get; set; }
-
-       
+        /// <value>A list of IPv4 addresses and subnet masks</value>
+        public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
     }
 }

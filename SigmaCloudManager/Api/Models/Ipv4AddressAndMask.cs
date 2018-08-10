@@ -1,4 +1,4 @@
-/*
+﻿/*
  * MIND API
  *
  * This is the Master Inventory Network Database (MIND) API. MIND provides automated allocation of technical attributes needed to create IP and Ethernet VPNs on the global Sigma network. MIND supports the 'Nova' services specfication which defines the collection of connectivity services supported by ENT. Go to https://thehub.thomsonreuters.com/docs/DOC-2193014 to learn more.
@@ -20,33 +20,32 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Mind.Api.Models
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
     [DataContract]
-    public partial class ContractBandwidthPool : IEquatable<ContractBandwidthPool>
-    { 
+    public partial class Ipv4AddressAndMask : IEquatable<Ipv4AddressAndMask>
+    {
         /// <summary>
-        /// The name of the contract bandwidth pool 
+        /// IPv4 address
         /// </summary>
-        /// <value>The name of the contract bandwidth pool </value>
-        [DataMember(Name="name")]
-        public string Name { get; set; }
+        /// <value>IPv4 address assigned to the first connection in the attachment</value>
+        [DataMember(Name = "ipAddress")]
+        [Required(AllowEmptyStrings = false)]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
+        public string IpAddress { get; set; }
 
         /// <summary>
-        /// The contract bandwidth of the pool in Mbps
+        /// IPv4 subnet mask 
         /// </summary>
-        /// <value>The contract bandwidth of the pool in Mbps</value>
-        [DataMember(Name="contractBandwidthMbps")]
-        public int? ContractBandwidthMbps { get; set; }
-
-        /// <summary>
-        /// Determines whether DSCP and COS markings of packets should be trusted by the provider
-        /// </summary>
-        /// <value>Determines whether DSCP and COS markings of packets should be trusted by the provider</value>
-        [DataMember(Name = "trustReceivedCosDscp")]
-        public bool? TrustReceivedCosDscp { get; set; }
+        /// <value>IPv4 subnet mask assigned to the first connection in the attachment</value>
+        [DataMember(Name = "subnetMask")]
+        [Required(AllowEmptyStrings = false)]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
+        public string SubnetMask { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -55,10 +54,9 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class ContractBandwidthPool {\n");
-            sb.Append("  Name: ").Append(Name).Append("\n");
-            sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
-            sb.Append("  TrustReceivedCosDscp: ").Append(TrustReceivedCosDscp).Append("\n");
+            sb.Append("class Ipv4AddressAndMask {\n");
+            sb.Append("  IpAddress: ").Append(IpAddress).Append("\n");
+            sb.Append("  SubnetMask: ").Append(SubnetMask).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -81,34 +79,29 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ContractBandwidthPool)obj);
+            return obj.GetType() == GetType() && Equals((Ipv4AddressAndMask)obj);
         }
 
         /// <summary>
-        /// Returns true if ContractBandwidthPool instances are equal
+        /// Returns true if Attachment instances are equal
         /// </summary>
-        /// <param name="other">Instance of ContractBandwidthPool to be compared</param>
+        /// <param name="other">Instance of Attachment to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(ContractBandwidthPool other)
+        public bool Equals(Ipv4AddressAndMask other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return
                 (
-                    Name == other.Name ||
-                    Name != null &&
-                    Name.Equals(other.Name)
+                    IpAddress == other.IpAddress ||
+                    IpAddress != null &&
+                    IpAddress.Equals(other.IpAddress)
                 ) &&
                 (
-                    ContractBandwidthMbps == other.ContractBandwidthMbps ||
-                    ContractBandwidthMbps != null &&
-                    ContractBandwidthMbps.Equals(other.ContractBandwidthMbps)
-                ) &&
-                (
-                    TrustReceivedCosDscp == other.TrustReceivedCosDscp ||
-                    TrustReceivedCosDscp != null &&
-                    TrustReceivedCosDscp.Equals(other.TrustReceivedCosDscp)
+                    SubnetMask == other.SubnetMask ||
+                    SubnetMask != null &&
+                    SubnetMask.Equals(other.SubnetMask)
                 );
         }
 
@@ -122,12 +115,10 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Name != null)
-                    hashCode = hashCode * 59 + Name.GetHashCode();
-                    if (ContractBandwidthMbps != null)
-                    hashCode = hashCode * 59 + ContractBandwidthMbps.GetHashCode();
-                    if (TrustReceivedCosDscp != null)
-                    hashCode = hashCode * 59 + TrustReceivedCosDscp.GetHashCode();
+                if (IpAddress != null)
+                    hashCode = hashCode * 59 + IpAddress.GetHashCode();
+                if (SubnetMask != null)
+                    hashCode = hashCode * 59 + SubnetMask.GetHashCode();
                 return hashCode;
             }
         }
@@ -135,12 +126,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(ContractBandwidthPool left, ContractBandwidthPool right)
+        public static bool operator ==(Ipv4AddressAndMask left, Ipv4AddressAndMask right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(ContractBandwidthPool left, ContractBandwidthPool right)
+        public static bool operator !=(Ipv4AddressAndMask left, Ipv4AddressAndMask right)
         {
             return !Equals(left, right);
         }

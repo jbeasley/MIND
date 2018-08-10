@@ -19,19 +19,14 @@ namespace Mind.Builders
         public async Task<SCM.Models.Attachment> BuildAsync(int tenantId, ProviderDomainAttachmentRequest request)
         {
             var builder = _builderFactory(request);
-            builder.Init(tenantId);
-            await builder.SetAttachmentRoleAsync(request.PortPoolName, request.AttachmentRoleName);
-            await builder.SetAttachmentBandwidthAsync(request.AttachmentBandwidthGbps);
-            await builder.AllocatePortsAsync(request.LocationName, request.PlaneName.ToString());
-            await builder.SetMtuAsync();
-            builder.CreateInterfaces(request.IpAddress1, request.SubnetMask1);
-            var attachmentRole = builder.GetResult().AttachmentRole;
-            await builder.CreateRoutingInstanceAsync();
-            if (attachmentRole.RequireContractBandwidth) {
-                await builder.CreateContractBandwidthPoolAsync(tenantId, request.ContractBandwidthMbps);
-            }
-
-            return builder.GetResult();
+            return await builder.ForTenant(tenantId)
+                                .WithAttachmentRole(request.PortPoolName, request.AttachmentRoleName)
+                                .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
+                                .WithLocation(request.LocationName)
+                                .WithPlane(request.PlaneName.ToString())
+                                .WithInterfaces(request.Ipv4Addresses)
+                                .WithContractBandwidth(request.ContractBandwidthMbps, request.TrustReceivedCosDscp)
+                                .BuildAsync();
         }
     }
 }

@@ -9,17 +9,14 @@ namespace Mind.Builders
 {
     public interface IAttachmentBuilder
     {
-        IAttachmentBuilder Init(int tenantId);
-        IAttachmentBuilder CreateInterfaces(string IpAddress, string subnetMask);
-        IAttachmentBuilder SetNumPortsRequired(int numPortsRequired);
-        IAttachmentBuilder SetPortBandwidthRequired(int portBandwidthRequired);
-        Task SetAttachmentRoleAsync(string portPoolName, string attachmentRoleName);
-        Task SetAttachmentBandwidthAsync(int? attachmentBandwidthGbps);
-        Task SetMtuAsync();
-        Task AllocatePortsAsync(string locationName, string planeName);
-        Task CreateContractBandwidthPoolAsync(int tenantID, int? contractBandwidthMbps);
-        Task CreateRoutingInstanceAsync();
-        Attachment GetResult();
+        IAttachmentBuilder ForTenant(int tenantId);
+        IAttachmentBuilder WithInterfaces(List<Ipv4AddressAndMask> ipv4Addresses);
+        IAttachmentBuilder WithAttachmentRole(string portPoolName, string attachmentRoleName);
+        IAttachmentBuilder WithAttachmentBandwidth(int? attachmentBandwidthGbps);
+        IAttachmentBuilder WithLocation(string locationName);
+        IAttachmentBuilder WithPlane(string planeName = "");
+        IAttachmentBuilder WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp = false);
+        Task<Attachment> BuildAsync();
 
     }
 }

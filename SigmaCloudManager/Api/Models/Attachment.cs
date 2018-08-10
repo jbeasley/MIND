@@ -35,13 +35,6 @@ namespace Mind.Api.Models
         public int? AttachmentId { get; set; }
 
         /// <summary>
-        /// Determines whether DSCP and COS markings of packets should be trusted by the provider
-        /// </summary>
-        /// <value>Determines whether DSCP and COS markings of packets should be trusted by the provider</value>
-        [DataMember(Name="trustReceivedCosDscp")]
-        public bool? TrustReceivedCosDscp { get; set; }
-
-        /// <summary>
         /// Determines whether the attachment is enabled for layer 3
         /// </summary>
         /// <value>Determines whether the attachment is enabled for layer 3</value>
@@ -101,6 +94,12 @@ namespace Mind.Api.Models
         public RoutingInstance RoutingInstance { get; set; }
 
         /// <summary>
+        /// Gets or Sets Interfaces
+        /// </summary>
+        [DataMember(Name = "interfaces")]
+        public List<Interface> Interfaces { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -109,7 +108,6 @@ namespace Mind.Api.Models
             var sb = new StringBuilder();
             sb.Append("class Attachment {\n");
             sb.Append("  AttachmentId: ").Append(AttachmentId).Append("\n");
-            sb.Append("  TrustReceivedCosDscp: ").Append(TrustReceivedCosDscp).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
             sb.Append("  IsBundle: ").Append(IsBundle).Append("\n");
             sb.Append("  IsMultiport: ").Append(IsMultiport).Append("\n");
@@ -159,11 +157,6 @@ namespace Mind.Api.Models
                     AttachmentId == other.AttachmentId ||
                     AttachmentId != null &&
                     AttachmentId.Equals(other.AttachmentId)
-                ) && 
-                (
-                    TrustReceivedCosDscp == other.TrustReceivedCosDscp ||
-                    TrustReceivedCosDscp != null &&
-                    TrustReceivedCosDscp.Equals(other.TrustReceivedCosDscp)
                 ) && 
                 (
                     IsLayer3 == other.IsLayer3 ||
@@ -224,8 +217,6 @@ namespace Mind.Api.Models
                 // Suitable nullity checks etc, of course :)
                     if (AttachmentId != null)
                     hashCode = hashCode * 59 + AttachmentId.GetHashCode();
-                    if (TrustReceivedCosDscp != null)
-                    hashCode = hashCode * 59 + TrustReceivedCosDscp.GetHashCode();
                     if (IsLayer3 != null)
                     hashCode = hashCode * 59 + IsLayer3.GetHashCode();
                     if (IsBundle != null)

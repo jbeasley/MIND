@@ -10,9 +10,9 @@ namespace SCM.Services
     public interface IAttachmentBandwidthService
     {
         IUnitOfWork UnitOfWork { get; }
-        Task<IEnumerable<AttachmentBandwidth>> GetAllAsync();
-        Task<AttachmentBandwidth> GetByIDAsync(int id);
-        Task<AttachmentBandwidth> GetAsync(int bandwidth);
+        Task<IEnumerable<AttachmentBandwidth>> GetAllAsync(bool asTrackable = false);
+        Task<AttachmentBandwidth> GetByIDAsync(int id, bool asTrackable = false);
+        Task<AttachmentBandwidth> GetAsync(int bandwidth, bool asTrackable = false);
         Task<int> AddAsync(AttachmentBandwidth attachmentBandwidth);
         Task<int> UpdateAsync(AttachmentBandwidth attachmentBandwidth);
         Task<int> DeleteAsync(AttachmentBandwidth attachmentBandwidth);

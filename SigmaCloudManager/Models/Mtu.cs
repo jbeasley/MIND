@@ -11,6 +11,7 @@ namespace SCM.Models
         public int MtuID { get; set; }
         public int MtuValue { get; set; }
         public bool ValueIncludesLayer2Overhead { get; set; }
+        public bool IsJumbo { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual ICollection<Attachment> Attachments { get; set; }

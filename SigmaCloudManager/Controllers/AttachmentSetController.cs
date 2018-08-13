@@ -206,13 +206,13 @@ namespace SCM.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var attachmentSet = Mapper.Map<AttachmentSet>(attachmentSetModel);
-                    await AttachmentSetValidator.ValidateChangesAsync(attachmentSet);
+                    Mapper.Map(attachmentSetModel, currentAttachmentSet);
+                    await AttachmentSetValidator.ValidateChangesAsync(currentAttachmentSet);
 
                     if (AttachmentSetValidator.ValidationDictionary.IsValid)
                     {
-                        await AttachmentSetService.UpdateAsync(attachmentSet);
-                        return RedirectToAction("GetAllByTenantID", new { id = attachmentSet.TenantID });
+                        await AttachmentSetService.UpdateAsync(currentAttachmentSet);
+                        return RedirectToAction("GetAllByTenantID", new { id = currentAttachmentSet.TenantID });
                     }
                 }
             }

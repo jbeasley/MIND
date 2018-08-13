@@ -60,6 +60,7 @@ namespace SCM.Models
         public virtual Device Device { get; set; }
         public virtual RoutingInstance RoutingInstance { get; set; }
         public virtual AttachmentBandwidth AttachmentBandwidth { get; set; }
+        [ForeignKey("ContractBandwidthPoolID")]
         public virtual ContractBandwidthPool ContractBandwidthPool { get; set; }
         public virtual Mtu Mtu { get; set; }
         public virtual AttachmentRole AttachmentRole { get; set; }

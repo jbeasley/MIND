@@ -15,6 +15,6 @@ namespace Mind.Services
         Task<Tenant> GetByNameAsync(string name);
         Task<int> AddAsync(Tenant tenant);
         Task<int> UpdateAsync(Tenant tenant);
-        Task<int> DeleteAsync(Tenant tenant);
+        Task<int> DeleteAsync(int tenantId);
     }
 }

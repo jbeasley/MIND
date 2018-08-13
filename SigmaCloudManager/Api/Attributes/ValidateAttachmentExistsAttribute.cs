@@ -13,39 +13,39 @@ using Mind.Services;
 namespace Mind.Api.Attributes
 {
     /// <summary>
-    /// Validates that a tenant exists in the database
+    /// Validates that a provider domain attachment exists in the database
     /// </summary>
-    public class ValidateTenantExistsAttribute : TypeFilterAttribute
+    public class ValidateProviderDomainAttachmentExistsAttribute : TypeFilterAttribute
     {
         /// <summary>
         /// 
         /// </summary>
-        public ValidateTenantExistsAttribute() : base(typeof(ValidateTenantExistsActionFilter))
+        public ValidateProviderDomainAttachmentExistsAttribute() : base(typeof(ValidateProviderDomainAttachmentExistsActionFilter))
         {
         }
 
-        private class ValidateTenantExistsActionFilter : IAsyncActionFilter
+        private class ValidateProviderDomainAttachmentExistsActionFilter : IAsyncActionFilter
         {
-            private readonly ITenantService _tenantService;
+            private readonly IProviderDomainAttachmentService _attachmentService;
             private readonly IMapper _mapper;
 
-            public ValidateTenantExistsActionFilter(ITenantService tenantService, IMapper mapper)
+            public ValidateProviderDomainAttachmentExistsActionFilter(IProviderDomainAttachmentService attachmentService, IMapper mapper)
             {
-                _tenantService = tenantService;
+                _attachmentService = attachmentService;
                 _mapper = mapper;
             }
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (context.ActionArguments.ContainsKey("tenantId"))
+                if (context.ActionArguments.ContainsKey("attachmentId"))
                 {
-                    var tenantId = context.ActionArguments["tenantId"] as int?;
+                    var attachmentId = context.ActionArguments["attachmentId"] as int?;
 
-                    if (tenantId.HasValue)
+                    if (attachmentId.HasValue)
                     {
-                        if ((await _tenantService.GetByIDAsync(tenantId.Value)) == null)
+                        if ((await _attachmentService.GetByIDAsync(attachmentId.Value)) == null)
                         {
-                            context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
+                            context.ModelState.AddModelError(string.Empty, "Could not find the attachment.");
                             context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
                             return;
                         }

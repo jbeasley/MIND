@@ -9,31 +9,23 @@ using SCM.Data;
 namespace Mind.Builders
 {
     /// <summary>
-    /// Builder for attachments. The builder exposes a fluent API.
+    /// Abstract builder for attachments. The builder exposes a fluent API.
     /// </summary>
-    public class AttachmentBuilder : IAttachmentBuilder
+    public abstract class AttachmentBuilder<TAttachmentBuilder> : IAttachmentBuilder<TAttachmentBuilder>
+        where TAttachmentBuilder: AttachmentBuilder<TAttachmentBuilder>
     {
         protected internal readonly IUnitOfWork _unitOfWork;
-        protected internal readonly IMtuService _mtuService;
-        protected internal readonly IAttachmentRoleService _attachmentRoleService;
-        protected internal readonly IAttachmentBandwidthService _attachmentBandwidthService;
-        protected internal readonly IContractBandwidthService _contractBandwidthService;
-        protected internal readonly ILocationService _locationService;
-        protected internal readonly IPlaneService _planeService;
-        protected internal readonly IRoutingInstanceTypeService _routingInstanceTypeService;
         protected internal IRoutingInstanceBuilder _routingInstanceBuilder;
         protected internal int _portBandwidthRequired;
         protected internal int _numPortsRequired;
         protected internal IEnumerable<Port> _ports;
-        protected internal readonly Attachment _attachment;
+        protected internal Attachment _attachment;
         protected internal Dictionary<string, object> _args;
+        protected internal TAttachmentBuilder _builder;
 
         private readonly Func<RoutingInstanceType, IRoutingInstanceBuilder> _routingInstanceBuilderFactory;
 
-        public AttachmentBuilder(IUnitOfWork unitOfWork, IMtuService mtuService, IAttachmentRoleService attachmentRoleService,
-            IAttachmentBandwidthService attachmentBandwidthService, IContractBandwidthService contractBandwidthService,
-            ILocationService locationService, IPlaneService planeService, IRoutingInstanceTypeService routingInstanceTypeService,
-            Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory)
+        public AttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory)
         {
             _args = new Dictionary<string, object>();
             _attachment = new Attachment
@@ -43,104 +35,109 @@ namespace Mind.Builders
             };
 
             _unitOfWork = unitOfWork;
-            _mtuService = mtuService;
-            _attachmentRoleService = attachmentRoleService;
-            _attachmentBandwidthService = attachmentBandwidthService;
-            _contractBandwidthService = contractBandwidthService;
-            _locationService = locationService;
-            _planeService = planeService;
-            _routingInstanceTypeService = routingInstanceTypeService;
             _routingInstanceBuilderFactory = routingInstanceBuilderFactory;
         }
 
-        public virtual IAttachmentBuilder ForTenant(int tenantId)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> ForTenant(int tenantId)
         {
             _attachment.TenantID = tenantId;
             return this;
         }
 
-        public virtual IAttachmentBuilder WithAttachmentBandwidth(int? attachmentBandwidthGbps)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps)
         {
-            if (attachmentBandwidthGbps == null)
-            {
-                throw new BuilderBadArgumentsException("A value for attachment bandwidth is required.");
-            }
+            if (attachmentBandwidthGbps == null) throw new BuilderBadArgumentsException("A value for attachment bandwidth is required.");
 
             _args.Add(nameof(attachmentBandwidthGbps), attachmentBandwidthGbps);
             return this;
         }
 
-        public virtual IAttachmentBuilder WithAttachmentRole(string portPoolName, string attachmentRoleName)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithAttachmentRole(string portPoolName, string attachmentRoleName)
         {
             _args.Add(nameof(portPoolName), portPoolName);
             _args.Add(nameof(attachmentRoleName), attachmentRoleName);
             return this;
         }
 
-        public virtual IAttachmentBuilder WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp = false)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp = false)
         {
-            if (contractBandwidthMbps == null)
+            if (contractBandwidthMbps != null)
             {
-                throw new BuilderBadArgumentsException("A value for contract bandwidth is required.");
+                _args.Add(nameof(contractBandwidthMbps), contractBandwidthMbps);
+                _args.Add(nameof(trustReceivedCosDscp), trustReceivedCosDscp != null ? trustReceivedCosDscp : false);
             }
-
-            _args.Add(nameof(contractBandwidthMbps), contractBandwidthMbps);
-            _args.Add(nameof(trustReceivedCosDscp), trustReceivedCosDscp != null ? trustReceivedCosDscp : false);
             return this;
         }
 
-        public virtual IAttachmentBuilder WithInterfaces(List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithInterfaces(List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses)
         {
-            _args.Add(nameof(ipv4Addresses), ipv4Addresses);        
+            _args.Add(nameof(ipv4Addresses), ipv4Addresses);
             return this;
         }
 
-        public virtual IAttachmentBuilder WithLocation(string locationName)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithLocation(string locationName)
         {
             _args.Add(nameof(locationName), locationName);
             return this;
         }
 
-        public virtual IAttachmentBuilder WithPlane(string planeName = "")
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithPlane(string planeName = "")
         {
             _args.Add(nameof(planeName), planeName);
             return this;
         }
 
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false)
+        {
+            _args.Add(nameof(WithJumboMtu), useJumboMtu != null ? useJumboMtu : false);
+            return this;
+        }
+
+        /// <summary>
+        /// Build the attachment
+        /// </summary>
+        /// <returns></returns>
         public virtual async Task<Attachment> BuildAsync()
         {
-            await CreateAttachmentBandwidthAsync();
+            await Task.WhenAll(new List<Task>()
+            {
+                CreateAttachmentBandwidthAsync(),
+                CreateAttachmentRoleAsync()
+            });
             SetNumberOfPortsRequired();
             SetPortBandwidthRequired();
-            await CreateAttachmentRoleAsync();
             await AllocatePortsAsync();
             CreateInterfaces();
             await SetMtuAsync();
-
-            if (_args.ContainsKey("contractBandwidthMbps"))
+            if (_attachment.AttachmentRole.RequireContractBandwidth)
             {
-                await CreateContractBandwidthPoolAsync();
+                if (_args.ContainsKey("contractBandwidthMbps") && _args["contractBandwidthMbps"] != null) await CreateContractBandwidthPoolAsync();
             }
+            if (!_attachment.AttachmentRole.IsTaggedRole) await CreateRoutingInstanceAsync();    
 
-            await CreateRoutingInstanceAsync();    
             return _attachment;
         }
 
-        protected internal virtual void SetPortBandwidthRequired()
-        {
-            _portBandwidthRequired = _attachment.AttachmentBandwidth.BandwidthGbps;
-        }
+        /// <summary>
+        /// Set the bandwidth of each port required. This method must be implemented by derived classes.
+        /// </summary>
+        protected abstract internal void SetPortBandwidthRequired();
 
-        protected internal virtual void SetNumberOfPortsRequired()
-        {
-            _numPortsRequired = 1;
-        }
+        /// <summary>
+        /// Set the number of ports required. This method must be implemented by derived classes.
+        /// </summary>
+        protected abstract internal void SetNumberOfPortsRequired();
 
+        /// <summary>
+        /// Allocate some ports from inventory for the attachment
+        /// </summary>
+        /// <returns></returns>
         protected internal virtual async Task AllocatePortsAsync()
         {
             _ports = await GetPortsAsync();
-            var assignedPortStatusResult = await _unitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusType.Assigned);
-            var assignedPortStatus = assignedPortStatusResult.Single();
+            var assignedPortStatus = (from portStatus in await _unitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusType.Assigned)
+                                      select portStatus)
+                                      .Single();
             foreach (var port in _ports)
             {
                 port.PortStatusID = assignedPortStatus.PortStatusID;
@@ -148,29 +145,39 @@ namespace Mind.Builders
             }
         }
 
+        /// <summary>
+        /// Create attachment bandwidth
+        /// </summary>
+        /// <returns></returns>
         protected internal virtual async Task CreateAttachmentBandwidthAsync()
         {
             var attachmentBandwidthGbps = (int)_args["attachmentBandwidthGbps"];
-            var attachmentBandwidth = await _attachmentBandwidthService.GetAsync(attachmentBandwidthGbps, asTrackable: true);
-            if (attachmentBandwidth == null)
-            {
-                throw new BuilderBadArgumentsException($"The requested attachment bandwidth is not valid.");
-            }
+            var attachmentBandwidth = (from attachmentBandwidths in await _unitOfWork.AttachmentBandwidthRepository.GetAsync(q =>
+            q.BandwidthGbps == attachmentBandwidthGbps, AsTrackable: true)
+                                       select attachmentBandwidths)
+                                       .SingleOrDefault();
+
+            if (attachmentBandwidth == null) throw new BuilderBadArgumentsException($"The requested attachment bandwidth is not valid.");
 
             _attachment.AttachmentBandwidthID = attachmentBandwidth.AttachmentBandwidthID;
             _attachment.AttachmentBandwidth = attachmentBandwidth;
         }
 
+        /// <summary>
+        /// Create attachment role
+        /// </summary>
+        /// <returns></returns>
         protected internal virtual async Task CreateAttachmentRoleAsync()
         {
             var attachmentRoleName = _args["attachmentRoleName"].ToString();
             var portPoolName = _args["portPoolName"].ToString();
-            var attachmentRole = await _attachmentRoleService.GetByPortPoolAndRoleName(portPoolName, attachmentRoleName, asTrackable: true);
-            if (attachmentRole == null)
-            {
-                throw new BuilderBadArgumentsException($"Could not find an attachment role from the supplied '{attachmentRoleName}' " +
+            var attachmentRole = (from attachmentRoles in await _unitOfWork.AttachmentRoleRepository.GetAsync(q =>
+            q.PortPool.Name == portPoolName && q.Name == attachmentRoleName, AsTrackable: true)
+                                  select attachmentRoles)
+                                  .SingleOrDefault();
+
+            if (attachmentRole == null) throw new BuilderBadArgumentsException($"Could not find an attachment role from the supplied '{attachmentRoleName}' " +
                     $"and '{portPoolName}' arguments.");
-            }
 
             _attachment.AttachmentRoleID = attachmentRole.AttachmentRoleID;
             _attachment.AttachmentRole = attachmentRole;
@@ -193,7 +200,8 @@ namespace Mind.Builders
                 ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args["ipv4Addresses"];
                 if (!ipv4Addresses.Any())
                 {
-                    throw new BuilderBadArgumentsException("An IPv4 address and subnet mask is required in order to create an interface for the attachment.");
+                    throw new BuilderBadArgumentsException("An IPv4 address and subnet mask is required in order to create a layer 3 " +
+                        "enabled interface for the attachment.");
                 }
 
                 var ipv4AddressAndMask = ipv4Addresses.First();
@@ -213,11 +221,13 @@ namespace Mind.Builders
                     $"than the bandwidth of the attachment which is {_attachment.AttachmentBandwidth.BandwidthGbps} Gbps.");
             }
 
-            var contractBandwidth = await _contractBandwidthService.GetAsync(contractBandwidthMbps);
-            if (contractBandwidth == null)
-            {
-                throw new BuilderBadArgumentsException($"The requested contract bandwidth of {_args["contractBandwidthMbps"]} Mbps is not valid.");
-            }
+            var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(q =>
+                                     q.BandwidthMbps == contractBandwidthMbps)
+                                     select contractBandwidths)
+                                    .SingleOrDefault();
+
+            if (contractBandwidth == null)  throw new BuilderBadArgumentsException($"The requested contract bandwidth of {_args["contractBandwidthMbps"]} " +
+                $"Mbps is not valid.");
 
             var trustReceivedCosDscp = (bool)_args["trustReceivedCosDscp"];
             var contractBandwidthPool = new ContractBandwidthPool
@@ -233,12 +243,14 @@ namespace Mind.Builders
 
         protected internal virtual async Task CreateRoutingInstanceAsync()
         {
-            if (_attachment.AttachmentRole.RoutingInstanceTypeID == null)
-            {
-                throw new BuilderUnableToCompleteException("A routing instance type is required for the attachment role but was not found.");
-            }
+            if (_attachment.AttachmentRole.RoutingInstanceTypeID == null) throw new BuilderUnableToCompleteException("A routing instance type is required " +
+                "for the attachment role but was not found.");
 
-            var routingInstanceType = await _routingInstanceTypeService.GetByIDAsync(_attachment.AttachmentRole.RoutingInstanceTypeID.Value);
+            var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(q =>
+            q.RoutingInstanceTypeID == _attachment.AttachmentRole.RoutingInstanceTypeID.Value)
+                                       select routingInstanceTypes)
+                                       .Single();
+
             _routingInstanceBuilder = _routingInstanceBuilderFactory(routingInstanceType);
             _routingInstanceBuilder.Init(_attachment.TenantID.Value, _attachment.Device.DeviceID, routingInstanceType.RoutingInstanceTypeID);
             await _routingInstanceBuilder.Create();
@@ -247,21 +259,12 @@ namespace Mind.Builders
 
         protected internal virtual async Task SetMtuAsync()
         {
-            Mtu mtu = null;
-            if (_attachment.Device.UseLayer2InterfaceMtu)
-            {
-                mtu = await _mtuService.GetByValueAsync(1514);
-            }
-            else
-            {
-                mtu = await _mtuService.GetByValueAsync(1500);
-            }
+            var useLayer2InterfaceMtu = _attachment.Device.UseLayer2InterfaceMtu;
+            var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) ? (bool)_args[nameof(WithJumboMtu)] : false;
 
-            if (mtu == null)
-            {
-                throw new BuilderUnableToCompleteException($"The MTU for the attachment could not be set. MTU values could not be found in the database. " +
-                    $"Please contact your system administrator to report this issue.");
-            }
+            var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(x => x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu)
+                       select mtus)
+                       .Single();
 
             _attachment.MtuID = mtu.MtuID;
         }
@@ -278,16 +281,13 @@ namespace Mind.Builders
             // with a status of 'Production'
 
             var locationName = _args["locationName"].ToString();
-            if (string.IsNullOrEmpty(locationName))
-            {
-                throw new BuilderBadArgumentsException("A location is required but none was supplied.");
-            }
+            if (string.IsNullOrEmpty(locationName))   throw new BuilderBadArgumentsException("A location is required but none was supplied.");
 
-            var location = await _locationService.GetByNameAsync(locationName);
-            if (location == null)
-            {
-                throw new BuilderBadArgumentsException($"The location {locationName} is not valid.");
-            }
+            var location = (from locations in await _unitOfWork.LocationRepository.GetAsync(q => q.SiteName == locationName)
+                            select locations)
+                            .SingleOrDefault();
+
+            if (location == null) throw new BuilderBadArgumentsException($"The location {locationName} is not valid.");
 
             // Find all devices with Device Status of 'Production' which are in the requested Location and which suport the 
             // required Attachment Role
@@ -303,12 +303,11 @@ namespace Mind.Builders
             var planeName = _args["planeName"] != null ? _args["planeName"].ToString() : "";
             if (!string.IsNullOrEmpty(planeName))
             {
-                var plane = await _planeService.GetByNameAsync(planeName);
-                if (plane == null)
-                {
-                    throw new BuilderBadArgumentsException($"The plane {planeName} is not valid.");
-                }
+                var plane = (from planes in await _unitOfWork.PlaneRepository.GetAsync(q => q.Name == planeName)
+                             select planes)
+                             .SingleOrDefault();
 
+                if (plane == null)  throw new BuilderBadArgumentsException($"The plane {planeName} is not valid.");       
                 query = query.Where(q => q.PlaneID == plane.PlaneID).ToList();
             }
 

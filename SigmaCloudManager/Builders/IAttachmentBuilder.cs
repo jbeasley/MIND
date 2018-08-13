@@ -7,16 +7,16 @@ using SCM.Models.RequestModels;
 
 namespace Mind.Builders
 {
-    public interface IAttachmentBuilder
+    public interface IAttachmentBuilder<TAttachmentBuilder>
     {
-        IAttachmentBuilder ForTenant(int tenantId);
-        IAttachmentBuilder WithInterfaces(List<Ipv4AddressAndMask> ipv4Addresses);
-        IAttachmentBuilder WithAttachmentRole(string portPoolName, string attachmentRoleName);
-        IAttachmentBuilder WithAttachmentBandwidth(int? attachmentBandwidthGbps);
-        IAttachmentBuilder WithLocation(string locationName);
-        IAttachmentBuilder WithPlane(string planeName = "");
-        IAttachmentBuilder WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp = false);
+        IAttachmentBuilder<TAttachmentBuilder> ForTenant(int tenantId);
+        IAttachmentBuilder<TAttachmentBuilder> WithInterfaces(List<Ipv4AddressAndMask> ipv4Addresses);
+        IAttachmentBuilder<TAttachmentBuilder> WithAttachmentRole(string portPoolName, string attachmentRoleName);
+        IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps);
+        IAttachmentBuilder<TAttachmentBuilder> WithLocation(string locationName);
+        IAttachmentBuilder<TAttachmentBuilder> WithPlane(string planeName = "");
+        IAttachmentBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp = false);
+        IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false);
         Task<Attachment> BuildAsync();
-
     }
 }

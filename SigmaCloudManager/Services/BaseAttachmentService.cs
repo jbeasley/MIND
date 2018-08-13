@@ -24,7 +24,7 @@ namespace SCM.Services
         {
         }
 
-        protected string Properties { get; } = "Tenant,"
+        protected internal string Properties { get; } = "Tenant,"
                 + "AttachmentRole.PortPool.PortRole,"
                 + "Mtu,"
                 + "Device.Location.SubRegion.Region,"
@@ -61,7 +61,7 @@ namespace SCM.Services
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<Attachment> GetByIDAsync(int id, bool deep = false, bool asTrackable = false)
+        protected internal async virtual Task<Attachment> GetByIDAsync(int id, SCM.Models.PortRoleType portRoleType, bool deep = false, bool asTrackable = false)
         {
             var p = deep ? Properties : string.Empty;
             var dbResult = await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == id,
@@ -69,52 +69,6 @@ namespace SCM.Services
                 AsTrackable: asTrackable);
 
             return dbResult.SingleOrDefault();
-        }
-
-        /// <summary>
-        /// Find an Attachment from the name of the device and the attachment name
-        /// </summary>
-        /// <param name="deviceName"></param>
-        /// <param name="attachmentName"></param>
-        /// <returns></returns>
-        public async Task<Attachment> GetByNameAsync(string deviceName, string attachmentName, bool deep = false, bool asTrackable = false)
-        {
-            var p = deep ? Properties : string.Empty;
-            var dbResult = await UnitOfWork.AttachmentRepository.GetAsync(q => q.Device.Name == deviceName && q.Name == attachmentName,
-                includeProperties: p,
-                AsTrackable: asTrackable);
-
-            return dbResult.SingleOrDefault();
-        }
-
-        /// <summary>
-        /// Get all Attachments for a given routing instance.
-        /// </summary>
-        /// <param name="routingInstanceID"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Attachment>> GetAllByRoutingInstanceIDAsync(int routingInstanceID, bool deep = true, bool asTrackable = false)
-        {
-            var p = deep ? Properties : string.Empty;
-
-            return await UnitOfWork.AttachmentRepository.GetAsync(q => q.RoutingInstanceID == routingInstanceID,
-                includeProperties: p,
-                AsTrackable: asTrackable);
-        }
-
-        /// <summary>
-        /// Get an Attachment for a given Interface.
-        /// </summary>
-        /// <param name= interfaceID"></param>
-        /// <returns></returns>
-        public async Task<Attachment> GetByInterfaceIDAsync(int interfaceID, bool deep = true, bool asTrackable = false)
-        {
-            var p = deep ? Properties : string.Empty;
-
-            var dbResult = await UnitOfWork.AttachmentRepository.GetAsync(q => q.Interfaces.Where(x => x.InterfaceID == interfaceID).Any(),
-                includeProperties: p,
-                AsTrackable: asTrackable);
-
-            return dbResult.SingleOrDefault();
-        }
+        }       
     }
 }

@@ -29,6 +29,7 @@ using Mind.Builders;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Autofac;
+using Mind.Validators;
 
 namespace SCM
 {
@@ -215,6 +216,7 @@ namespace SCM
             services.AddScoped<IBgpPeerValidator, BgpPeerValidator>();
             services.AddScoped<ILocationValidator, LocationValidator>();
             services.AddScoped<IVlanValidator, VlanValidator>();
+            services.AddScoped<IProviderDomainAttachmentValidator, ProviderDomainAttachmentValidator>();
 
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());
@@ -227,26 +229,45 @@ namespace SCM
         public void ConfigureContainer(ContainerBuilder builder)
         {
             builder.RegisterType<ProviderDomainAttachmentService>().As<IProviderDomainAttachmentService>();
-            builder.RegisterType<ProviderDomainAttachmentDirector>().As<IProviderDomainAttachmentDirector>();
-            builder.RegisterType<AttachmentBuilder>().As<IAttachmentBuilder>().Keyed<IAttachmentBuilder>("Attachment");
-            builder.RegisterType<BundleAttachmentBuilder>().As<IAttachmentBuilder>().Keyed<IAttachmentBuilder>("BundleAttachment");
-            builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IAttachmentBuilder>>((c, p) =>
+            builder.RegisterType<ProviderDomainAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
+                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainSingleAttachmentDirector");
+            builder.RegisterType<ProviderDomainAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainSingleAttachmentUpdateDirector");
+            builder.RegisterType<ProviderDomainBundleAttachmentDirector>().As<IProviderDomainAttachmentDirector>()
+                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainBundleAttachmentDirector");
+            builder.RegisterType<ProviderDomainAttachmentDirector<MultiPortAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
+                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainMultiPortAttachmentDirector");
+
+            builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
+            builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
+            builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
+            builder.RegisterType<VrfRoutingInstanceBuilder>().As<IRoutingInstanceBuilder>().Keyed<IRoutingInstanceBuilder>("VRFRoutingInstanceBuilder");
+            builder.RegisterType<SingleAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<SingleAttachmentUpdateBuilder>>();
+
+            builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
-                return (attachmentRequest) =>
-                {   if (attachmentRequest.BundleRequired.HasValue)
+                return (request) =>
+                {
+                    if (request.BundleRequired != null)
                     {
-                        if (attachmentRequest.BundleRequired.Value)
+                        if (request.BundleRequired.Value)
                         {
-                            return context.ResolveKeyed<IAttachmentBuilder>("BundleAttachment");
+                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainBundleAttachmentDirector");
+                        }
+                    }
+                    if (request.MultiportRequired != null)
+                    {
+                        if (request.MultiportRequired.Value)
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainMultiPortAttachmentDirector");
                         }
                     }
 
-                    return context.ResolveKeyed<IAttachmentBuilder>("Attachment");
+                    return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainSingleAttachmentDirector");
                 };
             });
 
-            builder.RegisterType<VrfRoutingInstanceBuilder>().As<IRoutingInstanceBuilder>().Keyed<IRoutingInstanceBuilder>("VRF");
             builder.Register<Func<SCM.Models.RoutingInstanceType, IRoutingInstanceBuilder>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -254,14 +275,32 @@ namespace SCM
                 {
                     if (routingInstanceType.IsVrf)
                     {
-                        return context.ResolveKeyed<IRoutingInstanceBuilder>("VRF");
+                        return context.ResolveKeyed<IRoutingInstanceBuilder>("VRFRoutingInstanceBuilder");
                     }
 
                     return null;
                 };
             });
-        }
 
+            builder.Register<Func<SCM.Models.Attachment, IProviderDomainAttachmentUpdateDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (attachment) =>
+                {
+                    if (attachment.IsBundle)
+                    {
+                        //TO-DO
+                    }
+                    if (attachment.IsMultiPort)
+                    {
+                        //TO-DO
+                    }
+
+                    return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainSingleAttachmentUpdateDirector");
+                };
+            });
+        }
+ 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {

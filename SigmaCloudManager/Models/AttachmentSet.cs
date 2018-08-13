@@ -10,15 +10,8 @@ namespace SCM.Models
     public class AttachmentSet
     {
         public int AttachmentSetID { get; set; }
-        [MaxLength(50)]
-        [NotMapped]
-        public string Name
-        {
-            get
-            {
-                return $"{Tenant.Name}-{AttachmentSetID}";
-            }
-        }
+        [Required(AllowEmptyStrings = false)]
+        public string Name { get; set; }
         public bool IsLayer3 { get; set; }
         public int TenantID { get; set; }
         public int AttachmentRedundancyID { get; set; }

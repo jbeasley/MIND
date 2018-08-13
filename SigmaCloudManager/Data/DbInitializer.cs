@@ -836,9 +836,9 @@ namespace SCM.Data
             var mtus = new List<Mtu>
             {
                 new Mtu {MtuValue = 1500 },
-                new Mtu {MtuValue = 9000 },
+                new Mtu {MtuValue = 9000, IsJumbo = true },
                 new Mtu {MtuValue = 1514, ValueIncludesLayer2Overhead = true},
-                new Mtu {MtuValue = 9014, ValueIncludesLayer2Overhead = true}
+                new Mtu {MtuValue = 9014, ValueIncludesLayer2Overhead = true, IsJumbo = true}
             };
 
             foreach (var m in mtus)

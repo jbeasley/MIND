@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SCM.Services
+namespace Mind.Services
 {
     /// <summary>
     /// Exceptions which is raised by a service upon failure of a validation check.

@@ -9,6 +9,6 @@ namespace SCM.Validators
 {
     public interface ITenantValidator : IValidator
     {
-        Task ValidateDeleteAsync(Tenant tenant);
+        Task ValidateDeleteAsync(int tenantId);
     }
 }

@@ -7,12 +7,11 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class ProviderDomainAttachmentDirector<TAttachmentBuilder> : IProviderDomainAttachmentDirector 
-        where TAttachmentBuilder: AttachmentBuilder<TAttachmentBuilder>
+    public class ProviderDomainBundleAttachmentDirector : IProviderDomainAttachmentDirector
     {
-        private readonly Func<ProviderDomainAttachmentRequest, IAttachmentBuilder<TAttachmentBuilder>> _builderFactory;
+        private readonly Func<ProviderDomainAttachmentRequest, IBundleAttachmentBuilder> _builderFactory;
 
-        public ProviderDomainAttachmentDirector(Func<ProviderDomainAttachmentRequest, IAttachmentBuilder<TAttachmentBuilder>> builderFactory)
+        public ProviderDomainBundleAttachmentDirector(Func<ProviderDomainAttachmentRequest, IBundleAttachmentBuilder> builderFactory)
         {
             _builderFactory = builderFactory;
         }
@@ -27,6 +26,7 @@ namespace Mind.Builders
                                 .WithPlane(request.PlaneName.ToString())
                                 .WithInterfaces(request.Ipv4Addresses)
                                 .WithContractBandwidth(request.ContractBandwidthMbps, request.TrustReceivedCosAndDscp)
+                                .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
                                 .BuildAsync();
         }
     }

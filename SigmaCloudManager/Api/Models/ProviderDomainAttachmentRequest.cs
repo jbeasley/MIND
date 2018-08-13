@@ -35,6 +35,20 @@ namespace Mind.Api.Models
         public bool? BundleRequired { get; set; }
 
         /// <summary>
+        /// The minimum number of active links in a bundle attachment
+        /// </summary>
+        /// <value>A value which specifies the minimum links in the bundle</value>
+        [DataMember(Name = "bundleMinLinks")]
+        public int? BundleMinLinks { get; set; }
+
+        /// <summary>
+        /// The maximum number of active links in a bundle attachment
+        /// </summary>
+        /// <value>A value which specifies the maximum links in the bundle</value>
+        [DataMember(Name = "bundleMaxLinks")]
+        public int? BundleMaxLinks { get; set; }
+
+        /// <summary>
         /// Determines if a multi port style of attachment is required
         /// </summary>
         /// <value>Determines if a multi port style of attachment is required</value>
@@ -109,8 +123,8 @@ namespace Mind.Api.Models
         /// Determines whether DSCP and COS markings of packets sent from the tenant network should be trusted by the provider
         /// </summary>
         /// <value>Determines whether DSCP and COS markings of packets sent from the tenant network should be trusted by the provider</value>
-        [DataMember(Name="trustReceivedCosDscp")]
-        public bool? TrustReceivedCosDscp { get; set; }
+        [DataMember(Name="trustReceivedCosAndDscp")]
+        public bool? TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
         /// IPv4 addresses to be assigned to the interfaces of the attachment.
@@ -128,6 +142,8 @@ namespace Mind.Api.Models
             var sb = new StringBuilder();
             sb.Append("class TenantAttachmentRequest {\n");
             sb.Append("  BundleRequired: ").Append(BundleRequired).Append("\n");
+            sb.Append("  BundleMinLinks: ").Append(BundleMinLinks).Append("\n");
+            sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
             sb.Append("  MultiportRequired: ").Append(MultiportRequired).Append("\n");
             sb.Append("  LocationName: ").Append(LocationName).Append("\n");
             sb.Append("  PortPoolName: ").Append(PortPoolName).Append("\n");
@@ -135,7 +151,7 @@ namespace Mind.Api.Models
             sb.Append("  PlaneName: ").Append(PlaneName).Append("\n");
             sb.Append("  AttachmentBandwidthGbps: ").Append(AttachmentBandwidthGbps).Append("\n");
             sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
-            sb.Append("  TrustReceivedCosDscp: ").Append(TrustReceivedCosDscp).Append("\n");
+            sb.Append("  TrustReceivedCosAndDscp: ").Append(TrustReceivedCosAndDscp).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -178,6 +194,14 @@ namespace Mind.Api.Models
                     BundleRequired != null &&
                     BundleRequired.Equals(other.BundleRequired)
                 ) &&
+                (   BundleMinLinks == other.BundleMinLinks ||
+                    BundleMinLinks != null &&
+                    BundleMinLinks.Equals(other.BundleMinLinks)
+                ) &&
+                (   BundleMaxLinks == other.BundleMaxLinks ||
+                    BundleMaxLinks != null &&
+                    BundleMaxLinks.Equals(other.BundleMaxLinks)
+                ) &&
                 (
                     MultiportRequired == other.MultiportRequired ||
                     MultiportRequired != null &&
@@ -188,12 +212,12 @@ namespace Mind.Api.Models
                     LocationName != null &&
                     LocationName.Equals(other.LocationName)
                 ) &&
-                                (
+                (
                     PortPoolName == other.PortPoolName ||
                     PortPoolName != null &&
                     PortPoolName.Equals(other.PortPoolName)
                 ) &&
-                                (
+                (
                     AttachmentRoleName == other.AttachmentRoleName ||
                     AttachmentRoleName != null &&
                     AttachmentRoleName.Equals(other.AttachmentRoleName)
@@ -214,9 +238,9 @@ namespace Mind.Api.Models
                     ContractBandwidthMbps.Equals(other.ContractBandwidthMbps)
                 ) &&
                 (
-                    TrustReceivedCosDscp == other.TrustReceivedCosDscp ||
-                    TrustReceivedCosDscp != null &&
-                    TrustReceivedCosDscp.Equals(other.TrustReceivedCosDscp)
+                    TrustReceivedCosAndDscp == other.TrustReceivedCosAndDscp ||
+                    TrustReceivedCosAndDscp != null &&
+                    TrustReceivedCosAndDscp.Equals(other.TrustReceivedCosAndDscp)
                 ) &&
                 (
                     Ipv4Addresses == other.Ipv4Addresses ||
@@ -237,6 +261,10 @@ namespace Mind.Api.Models
                 // Suitable nullity checks etc, of course :)
                     if (BundleRequired != null)
                     hashCode = hashCode * 59 + BundleRequired.GetHashCode();
+                    if (BundleMinLinks != null)
+                    hashCode = hashCode * 59 + BundleMinLinks.GetHashCode();
+                    if (BundleMaxLinks != null)
+                    hashCode = hashCode * 59 + BundleMaxLinks.GetHashCode();
                     if (MultiportRequired != null)
                     hashCode = hashCode * 59 + MultiportRequired.GetHashCode();
                     if (LocationName != null)
@@ -251,8 +279,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AttachmentBandwidthGbps.GetHashCode();
                     if (ContractBandwidthMbps != null)
                     hashCode = hashCode * 59 + ContractBandwidthMbps.GetHashCode();
-                    if (TrustReceivedCosDscp != null)
-                    hashCode = hashCode * 59 + TrustReceivedCosDscp.GetHashCode();
+                    if (TrustReceivedCosAndDscp != null)
+                    hashCode = hashCode * 59 + TrustReceivedCosAndDscp.GetHashCode();
                     if (Ipv4Addresses != null)
                     hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
                 return hashCode;

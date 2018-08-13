@@ -61,6 +61,8 @@ namespace SCM.Services
 
         public async Task<int> AddAsync(AttachmentSet attachmentSet)
         {
+            // TO-DO - create a builder or factory here?
+            attachmentSet.Name = Guid.NewGuid().ToString("N");
             this.UnitOfWork.AttachmentSetRepository.Insert(attachmentSet);
             return await this.UnitOfWork.SaveAsync();
         }

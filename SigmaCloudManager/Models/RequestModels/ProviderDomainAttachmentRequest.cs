@@ -22,6 +22,18 @@ namespace SCM.Models.RequestModels
         public bool? BundleRequired { get; set; }
 
         /// <summary>
+        /// The minimum number of active links in a bundle attachment
+        /// </summary>
+        /// <value>A value which specifies the minimum links in the bundle</value>
+        public int? BundleMinLinks { get; set; }
+
+        /// <summary>
+        /// The maximum number of active links in a bundle attachment
+        /// </summary>
+        /// <value>A value which specifies the maximum links in the bundle</value>
+        public int? BundleMaxLinks { get; set; }
+
+        /// <summary>
         /// Determines if a multi port style of attachment is required
         /// </summary>
         /// <value>Determines if a multi port style of attachment is required</value>
@@ -87,7 +99,7 @@ namespace SCM.Models.RequestModels
         /// Determines whether DSCP and COS markings of packets sent from the tenant network should be trusted by the provider
         /// </summary>
         /// <value>Determines whether DSCP and COS markings of packets sent from the tenant network should be trusted by the provider</value>
-        public bool? TrustReceivedCosDscp { get; set; }
+        public bool? TrustReceivedCosAndDscp { get; set; }
 
 
         /// <summary>

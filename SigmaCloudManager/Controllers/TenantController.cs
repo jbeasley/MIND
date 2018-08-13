@@ -202,7 +202,7 @@ namespace Mind.WebUI.Controllers
                 var tenant = await _tenantService.GetByIDAsync(tenantModel.TenantID);
                 if (tenant != null)
                 {
-                    await _tenantService.DeleteAsync(Mapper.Map<Tenant>(tenantModel));
+                    await _tenantService.DeleteAsync(tenantModel.TenantID);
                 }
 
                 return RedirectToAction("GetAll");

@@ -12,11 +12,11 @@ namespace Mind.Services
 {
     public class TenantService : BaseService, ITenantService
     {
-        private readonly ITenantValidator _tenantValidator;
+        private readonly ITenantValidator _validator;
 
-        public TenantService(IUnitOfWork unitOfWork, ITenantValidator tenantValidator) : base(unitOfWork, tenantValidator)
+        public TenantService(IUnitOfWork unitOfWork, ITenantValidator validator) : base(unitOfWork, validator)
         {
-            _tenantValidator = tenantValidator;
+            _validator = validator;
         }
 
         public async Task<IEnumerable<Tenant>> GetAllAsync()
@@ -48,12 +48,12 @@ namespace Mind.Services
             return await this.UnitOfWork.SaveAsync();
         }
 
-        public async Task<int> DeleteAsync(Tenant tenant)
+        public async Task<int> DeleteAsync(int tenantId)
         {
-            await _tenantValidator.ValidateDeleteAsync(tenant);
-            if (!_tenantValidator.IsValid) throw new ServiceValidationException("Validation failed");
+            await _validator.ValidateDeleteAsync(tenantId);
+            if (!_validator.IsValid) throw new ServiceValidationException("Validation failed");
 
-            this.UnitOfWork.TenantRepository.Delete(tenant);
+            await this.UnitOfWork.TenantRepository.DeleteAsync(tenantId);
             return await this.UnitOfWork.SaveAsync();
         }
     }

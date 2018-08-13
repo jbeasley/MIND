@@ -27,18 +27,18 @@ namespace SCM.Validators
         /// or VPNs are allocated to the Tenant.
         /// </summary>
         /// <param name="tenant"></param>
-        public async Task ValidateDeleteAsync(Tenant tenant)
+        public async Task ValidateDeleteAsync(int tenantId)
         {
-            var attachments = await _tenantAttachmentService.GetAllByTenantIDAsync(tenant.TenantID, includeProperties: false);
+            var attachments = await _tenantAttachmentService.GetAllByTenantIDAsync(tenantId, includeProperties: false);
             if (attachments.Any())
             {
-                ValidationDictionary.AddError(string.Empty, $"Tenant '{tenant.Name}' cannot be deleted because Attachments are allocated.");
+                ValidationDictionary.AddError(string.Empty, $"The tenant cannot be deleted because Attachments are allocated.");
             }
 
-            var vpns = await _vpnService.GetAllByTenantIDAsync(tenant.TenantID, includeProperties: false);
+            var vpns = await _vpnService.GetAllByTenantIDAsync(tenantId, includeProperties: false);
             if (vpns.Any())
             {
-                ValidationDictionary.AddError(string.Empty, $"Tenant '{tenant.Name}' cannot be deleted because VPNs are allocated.");
+                ValidationDictionary.AddError(string.Empty, $"Tenant cannot be deleted because VPNs are allocated.");
             }
         }
     }

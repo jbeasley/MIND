@@ -131,10 +131,9 @@ namespace Mind.Api.Controllers
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
         [Route("/v1/tenant/{tenantId}")]
-        [ValidateModelState]
         [ValidateTenantExists]
         [SwaggerOperation("DeleteTenant")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
@@ -142,8 +141,7 @@ namespace Mind.Api.Controllers
         {
             try
             {
-                var tenant = await _tenantService.GetByIDAsync(tenantId.Value);
-                await _tenantService.DeleteAsync(tenant);
+                await _tenantService.DeleteAsync(tenantId.Value);
                 return StatusCode(StatusCodes.Status204NoContent);
             }
 

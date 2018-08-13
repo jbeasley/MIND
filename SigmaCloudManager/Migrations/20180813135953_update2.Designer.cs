@@ -12,9 +12,10 @@ using System;
 namespace SigmaCloudManager.Migrations
 {
     [DbContext(typeof(SigmaContext))]
-    partial class SigmaContextModelSnapshot : ModelSnapshot
+    [Migration("20180813135953_update2")]
+    partial class update2
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

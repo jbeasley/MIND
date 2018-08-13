@@ -181,7 +181,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult UpdateInfrastructureAttachment([FromRoute][Required]int? attachmentId, [FromBody]AttachmentUpdate body)
+        public virtual IActionResult UpdateInfrastructureAttachment([FromRoute][Required]int? attachmentId, [FromBody]InfrastructureAttachmentUpdate body)
         { 
             //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(200, default(Attachment));

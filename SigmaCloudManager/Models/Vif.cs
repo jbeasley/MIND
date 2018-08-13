@@ -36,6 +36,7 @@ namespace SCM.Models
         public virtual Attachment Attachment { get; set; }
         public virtual Tenant Tenant { get; set; }
         public virtual RoutingInstance RoutingInstance { get; set; }
+        [ForeignKey("ContractBandwidthPoolID")]
         public virtual ContractBandwidthPool ContractBandwidthPool { get; set; }
         public virtual VlanTagRange VlanTagRange { get; set; }
         [ForeignKey("VifRoleID")]

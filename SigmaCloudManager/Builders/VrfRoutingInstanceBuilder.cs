@@ -7,6 +7,9 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
+    /// <summary>
+    /// Builder for vrf routing instances. The builder exposes a fluent API.
+    /// </summary>
     public class VrfRoutingInstanceBuilder : IRoutingInstanceBuilder
     {
         private readonly IRouteDistinguisherRangeService _routeDistinguisherRangeService;

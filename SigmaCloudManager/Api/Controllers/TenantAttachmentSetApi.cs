@@ -23,18 +23,37 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using Mind.Api.Attributes;
 using Mind.Api.Models;
+using AutoMapper;
+using Mind.Services;
+using Mind.Builders;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
     /// 
     /// </summary>
-    public class TenantAttachmentSetApiController : Controller
-    { 
+    public class TenantAttachmentSetApiController : BaseApiController
+    {
+        private readonly IAttachmentSetService _attachmentSetService;
+        private readonly IAttachmentSetRoutingInstanceService _attachmentSetRoutingInstanceService;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="attachmentSetService"></param>
+        /// <param name="mapper"></param>
+        public TenantAttachmentSetApiController(IAttachmentSetService attachmentSetService, 
+            IAttachmentSetRoutingInstanceService attachmentSetRoutingInstanceService, IMapper mapper) : base(attachmentSetService, mapper)
+        {
+            _attachmentSetService = attachmentSetService;
+            _attachmentSetRoutingInstanceService = attachmentSetRoutingInstanceService;
+        }
+
         /// <summary>
         /// Create a new attachment set
         /// </summary>
-        
+
         /// <param name="tenantId">ID of the tenant</param>
         /// <param name="body">attachment set request object that generates a new attachment set</param>
         /// <response code="200">successful operation</response>
@@ -43,30 +62,48 @@ namespace Mind.Api.Controllers
         [HttpPost]
         [Route("/v1/tenant/{tenantId}/attachment-set")]
         [ValidateModelState]
-        [SwaggerOperation("AddAttachmentSet")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<AttachmentSet>), description: "successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
+        [ValidateTenantExists]
+        [SwaggerOperation("CreateAttachmentSet")]
+        [SwaggerResponse(statusCode: 201, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult AddAttachmentSet([FromRoute][Required]int? tenantId, [FromBody]AttachmentSetRequest body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<AttachmentSet>));
+        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Bad request")]
+        public async virtual Task<IActionResult> CreateAttachmentSet([FromRoute][Required]int? tenantId, [FromBody]AttachmentSetRequest body)
+        {
+            try
+            {
+                var request = Mapper.Map<Mind.Models.RequestModels.AttachmentSetRequest>(body);
+                var attachmentSet = await _attachmentSetService.AddAsync(tenantId.Value, request);
+                var attachmentSetApiModel = Mapper.Map<Mind.Api.Models.AttachmentSet>(attachmentSet);
+                return CreatedAtRoute("GetAttachmentSet", new { attachmentSetId = attachmentSet.AttachmentSetID }, attachmentSetApiModel);
+            }
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
+            catch (BuilderBadArgumentsException ex)
+            {
+                return StatusCode(StatusCodes.Status400BadRequest, new ApiResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse
+                {
+                    Message = ex.Message
+                });
+            }
 
-            string exampleJson = null;
-            exampleJson = "<AttachmentSet>\n  <name>aeiou</name>\n  <region>aeiou</region>\n  <subRegion>aeiou</subRegion>\n  <attachmentRedundancy>aeiou</attachmentRedundancy>\n  <isLayer3>true</isLayer3>\n</AttachmentSet>";
-            exampleJson = "[ {\n  \"subRegion\" : \"subRegion\",\n  \"name\" : \"name\",\n  \"attachmentRedundancy\" : \"attachmentRedundancy\",\n  \"isLayer3\" : true,\n  \"region\" : \"region\"\n}, {\n  \"subRegion\" : \"subRegion\",\n  \"name\" : \"name\",\n  \"attachmentRedundancy\" : \"attachmentRedundancy\",\n  \"isLayer3\" : true,\n  \"region\" : \"region\"\n} ]";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<AttachmentSet>>(exampleJson)
-            : default(List<AttachmentSet>);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (DbUpdateException ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
+                {
+                    Message = "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator." + ex.Message
+
+                });
+            }
         }
 
         /// <summary>
@@ -79,12 +116,12 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/tenant/attachment-set/{attachmentSetId}/inbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
+        [Route("/v1/attachment-set/{attachmentSetId}/inbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
         [ValidateModelState]
-        [SwaggerOperation("AddAttachmentSetInboundPoloicyTenantIpv4Network")]
+        [SwaggerOperation("AddAttachmentSetInboundPolicyTenantIpv4Network")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult AddAttachmentSetInboundPoloicyTenantIpv4Network([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? tenantIpv4NetworkId, [FromBody]VpnTenantIpv4NetworkIn body)
+        public virtual IActionResult AddAttachmentSetInboundPolicyTenantIpv4Network([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? tenantIpv4NetworkId, [FromBody]VpnTenantIpv4NetworkIn body)
         { 
             //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(204, default(ApiResponse));
@@ -113,7 +150,7 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/tenant/attachment-set/{attachmentSetId}/outbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
+        [Route("/v1/attachment-set/{attachmentSetId}/outbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
         [ValidateModelState]
         [SwaggerOperation("AddAttachmentSetOutboundPolicyTenantIpv4Network")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
@@ -138,69 +175,45 @@ namespace Mind.Api.Controllers
         }
 
         /// <summary>
-        /// Add a routing instance to a given attachment set
-        /// </summary>
-        
-        /// <param name="attachmentSetId">ID of the attachment set</param>
-        /// <param name="routingInstanceId">ID of a routing instance to be added to the attachment set</param>
-        /// <param name="body">request object that generates a new routing instance entry for an attachment set</param>
-        /// <response code="204">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpPost]
-        [Route("/v1/tenant/attachment-set/{attachmentSetId}/routing-instance/{routingInstanceId}")]
-        [ValidateModelState]
-        [SwaggerOperation("AddAttachmentSetRoutingInstance")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult AddAttachmentSetRoutingInstance([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? routingInstanceId, [FromBody]AttachmentSetRoutingInstance body)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
         /// Deletes an attachment set
         /// </summary>
-        
+
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="422">Validation failed</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v1/tenant/attachment-set/{attachmentSetId}")]
+        [Route("/v1/attachment-set/{attachmentSetId}")]
         [ValidateModelState]
+        [ValidateAttachmentSetExists]
         [SwaggerOperation("DeleteAttachmentSet")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult DeleteAttachmentSet([FromRoute][Required]int? attachmentSetId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> DeleteAttachmentSet([FromRoute][Required]int? attachmentSetId)
+        {
+            try
+            {
+                await _attachmentSetService.DeleteAsync(attachmentSetId.Value);
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (ServiceValidationException)
+            {
+                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse(this.ModelState));
+            }
 
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (DbUpdateException)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
+                {
+                    Message = "Unable to save changes. " +
+                    "Try again, and if the problem persists " +
+                    "see your system administrator."
+                });
+            }
         }
 
         /// <summary>
@@ -212,7 +225,7 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpDelete]
-        [Route("/v1/tenant/attachment-set/{attachmentSetId}/inbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
+        [Route("/v1/attachment-set/{attachmentSetId}/inbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAttachmentSetInboundPolicyTenantIpv4Network")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
@@ -245,45 +258,12 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpDelete]
-        [Route("/v1/tenant/attachment-set/{attachmentSetId}/outbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
+        [Route("/v1/attachment-set/{attachmentSetId}/outbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAttachmentSetOutboundPolicyTenantIpv4Network")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual IActionResult DeleteAttachmentSetOutboundPolicyTenantIpv4Network([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? tenantIpv4NetworkId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Delete a routing instance from an attachment set
-        /// </summary>
-        
-        /// <param name="attachmentSetId">ID of the attachment set</param>
-        /// <param name="routingInstanceId">ID of a routing instance to be added to the attachment set</param>
-        /// <response code="204">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpDelete]
-        [Route("/v1/tenant/attachment-set/{attachmentSetId}/routing-instance/{routingInstanceId}")]
-        [ValidateModelState]
-        [SwaggerOperation("DeleteAttachmentSetRoutingInstance")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult DeleteAttachmentSetRoutingInstance([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? routingInstanceId)
         { 
             //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
             // return StatusCode(204, default(ApiResponse));
@@ -310,28 +290,16 @@ namespace Mind.Api.Controllers
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/attachment-set/{attachmentSetId}")]
+        [Route("/v1/attachment-set/{attachmentSetId}", Name="GetAttachmentSet")]
         [ValidateModelState]
+        [ValidateAttachmentSetExists]
         [SwaggerOperation("GetAttachmentSetById")]
         [SwaggerResponse(statusCode: 200, type: typeof(AttachmentSet), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetAttachmentSetById([FromRoute][Required]int? attachmentSetId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(AttachmentSet));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<AttachmentSet>\n  <name>aeiou</name>\n  <region>aeiou</region>\n  <subRegion>aeiou</subRegion>\n  <attachmentRedundancy>aeiou</attachmentRedundancy>\n  <isLayer3>true</isLayer3>\n</AttachmentSet>";
-            exampleJson = "{\n  \"subRegion\" : \"subRegion\",\n  \"name\" : \"name\",\n  \"attachmentRedundancy\" : \"attachmentRedundancy\",\n  \"isLayer3\" : true,\n  \"region\" : \"region\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<AttachmentSet>(exampleJson)
-            : default(AttachmentSet);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+        public virtual async Task<IActionResult> GetAttachmentSetById([FromRoute][Required]int? attachmentSetId, [FromQuery]bool? deep)
+        {
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value, deep);
+            return Ok(Mapper.Map<AttachmentSet>(attachmentSet));
         }
 
         /// <summary>
@@ -344,26 +312,14 @@ namespace Mind.Api.Controllers
         [HttpGet]
         [Route("/v1/tenant/{tenantId}/attachment-set")]
         [ValidateModelState]
+        [ValidateTenantExists]
         [SwaggerOperation("GetAttachmentSetsByTenantId")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Attachment>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetAttachmentSetsByTenantId([FromRoute][Required]int? tenantId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Attachment>));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Attachment>\n  <attachmentId>123</attachmentId>\n  <trustReceivedCosDscp>true</trustReceivedCosDscp>\n  <isLayer3>true</isLayer3>\n  <isBundle>true</isBundle>\n  <isMultiport>true</isMultiport>\n  <isTagged>true</isTagged>\n  <attachmentBandwidthGbps>123</attachmentBandwidthGbps>\n</Attachment>";
-            exampleJson = "[ {\n  \"isBundle\" : false,\n  \"isTagged\" : false,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"isMultiport\" : false,\n  \"trustReceivedCosDscp\" : true,\n  \"attachmentId\" : 0,\n  \"isLayer3\" : false,\n  \"attachmentBandwidthGbps\" : 5,\n  \"infrastructureDevice\" : {\n    \"useLayer2InterfaceMtu\" : true,\n    \"planeName\" : \"planeName\",\n    \"locationName\" : \"locationName\",\n    \"name\" : \"name\",\n    \"description\" : \"description\",\n    \"deviceModel\" : \"deviceModel\",\n    \"ports\" : [ {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    }, {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    } ],\n    \"deviceID\" : 6,\n    \"deviceStatus\" : \"deviceStatus\"\n  },\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"tenant\" : {\n    \"tenantId\" : 0,\n    \"name\" : \"name\"\n  }\n}, {\n  \"isBundle\" : false,\n  \"isTagged\" : false,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"isMultiport\" : false,\n  \"trustReceivedCosDscp\" : true,\n  \"attachmentId\" : 0,\n  \"isLayer3\" : false,\n  \"attachmentBandwidthGbps\" : 5,\n  \"infrastructureDevice\" : {\n    \"useLayer2InterfaceMtu\" : true,\n    \"planeName\" : \"planeName\",\n    \"locationName\" : \"locationName\",\n    \"name\" : \"name\",\n    \"description\" : \"description\",\n    \"deviceModel\" : \"deviceModel\",\n    \"ports\" : [ {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    }, {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    } ],\n    \"deviceID\" : 6,\n    \"deviceStatus\" : \"deviceStatus\"\n  },\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"tenant\" : {\n    \"tenantId\" : 0,\n    \"name\" : \"name\"\n  }\n} ]";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<Attachment>>(exampleJson)
-            : default(List<Attachment>);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+        public virtual async Task<IActionResult> GetAttachmentSetsByTenantId([FromRoute][Required]int? tenantId, [FromQuery]bool? deep)
+        {
+            var attachmentSets = await _attachmentSetService.GetAllByTenantIDAsync(tenantId.Value, deep);
+            return Ok(Mapper.Map<List<AttachmentSet>>(attachmentSets));
         }
     }
 }

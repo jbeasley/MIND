@@ -16,7 +16,7 @@ namespace SCM.Services
     /// <summary>
     /// Base Service logic for Attachments
     /// </summary>
-    public abstract class BaseAttachmentService : BaseService, IBaseAttachmentService
+    public abstract class BaseAttachmentService : BaseService
     {
         public BaseAttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
@@ -57,18 +57,36 @@ namespace SCM.Services
                 + "Vifs.VifRole";
 
         /// <summary>
-        /// Find an Attachment by ID
+        /// Find an attachment by ID
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        protected internal async virtual Task<Attachment> GetByIDAsync(int id, SCM.Models.PortRoleType portRoleType, bool deep = false, bool asTrackable = false)
+        protected internal async virtual Task<Attachment> GetByIDAsync(int id, SCM.Models.PortRoleType portRoleType, 
+            bool? deep = false, bool asTrackable = false)
         {
-            var p = deep ? Properties : string.Empty;
-            var dbResult = await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == id,
-                includeProperties: p,
-                AsTrackable: asTrackable);
+            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == id 
+                    && q.AttachmentRole.PortPool.PortRole.PortRoleType == portRoleType,
+                    includeProperties: deep.HasValue && deep.Value ? Properties : string.Empty,
+                    AsTrackable: asTrackable)
+                    select attachments)
+                    .SingleOrDefault();
 
-            return dbResult.SingleOrDefault();
-        }       
+        }
+
+        /// <summary>
+        /// Find all attachments for a given tenant
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        protected internal async virtual Task<List<Attachment>> GetAllByTenantIDAsync(int id, SCM.Models.PortRoleType portRoleType,
+            bool? deep = false, bool asTrackable = false)
+        {
+            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.TenantID == id
+                    && q.AttachmentRole.PortPool.PortRole.PortRoleType == portRoleType,
+                    includeProperties: deep.HasValue && deep.Value ? Properties : string.Empty,
+                    AsTrackable: asTrackable)
+                    select attachments)
+                    .ToList();
+        }
     }
 }

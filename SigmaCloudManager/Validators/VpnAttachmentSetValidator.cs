@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Services;
 using SCM.Models;
+using Mind.Services;
 
 namespace SCM.Validators
 {
@@ -99,9 +100,9 @@ namespace SCM.Validators
                 await ValidateMulticast(vpn, attachmentSet, vpnAttachmentSet);
             }
 
-            // Validate VRFs for the Attachment Set are configured correctly
+            // Validate routing instances for the attachment set are configured correctly
 
-            await AttachmentSetRoutingInstanceValidator.ValidateRoutingInstancesConfiguredCorrectlyAsync(attachmentSet);
+            await AttachmentSetRoutingInstanceValidator.ValidateRoutingInstancesForAttachmentSetAsync(attachmentSet.AttachmentSetID);
         }
 
         /// <summary>

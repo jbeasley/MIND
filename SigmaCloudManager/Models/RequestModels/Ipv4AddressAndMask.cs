@@ -15,7 +15,7 @@ namespace SCM.Models.RequestModels
     /// <summary>
     /// 
     /// </summary>
-    public class Ipv4AddressAndMask
+    public partial class Ipv4AddressAndMask
     {
         /// <summary>
         /// IPv4 address

@@ -6,19 +6,27 @@ using SCM.Models;
 using SCM.Models.RequestModels;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Mind.Services;
+using SCM.Validators;
+using SCM.Services;
+using Mind.Models.RequestModels;
+using Mind.Builders;
 
-namespace SCM.Services
+namespace Mind.Services
 {
     public class AttachmentSetRoutingInstanceService : BaseService, IAttachmentSetRoutingInstanceService
     {
-        public AttachmentSetRoutingInstanceService(IUnitOfWork unitOfWork, 
-            IAttachmentSetService attachmentSetService) : base(unitOfWork)
+        private readonly IAttachmentSetRoutingInstanceValidator _validator;
+        private readonly IAttachmentSetRoutingInstanceDirector _director;
+
+        public AttachmentSetRoutingInstanceService(IUnitOfWork unitOfWork, IAttachmentSetRoutingInstanceValidator validator, 
+            IAttachmentSetRoutingInstanceDirector director) : base(unitOfWork,validator)
         {
-            AttachmentSetService = attachmentSetService;
+            _validator = validator;
+            _director = director;
         }
 
-        private IAttachmentSetService AttachmentSetService { get; }
-        private string Properties { get; } = "AttachmentSet.Tenant,"
+        private readonly string _properties = "AttachmentSet.Tenant,"
                + "RoutingInstance.Device.Location.SubRegion.Region,"
                + "RoutingInstance.Device.Plane,"
                + "RoutingInstance.Tenant,"
@@ -27,137 +35,81 @@ namespace SCM.Services
                + "RoutingInstance.Vifs.ContractBandwidthPool.Tenant,"
                + "RoutingInstance.Vifs.Attachment.Interfaces.Ports";
 
-        public async Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllAsync(bool includeProperties = true)
+        public async Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            return await this.UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(includeProperties: p, 
-                AsTrackable: false);
-        }
-
-        public async Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
             return await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q => q.AttachmentSetID == id,
-               includeProperties: p, 
-               AsTrackable: false);
+               includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+               AsTrackable: asTrackable);
         }
 
-        public async Task<AttachmentSetRoutingInstance> GetByIDAsync(int id, bool includeProperties = true)
+        public async Task<AttachmentSetRoutingInstance> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q => q.AttachmentSetRoutingInstanceID == id,
-                includeProperties: p,
-                AsTrackable: false);
-
-            return dbResult.SingleOrDefault();
-        }
-
-        public async Task<AttachmentSetRoutingInstance> GetByAttachmenSetAndRoutingInstanceAsync(int attachmentSetID, int vrfID, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q => q.AttachmentSetID == attachmentSetID && q.RoutingInstanceID == vrfID,
-                includeProperties: p,
-                AsTrackable: false);
-
-            return dbResult.SingleOrDefault();
-        }
-
-        public async Task<ServiceResult> AddAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance)
-        {
-            var result = new ServiceResult
-            {
-                IsSuccess = true
-            };
-
-            this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Insert(attachmentSetRoutingInstance);
-
-            // Update VPNs to which the Attachment Set is bound in order to indicate
-            // resync of the VPNs with the network is required
-
-            await UpdateVpnsAsync(attachmentSetRoutingInstance.AttachmentSetID);
-            await this.UnitOfWork.SaveAsync();
-
-            return result;
-        }
-
-        public async Task<ServiceResult> UpdateAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance)
-        {
-            var result = new ServiceResult
-            {
-                IsSuccess = true
-            };
-
-            this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Update(attachmentSetRoutingInstance);
-
-            // Update VPNs to which the Attachment Set is bound in order to indicate
-            // resync of the VPNs with the network is required
-
-            await UpdateVpnsAsync(attachmentSetRoutingInstance.AttachmentSetID);
-            await this.UnitOfWork.SaveAsync();
-
-            return result;
-        }
-
-        public async Task<ServiceResult> DeleteAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance)
-        {
-            var result = new ServiceResult();
-
-            this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Delete(attachmentSetRoutingInstance);
-
-            // Update VPNs to which the Attachment Set is bound in order to indicate
-            // resync of the VPNs with the network is required
-
-            await UpdateVpnsAsync(attachmentSetRoutingInstance.AttachmentSetID);
-            await this.UnitOfWork.SaveAsync();
-
-            return result;
+            return (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q => q.AttachmentSetRoutingInstanceID == id,
+                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    AsTrackable: asTrackable)
+                    select result)
+                   .SingleOrDefault();
         }
 
         /// <summary>
-        /// Get a collection of VRFs which can be used to satisfy an Attachment Set VRF request.
+        /// DEFUNCT - REMOVE
+        /// </summary>
+        /// <param name="attachmentSetRoutingInstance"></param>
+        /// <returns></returns>
+        public async Task<AttachmentSetRoutingInstance> AddAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance)
+        {
+            this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Insert(attachmentSetRoutingInstance);
+            await this.UnitOfWork.SaveAsync();
+
+            return await GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID, deep: true, asTrackable: false);
+        }
+
+        public async Task<AttachmentSetRoutingInstance> AddAsync(int attachmentSetId, RoutingInstanceForAttachmentSetRequest request)
+        {
+            var attachmentSetRoutingInstance = await _director.BuildAsync(attachmentSetId, request);
+            UnitOfWork.AttachmentSetRoutingInstanceRepository.Insert(attachmentSetRoutingInstance);
+            await UnitOfWork.SaveAsync();
+
+            return await GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID, deep: true, asTrackable: false);
+        }
+
+        public async Task<AttachmentSetRoutingInstance> UpdateAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance)
+        {
+            this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Update(attachmentSetRoutingInstance);
+            await this.UnitOfWork.SaveAsync();
+
+            return await GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID, deep: true, asTrackable: false);
+        }
+
+        public async Task DeleteAsync(int attachmentSetRoutingInstanceId)
+        {
+            await _validator.ValidateDeleteAsync(attachmentSetRoutingInstanceId);
+            if (!_validator.IsValid) throw new ServiceValidationException("Validation failed");
+
+            await this.UnitOfWork.AttachmentSetRoutingInstanceRepository.DeleteAsync(attachmentSetRoutingInstanceId);
+            await this.UnitOfWork.SaveAsync();
+        }
+
+        /// <summary>
+        /// Get all routing instances which are candidates for satisfying an attachment set routing instance request.
         /// </summary>
         /// <param name="request"></param>
         /// <returns></returns>
         public async Task<IEnumerable<RoutingInstance>> GetCandidateRoutingInstances(AttachmentSetRoutingInstanceRequest request)
         {
-            var attachmentSet = await UnitOfWork.AttachmentSetRepository.GetByIDAsync(request.AttachmentSetID);
-
-            var vrfs = await UnitOfWork.RoutingInstanceRepository.GetAsync(q => q.Device.LocationID == request.LocationID && 
-                                                               q.TenantID == request.TenantID,
-                                                               includeProperties:
-                                                               "Device,Tenant", 
-                                                               AsTrackable: false);
-
-            // Filter vrfs by plane if plane is specified
+            var query = (from result in await UnitOfWork.RoutingInstanceRepository.GetAsync(q => 
+                        q.Device.LocationID == request.LocationID &&
+                        q.TenantID == request.TenantID,
+                        includeProperties: "Device,Tenant",
+                        AsTrackable: false)
+                        select result);
 
             if (request.PlaneID != null)
             {
-                vrfs = vrfs.Where(q => q.Device.PlaneID == request.PlaneID).ToList();
+                query = query.Where(q => q.Device.PlaneID == request.PlaneID);
             }
 
-            return vrfs;
-        }
-
-        /// <summary>
-        /// Helper to update the RequiresSync property of all VPNs to which a given
-        /// Attachment Set are bound. This must be done to indicate that the VPNs require re-sync with
-        /// the network whenever a VRF is added, removed, or updated in an Attachment Set.
-        /// </summary>
-        /// <param name="attachmentSetID"></param>
-        /// <returns></returns>
-        private async Task UpdateVpnsAsync(int attachmentSetID)
-        {
-            // Get all VPNs associated with the given Attachment Set
-
-            var vpns = await UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                                    .Where(x => x.AttachmentSetID == attachmentSetID)
-                                                                    .Any());
-
-            foreach (var vpn in vpns)
-            {
-                vpn.RequiresSync = true;
-                this.UnitOfWork.VpnRepository.Update(vpn);
-            }
+            return query.ToList();
         }
     }
 }

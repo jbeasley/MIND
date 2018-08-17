@@ -40,9 +40,21 @@ namespace Mind.Services
         /// <param name="deep"></param>
         /// <param name="asTrackable"></param>
         /// <returns></returns>
-        public Task<Attachment> GetByIDAsync(int id, bool deep = false, bool asTrackable = false)
+        public async Task<Attachment> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return base.GetByIDAsync(id, SCM.Models.PortRoleType.TenantFacing, deep, asTrackable);
+             return await base.GetByIDAsync(id, SCM.Models.PortRoleType.TenantFacing, deep, asTrackable);
+        }
+
+        /// <summary>
+        /// Get all provider domain attachments for a given tenant
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="deep"></param>
+        /// <param name="asTrackable"></param>
+        /// <returns></returns>
+        public async Task<List<Attachment>> GetAllByTenantIDAsync(int id, bool? deep = false, bool asTrackable = false)
+        {
+            return await base.GetAllByTenantIDAsync(id, SCM.Models.PortRoleType.TenantFacing, deep, asTrackable);
         }
 
         /// <summary>
@@ -76,7 +88,7 @@ namespace Mind.Services
             }
 
             var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
-                includeProperties: "Device,RoutingInstance,ContractBandwidthPool,AttachmentRole,AttachmentBandwidth", AsTrackable: true)
+                includeProperties: "Device,RoutingInstance,ContractBandwidthPool,AttachmentRole,AttachmentBandwidth,Interfaces.Ports", AsTrackable: true)
                               select attachments)
                               .Single();
 

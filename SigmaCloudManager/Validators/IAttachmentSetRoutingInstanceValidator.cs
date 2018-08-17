@@ -9,9 +9,8 @@ namespace SCM.Validators
 {
     public interface IAttachmentSetRoutingInstanceValidator : IValidator
     {
-        Task ValidateNewAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
-        Task ValidateDeleteAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
-        Task ValidateRoutingInstancesConfiguredCorrectlyAsync(Vpn vpn);
-        Task ValidateRoutingInstancesConfiguredCorrectlyAsync(AttachmentSet attachmentSet);
+        Task ValidateDeleteAsync(int attachmentSetRoutingInstanceId);
+        Task ValidateRoutingInstancesForVpnAsync(int vpnId);
+        Task ValidateRoutingInstancesForAttachmentSetAsync(int IdattachmentSet);
     }
 }

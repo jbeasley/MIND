@@ -2,21 +2,20 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mind.Models.RequestModels;
 using SCM.Models;
-using SCM.Data;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
-    public interface IAttachmentSetService
+    public interface IAttachmentSetService : IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
-
-        Task<IEnumerable<AttachmentSet>> GetAllAsync(bool includeProperties = true);
-        Task<AttachmentSet> GetByIDAsync(int id, bool includeProperties = true);
-        Task<IEnumerable<AttachmentSet>> GetAllByVpnIDAsync(int id, bool includeProperties = true);
-        Task<IEnumerable<AttachmentSet>> GetAllByTenantAsync(Tenant tenant, bool includeProperties = true);
-        Task<int> AddAsync(AttachmentSet attachmentSet);
-        Task<int> UpdateAsync(AttachmentSet attachmentSet);
-        Task<int> DeleteAsync(AttachmentSet attachmentSet);
+        Task<AttachmentSet> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<IEnumerable<AttachmentSet>> GetAllByTenantIDAsync(int tenantId, bool? deep = false, bool asTrackable = false);
+        Task<AttachmentSet> AddAsync(int tenantId, AttachmentSetRequest request);
+        Task<AttachmentSet> AddAsync(AttachmentSet attachmentSet);
+        Task<AttachmentSet> UpdateAsync(AttachmentSet attachmentSet);
+        Task<AttachmentSet> UpdateAsync(int attachmentSet, AttachmentSetUpdate update);
+        Task DeleteAsync(int attachmentSetId);
     }
 }

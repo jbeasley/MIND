@@ -63,6 +63,22 @@ namespace Mind.Api.Models
         public bool? UseJumboMtu { get; set; }
 
         /// <summary>
+        /// The minimum number of active links in a bundle attachment
+        /// </summary>
+        /// <value>A value which specifies the minimum links in the bundle</value>
+        [DataMember(Name = "bundleMinLinks")]
+        [Range(1, 8)]
+        public int? BundleMinLinks { get; set; }
+
+        /// <summary>
+        /// The maximum number of active links in a bundle attachment
+        /// </summary>
+        /// <value>A value which specifies the maximum links in the bundle</value>
+        [DataMember(Name = "bundleMaxLinks")]
+        [Range(1, 8)]
+        public int? BundleMaxLinks { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -75,6 +91,8 @@ namespace Mind.Api.Models
             sb.Append("  ExistingRoutingInstanceName: ").Append(ExistingRoutingInstanceName).Append("\n");
             sb.Append("  CreateNewRoutingInstance: ").Append(CreateNewRoutingInstance).Append("\n");
             sb.Append("  UseJumboMtu: ").Append(UseJumboMtu).Append("\n");
+            sb.Append("  BundleMinLinks: ").Append(BundleMinLinks).Append("\n");
+            sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -135,6 +153,16 @@ namespace Mind.Api.Models
                     UseJumboMtu == other.UseJumboMtu ||
                     UseJumboMtu != null &&
                     UseJumboMtu.Equals(other.UseJumboMtu)
+                ) &&
+                (
+                    BundleMinLinks == other.BundleMinLinks ||
+                    BundleMinLinks != null &&
+                    BundleMinLinks.Equals(other.BundleMinLinks)
+                ) &&
+                (
+                    BundleMaxLinks == other.BundleMaxLinks ||
+                    BundleMaxLinks != null &&
+                    BundleMaxLinks.Equals(other.BundleMaxLinks)
                 );
         }
 
@@ -157,7 +185,11 @@ namespace Mind.Api.Models
                     if (CreateNewRoutingInstance != null)
                     hashCode = hashCode * 59 + CreateNewRoutingInstance.GetHashCode();
                     if (UseJumboMtu != null)
-                    hashCode = hashCode * 59 + UseJumboMtu.GetHashCode();
+                    hashCode = hashCode * 59 + UseJumboMtu.GetHashCode(); hashCode = hashCode * 59 + CreateNewRoutingInstance.GetHashCode();
+                    if (BundleMinLinks != null)
+                    hashCode = hashCode * 59 + BundleMinLinks.GetHashCode();
+                    if (BundleMaxLinks != null)
+                    hashCode = hashCode * 59 + BundleMaxLinks.GetHashCode();
                 return hashCode;
             }
         }

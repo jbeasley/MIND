@@ -22,18 +22,13 @@ namespace SCM.Controllers
             ITenantService tenantService,
             IRegionService regionService,
             IMulticastVpnDomainTypeService multicastVpnDomainTypeService,
-            IAttachmentSetValidator attachmentSetValidator,
-            IMapper mapper)
+            IMapper mapper) : base(attachmentSetService, mapper)
         {
             AttachmentSetService = attachmentSetService;
             TenantService = tenantService;
             RegionService = regionService;
             VpnService = vpnService;
             MulticastVpnDomainTypeService = multicastVpnDomainTypeService;
-            Mapper = mapper;
-
-            this.Validator = attachmentSetValidator;
-            AttachmentSetValidator = attachmentSetValidator;
         }
 
         private IAttachmentSetService AttachmentSetService { get; set; }
@@ -41,15 +36,6 @@ namespace SCM.Controllers
         private ITenantService TenantService { get; set; }
         private IRegionService RegionService { get; set; }
         private IMulticastVpnDomainTypeService MulticastVpnDomainTypeService { get; }
-        private IMapper Mapper { get; set; }
-        private IAttachmentSetValidator AttachmentSetValidator { get; set; }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var attachmentSets = await AttachmentSetService.GetAllAsync();
-            return View(Mapper.Map<List<AttachmentSetViewModel>>(attachmentSets));
-        }
 
         [HttpGet]
         public async Task<IActionResult> GetAllByTenantID(int? id)
@@ -66,7 +52,7 @@ namespace SCM.Controllers
             }
 
             ViewBag.Tenant = tenant;
-            var attachmentSets = await AttachmentSetService.GetAllByTenantAsync(tenant);
+            var attachmentSets = await AttachmentSetService.GetAllByTenantIDAsync(id.Value);
 
             return View(Mapper.Map<List<AttachmentSetViewModel>>(attachmentSets));
         }
@@ -79,7 +65,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var item = await AttachmentSetService.GetByIDAsync(id.Value);
+            var item = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
             if (item == null)
             {
                 return NotFound();
@@ -141,22 +127,18 @@ namespace SCM.Controllers
             {
                 var attachmentSet = Mapper.Map<AttachmentSet>(attachmentSetModel);
 
-                await AttachmentSetValidator.ValidateNewAsync(attachmentSet);
-                if (AttachmentSetValidator.ValidationDictionary.IsValid)
+                try
                 {
-                    try
-                    {
-                        await AttachmentSetService.AddAsync(Mapper.Map<AttachmentSet>(attachmentSet));
-                        return RedirectToAction("GetAllByTenantID", new { id = attachmentSet.TenantID });
-                    }
+                    await AttachmentSetService.AddAsync(Mapper.Map<AttachmentSet>(attachmentSet));
+                    return RedirectToAction("GetAllByTenantID", new { id = attachmentSet.TenantID });
+                }
 
-                    catch (DbUpdateException /** ex **/ )
-                    {
-                        //Log the error (uncomment ex variable name and write a log.
-                        ModelState.AddModelError("", "Unable to save changes. " +
-                            "Try again, and if the problem persists " +
-                            "see your system administrator.");
-                    }
+                catch (DbUpdateException /** ex **/ )
+                {
+                    //Log the error (uncomment ex variable name and write a log.
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem persists " +
+                        "see your system administrator.");
                 }
             }
 
@@ -175,7 +157,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value);
+            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSet == null)
             {
                 return NotFound();
@@ -196,7 +178,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var currentAttachmentSet = await AttachmentSetService.GetByIDAsync(id);
+            var currentAttachmentSet = await AttachmentSetService.GetByIDAsync(id, deep: true);
             if (currentAttachmentSet == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The Attachment Set was deleted by another user.");
@@ -207,13 +189,9 @@ namespace SCM.Controllers
                 if (ModelState.IsValid)
                 {
                     Mapper.Map(attachmentSetModel, currentAttachmentSet);
-                    await AttachmentSetValidator.ValidateChangesAsync(currentAttachmentSet);
 
-                    if (AttachmentSetValidator.ValidationDictionary.IsValid)
-                    {
-                        await AttachmentSetService.UpdateAsync(currentAttachmentSet);
-                        return RedirectToAction("GetAllByTenantID", new { id = currentAttachmentSet.TenantID });
-                    }
+                    await AttachmentSetService.UpdateAsync(currentAttachmentSet);
+                    return RedirectToAction("GetAllByTenantID", new { id = currentAttachmentSet.TenantID });
                 }
             }
 
@@ -297,7 +275,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value);
+            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSet == null)
             {
                 if (concurrencyError.GetValueOrDefault())
@@ -334,17 +312,10 @@ namespace SCM.Controllers
                 });
             }
 
-            var attachmentSet = Mapper.Map<AttachmentSet>(attachmentSetModel);
-
             try
             {
-                this.Validator.ValidationDictionary.Clear();
-                await AttachmentSetValidator.ValidateDeleteAsync(currentAttachmentSet);
-                if (AttachmentSetValidator.ValidationDictionary.IsValid)
-                {
-                    await AttachmentSetService.DeleteAsync(attachmentSet);
-                    return RedirectToAction("GetAllByTenantID", new { id = currentAttachmentSet.TenantID });
-                }
+                await AttachmentSetService.DeleteAsync(attachmentSetModel.AttachmentSetID);
+                return RedirectToAction("GetAllByTenantID", new { id = currentAttachmentSet.TenantID });
             }
 
             catch (DbUpdateConcurrencyException /* ex */)
@@ -357,9 +328,6 @@ namespace SCM.Controllers
                     tenantID = attachmentSetModel.TenantID
                 });
             }
-
-            return View(Mapper.Map<AttachmentSetViewModel>(currentAttachmentSet));
-
         }
 
         /// <summary>

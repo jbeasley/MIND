@@ -26,95 +26,129 @@ namespace Mind.Api.Models
     /// </summary>
     [DataContract]
     public partial class AttachmentSetRequest : IEquatable<AttachmentSetRequest>
-    {         /// <summary>
+    {
+        /// <summary>
         /// The geographic region within which the attachment set operates
         /// </summary>
         /// <value>The geographic region within which the attachment set operates</value>
         public enum RegionEnum
-        { 
+        {
             /// <summary>
-            /// Enum EMEAEnum for EMEA
+            /// Enum for EMEA
             /// </summary>
             [EnumMember(Value = "EMEA")]
-            EMEAEnum = 1,
-            
+            EMEA = 1,
+
             /// <summary>
-            /// Enum ASIAPACEnum for ASIAPAC
+            /// Enum for ASIAPAC
             /// </summary>
             [EnumMember(Value = "ASIAPAC")]
-            ASIAPACEnum = 2,
-            
+            ASIAPAC = 2,
+
             /// <summary>
-            /// Enum AMERSEnum for AMERS
+            /// Enum for AMERS
             /// </summary>
             [EnumMember(Value = "AMERS")]
-            AMERSEnum = 3
+            AMERS = 3
         }
 
         /// <summary>
         /// The geographic region within which the attachment set operates
         /// </summary>
-        /// <value>The geographic region within which the attachment set operates</value>
-        [DataMember(Name="region")]
+        /// <value>An enum member denoting the region within which the attachment set operates</value>
+        [DataMember(Name = "region")]
         public RegionEnum? Region { get; set; }
 
         /// <summary>
         /// The sub-region within which the attachment set operates
         /// </summary>
-        /// <value>The sub-region within which the attachment set operates</value>
+        /// <value>A string value for the subregion within which the attachment set operates</value>
         [DataMember(Name="subRegion")]
         public string SubRegion { get; set; }
+
         /// <summary>
         /// Determines the type of attachment redundancy supported by the attachment set
         /// </summary>
-        /// <value>Determines the type of attachment redundancy supported by the attachment set</value>
+        /// <value>An enumerated list of attachment redundancy options</value>
         public enum AttachmentRedundancyEnum
         { 
             /// <summary>
-            /// Enum BronzeEnum for Bronze
+            /// Enum for Bronze
             /// </summary>
             [EnumMember(Value = "Bronze")]
-            BronzeEnum = 1,
+            Bronze = 1,
             
             /// <summary>
-            /// Enum SilverEnum for Silver
+            /// Enum for Silver
             /// </summary>
             [EnumMember(Value = "Silver")]
-            SilverEnum = 2,
+            Silver = 2,
             
             /// <summary>
-            /// Enum GoldEnum for Gold
+            /// Enum for Gold
             /// </summary>
             [EnumMember(Value = "Gold")]
-            GoldEnum = 3,
+            Gold = 3,
             
             /// <summary>
-            /// Enum CustomEnum for Custom
+            /// Enum for Custom
             /// </summary>
             [EnumMember(Value = "Custom")]
-            CustomEnum = 4
+            Custom = 4
         }
 
         /// <summary>
         /// Determines the type of attachment redundancy supported by the attachment set
         /// </summary>
-        /// <value>Determines the type of attachment redundancy supported by the attachment set</value>
+        /// <value>An enum member for the attachment redundancy supported by the attachment set</value>
         [DataMember(Name="attachmentRedundancy")]
         public AttachmentRedundancyEnum? AttachmentRedundancy { get; set; }
 
         /// <summary>
         /// Determines if the attachment set should be enabled for layer 3
         /// </summary>
-        /// <value>Determines if the attachment set should be enabled for layer 3</value>
+        /// <value>Boolean denoting the layer 3 enablement state</value>
         [DataMember(Name="isLayer3")]
         public bool? IsLayer3 { get; set; }
 
         /// <summary>
-        /// Routing instances to add to the attachment set
+        /// Requests for routing instances to be added to the attachment set
         /// </summary>
-        /// <value>Routing instances to add to the attachment set</value>
+        /// <value>A list of RoutingInstanceForAttachmentSetRequest objects</value>
         [DataMember(Name="routingInstances")]
-        public List<AttachmentSetRequestRoutingInstances> RoutingInstances { get; set; }
+        public List<RoutingInstanceForAttachmentSetRequest> RoutingInstances { get; set; }
+
+        /// <summary>
+        /// Determines the type of multicast domain supported by the attachment set
+        /// </summary>
+        /// <value>An enumerated list of multicast domain options</value>
+        public enum MulticastVpnDomainTypeEnum
+        {
+            /// <summary>
+            /// Enum for Sender-Only
+            /// </summary>
+            [EnumMember(Value = "Sender-Only")]
+            SenderOnly = 1,
+
+            /// <summary>
+            /// Enum for Receiver-Only
+            /// </summary>
+            [EnumMember(Value = "Receiver-Only")]
+            ReceiverOnly = 2,
+
+            /// <summary>
+            /// Enum for Sender-and-Receiver
+            /// </summary>
+            [EnumMember(Value = "Sender-and-Receiver")]
+            SenderAndReceiver = 3
+        }
+
+        /// <summary>
+        /// Determines the type of multicast domain supported by the attachment set
+        /// </summary>
+        /// <value>An enum member for the multicast domain supported by the attachment set</value>
+        [DataMember(Name = "multicastVpnDomainType")]
+        public MulticastVpnDomainTypeEnum? MulticastVpnDomainType { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -129,6 +163,7 @@ namespace Mind.Api.Models
             sb.Append("  AttachmentRedundancy: ").Append(AttachmentRedundancy).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
             sb.Append("  RoutingInstances: ").Append(RoutingInstances).Append("\n");
+            sb.Append("  MulticastVpnDomainType: ").Append(MulticastVpnDomainType).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -164,12 +199,12 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     Region == other.Region ||
                     Region != null &&
                     Region.Equals(other.Region)
-                ) && 
+                ) &&
                 (
                     SubRegion == other.SubRegion ||
                     SubRegion != null &&
@@ -189,6 +224,11 @@ namespace Mind.Api.Models
                     RoutingInstances == other.RoutingInstances ||
                     RoutingInstances != null &&
                     RoutingInstances.SequenceEqual(other.RoutingInstances)
+                ) &&
+                (
+                    MulticastVpnDomainType == other.MulticastVpnDomainType ||
+                    MulticastVpnDomainType != null &&
+                    MulticastVpnDomainType.Equals(other.MulticastVpnDomainType)
                 );
         }
 
@@ -212,6 +252,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsLayer3.GetHashCode();
                     if (RoutingInstances != null)
                     hashCode = hashCode * 59 + RoutingInstances.GetHashCode();
+                    if (MulticastVpnDomainType != null)
+                    hashCode = hashCode * 59 + MulticastVpnDomainType.GetHashCode();
                 return hashCode;
             }
         }

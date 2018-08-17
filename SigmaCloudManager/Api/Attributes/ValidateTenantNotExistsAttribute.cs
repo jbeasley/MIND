@@ -37,22 +37,26 @@ namespace Mind.Api.Attributes
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (context.ActionArguments.ContainsKey("body"))
+                if (!context.ActionArguments.ContainsKey("body"))
                 {
-                    var tenant = context.ActionArguments["body"] as Tenant;
-
-                    if (!String.IsNullOrEmpty(tenant.Name))
-                    {
-                        {
-                            if ((await _tenantService.GetByNameAsync(tenant.Name)) != null)
-                            {
-                                context.ModelState.AddModelError("Name", "The name is already in use.");
-                                context.Result = new ValidationFailedResult(context.ModelState);
-                                return;
-                            }
-                        }
-                    }
+                    context.ModelState.AddModelError(string.Empty, "A message body was not found.");
+                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
                 }
+
+                var tenant = context.ActionArguments["body"] as Tenant;
+                if (String.IsNullOrEmpty(tenant.Name))
+                {
+                    context.ModelState.AddModelError(string.Empty, "An tenant object was not found in the message body.");
+                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
+                }
+
+                if ((await _tenantService.GetByNameAsync(tenant.Name)) != null)
+                {
+                    context.ModelState.AddModelError("Name", "The name is already in use.");
+                    context.Result = new ValidationFailedResult(context.ModelState);
+                    return;
+                }
+
                 await next();
             }
         }

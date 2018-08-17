@@ -9,12 +9,14 @@ using SCM.Models;
 
 namespace Mind.Builders
 {
+    /// <summary>
+    /// Builder for multi-port attachments. The builder exposes a fluent API.
+    /// </summary>
     public class MultiPortAttachmentBuilder : AttachmentBuilder<MultiPortAttachmentBuilder>, IAttachmentBuilder<MultiPortAttachmentBuilder>
     {
         public MultiPortAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory) : 
             base(unitOfWork, routingInstanceBuilderFactory)
         {
-            _builder = this;
         }
 
         public override async Task<Attachment> BuildAsync()
@@ -88,12 +90,12 @@ namespace Mind.Builders
 
         private async Task CreateMultiPortId()
         {
-            var query = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.DeviceID == _attachment.DeviceID && q.IsMultiPort)
-                         select attachments)
-                        .Select(q => q.ID).Where(q => q != null);
+            var usedMultiPortIds = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.DeviceID == _attachment.DeviceID && q.IsMultiPort)
+                                    select attachments)
+                        .Select(q => q.ID).Where(q => q != null)
+                        .ToList();
 
-            var usedMultiPortIDs = query.ToList();
-            int? id = Enumerable.Range(1, 65535).Except(usedMultiPortIDs.Select(q => q.Value)).FirstOrDefault();
+            int? id = Enumerable.Range(1, 65535).Except(usedMultiPortIds.Select(q => q.Value)).FirstOrDefault();
 
             _attachment.ID = id ?? throw new BuilderUnableToCompleteException("Unable to assign an ID value to the multiport attachment. "
                     + $"It seems that all IDs in the range 1 - 65535 for device '{_attachment.Device.Name}' have been used. " +

@@ -37,20 +37,28 @@ namespace Mind.Api.Attributes
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (context.ActionArguments.ContainsKey("tenantId"))
+                if (!context.ActionArguments.ContainsKey("tenantId"))
                 {
-                    var tenantId = context.ActionArguments["tenantId"] as int?;
-
-                    if (tenantId.HasValue)
-                    {
-                        if ((await _tenantService.GetByIDAsync(tenantId.Value)) == null)
-                        {
-                            context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
-                            context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
-                            return;
-                        }
-                    }
+                    context.ModelState.AddModelError(string.Empty, "An ID for the tenant was not found.");
+                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
+                    return;
                 }
+
+                var tenantId = context.ActionArguments["tenantId"] as int?;
+                if (!tenantId.HasValue)
+                {
+                    context.ModelState.AddModelError(string.Empty, "An ID for the tenant was not found.");
+                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
+                    return;
+                }
+
+                if ((await _tenantService.GetByIDAsync(tenantId.Value)) == null)
+                {
+                    context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
+                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
+                    return;
+                }
+
                 await next();
             }
         }

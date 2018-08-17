@@ -311,8 +311,7 @@ namespace SCM.Controllers
         {
             var vpn = await VpnService.GetByIDAsync(vpnAttachmentSetRequest.VpnID);
             var layer3 = vpn.VpnTopologyType.VpnProtocolType.ProtocolType == Models.ProtocolType.IP ? true : false;
-            var tenant = await TenantService.GetByIDAsync(vpnAttachmentSetRequest.TenantID);
-            var attachmentSets = await AttachmentSetService.GetAllByTenantAsync(tenant);
+            var attachmentSets = await AttachmentSetService.GetAllByTenantIDAsync(vpnAttachmentSetRequest.TenantID);
 
             attachmentSets = attachmentSets.Where(x => x.IsLayer3 = layer3);
 

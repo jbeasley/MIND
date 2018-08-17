@@ -11,30 +11,25 @@ namespace Mind.Builders
     /// <summary>
     /// Abstract builder for attachments. The builder exposes a fluent API.
     /// </summary>
-    public abstract class AttachmentBuilder<TAttachmentBuilder> : IAttachmentBuilder<TAttachmentBuilder>
+    public abstract class AttachmentBuilder<TAttachmentBuilder> : BaseBuilder, IAttachmentBuilder<TAttachmentBuilder>
         where TAttachmentBuilder: AttachmentBuilder<TAttachmentBuilder>
     {
-        protected internal readonly IUnitOfWork _unitOfWork;
         protected internal IRoutingInstanceBuilder _routingInstanceBuilder;
         protected internal int _portBandwidthRequired;
         protected internal int _numPortsRequired;
         protected internal IEnumerable<Port> _ports;
         protected internal Attachment _attachment;
-        protected internal Dictionary<string, object> _args;
-        protected internal TAttachmentBuilder _builder;
 
         private readonly Func<RoutingInstanceType, IRoutingInstanceBuilder> _routingInstanceBuilderFactory;
 
-        public AttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory)
+        public AttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory) : base(unitOfWork)
         {
-            _args = new Dictionary<string, object>();
             _attachment = new Attachment
             {
                 Created = true,
                 ShowCreatedAlert = true
             };
 
-            _unitOfWork = unitOfWork;
             _routingInstanceBuilderFactory = routingInstanceBuilderFactory;
         }
 
@@ -48,7 +43,7 @@ namespace Mind.Builders
         {
             if (attachmentBandwidthGbps == null) throw new BuilderBadArgumentsException("A value for attachment bandwidth is required.");
 
-            _args.Add(nameof(attachmentBandwidthGbps), attachmentBandwidthGbps);
+            _args.Add(nameof(WithAttachmentBandwidth), attachmentBandwidthGbps);
             return this;
         }
 
@@ -59,13 +54,13 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp = false)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps)
         {
             if (contractBandwidthMbps != null)
             {
                 _args.Add(nameof(contractBandwidthMbps), contractBandwidthMbps);
-                _args.Add(nameof(trustReceivedCosDscp), trustReceivedCosDscp != null ? trustReceivedCosDscp : false);
             }
+
             return this;
         }
 
@@ -77,19 +72,31 @@ namespace Mind.Builders
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithLocation(string locationName)
         {
-            _args.Add(nameof(locationName), locationName);
+            _args.Add(nameof(WithLocation), locationName);
             return this;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithPlane(string planeName = "")
         {
-            _args.Add(nameof(planeName), planeName);
+            _args.Add(nameof(WithPlane), planeName);
             return this;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false)
         {
             _args.Add(nameof(WithJumboMtu), useJumboMtu != null ? useJumboMtu : false);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithExistingRoutingInstance(string existingRoutingInstanceName)
+        {
+            _args.Add(nameof(WithExistingRoutingInstance), existingRoutingInstanceName);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp = false)
+        {
+            _args.Add(nameof(WithTrustReceivedCosAndDscp), trustReceivedCosAndDscp != null ? trustReceivedCosAndDscp : false);
             return this;
         }
 
@@ -111,10 +118,23 @@ namespace Mind.Builders
             await SetMtuAsync();
             if (_attachment.AttachmentRole.RequireContractBandwidth)
             {
-                if (_args.ContainsKey("contractBandwidthMbps") && _args["contractBandwidthMbps"] != null) await CreateContractBandwidthPoolAsync();
+                if (_args.ContainsKey("contractBandwidthMbps"))
+                {
+                    await CreateContractBandwidthPoolAsync();
+                    SetTrustReceivedCosAndDscp();
+                }
             }
-            if (!_attachment.AttachmentRole.IsTaggedRole) await CreateRoutingInstanceAsync();    
-
+            if (!_attachment.AttachmentRole.IsTaggedRole)
+            {
+                if (_args.ContainsKey(nameof(WithExistingRoutingInstance)) && _args[nameof(WithExistingRoutingInstance)] != null)
+                {
+                    await AssociateExistingRoutingInstanceAsync();
+                }
+                else
+                {
+                    await CreateRoutingInstanceAsync();
+                }
+            }
             return _attachment;
         }
 
@@ -151,7 +171,7 @@ namespace Mind.Builders
         /// <returns></returns>
         protected internal virtual async Task CreateAttachmentBandwidthAsync()
         {
-            var attachmentBandwidthGbps = (int)_args["attachmentBandwidthGbps"];
+            var attachmentBandwidthGbps = (int)_args[nameof(WithAttachmentBandwidth)];
             var attachmentBandwidth = (from attachmentBandwidths in await _unitOfWork.AttachmentBandwidthRepository.GetAsync(q =>
             q.BandwidthGbps == attachmentBandwidthGbps, AsTrackable: true)
                                        select attachmentBandwidths)
@@ -229,16 +249,23 @@ namespace Mind.Builders
             if (contractBandwidth == null)  throw new BuilderBadArgumentsException($"The requested contract bandwidth of {_args["contractBandwidthMbps"]} " +
                 $"Mbps is not valid.");
 
-            var trustReceivedCosDscp = (bool)_args["trustReceivedCosDscp"];
             var contractBandwidthPool = new ContractBandwidthPool
             {
                 ContractBandwidthID = contractBandwidth.ContractBandwidthID,
                 TenantID = _attachment.TenantID,
-                Name = Guid.NewGuid().ToString("N"),
-                TrustReceivedCosDscp = trustReceivedCosDscp
+                Name = Guid.NewGuid().ToString("N")
             };
 
             _attachment.ContractBandwidthPool = contractBandwidthPool;
+        }
+
+        protected internal virtual void SetTrustReceivedCosAndDscp()
+        {
+            if (_attachment.ContractBandwidthPool != null)
+            {
+                var trustReceivedCosAndDscp = _args[nameof(WithTrustReceivedCosAndDscp)] != null ? (bool)_args[nameof(WithTrustReceivedCosAndDscp)] : false;
+                _attachment.ContractBandwidthPool.TrustReceivedCosDscp = trustReceivedCosAndDscp;
+            }
         }
 
         protected internal virtual async Task CreateRoutingInstanceAsync()
@@ -255,6 +282,20 @@ namespace Mind.Builders
             _routingInstanceBuilder.Init(_attachment.TenantID.Value, _attachment.Device.DeviceID, routingInstanceType.RoutingInstanceTypeID);
             await _routingInstanceBuilder.Create();
             _attachment.RoutingInstance = _routingInstanceBuilder.GetResult();
+        }
+
+        protected internal virtual async Task AssociateExistingRoutingInstanceAsync()
+        {
+            var routingInstanceName = _args[nameof(WithExistingRoutingInstance)].ToString();
+
+            var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(x => x.Name == routingInstanceName,
+                                           AsTrackable: true)
+                                           select routingInstances)
+                                           .SingleOrDefault();
+
+            _attachment.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
+                $"instance '{routingInstanceName}.'");
+            _attachment.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }
 
         protected internal virtual async Task SetMtuAsync()
@@ -280,7 +321,7 @@ namespace Mind.Builders
             // Find a collection of Devices matching the requested Location
             // with a status of 'Production'
 
-            var locationName = _args["locationName"].ToString();
+            var locationName = _args[nameof(WithLocation)].ToString();
             if (string.IsNullOrEmpty(locationName))   throw new BuilderBadArgumentsException("A location is required but none was supplied.");
 
             var location = (from locations in await _unitOfWork.LocationRepository.GetAsync(q => q.SiteName == locationName)
@@ -300,7 +341,7 @@ namespace Mind.Builders
 
             // Filter devices collection to include only those devices which belong to the requested plane (if specified)
 
-            var planeName = _args["planeName"] != null ? _args["planeName"].ToString() : "";
+            var planeName = _args[nameof(WithPlane)] != null ? _args[nameof(WithPlane)].ToString() : "";
             if (!string.IsNullOrEmpty(planeName))
             {
                 var plane = (from planes in await _unitOfWork.PlaneRepository.GetAsync(q => q.Name == planeName)

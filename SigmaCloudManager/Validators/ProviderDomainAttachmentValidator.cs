@@ -76,10 +76,14 @@ namespace Mind.Validators
                                                    select routingInstances)
                                                    .SingleOrDefault();
 
-                    if (existingRoutingInstance == null) ValidationDictionary.AddError(nameof(update.ExistingRoutingInstanceName),
-                        $"Routing instance '{update.ExistingRoutingInstanceName}' was not found.");
+                    if (existingRoutingInstance == null)
+                    {
 
-                    if (attachment.RoutingInstance.RoutingInstanceTypeID != existingRoutingInstance.RoutingInstanceTypeID)
+                        ValidationDictionary.AddError(nameof(update.ExistingRoutingInstanceName),
+                        $"Routing instance '{update.ExistingRoutingInstanceName}' was not found.");
+                    }
+
+                    else if (attachment.RoutingInstance.RoutingInstanceTypeID != existingRoutingInstance.RoutingInstanceTypeID)
                     {
                         ValidationDictionary.AddError(string.Empty, "The routing instance cannot be changed because the routing instance type of the " +
                             "specified routing instance is different to the routing instance type of the current routing instance. "

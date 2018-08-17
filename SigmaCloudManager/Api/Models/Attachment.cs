@@ -35,18 +35,32 @@ namespace Mind.Api.Models
         public int? AttachmentId { get; set; }
 
         /// <summary>
-        /// Determines whether the attachment is enabled for layer 3
+        /// The attachment is enabled for layer 3
         /// </summary>
         /// <value>Determines whether the attachment is enabled for layer 3</value>
         [DataMember(Name="isLayer3")]
         public bool? IsLayer3 { get; set; }
 
         /// <summary>
-        /// Determines if the attachment is delivered as a bundle
+        /// The attachment is delivered as a bundle
         /// </summary>
         /// <value>Determines if the attachment is delivered as a bundle</value>
         [DataMember(Name="isBundle")]
         public bool? IsBundle { get; set; }
+
+        /// <summary>
+        /// For bundle attachments, the minimum number of active links in the bundle
+        /// </summary>
+        /// <value>A value for the minimum links in the bundle</value>
+        [DataMember(Name = "bundleMinLinks")]
+        public int? BundleMinLinks { get; set; }
+
+        /// <summary>
+        /// For bundle attachments, the maximum number of active links in the bundle
+        /// </summary>
+        /// <value>A value for the maximum links in the bundle</value>
+        [DataMember(Name = "bundleMaxLinks")]
+        public int? BundleMaxLinks { get; set; }
 
         /// <summary>
         /// Determines if the attachment is delivered as a multiport
@@ -110,6 +124,8 @@ namespace Mind.Api.Models
             sb.Append("  AttachmentId: ").Append(AttachmentId).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
             sb.Append("  IsBundle: ").Append(IsBundle).Append("\n");
+            sb.Append("  BundleMinLinks: ").Append(BundleMinLinks).Append("\n");
+            sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
             sb.Append("  IsMultiport: ").Append(IsMultiport).Append("\n");
             sb.Append("  IsTagged: ").Append(IsTagged).Append("\n");
             sb.Append("  Tenant: ").Append(Tenant).Append("\n");
@@ -167,7 +183,17 @@ namespace Mind.Api.Models
                     IsBundle == other.IsBundle ||
                     IsBundle != null &&
                     IsBundle.Equals(other.IsBundle)
-                ) && 
+                ) &&
+                (
+                    BundleMinLinks == other.BundleMinLinks ||
+                    BundleMinLinks != null &&
+                    BundleMinLinks.Equals(other.BundleMinLinks)
+                ) &&
+                (
+                    BundleMaxLinks == other.BundleMaxLinks ||
+                    BundleMaxLinks != null &&
+                    BundleMaxLinks.Equals(other.BundleMaxLinks)
+                ) &&
                 (
                     IsMultiport == other.IsMultiport ||
                     IsMultiport != null &&
@@ -221,6 +247,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsLayer3.GetHashCode();
                     if (IsBundle != null)
                     hashCode = hashCode * 59 + IsBundle.GetHashCode();
+                    if (BundleMinLinks != null)
+                    hashCode = hashCode * 59 + BundleMinLinks.GetHashCode();
+                    if (BundleMaxLinks != null)
+                    hashCode = hashCode * 59 + BundleMaxLinks.GetHashCode();
                     if (IsMultiport != null)
                     hashCode = hashCode * 59 + IsMultiport.GetHashCode();
                     if (IsTagged != null)

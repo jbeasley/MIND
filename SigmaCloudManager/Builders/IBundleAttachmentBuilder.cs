@@ -15,7 +15,8 @@ namespace Mind.Builders
         new IBundleAttachmentBuilder WithAttachmentBandwidth(int? attachmentBandwidthGbps);
         new IBundleAttachmentBuilder WithLocation(string locationName);
         new IBundleAttachmentBuilder WithPlane(string planeName = "");
-        new IBundleAttachmentBuilder WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp = false);
+        new IBundleAttachmentBuilder WithContractBandwidth(int? contractBandwidthMbps);
+        new IBundleAttachmentBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         new IBundleAttachmentBuilder WithJumboMtu(bool? useJumboMtu = false);
         IBundleAttachmentBuilder WithBundleLinks(int? minLinks, int? maxLinks);
     }

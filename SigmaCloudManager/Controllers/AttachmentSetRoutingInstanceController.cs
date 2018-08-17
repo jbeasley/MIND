@@ -12,31 +12,29 @@ using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Models.RequestModels;
 using SCM.Validators;
+using Mind.Services;
+using SCM.Data;
 
 namespace SCM.Controllers
 {
     public class AttachmentSetRoutingInstanceController : BaseViewController
     {
-        public AttachmentSetRoutingInstanceController(IAttachmentSetRoutingInstanceService attachmentSetRoutingInstanceService,
+        private readonly IAttachmentSetRoutingInstanceService _attachmentSetRoutingInstanceService;
+        private readonly IAttachmentSetService _attachmentSetService;
+        private readonly IVpnService _vpnService;
+        private readonly IUnitOfWork _unitOfWork;
+
+        public AttachmentSetRoutingInstanceController(IUnitOfWork unitOfWork, 
+            IAttachmentSetRoutingInstanceService attachmentSetRoutingInstanceService,
             IAttachmentSetService attachmentSetService,
             IVpnService vpnService, 
-            IAttachmentSetRoutingInstanceValidator attachmentSetRoutingInstanceValidator,
-            IMapper mapper)
+            IMapper mapper) : base(attachmentSetRoutingInstanceService, mapper)
         {
-            AttachmentSetRoutingInstanceService = attachmentSetRoutingInstanceService;
-            AttachmentSetService = attachmentSetService;
-            VpnService = vpnService;
-            Mapper = mapper;
-
-            AttachmentSetRoutingInstanceValidator = attachmentSetRoutingInstanceValidator;
-            this.Validator = attachmentSetRoutingInstanceValidator;
+            _unitOfWork = unitOfWork;
+            _attachmentSetRoutingInstanceService = attachmentSetRoutingInstanceService;
+            _attachmentSetService = attachmentSetService;
+            _vpnService = vpnService;
         }
-
-        private IAttachmentSetRoutingInstanceService AttachmentSetRoutingInstanceService { get; set; }
-        private IAttachmentSetService AttachmentSetService { get; set; }
-        private IVpnService VpnService { get; set; }
-        private IAttachmentSetRoutingInstanceValidator AttachmentSetRoutingInstanceValidator { get; set; }
-        private IMapper Mapper { get; set; }
 
         [HttpGet]
         public async Task<IActionResult> GetAllByAttachmentSetID(int? id, bool showWarningMessage = false)
@@ -46,22 +44,10 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(id.Value, deep: true);
             ViewBag.AttachmentSet = attachmentSet;
 
-            await AttachmentSetRoutingInstanceValidator.ValidateRoutingInstancesConfiguredCorrectlyAsync(attachmentSet);
-            if (AttachmentSetRoutingInstanceValidator.ValidationDictionary.IsValid)
-            {
-                ViewData["SuccessMessage"] = "The VRFs for this Attachment Set are configured correctly!";
-            }
-
-            if (showWarningMessage)
-            {
-                ViewData["NetworkWarningMessage"] = $"VPNs require synchronisation with the network as a result of this update. "
-                  + "Follow this <a href = '/Vpn/GetAll'>link</a> to go to the VPNs page.";
-            }
-
-            var attachmentSetRoutingInstances = await AttachmentSetRoutingInstanceService.GetAllByAttachmentSetIDAsync(id.Value);
+            var attachmentSetRoutingInstances = await _attachmentSetRoutingInstanceService.GetAllByAttachmentSetIDAsync(id.Value, deep: true);
             return View(Mapper.Map<List<AttachmentSetRoutingInstanceViewModel>>(attachmentSetRoutingInstances));
         }
 
@@ -73,13 +59,13 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var item = await AttachmentSetRoutingInstanceService.GetByIDAsync(id.Value);
+            var item = await _attachmentSetRoutingInstanceService.GetByIDAsync(id.Value, deep: true);
             if (item == null)
             {
                 return NotFound();
             }
 
-            ViewBag.AttachmentSet = await AttachmentSetService.GetByIDAsync(item.AttachmentSetID);
+            ViewBag.AttachmentSet = await _attachmentSetService.GetByIDAsync(item.AttachmentSetID, deep: true);
 
             return View(Mapper.Map<AttachmentSetRoutingInstanceViewModel>(item));
         }
@@ -92,7 +78,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSet == null)
             {
                 return NotFound();
@@ -110,7 +96,7 @@ namespace SCM.Controllers
         public async Task<IActionResult> CreateStep2([Bind("AttachmentSetID,LocationID,PlaneID,TenantID")] AttachmentSetRoutingInstanceRequestViewModel request)
         {
             await PopulateRoutingInstancesDropDownList(Mapper.Map<AttachmentSetRoutingInstanceRequest>(request));
-            ViewBag.AttachmentSet = await AttachmentSetService.GetByIDAsync(request.AttachmentSetID);
+            ViewBag.AttachmentSet = await _attachmentSetService.GetByIDAsync(request.AttachmentSetID);
             ViewBag.AttachmentSetRoutingInstanceRequest = request;
 
             return View(new AttachmentSetRoutingInstanceViewModel());
@@ -125,33 +111,29 @@ namespace SCM.Controllers
             if (ModelState.IsValid)
             {
                 var attachmentSetRoutingInstance = Mapper.Map<AttachmentSetRoutingInstance>(attachmentSetRoutingInstanceModel);
-                await AttachmentSetRoutingInstanceValidator.ValidateNewAsync(attachmentSetRoutingInstance);
 
-                if (AttachmentSetRoutingInstanceValidator.ValidationDictionary.IsValid)
+                try
                 {
-                    try
-                    {
-                        await AttachmentSetRoutingInstanceService.AddAsync(attachmentSetRoutingInstance);
-                        var vpns = await VpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
+                    await _attachmentSetRoutingInstanceService.AddAsync(attachmentSetRoutingInstance);
+                    var vpns = await _vpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
 
-                        return RedirectToAction("GetAllByAttachmentSetID", new
-                        {
-                            id = attachmentSetRoutingInstance.AttachmentSetID,
-                            showWarningMessage = vpns.Any()
-                        });
-                    }
-
-                    catch (DbUpdateException /** ex **/ )
+                    return RedirectToAction("GetAllByAttachmentSetID", new
                     {
-                        //Log the error (uncomment ex variable name and write a log.
-                        ModelState.AddModelError("", "Unable to save changes. " +
-                            "Try again, and if the problem persists " +
-                            "see your system administrator.");
-                    }
+                        id = attachmentSetRoutingInstance.AttachmentSetID,
+                        showWarningMessage = vpns.Any()
+                    });
+                }
+
+                catch (DbUpdateException /** ex **/ )
+                {
+                    //Log the error (uncomment ex variable name and write a log.
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem persists " +
+                        "see your system administrator.");
                 }
             } 
 
-            ViewBag.AttachmentSet = await AttachmentSetService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetID);
+            ViewBag.AttachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetID);
             await PopulateRoutingInstancesDropDownList(Mapper.Map<AttachmentSetRoutingInstanceRequest>(request));
             ViewBag.AttachmentSetRoutingInstanceRequest = request;
 
@@ -166,7 +148,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSetRoutingInstance = await AttachmentSetRoutingInstanceService.GetByIDAsync(id.Value);
+            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSetRoutingInstance == null)
             {
                 return NotFound();
@@ -180,7 +162,7 @@ namespace SCM.Controllers
                 PlaneID = attachmentSetRoutingInstance.RoutingInstance.Device.PlaneID
             });
 
-            ViewBag.AttachmentSet = await AttachmentSetService.GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
+            ViewBag.AttachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetID, deep: true);
             return View(Mapper.Map<AttachmentSetRoutingInstanceViewModel>(attachmentSetRoutingInstance));
         }
 
@@ -195,7 +177,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var currentAttachmentSetRoutingInstance = await AttachmentSetRoutingInstanceService.GetByIDAsync(id);
+            var currentAttachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(id, deep: true);
             if (currentAttachmentSetRoutingInstance == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The item was deleted by another user.");
@@ -205,8 +187,8 @@ namespace SCM.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    await AttachmentSetRoutingInstanceService.UpdateAsync(Mapper.Map<AttachmentSetRoutingInstance>(attachmentSetRoutingInstanceModel));
-                    var vpns = await VpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetID);
+                    await _attachmentSetRoutingInstanceService.UpdateAsync(Mapper.Map<AttachmentSetRoutingInstance>(attachmentSetRoutingInstanceModel));
+                    var vpns = await _vpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetID);
                     
                     return RedirectToAction("GetAllByAttachmentSetID", 
                         new
@@ -257,7 +239,7 @@ namespace SCM.Controllers
                     "see your system administrator.");
             }
 
-            ViewBag.AttachmentSet = await AttachmentSetService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetID);
+            ViewBag.AttachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetID);
             return View(Mapper.Map<AttachmentSetRoutingInstanceViewModel>(currentAttachmentSetRoutingInstance));
         }
 
@@ -269,7 +251,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSetRoutingInstance = await AttachmentSetRoutingInstanceService.GetByIDAsync(id.Value);
+            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(id.Value);
             if (attachmentSetRoutingInstance == null)
             {
                 if (concurrencyError.GetValueOrDefault())
@@ -290,7 +272,7 @@ namespace SCM.Controllers
                     + "click the Back to List hyperlink.";
             }
 
-            ViewBag.AttachmentSet = await AttachmentSetService.GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
+            ViewBag.AttachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
             return View(Mapper.Map<AttachmentSetRoutingInstanceViewModel>(attachmentSetRoutingInstance));
         }
 
@@ -298,7 +280,7 @@ namespace SCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(AttachmentSetRoutingInstanceViewModel attachmentSetRoutingInstanceModel)
         {
-            var attachmentSetRoutingInstance = await AttachmentSetRoutingInstanceService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetRoutingInstanceID);
+            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetRoutingInstanceID);
             if (attachmentSetRoutingInstance == null)
             {
                 return RedirectToAction("GetAllByAttachmentSetID", new
@@ -309,18 +291,14 @@ namespace SCM.Controllers
 
             try
             {
-                await AttachmentSetRoutingInstanceValidator.ValidateDeleteAsync(attachmentSetRoutingInstance);
-                if (AttachmentSetRoutingInstanceValidator.ValidationDictionary.IsValid)
-                {
-                    await AttachmentSetRoutingInstanceService.DeleteAsync(Mapper.Map<AttachmentSetRoutingInstance>(attachmentSetRoutingInstanceModel));
-                    var vpns = await VpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
+                await _attachmentSetRoutingInstanceService.DeleteAsync(attachmentSetRoutingInstanceModel.AttachmentSetRoutingInstanceID);
+                var vpns = await _vpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
 
-                    return RedirectToAction("GetAllByAttachmentSetID", new
-                    {
-                        id = attachmentSetRoutingInstance.AttachmentSetID,
-                        showWarningMessage = vpns.Any()
-                    });
-                }
+                return RedirectToAction("GetAllByAttachmentSetID", new
+                {
+                    id = attachmentSetRoutingInstance.AttachmentSetID,
+                    showWarningMessage = vpns.Any()
+                });
             }
 
             catch (DbUpdateConcurrencyException /* ex */)
@@ -333,21 +311,17 @@ namespace SCM.Controllers
                     attachmentSetID = attachmentSetRoutingInstance.AttachmentSetID
                 });
             }
-
-            ViewBag.AttachmentSet = await AttachmentSetService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetID);
-
-            return View(Mapper.Map<AttachmentSetRoutingInstanceViewModel>(attachmentSetRoutingInstance));
         }
 
         private async Task PopulatePlanesDropDownList(object selectedPlane = null)
         {
-            var planes = await AttachmentSetRoutingInstanceService.UnitOfWork.PlaneRepository.GetAsync();
+            var planes = await _unitOfWork.PlaneRepository.GetAsync();
             ViewBag.PlaneID = new SelectList(planes, "PlaneID", "Name", selectedPlane);
         }
 
         private async Task PopulateLocationsDropDownList(AttachmentSet attachmentSet)
         {
-            IEnumerable<Location> locations = await AttachmentSetRoutingInstanceService.UnitOfWork.LocationRepository.GetAsync(q => q.SubRegion.RegionID == attachmentSet.RegionID);
+            IEnumerable<Location> locations = await _unitOfWork.LocationRepository.GetAsync(q => q.SubRegion.RegionID == attachmentSet.RegionID);
             if (attachmentSet.SubRegionID != null)
             {
                 locations = locations.Where(q => q.SubRegionID == attachmentSet.SubRegionID);
@@ -358,8 +332,8 @@ namespace SCM.Controllers
 
         private async Task PopulateRoutingInstancesDropDownList(AttachmentSetRoutingInstanceRequest request, object selectedRoutingInstance = null)
         { 
-            var vrfs = await AttachmentSetRoutingInstanceService.GetCandidateRoutingInstances(request);
-            ViewBag.RoutingInstanceID = new SelectList(vrfs, "RoutingInstanceID", "Name", selectedRoutingInstance);
+            var routingInstances = await _attachmentSetRoutingInstanceService.GetCandidateRoutingInstances(request);
+            ViewBag.RoutingInstanceID = new SelectList(routingInstances, "RoutingInstanceID", "Name", selectedRoutingInstance);
         }
     }
 }

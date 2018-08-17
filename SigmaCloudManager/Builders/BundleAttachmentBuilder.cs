@@ -9,12 +9,14 @@ using SCM.Models.RequestModels;
 
 namespace Mind.Builders
 {
+    /// <summary>
+    /// Builder for bundle attachments. The builder exposes a fluent API.
+    /// </summary>
     public class BundleAttachmentBuilder : AttachmentBuilder<BundleAttachmentBuilder>, IBundleAttachmentBuilder
     {
         public BundleAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory) : 
             base(unitOfWork, routingInstanceBuilderFactory)
         {
-            _builder = this;
         }
 
         public IBundleAttachmentBuilder WithBundleLinks(int? minLinks, int? maxLinks)
@@ -61,9 +63,15 @@ namespace Mind.Builders
             return this;
         }
 
-        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp)
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithContractBandwidth(int? contractBandwidthMbps)
         {
-            base.WithContractBandwidth(contractBandwidthMbps, trustReceivedCosDscp);
+            base.WithContractBandwidth(contractBandwidthMbps);
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp)
+        {
+            base.WithTrustReceivedCosAndDscp(trustReceivedCosAndDscp);
             return this;
         }
 
@@ -111,36 +119,37 @@ namespace Mind.Builders
             _portBandwidthRequired = _attachment.AttachmentBandwidth.BundleOrMultiPortMemberBandwidthGbps.Value;
         }
 
-        private async Task CreateBundleId()
+        protected internal virtual void SetBundleLinks()
         {
-            var query = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.DeviceID == _attachment.DeviceID && q.IsBundle)
-                        select attachments)
-                        .Select(q => q.ID).Where(q => q != null);
+            var numPorts = _attachment.Interfaces.SelectMany(x => x.Ports).Count();
+            var minLinks = _args.ContainsKey("minLinks") ? (int)_args["minLinks"] : numPorts;
+            var maxLinks = _args.ContainsKey("maxLinks") ? (int)_args["maxLinks"] : numPorts;
 
-            var usedBundleIDs = query.ToList();
-            int? id = Enumerable.Range(1, 65535).Except(usedBundleIDs.Select(q => q.Value)).FirstOrDefault();
+            if (minLinks > numPorts) throw new BuilderBadArgumentsException($"The min links parameter for the bundle ({minLinks}) must be " +
+                $"less than or equal to the total number of ports required for the bundle ({numPorts}).");
 
-            _attachment.ID = id ?? throw new BuilderUnableToCompleteException("Unable to assign an ID value to the bundle attachment. "
-                    + $"It seems that all IDs in the range 1 - 65535 for device '{_attachment.Device.Name}' have been used. " +
-                    $"Contact your system administrator to report this issue.");
-        }
-
-        private void SetBundleLinks()
-        {
-            var minLinks =_args.ContainsKey("minLinks") ? (int)_args["minLinks"] : _numPortsRequired;
-            var maxLinks = _args.ContainsKey("maxLinks") ? (int)_args["maxLinks"] : _numPortsRequired;
-
-            if (minLinks > _numPortsRequired) throw new BuilderBadArgumentsException($"The min links parameter for the bundle ({minLinks}) must be " +
-                $"less than or equal to the total number of ports required for the bundle ({_numPortsRequired}).");
-
-            if (maxLinks > _numPortsRequired) throw new BuilderBadArgumentsException($"The max links parameter for the bundle ({maxLinks}) must be " +
-                $"less than or equal to the total number of ports required for the bundle ({_numPortsRequired}).");
+            if (maxLinks > numPorts) throw new BuilderBadArgumentsException($"The max links parameter for the bundle ({maxLinks}) must be " +
+                $"less than or equal to the total number of ports required for the bundle ({numPorts}).");
 
             if (minLinks > maxLinks) throw new BuilderBadArgumentsException($"The min links parameter for the bundle ({minLinks}) must be less then " +
                 $"or equal to the max links parameter for the bundle ({maxLinks})");
 
             _attachment.BundleMinLinks = minLinks;
             _attachment.BundleMaxLinks = maxLinks;
+        }
+
+        private async Task CreateBundleId()
+        {
+            var usedBundleIds = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.DeviceID == _attachment.DeviceID && q.IsBundle)
+                                select attachments)
+                        .Select(q => q.ID).Where(q => q != null)
+                        .ToList();
+
+            int? id = Enumerable.Range(1, 65535).Except(usedBundleIds.Select(q => q.Value)).FirstOrDefault();
+
+            _attachment.ID = id ?? throw new BuilderUnableToCompleteException("Unable to assign an ID value to the bundle attachment. "
+                    + $"It seems that all IDs in the range 1 - 65535 for device '{_attachment.Device.Name}' have been used. " +
+                    $"Contact your system administrator to report this issue.");
         }
     }
 }

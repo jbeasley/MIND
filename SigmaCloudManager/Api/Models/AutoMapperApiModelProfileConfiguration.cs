@@ -40,6 +40,11 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.PortStatus, conf => conf.MapFrom(src => src.PortStatus.Name))
                 .ForMember(dst => dst.PortConnector, conf => conf.MapFrom(src => src.PortConnector.Name))
                 .ForMember(dst => dst.PortBandwidthGbps, conf => conf.MapFrom(src => src.PortBandwidth.BandwidthGbps));
+            CreateMap<SCM.Models.AttachmentSet, Mind.Api.Models.AttachmentSet>()
+                .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentRedundancy.Name))
+                .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
+                .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name));
+
 
             // Map API input request models to entity models
 

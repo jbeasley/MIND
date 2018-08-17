@@ -10,9 +10,10 @@ using SCM.Services;
 
 namespace Mind.Services
 {
-    public interface IProviderDomainAttachmentService : IBaseAttachmentService
+    public interface IProviderDomainAttachmentService: IBaseService
     {
-        Task<Attachment> GetByIDAsync(int attachmentId, bool deep = false, bool asTrackable = false);
+        Task<Attachment> GetByIDAsync(int attachmentId, bool? deep = false, bool asTrackable = false);
+        Task<List<Attachment>> GetAllByTenantIDAsync(int tenantId, bool? deep = false, bool asTrackable = false);
         Task<Attachment> AddAsync(int tenantId, ProviderDomainAttachmentRequest request);
         Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update);
         Task DeleteAsync(int attachmentId);

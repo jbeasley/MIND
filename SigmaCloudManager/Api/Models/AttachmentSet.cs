@@ -28,9 +28,16 @@ namespace Mind.Api.Models
     public partial class AttachmentSet : IEquatable<AttachmentSet>
     { 
         /// <summary>
+        /// System-generated ID of the attachment set
+        /// </summary>
+        /// <value>Integer value for the ID of the attachment set</value>
+        [DataMember(Name="attachmentSetId")]
+        public int AttachmentSetID { get; set; }
+
+        /// <summary>
         /// System-generated name of the attachment set
         /// </summary>
-        /// <value>System-generated name of the attachment set</value>
+        /// <value>String value for the name of the attachment set</value>
         [DataMember(Name="name")]
         public string Name { get; set; }
 
@@ -61,6 +68,13 @@ namespace Mind.Api.Models
         /// <value>Determines if the attachment set is enabled for layer 3</value>
         [DataMember(Name="isLayer3")]
         public bool? IsLayer3 { get; set; }
+
+        /// <summary>
+        /// Routing instances for the attachment Set
+        /// </summary>
+        /// <value>A list of AttachmentSetRoutingInstance objects</value>
+        [DataMember(Name="attachmentSetRoutingInstances")]
+        public List<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object

@@ -42,5 +42,16 @@ namespace SCM.Models.RequestModels
         /// </summary>
         public bool? UseJumboMtu { get; set; }
 
+        /// <summary>
+        /// The minimum number of active links in the updated bundle attachment
+        /// </summary>
+        /// <value>A value which specifies the minimum links in the bundle</value>
+        public int? BundleMinLinks { get; set; }
+
+        /// <summary>
+        /// The maximum number of active links in the updated bundle attachment
+        /// </summary>
+        /// <value>A value which specifies the maximum links in the bundle</value>
+        public int? BundleMaxLinks { get; set; }
     }
 }

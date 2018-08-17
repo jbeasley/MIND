@@ -5,20 +5,19 @@ using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Data;
 using SCM.Models.RequestModels;
+using SCM.Services;
+using Mind.Models.RequestModels;
 
-namespace SCM.Services
+namespace Mind.Services
 {
-    public interface IAttachmentSetRoutingInstanceService
+    public interface IAttachmentSetRoutingInstanceService : IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
-
-        Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllAsync(bool includeProperties = true);
-        Task<AttachmentSetRoutingInstance> GetByIDAsync(int id, bool includeProperties = true);
-        Task<AttachmentSetRoutingInstance> GetByAttachmenSetAndRoutingInstanceAsync(int attachmentSetID, int vrfID, bool includeProperties = true);
-        Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool includeProperties = true);
-        Task<ServiceResult> AddAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
-        Task<ServiceResult> UpdateAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
-        Task<ServiceResult> DeleteAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
+        Task<AttachmentSetRoutingInstance> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<AttachmentSetRoutingInstance> AddAsync(int attachmentSetID, RoutingInstanceForAttachmentSetRequest request);
+        Task<AttachmentSetRoutingInstance> AddAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
+        Task<AttachmentSetRoutingInstance> UpdateAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
+        Task DeleteAsync(int attachmentSetRoutingInstanceId);
         Task<IEnumerable<RoutingInstance>> GetCandidateRoutingInstances(AttachmentSetRoutingInstanceRequest request);
     }
 }

@@ -39,6 +39,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>A value which specifies the minimum links in the bundle</value>
         [DataMember(Name = "bundleMinLinks")]
+        [Range(1,8)]
         public int? BundleMinLinks { get; set; }
 
         /// <summary>
@@ -46,6 +47,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>A value which specifies the maximum links in the bundle</value>
         [DataMember(Name = "bundleMaxLinks")]
+        [Range(1, 8)]
         public int? BundleMaxLinks { get; set; }
 
         /// <summary>

@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace Mind.Builders
 {
     public class ProviderDomainAttachmentUpdateDirector<TAttachmentBuilder> : IProviderDomainAttachmentUpdateDirector 
-        where TAttachmentBuilder: AttachmentUpdateBuilder<TAttachmentBuilder>
+        where TAttachmentBuilder: IAttachmentUpdateBuilder<TAttachmentBuilder>
     {
         private readonly Func<Attachment, IAttachmentUpdateBuilder<TAttachmentBuilder>> _builderFactory;
 

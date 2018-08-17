@@ -71,6 +71,7 @@ namespace SCM
                 .AddJsonOptions(o =>
                 {
                     o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                    o.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
                     o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
                     o.SerializerSettings.Converters.Add(new StringEnumConverter
                     {
@@ -178,7 +179,6 @@ namespace SCM
             services.AddScoped<IMulticastGeographicalScopeService, MulticastGeographicalScopeService>();
             services.AddScoped<ITenantMulticastGroupService, TenantMulticastGroupService>();
             services.AddScoped<IVpnTenantMulticastGroupService, VpnTenantMulticastGroupService>();
-            services.AddScoped<IProviderDomainAttachmentService, ProviderDomainAttachmentService>();
 
             // Factories for creating complex objects
             services.AddScoped<IDeviceFactory, DeviceFactory>();
@@ -235,14 +235,26 @@ namespace SCM
                 .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainSingleAttachmentUpdateDirector");
             builder.RegisterType<ProviderDomainBundleAttachmentDirector>().As<IProviderDomainAttachmentDirector>()
                 .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainBundleAttachmentDirector");
+            builder.RegisterType<ProviderDomainBundleAttachmentUpdateDirector>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainBundleAttachmentUpdateDirector");
             builder.RegisterType<ProviderDomainAttachmentDirector<MultiPortAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
                 .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainMultiPortAttachmentDirector");
+            builder.RegisterType<ProviderDomainAttachmentUpdateDirector<MultiPortAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainMultiPortAttachmentUpdateDirector");
+            builder.RegisterType<AttachmentSetDirector>().As<IAttachmentSetDirector>();
+            builder.RegisterType<AttachmentSetUpdateDirector>().As<IAttachmentSetUpdateDirector>();
+            builder.RegisterType<AttachmentSetRoutingInstanceDirector>().As<IAttachmentSetRoutingInstanceDirector>();
 
             builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
             builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
             builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
             builder.RegisterType<VrfRoutingInstanceBuilder>().As<IRoutingInstanceBuilder>().Keyed<IRoutingInstanceBuilder>("VRFRoutingInstanceBuilder");
             builder.RegisterType<SingleAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<SingleAttachmentUpdateBuilder>>();
+            builder.RegisterType<MultiPortAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>>();
+            builder.RegisterType<BundleAttachmentUpdateBuilder>().As<IBundleAttachmentUpdateBuilder>();
+            builder.RegisterType<AttachmentSetBuilder>().As<IAttachmentSetBuilder>();
+            builder.RegisterType<AttachmentSetUpdateBuilder>().As<IAttachmentSetUpdateBuilder>();
+            builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();
 
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
             {
@@ -289,14 +301,16 @@ namespace SCM
                 {
                     if (attachment.IsBundle)
                     {
-                        //TO-DO
+                        return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainBundleAttachmentUpdateDirector");
                     }
-                    if (attachment.IsMultiPort)
+                    else if (attachment.IsMultiPort)
                     {
-                        //TO-DO
+                        return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainMultiPortAttachmentUpdateDirector");
                     }
-
-                    return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainSingleAttachmentUpdateDirector");
+                    else
+                    {
+                        return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainSingleAttachmentUpdateDirector");
+                    }
                 };
             });
         }

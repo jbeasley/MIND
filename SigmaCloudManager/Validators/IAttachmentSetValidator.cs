@@ -1,4 +1,4 @@
-﻿using SCM.Models;
+﻿using Mind.Models.RequestModels;
 using SCM.Models.RequestModels;
 using System;
 using System.Collections.Generic;
@@ -9,8 +9,7 @@ namespace SCM.Validators
 {
     public interface IAttachmentSetValidator : IValidator
     {
-        Task ValidateNewAsync(AttachmentSet attachmentSet);
-        Task ValidateChangesAsync(AttachmentSet attachmentSet);
-        Task ValidateDeleteAsync(AttachmentSet attachmentSet);
+        Task ValidateChangesAsync(int attachmentSetId, AttachmentSetUpdate update);
+        Task ValidateDeleteAsync(int attachmentSetId);
     }
 }

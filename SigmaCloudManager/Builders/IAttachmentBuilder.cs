@@ -15,7 +15,8 @@ namespace Mind.Builders
         IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps);
         IAttachmentBuilder<TAttachmentBuilder> WithLocation(string locationName);
         IAttachmentBuilder<TAttachmentBuilder> WithPlane(string planeName = "");
-        IAttachmentBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps, bool? trustReceivedCosDscp = false);
+        IAttachmentBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps);
+        IAttachmentBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false);
         Task<Attachment> BuildAsync();
     }

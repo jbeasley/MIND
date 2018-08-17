@@ -71,7 +71,10 @@ namespace SCM.Controllers
         protected ILogicalInterfaceService LogicalInterfaceService { get; }
         protected IAttachmentValidator AttachmentValidator { get; }
         protected IRoutingInstanceValidator RoutingInstanceValidator { get; }
-        protected IMapper Mapper { get; }
+        protected IMapper 
+            
+            
+            Mapper { get; }
 
         /// <summary>
         /// Executed before each action method is executed.

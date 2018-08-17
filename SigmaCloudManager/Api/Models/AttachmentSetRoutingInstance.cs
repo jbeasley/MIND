@@ -27,27 +27,41 @@ namespace Mind.Api.Models
     /// </summary>
     [DataContract]
     public partial class AttachmentSetRoutingInstance : IEquatable<AttachmentSetRoutingInstance>
-    { 
+    {
+        /// <summary>
+        /// ID of the attachment set routing instance
+        /// </summary>
+        /// <value>An integer value /value>
+        [DataMember(Name = "attachmentSetRoutingInstanceId")]
+        public int? AttachmentSetRoutingInstanceID { get; set; }
+
         /// <summary>
         /// Default preference applied to IPv4 and IPv6 routes within the routing instance
         /// </summary>
         /// <value>Default preference applied to IPv4 and IPv6 routes within the routing instance</value>
-        [DataMember(Name="locaIpRoutingPreference")]
-        public int? LocaIpRoutingPreference { get; set; }
+        [DataMember(Name = "localIpRoutingPreference")]
+        public int? LocalIpRoutingPreference { get; set; }
 
         /// <summary>
         /// Default preference of IPv4 and IPv6 routes advertised from the routing instance
         /// </summary>
         /// <value>Default preference of IPv4 and IPv6 routes advertised from the routing instance</value>
-        [DataMember(Name="advertisedIpRoutingPreference")]
+        [DataMember(Name = "advertisedIpRoutingPreference")]
         public int? AdvertisedIpRoutingPreference { get; set; }
 
         /// <summary>
         /// Default multicast designated router preference
         /// </summary>
         /// <value>Default multicast designated router preference</value>
-        [DataMember(Name="multicastDesignatedRouterPreference")]
+        [DataMember(Name = "multicastDesignatedRouterPreference")]
         public int? MulticastDesignatedRouterPreference { get; set; }
+
+        /// <summary>
+        /// The routing instance
+        /// </summary>
+        /// <value>An instance of RoutingInstance</value>
+        [DataMember(Name = "routingInstance")]
+        public RoutingInstance RoutingInstance { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -57,9 +71,11 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class AttachmentSetRoutingInstance {\n");
-            sb.Append("  LocaIpRoutingPreference: ").Append(LocaIpRoutingPreference).Append("\n");
+            sb.Append("  AttachmentSetRoutingInstanceId: ").Append(AttachmentSetRoutingInstanceID).Append("\n");
+            sb.Append("  LocaIpRoutingPreference: ").Append(LocalIpRoutingPreference).Append("\n");
             sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
             sb.Append("  MulticastDesignatedRouterPreference: ").Append(MulticastDesignatedRouterPreference).Append("\n");
+            sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -95,21 +111,31 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
-                    LocaIpRoutingPreference == other.LocaIpRoutingPreference ||
-                    LocaIpRoutingPreference != null &&
-                    LocaIpRoutingPreference.Equals(other.LocaIpRoutingPreference)
-                ) && 
+                    LocalIpRoutingPreference == other.LocalIpRoutingPreference ||
+                    LocalIpRoutingPreference != null &&
+                    LocalIpRoutingPreference.Equals(other.LocalIpRoutingPreference)
+                ) &&
                 (
                     AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
                     AdvertisedIpRoutingPreference != null &&
                     AdvertisedIpRoutingPreference.Equals(other.AdvertisedIpRoutingPreference)
-                ) && 
+                ) &&
                 (
                     MulticastDesignatedRouterPreference == other.MulticastDesignatedRouterPreference ||
                     MulticastDesignatedRouterPreference != null &&
                     MulticastDesignatedRouterPreference.Equals(other.MulticastDesignatedRouterPreference)
+                ) &&
+                (
+                    AttachmentSetRoutingInstanceID == other.AttachmentSetRoutingInstanceID ||
+                    AttachmentSetRoutingInstanceID != null &&
+                    AttachmentSetRoutingInstanceID.Equals(other.AttachmentSetRoutingInstanceID)
+                ) && 
+                (
+                    RoutingInstance == other.RoutingInstance ||
+                    RoutingInstance != null &&
+                    RoutingInstance.Equals(other.RoutingInstance)
                 );
         }
 
@@ -123,12 +149,16 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (LocaIpRoutingPreference != null)
-                    hashCode = hashCode * 59 + LocaIpRoutingPreference.GetHashCode();
+                    if (LocalIpRoutingPreference != null)
+                    hashCode = hashCode * 59 + LocalIpRoutingPreference.GetHashCode();
                     if (AdvertisedIpRoutingPreference != null)
                     hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
                     if (MulticastDesignatedRouterPreference != null)
                     hashCode = hashCode * 59 + MulticastDesignatedRouterPreference.GetHashCode();
+                    if (AttachmentSetRoutingInstanceID != null)
+                    hashCode = hashCode * 59 + AttachmentSetRoutingInstanceID.GetHashCode();
+                    if (RoutingInstance != null)
+                    hashCode = hashCode * 59 + RoutingInstance.GetHashCode();
                 return hashCode;
             }
         }

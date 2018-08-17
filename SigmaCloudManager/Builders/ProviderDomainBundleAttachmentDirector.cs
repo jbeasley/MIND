@@ -25,7 +25,8 @@ namespace Mind.Builders
                                 .WithLocation(request.LocationName)
                                 .WithPlane(request.PlaneName.ToString())
                                 .WithInterfaces(request.Ipv4Addresses)
-                                .WithContractBandwidth(request.ContractBandwidthMbps, request.TrustReceivedCosAndDscp)
+                                .WithContractBandwidth(request.ContractBandwidthMbps)
+                                .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
                                 .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
                                 .BuildAsync();
         }

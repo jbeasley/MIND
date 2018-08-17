@@ -25,28 +25,38 @@ namespace Mind.Api.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class AttachmentSetRequestRoutingInstances : IEquatable<AttachmentSetRequestRoutingInstances>
+    public partial class RoutingInstanceForAttachmentSetRequest : IEquatable<RoutingInstanceForAttachmentSetRequest>
     { 
         /// <summary>
-        /// The ID of the routing instance
+        /// The name of the routing instance
         /// </summary>
         /// <value>The ID of the routing instance</value>
-        [DataMember(Name="routingInstanceId")]
-        public int? RoutingInstanceId { get; set; }
+        [DataMember(Name="routingInstanceName")]
+        public string RoutingInstanceName { get; set; }
 
         /// <summary>
         /// Default preference applied to IPv4 and IPv6 routes within the routing instance
         /// </summary>
         /// <value>Default preference applied to IPv4 and IPv6 routes within the routing instance</value>
-        [DataMember(Name="locaIpRoutingPreference")]
-        public int? LocaIpRoutingPreference { get; set; }
+        [DataMember(Name = "localIpRoutingPreference")]
+        [Range(1, 500, ErrorMessage = "Local IP routing preference must be a number between 1 and 500")]
+        public int? LocalIpRoutingPreference { get; set; } = 100;
 
         /// <summary>
         /// Default preference of IPv4 and IPv6 routes advertised from the routing instance
         /// </summary>
         /// <value>Default preference of IPv4 and IPv6 routes advertised from the routing instance</value>
-        [DataMember(Name="advertisedIpRoutingPreference")]
-        public int? AdvertisedIpRoutingPreference { get; set; }
+        [DataMember(Name = "advertisedIpRoutingPreference")]
+        [Range(1, 20, ErrorMessage = "Advertised IP routing preference must be a number between 1 and 20")]
+        public int? AdvertisedIpRoutingPreference { get; set; } = 1;
+
+        /// <summary>
+        /// Default multicast designated router preference
+        /// </summary>
+        /// <value>Default multicast designated router preference</value>
+        [DataMember(Name = "multicastDesignatedRouterPreference")]
+        [Range(1, 500, ErrorMessage = "Multicast designated router preference must be a number between 1 and 500")]
+        public int? MulticastDesignatedRouterPreference { get; set; } = 1;
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -55,10 +65,11 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class AttachmentSetRequestRoutingInstances {\n");
-            sb.Append("  RoutingInstanceId: ").Append(RoutingInstanceId).Append("\n");
-            sb.Append("  LocaIpRoutingPreference: ").Append(LocaIpRoutingPreference).Append("\n");
+            sb.Append("class RoutingInstanceForAttachmentSetRequest {\n");
+            sb.Append("  RoutingInstanceName: ").Append(RoutingInstanceName).Append("\n");
+            sb.Append("  LocaIpRoutingPreference: ").Append(LocalIpRoutingPreference).Append("\n");
             sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
+            sb.Append("  MulticastDesignateRouterPreference: ").Append(MulticastDesignatedRouterPreference).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -81,7 +92,7 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((AttachmentSetRequestRoutingInstances)obj);
+            return obj.GetType() == GetType() && Equals((RoutingInstanceForAttachmentSetRequest)obj);
         }
 
         /// <summary>
@@ -89,26 +100,31 @@ namespace Mind.Api.Models
         /// </summary>
         /// <param name="other">Instance of AttachmentSetRequestRoutingInstances to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(AttachmentSetRequestRoutingInstances other)
+        public bool Equals(RoutingInstanceForAttachmentSetRequest other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    RoutingInstanceId == other.RoutingInstanceId ||
-                    RoutingInstanceId != null &&
-                    RoutingInstanceId.Equals(other.RoutingInstanceId)
+                    RoutingInstanceName == other.RoutingInstanceName ||
+                    RoutingInstanceName!= null &&
+                    RoutingInstanceName.Equals(other.RoutingInstanceName)
                 ) && 
                 (
-                    LocaIpRoutingPreference == other.LocaIpRoutingPreference ||
-                    LocaIpRoutingPreference != null &&
-                    LocaIpRoutingPreference.Equals(other.LocaIpRoutingPreference)
+                    LocalIpRoutingPreference == other.LocalIpRoutingPreference ||
+                    LocalIpRoutingPreference != null &&
+                    LocalIpRoutingPreference.Equals(other.LocalIpRoutingPreference)
                 ) && 
                 (
                     AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
                     AdvertisedIpRoutingPreference != null &&
                     AdvertisedIpRoutingPreference.Equals(other.AdvertisedIpRoutingPreference)
+                ) &&
+                (
+                    MulticastDesignatedRouterPreference == other.MulticastDesignatedRouterPreference ||
+                    MulticastDesignatedRouterPreference != null &&
+                    MulticastDesignatedRouterPreference.Equals(other.MulticastDesignatedRouterPreference)
                 );
         }
 
@@ -122,12 +138,14 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (RoutingInstanceId != null)
-                    hashCode = hashCode * 59 + RoutingInstanceId.GetHashCode();
-                    if (LocaIpRoutingPreference != null)
-                    hashCode = hashCode * 59 + LocaIpRoutingPreference.GetHashCode();
-                    if (AdvertisedIpRoutingPreference != null)
+                if (RoutingInstanceName != null)
+                    hashCode = hashCode * 59 + RoutingInstanceName.GetHashCode();
+                if (LocalIpRoutingPreference != null)
+                    hashCode = hashCode * 59 + LocalIpRoutingPreference.GetHashCode();
+                if (AdvertisedIpRoutingPreference != null)
                     hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
+                if (MulticastDesignatedRouterPreference != null)
+                    hashCode = hashCode * 59 + MulticastDesignatedRouterPreference.GetHashCode();
                 return hashCode;
             }
         }
@@ -135,12 +153,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(AttachmentSetRequestRoutingInstances left, AttachmentSetRequestRoutingInstances right)
+        public static bool operator ==(RoutingInstanceForAttachmentSetRequest left, RoutingInstanceForAttachmentSetRequest right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(AttachmentSetRequestRoutingInstances left, AttachmentSetRequestRoutingInstances right)
+        public static bool operator !=(RoutingInstanceForAttachmentSetRequest left, RoutingInstanceForAttachmentSetRequest right)
         {
             return !Equals(left, right);
         }

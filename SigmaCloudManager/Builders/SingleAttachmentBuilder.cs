@@ -8,12 +8,14 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
+    /// <summary>
+    /// Builder for single attachments. The builder exposes a fluent API.
+    /// </summary>
     public class SingleAttachmentBuilder : AttachmentBuilder<SingleAttachmentBuilder>, IAttachmentBuilder<SingleAttachmentBuilder>
     {
         public SingleAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory) : 
             base(unitOfWork, routingInstanceBuilderFactory)
         {
-            _builder = this;
         }
 
         /// <summary>

@@ -39,7 +39,7 @@ namespace Mind.Api.Controllers
         private readonly IProviderDomainAttachmentService _attachmentService;
 
         /// <summary>
-        /// Constructor
+        /// 
         /// </summary>
         /// <param name="attachmentService"></param>
         /// <param name="mapper"></param>
@@ -62,19 +62,19 @@ namespace Mind.Api.Controllers
         [Route("/v1/tenant/{tenantId}/provider-attachment")]
         [ValidateModelState]
         [ValidateTenantExists]
-        [SwaggerOperation("AddProviderDomainAttachment")]
+        [SwaggerOperation("CreateProviderDomainAttachment")]
         [SwaggerResponse(statusCode: 201, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Bad request")]
-        public virtual async Task<IActionResult> AddProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body)
+        public virtual async Task<IActionResult> CreateProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body)
         {
             try
             {
                 var request = Mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentRequest>(body);
                 var attachment = await _attachmentService.AddAsync(tenantId.Value, request);
                 var attachmentApiModel = Mapper.Map<Mind.Api.Models.Attachment>(attachment);
-                return CreatedAtRoute("GetAttachment", new { attachmentId = attachment.AttachmentID }, attachmentApiModel);
+                return CreatedAtRoute("GetProviderDomainAttachment", new { attachmentId = attachment.AttachmentID }, attachmentApiModel);
             }
 
             catch (BuilderBadArgumentsException ex) 
@@ -115,7 +115,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v1/tenant/provider-attachment/{attachmentId}")]
+        [Route("/v1/provider-attachment/{attachmentId}")]
         [ValidateProviderDomainAttachmentExists]
         [SwaggerOperation("DeleteProviderDomainAttachment")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
@@ -147,67 +147,43 @@ namespace Mind.Api.Controllers
         }
 
         /// <summary>
-        /// Find attachment by ID
+        /// Find a provider domain attachment by ID
         /// </summary>
-        /// <remarks>Returns a single attachment</remarks>
+        /// <remarks>Returns a single provider domain attachment</remarks>
         /// <param name="attachmentId">ID of the attachment</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/attachment/{attachmentId}", Name = "GetAttachment")]
+        [Route("/v1/provider-attachment/{attachmentId}", Name = "GetProviderDomainAttachment")]
         [ValidateModelState]
-        [SwaggerOperation("GetTenantAttachmentById")]
+        [ValidateProviderDomainAttachmentExists]
+        [SwaggerOperation("GetProviderDomainAttachmentById")]
         [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetTenantAttachmentById([FromRoute][Required]int? attachmentId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Attachment));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Attachment>\n  <attachmentId>123</attachmentId>\n  <trustReceivedCosDscp>true</trustReceivedCosDscp>\n  <isLayer3>true</isLayer3>\n  <isBundle>true</isBundle>\n  <isMultiport>true</isMultiport>\n  <isTagged>true</isTagged>\n  <attachmentBandwidthGbps>123</attachmentBandwidthGbps>\n</Attachment>";
-            exampleJson = "{\n  \"isBundle\" : false,\n  \"isTagged\" : false,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"isMultiport\" : false,\n  \"trustReceivedCosDscp\" : true,\n  \"attachmentId\" : 0,\n  \"isLayer3\" : false,\n  \"attachmentBandwidthGbps\" : 5,\n  \"infrastructureDevice\" : {\n    \"useLayer2InterfaceMtu\" : true,\n    \"planeName\" : \"planeName\",\n    \"locationName\" : \"locationName\",\n    \"name\" : \"name\",\n    \"description\" : \"description\",\n    \"deviceModel\" : \"deviceModel\",\n    \"ports\" : [ {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    }, {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    } ],\n    \"deviceID\" : 6,\n    \"deviceStatus\" : \"deviceStatus\"\n  },\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"tenant\" : {\n    \"tenantId\" : 0,\n    \"name\" : \"name\"\n  }\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Attachment>(exampleJson)
-            : default(Attachment);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+        public virtual async Task<IActionResult> GetProviderDomainAttachmentById([FromRoute][Required]int? attachmentId, [FromQuery]bool? deep)
+        {
+            var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep);
+            return Ok(Mapper.Map<Attachment>(attachment));
         }
 
         /// <summary>
-        /// Find all attachments for a given tenant
+        /// Find all provider domain attachments for a given tenant
         /// </summary>
-        /// <remarks>Returns all attachments for a given tenant</remarks>
+        /// <remarks>Returns all provider domain attachments for a given tenant</remarks>
         /// <param name="tenantId">ID of the tenant</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/{tenantId}/attachment")]
+        [Route("/v1/tenant/{tenantId}/provider-attachment")]
         [ValidateModelState]
-        [SwaggerOperation("GetTenantAttachmentsByTenantId")]
+        [ValidateTenantExists]
+        [SwaggerOperation("GetProviderDomainAttachmentsByTenantId")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Attachment>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetTenantAttachmentsByTenantId([FromRoute][Required]int? tenantId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Attachment>));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Attachment>\n  <attachmentId>123</attachmentId>\n  <trustReceivedCosDscp>true</trustReceivedCosDscp>\n  <isLayer3>true</isLayer3>\n  <isBundle>true</isBundle>\n  <isMultiport>true</isMultiport>\n  <isTagged>true</isTagged>\n  <attachmentBandwidthGbps>123</attachmentBandwidthGbps>\n</Attachment>";
-            exampleJson = "[ {\n  \"isBundle\" : false,\n  \"isTagged\" : false,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"isMultiport\" : false,\n  \"trustReceivedCosDscp\" : true,\n  \"attachmentId\" : 0,\n  \"isLayer3\" : false,\n  \"attachmentBandwidthGbps\" : 5,\n  \"infrastructureDevice\" : {\n    \"useLayer2InterfaceMtu\" : true,\n    \"planeName\" : \"planeName\",\n    \"locationName\" : \"locationName\",\n    \"name\" : \"name\",\n    \"description\" : \"description\",\n    \"deviceModel\" : \"deviceModel\",\n    \"ports\" : [ {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    }, {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    } ],\n    \"deviceID\" : 6,\n    \"deviceStatus\" : \"deviceStatus\"\n  },\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"tenant\" : {\n    \"tenantId\" : 0,\n    \"name\" : \"name\"\n  }\n}, {\n  \"isBundle\" : false,\n  \"isTagged\" : false,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"isMultiport\" : false,\n  \"trustReceivedCosDscp\" : true,\n  \"attachmentId\" : 0,\n  \"isLayer3\" : false,\n  \"attachmentBandwidthGbps\" : 5,\n  \"infrastructureDevice\" : {\n    \"useLayer2InterfaceMtu\" : true,\n    \"planeName\" : \"planeName\",\n    \"locationName\" : \"locationName\",\n    \"name\" : \"name\",\n    \"description\" : \"description\",\n    \"deviceModel\" : \"deviceModel\",\n    \"ports\" : [ {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    }, {\n      \"portPool\" : \"portPool\",\n      \"name\" : \"name\",\n      \"portStatus\" : \"portStatus\",\n      \"portId\" : 1,\n      \"type\" : \"type\",\n      \"portSfp\" : \"portSfp\",\n      \"portRole\" : \"portRole\"\n    } ],\n    \"deviceID\" : 6,\n    \"deviceStatus\" : \"deviceStatus\"\n  },\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"tenant\" : {\n    \"tenantId\" : 0,\n    \"name\" : \"name\"\n  }\n} ]";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<Attachment>>(exampleJson)
-            : default(List<Attachment>);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+        public async virtual Task<IActionResult> GetProviderDomainAttachmentsByTenantId([FromRoute][Required]int? tenantId,[FromQuery]bool? deep)
+        {
+            var attachments = await _attachmentService.GetAllByTenantIDAsync(tenantId.Value, deep);
+            return Ok(Mapper.Map<List<Attachment>>(attachments));
         }
 
         /// <summary>
@@ -222,7 +198,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPut]
-        [Route("/v1/tenant/provider-attachment/{attachmentId}")]
+        [Route("/v1/provider-attachment/{attachmentId}")]
         [ValidateModelState]
         [ValidateProviderDomainAttachmentExists]
         [SwaggerOperation("UpdateProviderDomainAttachment")]

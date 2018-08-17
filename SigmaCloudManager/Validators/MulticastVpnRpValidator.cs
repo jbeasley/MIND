@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Services;
 using SCM.Models;
+using Mind.Services;
 
 namespace SCM.Validators
 {

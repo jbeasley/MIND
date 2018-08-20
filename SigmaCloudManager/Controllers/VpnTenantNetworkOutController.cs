@@ -21,7 +21,7 @@ namespace SCM.Controllers
             IVpnTenantNetworkOutService vpnTenantNetworkOutService,
             IVpnService vpnService,
             IAttachmentSetService attachmentSetService,
-            ITenantNetworkService tenantNetworkService,
+            ITenantIpNetworkService tenantIpNetworkService,
             IAttachmentSetRoutingInstanceService attachmentSetRoutingInstanceService,
             IRoutingInstanceService vrfService,
             IBgpPeerService bgpPeerService,
@@ -30,7 +30,7 @@ namespace SCM.Controllers
             TenantService = tenantService;
             VpnTenantNetworkOutService = vpnTenantNetworkOutService;
             AttachmentSetService = attachmentSetService;
-            TenantNetworkService = tenantNetworkService;
+            TenantIpNetworkService = tenantIpNetworkService;
             VpnService = vpnService;
             AttachmentSetRoutingInstanceService = attachmentSetRoutingInstanceService;
             RoutingInstanceService = vrfService;
@@ -41,7 +41,7 @@ namespace SCM.Controllers
         private ITenantService TenantService { get; }
         private IVpnTenantNetworkOutService VpnTenantNetworkOutService { get; }
         private IAttachmentSetService AttachmentSetService { get; }
-        private ITenantNetworkService TenantNetworkService { get; }
+        private ITenantIpNetworkService TenantIpNetworkService { get; }
         private IAttachmentSetRoutingInstanceService AttachmentSetRoutingInstanceService { get; }
         private IRoutingInstanceService RoutingInstanceService { get; }
         private IVpnService VpnService { get; }
@@ -56,7 +56,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value);
+            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSet == null)
             {
                 return NotFound();
@@ -78,8 +78,8 @@ namespace SCM.Controllers
         [HttpGet]
         public async Task<PartialViewResult> TenantNetworks(int tenantID)
         {
-            var tenantCommunities = await TenantNetworkService.GetAllByTenantIDAsync(tenantID);
-            return PartialView(Mapper.Map<List<TenantNetworkViewModel>>(tenantCommunities));
+            var tenantNetworks = await TenantIpNetworkService.GetAllByTenantIDAsync(tenantID);
+            return PartialView(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantNetworks));
         }
 
         [HttpGet]
@@ -121,7 +121,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value);
+            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSet == null)
             {
                 return NotFound();
@@ -163,7 +163,7 @@ namespace SCM.Controllers
                     "see your system administrator.");
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(vpnTenantNetworkOutModel.AttachmentSetID);
+            var attachmentSet = await AttachmentSetService.GetByIDAsync(vpnTenantNetworkOutModel.AttachmentSetID, deep: true);
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
             await PopulateTenantsDropDownList();
             await PopulateTenantNetworksDropDownList(vpnTenantNetworkOutModel.TenantID);
@@ -192,7 +192,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(vpnTenantNetworkOut.AttachmentSetID);
+            var attachmentSet = await AttachmentSetService.GetByIDAsync(vpnTenantNetworkOut.AttachmentSetID, deep: true);
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
             var bgpPeer = await BgpPeerService.GetByIDAsync(vpnTenantNetworkOut.BgpPeerID);
             if (bgpPeer != null)
@@ -273,7 +273,7 @@ namespace SCM.Controllers
 
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(currentVpnTenantNetworkOut.AttachmentSetID);
+            var attachmentSet = await AttachmentSetService.GetByIDAsync(currentVpnTenantNetworkOut.AttachmentSetID,deep : true);
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
             await PopulateRoutingInstancesDropDownList(currentVpnTenantNetworkOut.AttachmentSetID, updateModel.RoutingInstanceID);
             var bgpPeer = await BgpPeerService.GetByIDAsync(updateModel.BgpPeerID);
@@ -373,8 +373,8 @@ namespace SCM.Controllers
         /// <returns></returns>
         private async Task PopulateTenantNetworksDropDownList(int tenantID, object selectedTenantNetwork = null)
         {
-            var tenantNetworks = await TenantNetworkService.GetAllByTenantIDAsync(tenantID);
-            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantNetworkViewModel>>(tenantNetworks),
+            var tenantNetworks = await TenantIpNetworkService.GetAllByTenantIDAsync(tenantID);
+            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantNetworks),
                 "TenantNetworkID", "CidrName", selectedTenantNetwork);
         }
 

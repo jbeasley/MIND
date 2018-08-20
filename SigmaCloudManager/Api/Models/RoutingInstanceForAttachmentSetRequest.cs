@@ -32,6 +32,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>The ID of the routing instance</value>
         [DataMember(Name="routingInstanceName")]
+        [Required]
         public string RoutingInstanceName { get; set; }
 
         /// <summary>

@@ -20,7 +20,7 @@ namespace SCM.Controllers
         public VpnTenantNetworkInController(IVpnTenantNetworkInService vpnTenantNetworkInService,
             IVpnService vpnService, 
             IAttachmentSetService attachmentSetService,
-            ITenantNetworkService tenantNetworkService,
+            ITenantIpNetworkService tenantNetworkService,
             IRoutingInstanceService vrfService,
             IBgpPeerService bgpPeerService,
             IMapper mapper)
@@ -36,7 +36,7 @@ namespace SCM.Controllers
 
         private IVpnTenantNetworkInService VpnTenantNetworkInService { get; }
         private IAttachmentSetService AttachmentSetService { get; }
-        private ITenantNetworkService TenantNetworkService { get; }
+        private ITenantIpNetworkService TenantNetworkService { get; }
         private IRoutingInstanceService RoutingInstanceService { get; }
         private IVpnService VpnService { get; }
         private IBgpPeerService BgpPeerService { get; }
@@ -361,7 +361,7 @@ namespace SCM.Controllers
         private async Task PopulateTenantNetworksDropDownList(int tenantID, object selectedTenantNetwork = null)
         {
             var tenantNetworks = await TenantNetworkService.GetAllByTenantIDAsync(tenantID);
-            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantNetworkViewModel>>(tenantNetworks), 
+            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantNetworks), 
                 "TenantNetworkID", "CidrNameIncludingLessThanOrEqualToLength", selectedTenantNetwork);
         }
 

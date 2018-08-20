@@ -45,7 +45,7 @@ namespace SCM.Data
         private GenericRepository<RouteTarget> routeTargetRepository;
         private GenericRepository<SubRegion> subRegionRepository;
         private GenericRepository<Tenant> tenantRepository;
-        private GenericRepository<TenantNetwork> tenantNetworkRepository;
+        private GenericRepository<TenantIpNetwork> tenantIpNetworkRepository;
         private GenericRepository<TenantCommunity> tenantCommunityRepository;
         private GenericRepository<TenantCommunitySet> tenantCommunitySetRepository;
         private GenericRepository<RoutingPolicyMatchOption> routingPolicyMatchOptionRepository;
@@ -483,15 +483,15 @@ namespace SCM.Data
             }
         }
 
-        public GenericRepository<TenantNetwork> TenantNetworkRepository
+        public GenericRepository<TenantIpNetwork> TenantIpNetworkRepository
         {
             get
             {
-                if (this.tenantNetworkRepository == null)
+                if (this.tenantIpNetworkRepository == null)
                 {
-                    this.tenantNetworkRepository = new GenericRepository<TenantNetwork>(context);
+                    this.tenantIpNetworkRepository = new GenericRepository<TenantIpNetwork>(context);
                 }
-                return tenantNetworkRepository;
+                return tenantIpNetworkRepository;
             }
         }
 

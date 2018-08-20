@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.Api.Models;
 using Mind.Services;
+using Mind.Api.Controllers;
 
 namespace Mind.Api.Attributes
 {
@@ -27,35 +28,18 @@ namespace Mind.Api.Attributes
         private class ValidateTenantExistsActionFilter : IAsyncActionFilter
         {
             private readonly ITenantService _tenantService;
-            private readonly IMapper _mapper;
-
-            public ValidateTenantExistsActionFilter(ITenantService tenantService, IMapper mapper)
+            public ValidateTenantExistsActionFilter(ITenantService tenantService)
             {
                 _tenantService = tenantService;
-                _mapper = mapper;
             }
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-            {
-                if (!context.ActionArguments.ContainsKey("tenantId"))
-                {
-                    context.ModelState.AddModelError(string.Empty, "An ID for the tenant was not found.");
-                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
-                    return;
-                }
-
-                var tenantId = context.ActionArguments["tenantId"] as int?;
-                if (!tenantId.HasValue)
-                {
-                    context.ModelState.AddModelError(string.Empty, "An ID for the tenant was not found.");
-                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
-                    return;
-                }
-
+            {             
+                var tenantId = context.ActionArguments["tenantId"] as int?;          
                 if ((await _tenantService.GetByIDAsync(tenantId.Value)) == null)
                 {
                     context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
-                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
+                    context.Result = new ResourceNotFoundResult(context.ModelState);
                     return;
                 }
 

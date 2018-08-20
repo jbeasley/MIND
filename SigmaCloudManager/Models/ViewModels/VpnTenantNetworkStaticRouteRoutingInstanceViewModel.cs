@@ -26,7 +26,7 @@ namespace SCM.Models.ViewModels
         public int? RoutingInstanceID { get; set; }
         public byte[] RowVersion { get; set; }
         [Display(Name = "Tenant Network")]
-        public TenantNetworkViewModel TenantNetwork { get; set; }
+        public TenantIpNetworkViewModel TenantIpNetwork { get; set; }
         public AttachmentSetViewModel AttachmentSet { get; set; }
         [Display(Name = "VRF")]
         public RoutingInstanceViewModel RoutingInstance { get; set; }

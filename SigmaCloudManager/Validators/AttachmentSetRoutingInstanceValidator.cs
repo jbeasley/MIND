@@ -28,13 +28,13 @@ namespace SCM.Validators
             var attachmentSetRoutingInstance = (from attachmentSetRoutingInstances in await _unitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q =>
                                                 q.AttachmentSetRoutingInstanceID == attachmentSetRoutingInstanceId, 
                                                 includeProperties: "AttachmentSet," +
-                                                "RoutingInstance.BgpPeers.VpnTenantNetworksIn.TenantNetwork," +
-                                                "RoutingInstance.BgpPeers.VpnTenantNetworksOut.TenantNetwork," +
-                                                "RoutingInstance.VpnTenantNetworksRoutingInstance.TenantNetwork," +
+                                                "RoutingInstance.BgpPeers.VpnTenantNetworksIn.TenantIpNetwork," +
+                                                "RoutingInstance.BgpPeers.VpnTenantNetworksOut.TenantIpNetwork," +
+                                                "RoutingInstance.VpnTenantNetworksRoutingInstance.TenantIpNetwork," +
                                                 "RoutingInstance.BgpPeers.VpnTenantCommunitiesIn.TenantCommunity," +
                                                 "RoutingInstance.BgpPeers.VpnTenantCommunitiesOut.TenantCommunity," +
                                                 "RoutingInstance.VpnTenantCommunitiesRoutingInstance.TenantCommunity," +
-                                                "RoutingInstance.VpnTenantNetworkStaticRoutesRoutingInstance.TenantNetwork",
+                                                "RoutingInstance.VpnTenantNetworkStaticRoutesRoutingInstance.TenantIpNetwork",
                                                 AsTrackable: false)
                                                 select attachmentSetRoutingInstances)
                                                 .Single();
@@ -54,7 +54,7 @@ namespace SCM.Validators
 
                 foreach (var vpnTenantNetwork in vpnTenantNetworksIn)
                 {
-                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetwork.TenantNetwork.CidrName}");
+                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetwork.TenantIpNetwork.CidrName}");
                 }
             }
 
@@ -70,7 +70,7 @@ namespace SCM.Validators
 
                 foreach (var vpnTenantNetwork in vpnTenantNetworksOut)
                 {
-                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetwork.TenantNetwork.CidrName}.");
+                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetwork.TenantIpNetwork.CidrName}.");
                 }
             }
 
@@ -85,7 +85,7 @@ namespace SCM.Validators
 
                 foreach (var vpnTenantNetwork in vpnTenantNetworksRoutingInstance)
                 {
-                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetwork.TenantNetwork.CidrName}.");
+                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetwork.TenantIpNetwork.CidrName}.");
                 }
             }
 
@@ -100,7 +100,7 @@ namespace SCM.Validators
 
                 foreach (var vpnTenantNetworkStaticRouteRoutingInstance in vpnTenantNetworkStaticRoutesRoutingInstance)
                 {
-                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetworkStaticRouteRoutingInstance.TenantNetwork.CidrName}.");
+                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetworkStaticRouteRoutingInstance.TenantIpNetwork.CidrName}.");
                 }
             }
 

@@ -27,12 +27,14 @@ using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using Mind.Api.Attributes;
 using Mind.Services;
+using Mind.Models;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
     /// MIND API for tenant management
     /// </summary>
+    [ApiVersion("1.0")]
     public class TenantApiController : BaseApiController
     {
         private readonly ITenantService _tenantService;
@@ -55,7 +57,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPost]
-        [Route("/v1/tenant")]
+        [Route("/v{version:apiVersion}/tenants")]
         [ValidateModelState]
         [ValidateTenantNotExists]
         [SwaggerOperation("CreateTenant")]
@@ -73,13 +75,7 @@ namespace Mind.Api.Controllers
             }
             catch (DbUpdateException)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
-                {
-                    Message = "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator."
-            
-                });
+                return new DatabaseUpdateErrorResult();
             }
         }
 
@@ -91,33 +87,29 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPut]
-        [Route("/v1/tenant")]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}")]
         [ValidateModelState]
         [ValidateTenantNotExists]
         [SwaggerOperation("UpdateTenant")]
         [SwaggerResponse(statusCode: 200, type: typeof(Tenant), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> UpdateTenant([FromBody]Tenant body)
+        public virtual async Task<IActionResult> UpdateTenant([FromRoute][Required]int? tenantId, [FromBody]Tenant body, [FromQuery]bool? deep)
         {
             try
             {
-                var tenant = Mapper.Map<SCM.Models.Tenant>(body);
-                await _tenantService.UpdateAsync(tenant);
+                var item = await _tenantService.GetByIDAsync(tenantId.Value, deep: deep);
+                if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
+                Mapper.Map(body, item);
+                item.TenantID = tenantId.Value;
+                var updatedTenant = await _tenantService.UpdateAsync(item);
 
-                return Ok(Mapper.Map<Tenant>(tenant));
+                return Ok(Mapper.Map<Tenant>(updatedTenant));
             }
+
             catch (DbUpdateException)
             {
-                //Log the error (uncomment ex variable name and write a log.
-
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
-                {
-                    Message = "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator."
-
-                });
+                return new DatabaseUpdateErrorResult();
             }
         }
 
@@ -130,8 +122,9 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v1/tenant/{tenantId}")]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}")]
         [ValidateTenantExists]
+        [ValidateModelState]
         [SwaggerOperation("DeleteTenant")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
@@ -147,18 +140,12 @@ namespace Mind.Api.Controllers
 
             catch (ServiceValidationException)
             {
-                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse(this.ModelState));
+                return new ValidationFailedResult(this.ModelState);
             }
 
             catch (DbUpdateException)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
-                {
-                    Message = "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator."
-
-                });
+                return new DatabaseUpdateErrorResult();
             }
         }
 
@@ -168,13 +155,13 @@ namespace Mind.Api.Controllers
         /// <remarks>Returns all tenants</remarks>
         /// <response code="200">Successful operation</response>
         [HttpGet]
-        [Route("/v1/tenant")]
+        [Route("/v{version:apiVersion}/tenants")]
         [ValidateModelState]
         [SwaggerOperation("GetAllTenants")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Tenant>), description: "Successful operation")]
-        public virtual async Task<IActionResult> GetAllTenants()
+        public virtual async Task<IActionResult> GetAllTenants([FromQuery]bool? deep)
         {
-            var tenants = await _tenantService.GetAllAsync();
+            var tenants = await _tenantService.GetAllAsync(deep:deep);
             return Ok(Mapper.Map<List<Tenant>>(tenants));
         }
 
@@ -186,15 +173,24 @@ namespace Mind.Api.Controllers
         /// <response code="200">successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/{tenantId}", Name = "GetTenant")]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}", Name = "GetTenant")]
         [ValidateModelState]
         [ValidateTenantExists]
         [SwaggerOperation("GetTenantById")]
         [SwaggerResponse(statusCode: 200, type: typeof(Tenant), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual async Task<IActionResult> GetTenantById([FromRoute][Required]int? tenantId)
+        public virtual async Task<IActionResult> GetTenantById([FromRoute][Required]int? tenantId,[FromQuery]bool? deep)
         {
-            var tenant = await _tenantService.GetByIDAsync(tenantId.Value);
+            var tenant = await _tenantService.GetByIDAsync(tenantId.Value, deep: deep);
+            if (!tenant.HasBeenModified(Request))
+            {
+                return StatusCode(StatusCodes.Status304NotModified);
+            }
+            else
+            {
+                tenant.SetModifiedHttpHeaders(Response);
+            }
+
             return Ok(Mapper.Map<Tenant>(tenant));
         }
     }

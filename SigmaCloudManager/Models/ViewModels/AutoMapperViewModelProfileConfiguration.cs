@@ -71,7 +71,7 @@ namespace SCM.Models.ViewModels
             CreateMap<AttachmentSetRoutingInstanceViewModel, AttachmentSetRoutingInstance>();
             CreateMap<VpnAttachmentSet, VpnAttachmentSetViewModel>().ReverseMap();
             CreateMap<BgpPeer, BgpPeerViewModel>().ReverseMap();
-            CreateMap<TenantNetwork, TenantNetworkViewModel>().ReverseMap();
+            CreateMap<TenantIpNetwork, TenantIpNetworkViewModel>().ReverseMap();
             CreateMap<TenantCommunity, TenantCommunityViewModel>().ReverseMap();
             CreateMap<RoutingPolicyMatchOption, RoutingPolicyMatchOptionViewModel>().ReverseMap();
             CreateMap<TenantCommunitySet, TenantCommunitySetViewModel>().ReverseMap();

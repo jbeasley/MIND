@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Services;
 using SCM.Models;
+using Mind.Services;
 
 namespace SCM.Validators
 {
@@ -13,7 +14,7 @@ namespace SCM.Validators
     public class VpnTenantNetworkStaticRouteRoutingInstanceValidator : BaseValidator, IVpnTenantNetworkStaticRouteRoutingInstanceValidator
     {
         public VpnTenantNetworkStaticRouteRoutingInstanceValidator(IVpnAttachmentSetService vpnAttachmentSetService,
-            ITenantNetworkService tenantNetworkService,
+            ITenantIpNetworkService tenantNetworkService,
             IVpnTenantNetworkStaticRouteRoutingInstanceService vpnTenantNetworkStaticRouteRoutingInstanceService)
         {
             VpnAttachmentSetService = vpnAttachmentSetService;
@@ -22,7 +23,7 @@ namespace SCM.Validators
         }
 
         private IVpnAttachmentSetService VpnAttachmentSetService { get; set; }
-        private ITenantNetworkService TenantNetworkService { get; set; }
+        private ITenantIpNetworkService TenantNetworkService { get; set; }
         private IVpnTenantNetworkStaticRouteRoutingInstanceService VpnTenantNetworkStaticRouteRoutingInstanceService { get; set; }
 
         /// <summary>

@@ -38,7 +38,7 @@ namespace SCM.Data
         GenericRepository<RouteTarget> RouteTargetRepository { get; }
         GenericRepository<SubRegion> SubRegionRepository { get; }
         GenericRepository<Tenant> TenantRepository { get; }
-        GenericRepository<TenantNetwork> TenantNetworkRepository { get; }
+        GenericRepository<TenantIpNetwork> TenantIpNetworkRepository { get; }
         GenericRepository<TenantCommunity> TenantCommunityRepository { get; }
         GenericRepository<TenantCommunitySet> TenantCommunitySetRepository { get; }
         GenericRepository<RoutingPolicyMatchOption> RoutingPolicyMatchOptionRepository { get; }

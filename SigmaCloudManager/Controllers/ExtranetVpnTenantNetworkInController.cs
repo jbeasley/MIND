@@ -241,7 +241,7 @@ namespace SCM.Controllers
         private async Task PopulateTenantsDropDownList(int vpnID, object selectedTenant = null)
         {
             var query = from networks in await VpnTenantNetworkInService.GetAllByVpnIDAsync(vpnID)
-                        select networks.TenantNetwork.Tenant;
+                        select networks.TenantIpNetwork.Tenant;
 
             var tenants = query.ToList().GroupBy(q => q.TenantID).Select(r => r.First());
 
@@ -255,7 +255,7 @@ namespace SCM.Controllers
                 extranet: true, includeProperties: false);
 
             var result = from networks in tenantNetworks.Select(x => 
-                new { x.VpnTenantNetworkInID,  x.TenantNetwork.CidrName })
+                new { x.VpnTenantNetworkInID,  x.TenantIpNetwork.CidrName })
                 select networks;
 
             ViewBag.VpnTenantNetworkInID = new SelectList(result,

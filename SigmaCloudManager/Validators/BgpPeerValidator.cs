@@ -123,7 +123,7 @@ namespace SCM.Validators
                 foreach (var vpnTenantNetwork in bgpPeer.VpnTenantNetworksIn)
                 {
                     ValidationDictionary.AddError(string.Empty, "The BGP Peer cannot be deleted because it is associated with an inbound routing policy "
-                        + $"for Tenant Network '{vpnTenantNetwork.TenantNetwork.CidrName}' in Attachment Set {vpnTenantNetwork.AttachmentSet.Name}.");
+                        + $"for Tenant Network '{vpnTenantNetwork.TenantIpNetwork.CidrName}' in Attachment Set {vpnTenantNetwork.AttachmentSet.Name}.");
                 }
             }
 
@@ -141,7 +141,7 @@ namespace SCM.Validators
                 foreach (var vpnTenantNetwork in bgpPeer.VpnTenantNetworksOut)
                 {
                     ValidationDictionary.AddError(string.Empty, "The BGP Peer cannot be deleted because it is associated with an outbound routing policy "
-                        + $"for Tenant Network '{vpnTenantNetwork.TenantNetwork.CidrName}' in Attachment Set {vpnTenantNetwork.AttachmentSet.Name}.");
+                        + $"for Tenant Network '{vpnTenantNetwork.TenantIpNetwork.CidrName}' in Attachment Set {vpnTenantNetwork.AttachmentSet.Name}.");
                 }
             }
         }

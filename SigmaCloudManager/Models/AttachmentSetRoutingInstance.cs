@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mind.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Net;
 
 namespace SCM.Models
 {
-    public class AttachmentSetRoutingInstance
+    public class AttachmentSetRoutingInstance : IModifiableResource
     {
         public int AttachmentSetRoutingInstanceID { get; set; }
         public int AttachmentSetID { get; set; }
@@ -18,5 +19,6 @@ namespace SCM.Models
         public int? MulticastDesignatedRouterPreference { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
+        string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
     }
 }

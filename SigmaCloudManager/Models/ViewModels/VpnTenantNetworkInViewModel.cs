@@ -23,8 +23,8 @@ namespace SCM.Models.ViewModels
         [Range(1, 500, ErrorMessage = "Enter a number between 1 and 500")]
         public int? LocalIpRoutingPreference { get; set; } = 100;
         public byte[] RowVersion { get; set; }
-        [Display(Name = "Tenant Network")]
-        public TenantNetworkViewModel TenantNetwork { get; set; }
+        [Display(Name = "Tenant IP Network")]
+        public TenantIpNetworkViewModel TenantIpNetwork { get; set; }
         public AttachmentSetViewModel AttachmentSet { get; set; }
         [Display(Name = "BGP Peer")]
         public BgpPeerViewModel BgpPeer { get; set; }
@@ -37,7 +37,7 @@ namespace SCM.Models.ViewModels
                 if (BgpPeerID != null)
                 {
                     yield return new ValidationResult(
-                    "A BGP Peer cannot be selected when adding the Tenant Network to all BGP Peers.");
+                    "A BGP Peer cannot be selected when adding the tenant IP network to all BGP Peers.");
                 }
             }
             else

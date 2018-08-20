@@ -23,19 +23,19 @@ namespace SCM.Services
                 + "Device.Location.SubRegion.Region,"
                 + "AttachmentSetRoutingInstances.AttachmentSet.VpnAttachmentSets.Vpn,"
                 + "AttachmentSetRoutingInstances.AttachmentSet.Tenant,"
-                + "BgpPeers.VpnTenantNetworksOut.TenantNetwork,"
+                + "BgpPeers.VpnTenantNetworksOut.TenantIpNetwork,"
                 + "BgpPeers.VpnTenantNetworksOut.AttachmentSet.VpnAttachmentSets.Vpn,"
                 + "BgpPeers.VpnTenantCommunitiesOut.TenantCommunity,"
                 + "BgpPeers.VpnTenantCommunitiesOut.AttachmentSet.VpnAttachmentSets.Vpn,"
-                + "BgpPeers.VpnTenantNetworksIn.TenantNetwork,"
+                + "BgpPeers.VpnTenantNetworksIn.TenantIpNetwork,"
                 + "BgpPeers.VpnTenantNetworksIn.AttachmentSet.VpnAttachmentSets.Vpn,"
                 + "BgpPeers.VpnTenantCommunitiesIn.TenantCommunity,"
                 + "BgpPeers.VpnTenantCommunitiesIn.AttachmentSet.VpnAttachmentSets.Vpn,"
-                + "VpnTenantNetworksRoutingInstance.TenantNetwork,"
+                + "VpnTenantNetworksRoutingInstance.TenantIpNetwork,"
                 + "VpnTenantNetworksRoutingInstance.AttachmentSet.VpnAttachmentSets.Vpn,"
                 + "VpnTenantCommunitiesRoutingInstance.TenantCommunity,"
                 + "VpnTenantCommunitiesRoutingInstance.AttachmentSet.VpnAttachmentSets.Vpn,"
-                + "VpnTenantNetworkStaticRoutesRoutingInstance.TenantNetwork,"
+                + "VpnTenantNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
                 + "VpnTenantNetworkStaticRoutesRoutingInstance.AttachmentSet.VpnAttachmentSets.Vpn";
 
 

@@ -62,7 +62,7 @@ namespace SCM.Data
         public DbSet<RoutingInstanceType> RoutingInstanceTypes { get; set; }
         public DbSet<BgpPeer> BgpPeers { get; set; }
         public DbSet<Tenant> Tenants { get; set; }
-        public DbSet<TenantNetwork> TenantNetworks { get; set; }
+        public DbSet<TenantIpNetwork> TenantIpNetworks { get; set; }
         public DbSet<TenantCommunity> TenantCommunities { get; set; }
         public DbSet<TenantCommunitySet> TenantCommunitySets { get; set; }
         public DbSet<RoutingPolicyMatchOption> RoutingPolicyMatchOptions { get; set; }
@@ -118,7 +118,7 @@ namespace SCM.Data
             builder.Entity<RouteTarget>().ToTable("RouteTarget");
             builder.Entity<SubRegion>().ToTable("SubRegion");
             builder.Entity<Tenant>().ToTable("Tenant");
-            builder.Entity<TenantNetwork>().ToTable("TenantNetwork");
+            builder.Entity<TenantIpNetwork>().ToTable("TenantIpNetwork");
             builder.Entity<TenantCommunity>().ToTable("TenantCommunity");
             builder.Entity<TenantCommunitySet>().ToTable("TenantCommunitySet");
             builder.Entity<RoutingPolicyMatchOption>().ToTable("RoutingPolicyMatchOption");
@@ -353,8 +353,8 @@ namespace SCM.Data
             builder.Entity<Tenant>()
             .HasIndex(p => p.Name).IsUnique();
 
-            builder.Entity<TenantNetwork>()
-            .HasIndex(p => new { p.IpPrefix, p.Length }).IsUnique();
+            builder.Entity<TenantIpNetwork>()
+            .HasIndex(p => new { p.Ipv4Prefix, p.Ipv4Length }).IsUnique();
 
             builder.Entity<TenantCommunity>()
             .HasIndex(p => new { p.AutonomousSystemNumber, p.Number }).IsUnique();

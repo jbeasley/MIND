@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.TenantNetworkViewModel
+@model SCM.Models.ViewModels.TenantIpNetworkViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -7,8 +7,8 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantNetwork/GetAllByTenantID/@Model.TenantID">Networks - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Details - [@Model.IpPrefix/@Model.Length]</li>
+    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID/@Model.TenantID">Networks - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.Ipv4Prefix/@Model.Ipv4Length]</li>
 </ol>
 
 <h2>Details for Tenant Network '@Model.CidrName'</h2>
@@ -24,22 +24,22 @@
             @Html.DisplayFor(model => model.Tenant.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.IpPrefix)
+            @Html.DisplayNameFor(model => model.Ipv4Prefix)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.IpPrefix)
+            @Html.DisplayFor(model => model.Ipv4Prefix)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Length)
+            @Html.DisplayNameFor(model => model.Ipv4Length)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Length)
+            @Html.DisplayFor(model => model.Ipv4Length)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.LessThanOrEqualToLength)
+            @Html.DisplayNameFor(model => model.Ipv4LessThanOrEqualToLength)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.LessThanOrEqualToLength)
+            @Html.DisplayFor(model => model.Ipv4LessThanOrEqualToLength)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.AllowExtranet)
@@ -50,6 +50,6 @@
     </dl>
 </div>
 <div>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.TenantNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
+    @Html.ActionLink("Edit", "Edit", new { id = Model.TenantIpNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
     <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID" asp-route-tenantID="@Context.Request.Query["tenantID"]">Back to List</a>
 </div>

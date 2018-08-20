@@ -79,14 +79,26 @@ namespace Mind.Api.Models
         /// <summary>
         /// Gets or Sets Tenant
         /// </summary>
-        [DataMember(Name="tenant")]
-        public Tenant Tenant { get; set; }
+        [DataMember(Name="tenantName")]
+        public string TenantName { get; set; }
 
         /// <summary>
-        /// Gets or Sets Device
+        /// Gets or Sets Infrastructure Device Name
         /// </summary>
-        [DataMember(Name="infrastructureDevice")]
-        public InfrastructureDevice InfrastructureDevice { get; set; }
+        [DataMember(Name="infrastructureDeviceName")]
+        public string InfrastructureDeviceName { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Location Name
+        /// </summary>
+        [DataMember(Name = "LocationName")]
+        public string LocationName { get; set; }
+
+        /// <summary>
+        /// Gets or Sets Plane Name
+        /// </summary>
+        [DataMember(Name = "PlaneName")]
+        public string PlaneName { get; set; }
 
         /// <summary>
         /// The bandwidth of the attachment in Gbps
@@ -128,8 +140,10 @@ namespace Mind.Api.Models
             sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
             sb.Append("  IsMultiport: ").Append(IsMultiport).Append("\n");
             sb.Append("  IsTagged: ").Append(IsTagged).Append("\n");
-            sb.Append("  Tenant: ").Append(Tenant).Append("\n");
-            sb.Append("  InfrastructureDevice: ").Append(InfrastructureDevice).Append("\n");
+            sb.Append("  Tenant: ").Append(TenantName).Append("\n");
+            sb.Append("  InfrastructureDevice: ").Append(InfrastructureDeviceName).Append("\n");
+            sb.Append("  LocationName: ").Append(LocationName).Append("\n");
+            sb.Append("  PlaneName: ").Append(PlaneName).Append("\n");
             sb.Append("  AttachmentBandwidthGbps: ").Append(AttachmentBandwidthGbps).Append("\n");
             sb.Append("  ContractBandwidthPool: ").Append(ContractBandwidthPool).Append("\n");
             sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
@@ -205,15 +219,25 @@ namespace Mind.Api.Models
                     IsTagged.Equals(other.IsTagged)
                 ) && 
                 (
-                    Tenant == other.Tenant ||
-                    Tenant != null &&
-                    Tenant.Equals(other.Tenant)
+                    TenantName == other.TenantName ||
+                    TenantName != null &&
+                    TenantName.Equals(other.TenantName)
                 ) && 
                 (
-                    InfrastructureDevice == other.InfrastructureDevice ||
-                    InfrastructureDevice != null &&
-                    InfrastructureDevice.Equals(other.InfrastructureDevice)
-                ) && 
+                    InfrastructureDeviceName == other.InfrastructureDeviceName ||
+                    InfrastructureDeviceName != null &&
+                    InfrastructureDeviceName.Equals(other.InfrastructureDeviceName)
+                ) &&
+                (
+                    LocationName == other.LocationName ||
+                    LocationName != null &&
+                    LocationName.Equals(other.LocationName) 
+                ) &&
+                (
+                    PlaneName == other.PlaneName ||
+                    PlaneName != null &&
+                    PlaneName.Equals(other.PlaneName)
+                ) &&
                 (
                     AttachmentBandwidthGbps == other.AttachmentBandwidthGbps ||
                     AttachmentBandwidthGbps != null &&
@@ -255,10 +279,14 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsMultiport.GetHashCode();
                     if (IsTagged != null)
                     hashCode = hashCode * 59 + IsTagged.GetHashCode();
-                    if (Tenant != null)
-                    hashCode = hashCode * 59 + Tenant.GetHashCode();
-                    if (InfrastructureDevice != null)
-                    hashCode = hashCode * 59 + InfrastructureDevice.GetHashCode();
+                    if (TenantName != null)
+                    hashCode = hashCode * 59 + TenantName.GetHashCode();
+                    if (InfrastructureDeviceName != null)
+                    hashCode = hashCode * 59 + InfrastructureDeviceName.GetHashCode();
+                    if (LocationName != null)
+                    hashCode = hashCode * 59 + LocationName.GetHashCode();
+                    if (PlaneName != null)
+                    hashCode = hashCode * 59 + PlaneName.GetHashCode();
                     if (AttachmentBandwidthGbps != null)
                     hashCode = hashCode * 59 + AttachmentBandwidthGbps.GetHashCode();
                     if (ContractBandwidthPool != null)

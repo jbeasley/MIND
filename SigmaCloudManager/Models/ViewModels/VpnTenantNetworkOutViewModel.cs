@@ -28,7 +28,7 @@ namespace SCM.Models.ViewModels
         [Display(Name = "Tenant")]
         public TenantViewModel Tenant { get; set; }
         [Display(Name = "Tenant Network")]
-        public TenantNetworkViewModel TenantNetwork { get; set; }
+        public TenantIpNetworkViewModel TenantIpNetwork { get; set; }
         public AttachmentSetViewModel AttachmentSet { get; set; }
         [Display(Name = "VRF")]
         public RoutingInstanceViewModel RoutingInstance { get; set; }

@@ -27,12 +27,14 @@ using AutoMapper;
 using Mind.Services;
 using Mind.Builders;
 using Microsoft.EntityFrameworkCore;
+using Mind.Models;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
     /// 
     /// </summary>
+    [ApiVersion("1.0")]
     public class TenantAttachmentSetRoutingInstanceApiController : BaseApiController
     {
         private readonly IAttachmentSetRoutingInstanceService _attachmentSetRoutingInstanceService;
@@ -58,7 +60,7 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/attachment-set/{attachmentSetId}/routing-instance")]
+        [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/routing-instances")]
         [ValidateModelState]
         [ValidateAttachmentSetExists]
         [SwaggerOperation("AddAttachmentSetRoutingInstance")]
@@ -73,34 +75,27 @@ namespace Mind.Api.Controllers
                 var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.AddAsync(attachmentSetId.Value, request);
                 var attachmentSetRoutingInstanceApiModel = Mapper.Map<Mind.Api.Models.AttachmentSetRoutingInstance>(attachmentSetRoutingInstance);
                 return CreatedAtRoute("GetAttachmentSetRoutingInstance", 
-                    new { attachmentSetRoutingInstanceId = attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID }, attachmentSetRoutingInstanceApiModel);
+                    new
+                    {
+                        attachmentSetId = attachmentSetRoutingInstance.AttachmentSetID,
+                        routingInstanceId = attachmentSetRoutingInstance.RoutingInstanceID
+                    }, 
+                    attachmentSetRoutingInstanceApiModel);
             }
 
             catch (BuilderBadArgumentsException ex)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, new ApiResponse
-                {
-                    Message = ex.Message
-                });
+                return new BadArgumentsResult(ex.Message);
             }
 
             catch (BuilderUnableToCompleteException ex)
             {
-                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse
-                {
-                    Message = ex.Message
-                });
+                return new ValidationFailedResult(ex.Message);
             }
 
             catch (DbUpdateException ex)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
-                {
-                    Message = "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator." + ex.Message
-
-                });
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -108,13 +103,14 @@ namespace Mind.Api.Controllers
         /// Delete a routing instance from an attachment set
         /// </summary>
 
-        /// <param name="attachmentSetRoutingInstanceId">ID of the attachment set routing instance</param>
+        /// <param name="attachmentSetId">ID of the attachment set</param>
+        /// <param name="routingInstanceId">ID of the routing instance</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v1/attachment-set-routing-instance/{attachmentSetRoutingInstanceId}")]
+        [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/routing-instances/{routingInstanceId}")]
         [ValidateModelState]
         [ValidateAttachmentSetRoutingInstanceExists]
         [SwaggerOperation("DeleteAttachmentSetRoutingInstance")]
@@ -122,27 +118,23 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> DeleteAttachmentSetRoutingInstance([FromRoute][Required]int? attachmentSetRoutingInstanceId)
+        public virtual async Task<IActionResult> DeleteAttachmentSetRoutingInstance([FromRoute][Required]int? attachmentSetId, 
+            [FromRoute][Required]int? routingInstanceId)
         {
             try
             {
-                await _attachmentSetRoutingInstanceService.DeleteAsync(attachmentSetRoutingInstanceId.Value);
+                await _attachmentSetRoutingInstanceService.DeleteAsync(attachmentSetId.Value, routingInstanceId.Value);
                 return StatusCode(StatusCodes.Status204NoContent);
             }
 
             catch (ServiceValidationException)
             {
-                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse(this.ModelState));
+                return new ValidationFailedResult(this.ModelState);
             }
 
             catch (DbUpdateException)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
-                {
-                    Message = "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator."
-                });
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -150,19 +142,32 @@ namespace Mind.Api.Controllers
         /// Find an attachment set routing instance by ID
         /// </summary>
         /// <remarks>Returns a single attachment set routing instance</remarks>
-        /// <param name="attachmentSetRoutingInstanceId">ID of the attachment set routing instance</param>
+        /// <param name="attachmentSetId">ID of the attachment set</param>
+        /// <param name="routingInstanceId">ID of the routing instance</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/attachment-set-routing-instance/{attachmentSetRoutingInstanceId}", Name = "GetAttachmentSetRoutingInstance")]
+        [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/routing-instances/{routingInstanceId}", Name = "GetAttachmentSetRoutingInstance")]
         [ValidateModelState]
         [ValidateAttachmentSetRoutingInstanceExists]
         [SwaggerOperation("GetAttachmentSetRoutingInstanceById")]
         [SwaggerResponse(statusCode: 200, type: typeof(AttachmentSet), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual async Task<IActionResult> GetAttachmentSetById([FromRoute][Required]int? attachmentSetRoutingInstanceId, [FromQuery]bool? deep)
+        public virtual async Task<IActionResult> GetAttachmentSetRoutingInstanceById([FromRoute][Required]int? attachmentSetId,
+            [FromRoute][Required]int? routingInstanceId, [FromQuery]bool? deep)
         {
-            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(attachmentSetRoutingInstanceId.Value, deep);
+            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByAttachmentSetIDAndRoutingInstanceIDAsync(attachmentSetId.Value, 
+                routingInstanceId.Value, deep);
+
+            if (attachmentSetRoutingInstance.HasBeenModified(Request))
+            {
+                attachmentSetRoutingInstance.SetModifiedHttpHeaders(Response);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status304NotModified);
+            }
+
             return Ok(Mapper.Map<AttachmentSetRoutingInstance>(attachmentSetRoutingInstance));
         }
     }

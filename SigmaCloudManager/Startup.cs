@@ -30,6 +30,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Autofac;
 using Mind.Validators;
+using Microsoft.AspNetCore.Mvc.Versioning;
 
 namespace SCM
 {
@@ -106,6 +107,16 @@ namespace SCM
                     c.OperationFilter<GeneratePathParamsValidationFilter>();
                 });
 
+            // Add API versioning
+            services.AddApiVersioning(o =>
+            {
+                o.AssumeDefaultVersionWhenUnspecified = true;
+                o.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(majorVersion:1, minorVersion:0);
+               
+            });
+            
+
+
             // UnitOfWork for access to Repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
@@ -141,7 +152,7 @@ namespace SCM
             services.AddScoped<IAttachmentSetRoutingInstanceService, AttachmentSetRoutingInstanceService>();
             services.AddScoped<IVpnAttachmentSetService, VpnAttachmentSetService>();
             services.AddScoped<IBgpPeerService, BgpPeerService>();
-            services.AddScoped<ITenantNetworkService, TenantNetworkService>();
+            services.AddScoped<ITenantIpNetworkService, TenantIpNetworkService>();
             services.AddScoped<ITenantCommunityService, TenantCommunityService>();
             services.AddScoped<IRoutingPolicyMatchOptionService, RoutingPolicyMatchOptionService>();
             services.AddScoped<ITenantCommunitySetService, TenantCommunitySetService>();
@@ -209,7 +220,7 @@ namespace SCM
             services.AddScoped<IAttachmentSetValidator, AttachmentSetValidator>();
             services.AddScoped<IAttachmentSetRoutingInstanceValidator, AttachmentSetRoutingInstanceValidator>();
             services.AddScoped<IVpnAttachmentSetValidator, VpnAttachmentSetValidator>();
-            services.AddScoped<ITenantNetworkValidator, TenantNetworkValidator>();
+            services.AddScoped<ITenantIpNetworkValidator, TenantIpNetworkValidator>();
             services.AddScoped<ITenantCommunityValidator, TenantCommunityValidator>();
             services.AddScoped<ITenantCommunitySetValidator, TenantCommunitySetValidator>();
             services.AddScoped<ITenantMulticastGroupValidator, TenantMulticastGroupValidator>();

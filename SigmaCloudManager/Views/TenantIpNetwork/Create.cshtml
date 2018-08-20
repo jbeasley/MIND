@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.TenantNetworkViewModel
+@model SCM.Models.ViewModels.TenantIpNetworkViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -7,7 +7,7 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantNetwork/GetAllByTenantID/@ViewBag.Tenant.TenantID">Networks - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID/@ViewBag.Tenant.TenantID">Networks - [@ViewBag.Tenant.Name]</a></li>
     <li class="breadcrumb-item active">Create</li>
 </ol>
 
@@ -19,24 +19,24 @@
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
         <input type="hidden" asp-for="TenantID" value="@ViewBag.Tenant.TenantID" />
         <div class="form-group">
-            <label asp-for="IpPrefix" class="col-md-2 control-label"></label>
+            <label asp-for="Ipv4Prefix" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="IpPrefix" class="form-control" />
-                <span asp-validation-for="IpPrefix" class="text-danger" />
+                <input asp-for="Ipv4Prefix" class="form-control" />
+                <span asp-validation-for="Ipv4Prefix" class="text-danger" />
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="Length" class="col-md-2 control-label"></label>
+            <label asp-for="Ipv4Length" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="Length" class="form-control" />
-                <span asp-validation-for="Length" class="text-danger" />
+                <input asp-for="Ipv4Length" class="form-control" />
+                <span asp-validation-for="Ipv4Length" class="text-danger" />
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="LessThanOrEqualToLength" class="col-md-2 control-label"></label>
+            <label asp-for="Ipv4LessThanOrEqualToLength" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="LessThanOrEqualToLength" class="form-control" />
-                <span asp-validation-for="LessThanOrEqualToLength" class="text-danger" />
+                <input asp-for="Ipv4LessThanOrEqualToLength" class="form-control" />
+                <span asp-validation-for="Ipv4LessThanOrEqualToLength" class="text-danger" />
             </div>
         </div>
         <div class="form-group">

@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.TenantNetworkViewModel
+@model SCM.Models.ViewModels.TenantIpNetworkViewModel
 
 @{
     ViewData["Title"] = "Delete";
@@ -7,11 +7,11 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantNetwork/GetAllByTenantID/@Model.TenantID">Networks - [@Model.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Delete - [@Model.IpPrefix/@Model.Length]</li>
+    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID/@Model.TenantID">IP Networks - [@Model.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Delete - [@Model.Ipv4Prefix/@Model.Ipv4Length]</li>
 </ol>
 
-<h2>Delete Tenant Network '@Model.IpPrefix/@Model.Length'</h2>
+<h2>Delete Tenant Network '@Model.Ipv4Prefix/@Model.Ipv4Length'</h2>
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
@@ -21,16 +21,16 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.IpPrefix)
+            @Html.DisplayNameFor(model => model.Ipv4Prefix)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.IpPrefix)
+            @Html.DisplayFor(model => model.Ipv4Prefix)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Length)
+            @Html.DisplayNameFor(model => model.Ipv4Length)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Length)
+            @Html.DisplayFor(model => model.Ipv4Length)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Tenant)
@@ -41,8 +41,10 @@
     </dl>
 
     <form asp-action="Delete">
-        <input type="hidden" asp-for="TenantNetworkID" />
+        <input type="hidden" asp-for="TenantIpNetworkID" />
         <input type="hidden" asp-for="TenantID" />
+        <input type="hidden" asp-for="Ipv4Length" />
+        <input type="hidden" asp-for="Ipv4Prefix" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
             <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">

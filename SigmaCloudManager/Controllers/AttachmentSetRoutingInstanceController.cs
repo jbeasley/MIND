@@ -291,7 +291,7 @@ namespace SCM.Controllers
 
             try
             {
-                await _attachmentSetRoutingInstanceService.DeleteAsync(attachmentSetRoutingInstanceModel.AttachmentSetRoutingInstanceID);
+                await _attachmentSetRoutingInstanceService.DeleteAsync(attachmentSetRoutingInstanceModel.AttachmentSetID, attachmentSetRoutingInstanceModel.RoutingInstanceID);
                 var vpns = await _vpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
 
                 return RedirectToAction("GetAllByAttachmentSetID", new

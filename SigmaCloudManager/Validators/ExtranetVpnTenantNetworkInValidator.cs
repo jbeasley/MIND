@@ -37,9 +37,9 @@ namespace SCM.Validators
             }
 
             var vpnTenantNetwork = await VpnTenantNetworkInService.GetByIDAsync(extranetVpnTenantNetworkIn.VpnTenantNetworkInID);
-            if (!vpnTenantNetwork.TenantNetwork.AllowExtranet)
+            if (!vpnTenantNetwork.TenantIpNetwork.AllowExtranet)
             {
-                ValidationDictionary.AddError(string.Empty, $"Tenant Network '{vpnTenantNetwork.TenantNetwork.CidrName}' is not enabled for Extranet.");
+                ValidationDictionary.AddError(string.Empty, $"Tenant Network '{vpnTenantNetwork.TenantIpNetwork.CidrName}' is not enabled for Extranet.");
             }
         }
     }

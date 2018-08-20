@@ -37,9 +37,32 @@ namespace Mind.Api.Models
         /// The name of the tenant
         /// </summary>
         /// <value>The name of the tenant</value>
-        [Required]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "A tenant name must be specified")]
+        [RegularExpression(@"^[a-zA-Z0-9-]+$", ErrorMessage = "The tenant name must contain letters, numbers, and dashes (-) only and no whitespace.")]
+        [StringLength(30)]
         [DataMember(Name="name")]
         public string Name { get; set; }
+        
+        /// <summary>
+        /// List of IP networks which are registered to the tenant
+        /// </summary>
+        /// <value>A list of TenantIpNetwork objects</value>
+        [DataMember(Name="tenantIpNetworks")]
+        public List<TenantIpNetwork> TenantIpNetworks { get; private set; }
+
+        /// <summary>
+        /// A list of attachments which have been created for the tenant
+        /// </summary>
+        /// <value>A list of Attachment objects</value>
+        [DataMember(Name = "attachments")]
+        public List<Attachment> Attachments { get; private set; }
+
+        /// <summary>
+        /// A list of vifs which are assigned to the tenant.
+        /// </summary>
+        /// <value>A list of Vif objects</value>
+        [DataMember(Name = "vifs")]
+        public List<Vif> Vifs { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -51,6 +74,9 @@ namespace Mind.Api.Models
             sb.Append("class Tenant {\n");
             sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
+            sb.Append("  TenantIpNetworks: ").Append(TenantIpNetworks).Append("\n");
+            sb.Append("  Vifs: ").Append(Vifs).Append("\n");
+            sb.Append("  Attachments: ").Append(Attachments).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -86,16 +112,31 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     TenantId == other.TenantId ||
                     TenantId != null &&
                     TenantId.Equals(other.TenantId)
-                ) && 
+                ) &&
                 (
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
+                ) &&
+                (
+                    TenantIpNetworks == other.TenantIpNetworks ||
+                    TenantIpNetworks != null &&
+                    TenantIpNetworks.Equals(other.TenantIpNetworks)
+                ) &&
+                (
+                    Vifs == other.Vifs ||
+                    Vifs != null &&
+                    Vifs.Equals(other.Vifs)
+                ) &&
+                (
+                    Attachments == other.Attachments ||
+                    Attachments != null &&
+                    Attachments.Equals(other.Attachments)
                 );
         }
 
@@ -113,6 +154,12 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
+                    if (TenantIpNetworks != null)
+                    hashCode = hashCode * 59 + TenantIpNetworks.GetHashCode();
+                    if (Vifs != null)
+                    hashCode = hashCode * 59 + Vifs.GetHashCode();
+                    if (Attachments != null)
+                    hashCode = hashCode * 59 + Attachments.GetHashCode();
                 return hashCode;
             }
         }

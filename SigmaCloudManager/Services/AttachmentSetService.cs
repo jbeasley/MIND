@@ -98,20 +98,20 @@ namespace SCM.Services
         public async Task<AttachmentSet> UpdateAsync(int attachmentSetId, AttachmentSetUpdate update)
         {
             await _validator.ValidateChangesAsync(attachmentSetId, update);
-            if (!_validator.IsValid) throw new ServiceValidationException("Validation failure");
+            if (!_validator.IsValid) throw new ServiceValidationException();
 
             var attachmentSet = await GetByIDAsync(attachmentSetId);
             await _updateDirector.UpdateAsync(attachmentSet, update);
             this.UnitOfWork.AttachmentSetRepository.Update(attachmentSet);
             await this.UnitOfWork.SaveAsync();
 
-            return attachmentSet;
+            return await GetByIDAsync(attachmentSet.AttachmentSetID, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int attachmentSetId)
         {
             await _validator.ValidateDeleteAsync(attachmentSetId);
-            if (!_validator.IsValid) throw new ServiceValidationException("Validation failure");
+            if (!_validator.IsValid) throw new ServiceValidationException();
 
             await this.UnitOfWork.AttachmentSetRepository.DeleteAsync(attachmentSetId);
             await this.UnitOfWork.SaveAsync();

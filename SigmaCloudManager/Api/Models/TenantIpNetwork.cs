@@ -25,42 +25,67 @@ namespace Mind.Api.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class TenantIpv4Network : IEquatable<TenantIpv4Network>
+    public partial class TenantIpNetwork : IEquatable<TenantIpNetwork>, IValidatableObject
     { 
         /// <summary>
-        /// The ID of the tenant IPv4 network
+        /// The ID of the tenant IP network
         /// </summary>
-        /// <value>The ID of the tenant IPv4 network</value>
-        [DataMember(Name="tenantIpv4NetworkId")]
-        public int? TenantIpv4NetworkId { get; private set; }
+        /// <value>The ID of the tenant IP network</value>
+        [DataMember(Name="tenantIpNetworkId")]
+        public int? TenantIpNetworkId { get; private set; }
 
         /// <summary>
         /// The CIDR IPv4 prefix
         /// </summary>
         /// <value>The CIDR IPv4 prefix</value>
         [DataMember(Name="ipv4Prefix")]
+        [Required]
+        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
+           ErrorMessage = "A valid IPv4 prefix must be entered, e.g. 192.168.1.0")]
         public string Ipv4Prefix { get; set; }
 
         /// <summary>
         /// The CIDR length of the IPv4 prefix
         /// </summary>
-        /// <value>The CIDR length of the IPv4 prefix</value>
-        [DataMember(Name="length")]
-        public int? Length { get; set; }
+        /// <value>An integer between 1 and 32 which denotes the CIDR length of the IPv4 prefix</value>
+        [DataMember(Name="ipv4length")]
+        [Required]
+        [Range(1,32)]
+        public int? Ipv4Length { get; set; }
 
         /// <summary>
-        /// Determines whether the IPv4 prefix is allowed into any IP Extranet VPNs
+        /// The maximum length of IPv4 prefixes which are contained within the CUDR range
         /// </summary>
-        /// <value>Determines whether the IPv4 prefix is allowed into any IP Extranet VPNs</value>
+        /// <value>An intger between 1 and 32 which denotes the maximum length of IPv4 prefixes within the CIDR range</value>
+        [DataMember(Name = "ipv4LessThanOrEqualTolength")]
+        [Range(1,32)]
+        public int? Ipv4LessThanOrEqualToLength { get; set; }
+
+        /// <summary>
+        /// Determines whether the tenant network is allowed into any IP Extranet VPNs
+        /// </summary>
+        /// <value>Boolean value which when true indicates that the tenant network is enabled for extranet</value>
         [DataMember(Name="allowExtranet")]
         public bool? AllowExtranet { get; set; }
 
         /// <summary>
-        /// The ID of the tenant to which the IPv4 prefix belongs
+        /// The ID of the tenant to which the tenant network belongs
         /// </summary>
-        /// <value>The ID of the tenant to which the IPv4 prefix belongs</value>
+        /// <value>Integer value for the ID of the tenant</value>
         [DataMember(Name="tenantId")]
         public int? TenantId { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (Ipv4LessThanOrEqualToLength != null)
+            {
+                if (Ipv4LessThanOrEqualToLength < Ipv4Length)
+                {
+                    yield return new ValidationResult(
+                        "'IPv4 Less Than or Equal To Length' value cannot be less than the IPv4 Length value.");
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -70,9 +95,10 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class TenantIpv4Network {\n");
-            sb.Append("  TenantIpv4NetworkId: ").Append(TenantIpv4NetworkId).Append("\n");
+            sb.Append("  TenantIpNetworkId: ").Append(TenantIpNetworkId).Append("\n");
             sb.Append("  Ipv4Prefix: ").Append(Ipv4Prefix).Append("\n");
-            sb.Append("  Length: ").Append(Length).Append("\n");
+            sb.Append("  Ipv4Length: ").Append(Ipv4Length).Append("\n");
+            sb.Append("  Ipv4LessThanOrEqualToLength: ").Append(Ipv4LessThanOrEqualToLength).Append("\n");
             sb.Append("  AllowExtranet: ").Append(AllowExtranet).Append("\n");
             sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("}\n");
@@ -97,7 +123,7 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((TenantIpv4Network)obj);
+            return obj.GetType() == GetType() && Equals((TenantIpNetwork)obj);
         }
 
         /// <summary>
@@ -105,16 +131,16 @@ namespace Mind.Api.Models
         /// </summary>
         /// <param name="other">Instance of TenantIpv4Network to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(TenantIpv4Network other)
+        public bool Equals(TenantIpNetwork other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    TenantIpv4NetworkId == other.TenantIpv4NetworkId ||
-                    TenantIpv4NetworkId != null &&
-                    TenantIpv4NetworkId.Equals(other.TenantIpv4NetworkId)
+                    TenantIpNetworkId == other.TenantIpNetworkId ||
+                    TenantIpNetworkId != null &&
+                    TenantIpNetworkId.Equals(other.TenantIpNetworkId)
                 ) && 
                 (
                     Ipv4Prefix == other.Ipv4Prefix ||
@@ -122,10 +148,15 @@ namespace Mind.Api.Models
                     Ipv4Prefix.Equals(other.Ipv4Prefix)
                 ) && 
                 (
-                    Length == other.Length ||
-                    Length != null &&
-                    Length.Equals(other.Length)
-                ) && 
+                    Ipv4Length == other.Ipv4Length ||
+                    Ipv4Length != null &&
+                    Ipv4Length.Equals(other.Ipv4Length)
+                ) &&
+                (
+                    Ipv4LessThanOrEqualToLength == other.Ipv4LessThanOrEqualToLength ||
+                    Ipv4LessThanOrEqualToLength != null &&
+                    Ipv4LessThanOrEqualToLength.Equals(other.Ipv4LessThanOrEqualToLength)
+                ) &&
                 (
                     AllowExtranet == other.AllowExtranet ||
                     AllowExtranet != null &&
@@ -148,12 +179,14 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (TenantIpv4NetworkId != null)
-                    hashCode = hashCode * 59 + TenantIpv4NetworkId.GetHashCode();
+                    if (TenantIpNetworkId != null)
+                    hashCode = hashCode * 59 + TenantIpNetworkId.GetHashCode();
                     if (Ipv4Prefix != null)
                     hashCode = hashCode * 59 + Ipv4Prefix.GetHashCode();
-                    if (Length != null)
-                    hashCode = hashCode * 59 + Length.GetHashCode();
+                    if (Ipv4Length != null)
+                    hashCode = hashCode * 59 + Ipv4Length.GetHashCode();
+                    if (Ipv4LessThanOrEqualToLength != null)
+                    hashCode = hashCode * 59 + Ipv4LessThanOrEqualToLength.GetHashCode();
                     if (AllowExtranet != null)
                     hashCode = hashCode * 59 + AllowExtranet.GetHashCode();
                     if (TenantId != null)
@@ -165,13 +198,13 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(TenantIpv4Network left, TenantIpv4Network right)
+        public static bool operator ==(TenantIpNetwork left, TenantIpNetwork right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(TenantIpv4Network left, TenantIpv4Network right)
-        {
+        public static bool operator !=(TenantIpNetwork left, TenantIpNetwork right)
+        { 
             return !Equals(left, right);
         }
 

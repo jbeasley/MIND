@@ -13,48 +13,65 @@ namespace Mind.Services
     public class TenantService : BaseService, ITenantService
     {
         private readonly ITenantValidator _validator;
+        private string _properties = "TenantIpNetworks," +
+            "TenantCommunities," +
+            "TenantMulticastGroups," +
+            "Devices," +
+            "Attachments.Interfaces.Ports," +
+            "Attachments.Device," +
+            "Vifs.Attachment.Interfaces.Ports," +
+            "Vifs.Attachment.Device";
 
         public TenantService(IUnitOfWork unitOfWork, ITenantValidator validator) : base(unitOfWork, validator)
         {
             _validator = validator;
         }
 
-        public async Task<IEnumerable<Tenant>> GetAllAsync()
+        public async Task<IEnumerable<Tenant>> GetAllAsync(bool? deep = false, bool asTrackable = false)
         {
-            return await this.UnitOfWork.TenantRepository.GetAsync(AsTrackable: false);
+            return await this.UnitOfWork.TenantRepository.GetAsync(includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty, 
+                AsTrackable: asTrackable);
         }
 
-        public async Task<Tenant> GetByIDAsync(int id)
+        public async Task<Tenant> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var dbResult = await this.UnitOfWork.TenantRepository.GetAsync(q => q.TenantID == id, AsTrackable: false);
-            return dbResult.SingleOrDefault();
+            return (from result in await this.UnitOfWork.TenantRepository.GetAsync(q => q.TenantID == id,
+                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    AsTrackable: asTrackable)
+                    select result)
+                    .SingleOrDefault();
         }
     
-        public async Task<Tenant> GetByNameAsync(string name)
+        public async Task<Tenant> GetByNameAsync(string name, bool? deep = false, bool asTrackable = false)
         {
-            var dbResult = await this.UnitOfWork.TenantRepository.GetAsync(q => q.Name == name);
-            return dbResult.SingleOrDefault();
+            return (from result in await this.UnitOfWork.TenantRepository.GetAsync(q => q.Name == name,
+                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    AsTrackable: asTrackable)
+                    select result)
+                    .SingleOrDefault();
         }
 
-        public async Task<int> AddAsync(Tenant tenant)
+        public async Task<Tenant> AddAsync(Tenant tenant)
         {
             this.UnitOfWork.TenantRepository.Insert(tenant);
-            return await this.UnitOfWork.SaveAsync();
+            await this.UnitOfWork.SaveAsync();
+            return await GetByIDAsync(tenant.TenantID, deep: true, asTrackable: false);
         }
  
-        public async Task<int> UpdateAsync(Tenant tenant)
+        public async Task<Tenant> UpdateAsync(Tenant tenant)
         {
             this.UnitOfWork.TenantRepository.Update(tenant);
-            return await this.UnitOfWork.SaveAsync();
+            await this.UnitOfWork.SaveAsync();
+            return await GetByIDAsync(tenant.TenantID, deep: true, asTrackable: false);
         }
 
-        public async Task<int> DeleteAsync(int tenantId)
+        public async Task DeleteAsync(int tenantId)
         {
             await _validator.ValidateDeleteAsync(tenantId);
-            if (!_validator.IsValid) throw new ServiceValidationException("Validation failed");
+            if (!_validator.IsValid) throw new ServiceValidationException();
 
             await this.UnitOfWork.TenantRepository.DeleteAsync(tenantId);
-            return await this.UnitOfWork.SaveAsync();
+            await this.UnitOfWork.SaveAsync();
         }
     }
 }

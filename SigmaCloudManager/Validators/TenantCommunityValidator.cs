@@ -77,7 +77,7 @@ namespace SCM.Validators
             foreach (var vpnTenantNetworkCommunityIn in vpnTenantNetworkCommunities)
             {
                 ValidationDictionary.AddError(string.Empty, $"Tenant Community '{tenantCommunity.Name}' "
-                    + $"cannot be deleted because it is bound to Tenant Network '{vpnTenantNetworkCommunityIn.VpnTenantNetworkIn.TenantNetwork.CidrName}' "
+                    + $"cannot be deleted because it is bound to Tenant Network '{vpnTenantNetworkCommunityIn.VpnTenantNetworkIn.TenantIpNetwork.CidrName}' "
                     + $"in Attachment Set '{vpnTenantNetworkCommunityIn.VpnTenantNetworkIn.AttachmentSet.Name}'.");
             }
 

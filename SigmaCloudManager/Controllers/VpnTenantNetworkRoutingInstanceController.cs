@@ -21,7 +21,7 @@ namespace SCM.Controllers
             IVpnTenantNetworkRoutingInstanceService vpnTenantNetworkRoutingInstanceService,
             IVpnService vpnService, 
             IAttachmentSetService attachmentSetService,
-            ITenantNetworkService tenantNetworkService,
+            ITenantIpNetworkService tenantNetworkService,
             IAttachmentSetRoutingInstanceService attachmentSetRoutingInstanceService,
             IRoutingInstanceService vrfService,
             IMapper mapper)
@@ -39,7 +39,7 @@ namespace SCM.Controllers
         private ITenantService TenantService { get; }
         private IVpnTenantNetworkRoutingInstanceService VpnTenantNetworkRoutingInstanceService { get; }
         private IAttachmentSetService AttachmentSetService { get; }
-        private ITenantNetworkService TenantNetworkService { get; }
+        private ITenantIpNetworkService TenantNetworkService { get; }
         private IAttachmentSetRoutingInstanceService AttachmentSetRoutingInstanceService { get; }
         private IRoutingInstanceService RoutingInstanceService { get; }
         private IVpnService VpnService { get; }
@@ -49,7 +49,7 @@ namespace SCM.Controllers
         public async Task<PartialViewResult> TenantNetworks(int tenantID)
         {
             var tenantNetworks = await TenantNetworkService.GetAllByTenantIDAsync(tenantID);
-            return PartialView(Mapper.Map<List<TenantNetworkViewModel>>(tenantNetworks));
+            return PartialView(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantNetworks));
         }
 
         [HttpGet]
@@ -337,7 +337,7 @@ namespace SCM.Controllers
         private async Task PopulateTenantNetworksDropDownList(int tenantID, object selectedTenantNetwork = null)
         {
             var tenantNetworks = await TenantNetworkService.GetAllByTenantIDAsync(tenantID);
-            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantNetworkViewModel>>(tenantNetworks),
+            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantNetworks),
                 "TenantNetworkID", "CidrName", selectedTenantNetwork);
         }
 

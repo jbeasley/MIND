@@ -14,10 +14,11 @@ namespace Mind.Services
     {
         Task<AttachmentSetRoutingInstance> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<AttachmentSetRoutingInstance> GetByAttachmentSetIDAndRoutingInstanceIDAsync(int attachmentSetId, int routingInstanceId, bool? deep = false, bool asTrackable = false);
         Task<AttachmentSetRoutingInstance> AddAsync(int attachmentSetID, RoutingInstanceForAttachmentSetRequest request);
         Task<AttachmentSetRoutingInstance> AddAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
         Task<AttachmentSetRoutingInstance> UpdateAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
-        Task DeleteAsync(int attachmentSetRoutingInstanceId);
+        Task DeleteAsync(int attachmentSetId, int routingInstanceId);
         Task<IEnumerable<RoutingInstance>> GetCandidateRoutingInstances(AttachmentSetRoutingInstanceRequest request);
     }
 }

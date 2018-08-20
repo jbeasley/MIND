@@ -29,7 +29,10 @@ namespace Mind.Api.Models
             CreateMap<SCM.Models.ContractBandwidthPool, Mind.Api.Models.ContractBandwidthPool>()
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidth.BandwidthMbps));
             CreateMap<SCM.Models.Attachment, Mind.Api.Models.Attachment>()
-                .ForMember(dst => dst.InfrastructureDevice, conf => conf.MapFrom(src => src.Device))
+                .ForMember(dst => dst.InfrastructureDeviceName, conf => conf.MapFrom(src => src.Device.Name))
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name))
+                .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
+                .ForMember(dst => dst.PlaneName, conf => conf.MapFrom(src => src.Device.Plane.Name))
                 .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps));
             CreateMap<SCM.Models.Interface, Mind.Api.Models.Interface>();
             CreateMap<SCM.Models.Port, Mind.Api.Models.Port>()
@@ -44,12 +47,12 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentRedundancy.Name))
                 .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
                 .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name));
+            CreateMap<SCM.Models.Tenant, Mind.Api.Models.Tenant>();
 
+            // API model to entity model mappings
 
-            // Map API input request models to entity models
-
-            CreateMap<Tenant, SCM.Models.Tenant>().ReverseMap();
-
+            CreateMap<Mind.Api.Models.Tenant, SCM.Models.Tenant>();
+            CreateMap<Mind.Api.Models.TenantIpNetwork, SCM.Models.TenantIpNetwork>();
         }
     }
 }

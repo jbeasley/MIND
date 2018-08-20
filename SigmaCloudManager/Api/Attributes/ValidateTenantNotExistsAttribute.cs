@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.Api.Models;
 using Mind.Services;
+using Mind.Api.Controllers;
 
 namespace Mind.Api.Attributes
 {
@@ -37,17 +38,12 @@ namespace Mind.Api.Attributes
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                if (!context.ActionArguments.ContainsKey("body"))
-                {
-                    context.ModelState.AddModelError(string.Empty, "A message body was not found.");
-                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
-                }
-
                 var tenant = context.ActionArguments["body"] as Tenant;
                 if (String.IsNullOrEmpty(tenant.Name))
                 {
                     context.ModelState.AddModelError(string.Empty, "An tenant object was not found in the message body.");
-                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
+                    context.Result = new ResourceNotFoundResult(context.ModelState);
+                    return;
                 }
 
                 if ((await _tenantService.GetByNameAsync(tenant.Name)) != null)

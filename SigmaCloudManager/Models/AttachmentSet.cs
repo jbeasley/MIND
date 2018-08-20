@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mind.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +8,7 @@ using System.Net;
 
 namespace SCM.Models
 {
-    public class AttachmentSet
+    public class AttachmentSet : IModifiableResource
     {
         public int AttachmentSetID { get; set; }
         [Required(AllowEmptyStrings = false)]
@@ -36,5 +37,6 @@ namespace SCM.Models
         public virtual ICollection<VpnTenantCommunityRoutingInstance> VpnTenantCommunitiesRoutingInstance { get; set; }
         public virtual ICollection<MulticastVpnRp> MulticastVpnRps { get; set; }
         public virtual ICollection<VpnTenantMulticastGroup> VpnTenantMulticastGroups { get; set; }
+        string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
     }
 }

@@ -27,12 +27,14 @@ using AutoMapper;
 using Mind.Services;
 using Mind.Builders;
 using Microsoft.EntityFrameworkCore;
+using Mind.Models;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
     /// 
     /// </summary>
+    [ApiVersion("1.0")]
     public class TenantAttachmentSetApiController : BaseApiController
     {
         private readonly IAttachmentSetService _attachmentSetService;
@@ -60,7 +62,7 @@ namespace Mind.Api.Controllers
         /// <response code="400">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/tenant/{tenantId}/attachment-set")]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/attachment-sets")]
         [ValidateModelState]
         [ValidateTenantExists]
         [SwaggerOperation("CreateAttachmentSet")]
@@ -68,6 +70,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Bad request")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public async virtual Task<IActionResult> CreateAttachmentSet([FromRoute][Required]int? tenantId, [FromBody]AttachmentSetRequest body)
         {
             try
@@ -80,29 +83,17 @@ namespace Mind.Api.Controllers
 
             catch (BuilderBadArgumentsException ex)
             {
-                return StatusCode(StatusCodes.Status400BadRequest, new ApiResponse
-                {
-                    Message = ex.Message
-                });
+                return new BadArgumentsResult(ex.Message);
             }
 
             catch (BuilderUnableToCompleteException ex)
             {
-                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse
-                {
-                    Message = ex.Message
-                });
+                return new ValidationFailedResult(ex.Message);
             }
 
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
-                {
-                    Message = "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator." + ex.Message
-
-                });
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -116,8 +107,9 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/attachment-set/{attachmentSetId}/inbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
+        [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/inbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
         [ValidateModelState]
+        [ValidateAttachmentSetExists]
         [SwaggerOperation("AddAttachmentSetInboundPolicyTenantIpv4Network")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
@@ -150,8 +142,9 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/attachment-set/{attachmentSetId}/outbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
+        [Route("/v{version:apiVersion}/attachment-set/{attachmentSetId}/outbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
         [ValidateModelState]
+        [ValidateAttachmentSetExists]
         [SwaggerOperation("AddAttachmentSetOutboundPolicyTenantIpv4Network")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
@@ -175,16 +168,76 @@ namespace Mind.Api.Controllers
         }
 
         /// <summary>
+        /// Update an existing attachment set
+        /// </summary>
+
+        /// <param name="attachmentSetId">ID of the attachment set</param>
+        /// <param name="body">attachment set update object that updates an existing attachment set</param>
+        /// <response code="200">Successful operation</response>
+        /// <response code="400">Bad request</response>
+        /// <response code="404">The specified resource was not found</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpPut]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/attachment-sets/{attachmentSetId}")]
+        [ValidateModelState]
+        [ValidateAttachmentSetExists]
+        [SwaggerOperation("UpdateAttachmentSet")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Bad arguments")]
+        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> UpdateAttachmentSet([FromRoute][Required]int? tenantId,
+            [FromRoute][Required]int? attachmentSetId, [FromBody]Mind.Api.Models.AttachmentSetUpdate body)
+        {
+            try
+            {
+                var item = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value);
+                if (item.HasPreconditionFailed(Request))
+                {
+                    return new PreconditionFailedResult();
+                }
+
+                var update = Mapper.Map<Mind.Models.RequestModels.AttachmentSetUpdate>(body);
+                var attachmentSet = await _attachmentSetService.UpdateAsync(attachmentSetId.Value, update);
+                var attachmentSetApiModel = Mapper.Map<Mind.Api.Models.AttachmentSet>(attachmentSet);
+                return Ok(attachmentSetApiModel);
+            }
+
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (ServiceValidationException)
+            {
+                return new ValidationFailedResult(this.ModelState);
+            }
+
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
+        }
+
+        /// <summary>
         /// Deletes an attachment set
         /// </summary>
 
+        /// <param name="tenantId">ID of the tenant</param>
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v1/attachment-set/{attachmentSetId}")]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/attachment-sets/{attachmentSetId}")]
         [ValidateModelState]
         [ValidateAttachmentSetExists]
         [SwaggerOperation("DeleteAttachmentSet")]
@@ -202,17 +255,12 @@ namespace Mind.Api.Controllers
 
             catch (ServiceValidationException)
             {
-                return StatusCode(StatusCodes.Status422UnprocessableEntity, new ApiResponse(this.ModelState));
+                return new ValidationFailedResult(this.ModelState);
             }
 
             catch (DbUpdateException)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new ApiResponse
-                {
-                    Message = "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator."
-                });
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -225,7 +273,7 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpDelete]
-        [Route("/v1/attachment-set/{attachmentSetId}/inbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
+        [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/inbound-policy/ipv4-networks/{tenantIpv4NetworkId}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAttachmentSetInboundPolicyTenantIpv4Network")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
@@ -258,7 +306,7 @@ namespace Mind.Api.Controllers
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpDelete]
-        [Route("/v1/attachment-set/{attachmentSetId}/outbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
+        [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/outbound-policy/ipv4-networks/{tenantIpv4NetworkId}")]
         [ValidateModelState]
         [SwaggerOperation("DeleteAttachmentSetOutboundPolicyTenantIpv4Network")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
@@ -290,7 +338,7 @@ namespace Mind.Api.Controllers
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/attachment-set/{attachmentSetId}", Name="GetAttachmentSet")]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/attachment-sets/{attachmentSetId}", Name="GetAttachmentSet")]
         [ValidateModelState]
         [ValidateAttachmentSetExists]
         [SwaggerOperation("GetAttachmentSetById")]
@@ -299,6 +347,15 @@ namespace Mind.Api.Controllers
         public virtual async Task<IActionResult> GetAttachmentSetById([FromRoute][Required]int? attachmentSetId, [FromQuery]bool? deep)
         {
             var attachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value, deep);
+            if (attachmentSet.HasBeenModified(Request))
+            {
+                attachmentSet.SetModifiedHttpHeaders(Response);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status304NotModified);
+            }
+
             return Ok(Mapper.Map<AttachmentSet>(attachmentSet));
         }
 
@@ -310,7 +367,7 @@ namespace Mind.Api.Controllers
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/{tenantId}/attachment-set")]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/attachment-sets")]
         [ValidateModelState]
         [ValidateTenantExists]
         [SwaggerOperation("GetAttachmentSetsByTenantId")]

@@ -15,7 +15,7 @@ namespace SCM.Models
         public int LocalIpRoutingPreference { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
-        public virtual TenantNetwork TenantNetwork { get; set; }
+        public virtual TenantIpNetwork TenantIpNetwork { get; set; }
         public virtual AttachmentSet AttachmentSet { get; set; }
         public virtual RoutingInstance RoutingInstance { get; set; }
     }

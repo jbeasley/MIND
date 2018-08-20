@@ -78,6 +78,12 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
+        /// Gets or Sets Code
+        /// </summary>
+        [DataMember(Name ="code")]
+        public string Code { get; set; }
+
+        /// <summary>
         /// Gets or Sets Message
         /// </summary>
         [DataMember(Name="message")]
@@ -97,6 +103,7 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class ApiResponse {\n");
+            sb.Append("  Code: ").Append(Code).Append("\n");
             sb.Append("  Message: ").Append(Message).Append("\n");
             sb.Append("  Errors: ").Append(Errors).Append("\n");
             sb.Append("}\n");
@@ -134,7 +141,12 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return  
+            return
+                (
+                    Code == other.Code ||
+                    Code != null &&
+                    Code.Equals(other.Code)
+                ) &&
                 (
                     Message == other.Message ||
                     Message != null &&
@@ -157,9 +169,11 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Message != null)
+                if (Code != null)
+                    hashCode = hashCode * 59 + Code.GetHashCode();
+                if (Message != null)
                     hashCode = hashCode * 59 + Message.GetHashCode();
-                    if (Errors != null)
+                if (Errors != null)
                     hashCode = hashCode * 59 + Errors.GetHashCode();
                 return hashCode;
             }

@@ -51,6 +51,18 @@ namespace Mind.Services
                    .SingleOrDefault();
         }
 
+        public async Task<AttachmentSetRoutingInstance> GetByAttachmentSetIDAndRoutingInstanceIDAsync(int attachmentSetId, int routingInstanceId,
+            bool? deep = false, bool asTrackable = false)
+        {
+            return (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q => 
+                    q.AttachmentSetID == attachmentSetId
+                    && q.RoutingInstanceID == routingInstanceId,
+                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    AsTrackable: asTrackable)
+                    select result)
+                   .SingleOrDefault();
+        }
+
         /// <summary>
         /// DEFUNCT - REMOVE
         /// </summary>
@@ -81,12 +93,17 @@ namespace Mind.Services
             return await GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID, deep: true, asTrackable: false);
         }
 
-        public async Task DeleteAsync(int attachmentSetRoutingInstanceId)
+        public async Task DeleteAsync(int attachmentSetId, int routingInstanceId)
         {
-            await _validator.ValidateDeleteAsync(attachmentSetRoutingInstanceId);
+            var attachmentSetRoutingInstance = (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q =>
+                                                q.AttachmentSetID == attachmentSetId && q.RoutingInstanceID == routingInstanceId)
+                                                select result)
+                                                .Single();
+
+            await _validator.ValidateDeleteAsync(attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID);
             if (!_validator.IsValid) throw new ServiceValidationException("Validation failed");
 
-            await this.UnitOfWork.AttachmentSetRoutingInstanceRepository.DeleteAsync(attachmentSetRoutingInstanceId);
+            this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Delete(attachmentSetRoutingInstance);
             await this.UnitOfWork.SaveAsync();
         }
 

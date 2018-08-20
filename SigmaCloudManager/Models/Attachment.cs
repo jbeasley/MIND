@@ -4,10 +4,12 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
+using Mind.Models;
 
 namespace SCM.Models
 {
-    public class Attachment { 
+    public class Attachment : IModifiableResource
+    { 
 
         [Key]
         public int AttachmentID { get; set; }
@@ -66,5 +68,6 @@ namespace SCM.Models
         public virtual AttachmentRole AttachmentRole { get; set; }
         public virtual ICollection<Interface> Interfaces { get; set; }
         public virtual ICollection<Vif> Vifs { get; set; }
+        string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
     }
 }

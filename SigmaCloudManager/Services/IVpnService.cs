@@ -19,7 +19,7 @@ namespace SCM.Services
         Task<IEnumerable<Vpn>> GetAllByAttachmentSetIDAsync(int id, bool? requiresSync = null, bool? created = null,
                    bool? showRequiresSyncAlert = null, bool? showCreatedAlert = null, bool includeProperties = true);
         Task<IEnumerable<Vpn>> GetAllByTenantIDAsync(int id, bool? isExtranet = null, bool includeProperties = true);
-        Task<IEnumerable<Vpn>> GetAllByTenantNetworkIDAsync(int id, bool includeProperties = true);
+        Task<IEnumerable<Vpn>> GetAllByTenantIpNetworkIDAsync(int id, bool includeProperties = true);
         Task<IEnumerable<Vpn>> GetAllByTenantCommunityIDAsync(int id, bool includeProperties = true);
         Task<IEnumerable<Vpn>> GetAllByTenantCommunitySetIDAsync(int id, bool includeProperties = true);
         Task<IEnumerable<Vpn>> GetAllByTenantMulticastGroupIDAsync(int id, bool includeProperties = true);

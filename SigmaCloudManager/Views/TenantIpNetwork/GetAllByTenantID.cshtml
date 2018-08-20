@@ -1,16 +1,16 @@
-@model IEnumerable<SCM.Models.ViewModels.TenantNetworkViewModel>
+@model IEnumerable<SCM.Models.ViewModels.TenantIpNetworkViewModel>
 @inject IOptions<ApplicationConfiguration> ApplicationConfiguration
 @using Microsoft.Extensions.Options;
 @using SCM;
 
 @{
-    ViewData["Title"] = "Tenant Networks";
+    ViewData["Title"] = "Tenant IP Networks";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item active">Networks - [@ViewBag.Tenant.Name]</li>
+    <li class="breadcrumb-item active">IP Networks - [@ViewBag.Tenant.Name]</li>
 </ol>
 
 @if (ApplicationConfiguration.Value.EnableNetworkSync)
@@ -29,7 +29,7 @@
     <a asp-action="Create" asp-route-id="@ViewBag.Tenant.TenantID" ]">Create New</a>
 </p>
 
-@using (Html.BeginForm("GetAllByTenantID", "TenantNetwork", FormMethod.Get))
+@using (Html.BeginForm("GetAllByTenantID", "TenantIpNetwork", FormMethod.Get))
 {
     <p>
         CIDR Network: @Html.TextBox("SearchString")
@@ -43,13 +43,13 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.IpPrefix)
+                @Html.DisplayNameFor(model => model.Ipv4Prefix)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.Length)
+                @Html.DisplayNameFor(model => model.Ipv4Length)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.LessThanOrEqualToLength)
+                @Html.DisplayNameFor(model => model.Ipv4LessThanOrEqualToLength)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AllowExtranet)
@@ -62,21 +62,21 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.IpPrefix)
+                    @Html.DisplayFor(modelItem => item.Ipv4Prefix)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Length)
+                    @Html.DisplayFor(modelItem => item.Ipv4Length)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.LessThanOrEqualToLength)
+                    @Html.DisplayFor(modelItem => item.Ipv4LessThanOrEqualToLength)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.AllowExtranet)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.TenantNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.TenantNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.TenantNetworkID, tenantID = Context.Request.Query["tenantID"] })
+                    @Html.ActionLink("Edit", "Edit", new { id = item.TenantIpNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.TenantIpNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
+                    @Html.ActionLink("Delete", "Delete", new { id = item.TenantIpNetworkID, tenantID = Context.Request.Query["tenantID"] })
                 </td>
             </tr>
         }

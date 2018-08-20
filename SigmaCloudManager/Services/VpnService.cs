@@ -229,36 +229,36 @@ namespace SCM.Services
         /// <param name="id"></param>
         /// <param name="includeProperties"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllByTenantNetworkIDAsync(int id, bool includeProperties = true)
+        public async Task<IEnumerable<Vpn>> GetAllByTenantIpNetworkIDAsync(int id, bool includeProperties = true)
         {
             var p = includeProperties ? Properties : string.Empty;
             var tasks = new List<Task<IList<Vpn>>> {
                 this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
                                                         .Select(x => x.AttachmentSet)
                                                         .SelectMany(x => x.VpnTenantNetworksIn)
-                                                        .Select(y => y.TenantNetwork)
-                                                        .Where(x => x.TenantNetworkID == id)
+                                                        .Select(y => y.TenantIpNetwork)
+                                                        .Where(x => x.TenantIpNetworkID == id)
                                                         .Any(), includeProperties: p, AsTrackable: false),
 
                 this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
                                                         .Select(x => x.AttachmentSet)
                                                         .SelectMany(x => x.VpnTenantNetworksOut)
-                                                        .Select(y => y.TenantNetwork)
-                                                        .Where(x => x.TenantNetworkID == id)
+                                                        .Select(y => y.TenantIpNetwork)
+                                                        .Where(x => x.TenantIpNetworkID == id)
                                                         .Any(), includeProperties: p, AsTrackable: false),
 
                 this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
                                                         .Select(x => x.AttachmentSet)
                                                         .SelectMany(x => x.VpnTenantNetworksRoutingInstance)
-                                                        .Select(y => y.TenantNetwork)
-                                                        .Where(x => x.TenantNetworkID == id)
+                                                        .Select(y => y.TenantIpNetwork)
+                                                        .Where(x => x.TenantIpNetworkID == id)
                                                         .Any(), includeProperties: p, AsTrackable: false),
 
                 this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
                                                         .Select(x => x.AttachmentSet)
                                                         .SelectMany(x => x.VpnTenantNetworkStaticRoutesRoutingInstance)
-                                                        .Select(y => y.TenantNetwork)
-                                                        .Where(x => x.TenantNetworkID == id)
+                                                        .Select(y => y.TenantIpNetwork)
+                                                        .Where(x => x.TenantIpNetworkID == id)
                                                         .Any(), includeProperties: p, AsTrackable: false)
             };
             var results = new List<Vpn>();

@@ -16,37 +16,37 @@ using Mind.Api.Controllers;
 namespace Mind.Api.Attributes
 {
     /// <summary>
-    /// Validates that an attachment set exists in the database
+    /// Validates that a tenant IP network exists in the database
     /// </summary>
-    public class ValidateAttachmentSetExistsAttribute : TypeFilterAttribute
+    public class ValidateTenantIpNetworkExistsAttribute : TypeFilterAttribute
     {
         /// <summary>
         /// 
         /// </summary>
-        public ValidateAttachmentSetExistsAttribute() : base(typeof(ValidateAttachmentSetExistsActionFilter))
+        public ValidateTenantIpNetworkExistsAttribute() : base(typeof(ValidateTenantIpNetworkExistsActionFilter))
         {
         }
 
-        private class ValidateAttachmentSetExistsActionFilter : IAsyncActionFilter
+        private class ValidateTenantIpNetworkExistsActionFilter : IAsyncActionFilter
         {
             private readonly IUnitOfWork _unitOfWork;
-
-            public ValidateAttachmentSetExistsActionFilter(IUnitOfWork unitOfWork)
+            public ValidateTenantIpNetworkExistsActionFilter(IUnitOfWork unitOfWork)
             {
                 _unitOfWork = unitOfWork;
             }
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-            {             
-                var attachmentSetId = context.ActionArguments["attachmentSetId"] as int?;
-                
-                if ((from result in await _unitOfWork.AttachmentSetRepository.GetAsync(q => 
-                    q.AttachmentSetID == attachmentSetId,
+            {
+                var tenantId = context.ActionArguments["tenantId"] as int?;                
+                var tenantIpNetworkId = context.ActionArguments["tenantIpNetworkId"] as int?;
+
+                if ((from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(q => 
+                    q.TenantIpNetworkID == tenantIpNetworkId.Value && q.TenantID == tenantId.Value,
                     AsTrackable: false)
                     select result)
                     .SingleOrDefault() == null)
                 {
-                    context.ModelState.AddModelError(string.Empty, "Could not find the attachment set.");
+                    context.ModelState.AddModelError(string.Empty, "Could not find the tenant IP network.");
                     context.Result = new ResourceNotFoundResult(context.ModelState);
                     return;
                 }

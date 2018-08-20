@@ -10,6 +10,10 @@ namespace Mind.Services
     /// </summary>
     public class ServiceValidationException : Exception
     {
+        public ServiceValidationException()
+        {
+        }
+
         public ServiceValidationException(string message) : base(message)
         {
         }

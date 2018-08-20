@@ -1,5 +1,6 @@
 using System;
 using System.ComponentModel.DataAnnotations;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -9,6 +10,8 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.Api.Models;
 using Mind.Services;
+using SCM.Data;
+using Mind.Api.Controllers;
 
 namespace Mind.Api.Attributes
 {
@@ -26,33 +29,25 @@ namespace Mind.Api.Attributes
 
         private class ValidateProviderDomainAttachmentExistsActionFilter : IAsyncActionFilter
         {
-            private readonly IProviderDomainAttachmentService _attachmentService;
-            private readonly IMapper _mapper;
-
-            public ValidateProviderDomainAttachmentExistsActionFilter(IProviderDomainAttachmentService attachmentService, IMapper mapper)
+            private readonly IUnitOfWork _unitOfWork;
+            public ValidateProviderDomainAttachmentExistsActionFilter(IUnitOfWork unitOfWork)
             {
-                _attachmentService = attachmentService;
-                _mapper = mapper;
+                _unitOfWork = unitOfWork;
             }
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-            {
-                if (!context.ActionArguments.ContainsKey("attachmentId"))
-                {
-                    context.ModelState.AddModelError(string.Empty, "An ID for the attachment was not found.");
-                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
-                }
-
+            {          
+                var tenantId = context.ActionArguments["tenantId"] as int?;
                 var attachmentId = context.ActionArguments["attachmentId"] as int?;
-                if (!attachmentId.HasValue)
-                {
-                    context.ModelState.AddModelError(string.Empty, "An ID for the attachment set was not found.");
-                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
-                }
-                if ((await _attachmentService.GetByIDAsync(attachmentId.Value)) == null)
+               
+                if ((from result in await _unitOfWork.AttachmentRepository.GetAsync(q =>
+                        q.AttachmentID == attachmentId && q.TenantID == tenantId,
+                        AsTrackable: false)
+                        select result)
+                       .SingleOrDefault() == null)
                 {
                     context.ModelState.AddModelError(string.Empty, "Could not find the attachment.");
-                    context.Result = new NotFoundObjectResult(new ApiResponse(context.ModelState) { Message = "Not found error" });
+                    context.Result = new ResourceNotFoundResult(context.ModelState);
                     return;
                 }
 

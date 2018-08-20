@@ -87,12 +87,12 @@ namespace SCM.Services
 
             if (tenantID != null)
             {
-                query = query.Where(x => x.TenantNetwork.TenantID == tenantID);
+                query = query.Where(x => x.TenantIpNetwork.TenantID == tenantID);
             }
 
             if (extranet != null)
             {
-                query = query.Where(x => x.TenantNetwork.AllowExtranet == extranet);
+                query = query.Where(x => x.TenantIpNetwork.AllowExtranet == extranet);
             }
 
             return query.ToList();

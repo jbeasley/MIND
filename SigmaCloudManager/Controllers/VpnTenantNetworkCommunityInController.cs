@@ -86,7 +86,7 @@ namespace SCM.Controllers
 
             var vpnTenantNetworkIn = await VpnTenantNetworkInService.GetByIDAsync(id.Value);
             ViewBag.VpnTenantNetworkIn = vpnTenantNetworkIn;
-            await PopulateTenantCommunitiesDropDownList(vpnTenantNetworkIn.TenantNetwork.TenantID);
+            await PopulateTenantCommunitiesDropDownList(vpnTenantNetworkIn.TenantIpNetwork.TenantID);
 
             return View();
         }
@@ -120,7 +120,7 @@ namespace SCM.Controllers
 
             var vpnTenantNetworkIn = await VpnTenantNetworkInService.GetByIDAsync(vpnTenantNetworkCommunityInModel.VpnTenantNetworkInID);
             ViewBag.VpnTenantNetworkIn = Mapper.Map<VpnTenantNetworkIn>(vpnTenantNetworkIn);
-            await PopulateTenantCommunitiesDropDownList(vpnTenantNetworkIn.TenantNetwork.TenantID);
+            await PopulateTenantCommunitiesDropDownList(vpnTenantNetworkIn.TenantIpNetwork.TenantID);
 
             return View(vpnTenantNetworkCommunityInModel);
         }

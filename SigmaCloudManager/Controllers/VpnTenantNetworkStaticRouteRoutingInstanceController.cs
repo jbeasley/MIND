@@ -20,7 +20,7 @@ namespace SCM.Controllers
         public VpnTenantNetworkStaticRouteRoutingInstanceController(IVpnTenantNetworkStaticRouteRoutingInstanceService vpnTenantNetworkStaticRouteRoutingInstanceService,
             IVpnService vpnService, 
             IAttachmentSetService attachmentSetService,
-            ITenantNetworkService tenantNetworkService,
+            ITenantIpNetworkService tenantNetworkService,
             IAttachmentSetRoutingInstanceService attachmentSetRoutingInstanceService,
             IRoutingInstanceService vrfService,
             IBgpPeerService bgpPeerService,
@@ -29,7 +29,7 @@ namespace SCM.Controllers
         {
             VpnTenantNetworkStaticRouteRoutingInstanceService = vpnTenantNetworkStaticRouteRoutingInstanceService;
             AttachmentSetService = attachmentSetService;
-            TenantNetworkService = tenantNetworkService;
+            TenantIpNetworkService = tenantNetworkService;
             VpnService = vpnService;
             AttachmentSetRoutingInstanceService = attachmentSetRoutingInstanceService;
             RoutingInstanceService = vrfService;
@@ -41,7 +41,7 @@ namespace SCM.Controllers
         }
         private IVpnTenantNetworkStaticRouteRoutingInstanceService VpnTenantNetworkStaticRouteRoutingInstanceService { get; }
         private IAttachmentSetService AttachmentSetService { get; }
-        private ITenantNetworkService TenantNetworkService { get; }
+        private ITenantIpNetworkService TenantIpNetworkService { get; }
         private IAttachmentSetRoutingInstanceService AttachmentSetRoutingInstanceService { get; }
         private IRoutingInstanceService RoutingInstanceService { get; }
         private IVpnService VpnService { get; }
@@ -339,8 +339,8 @@ namespace SCM.Controllers
 
         private async Task PopulateTenantNetworksDropDownList(int tenantID, object selectedTenantNetwork = null)
         {
-            var tenantNetworks = await TenantNetworkService.GetAllByTenantIDAsync(tenantID);
-            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantNetworkViewModel>>(tenantNetworks), 
+            var tenantNetworks = await TenantIpNetworkService.GetAllByTenantIDAsync(tenantID);
+            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantNetworks), 
                 "TenantNetworkID", "CidrName", selectedTenantNetwork);
         }
 

@@ -7,19 +7,19 @@ using System.Linq;
 using System.Threading.Tasks;
 using Mind.Api.Models;
 
-namespace Mind.Api.Attributes
+namespace Mind.Api.Controllers
 {
     /// <summary>
     /// 
     /// </summary>
-    public class ValidationFailedResult : ObjectResult
+    public class BadArgumentsResult : ObjectResult
     {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="modelState"></param>
-        public ValidationFailedResult(ModelStateDictionary modelState)
-            : base(new ApiResponse(modelState))
+        /// <param name="message"></param>
+        public BadArgumentsResult(string message)
+            : base(new ApiResponse() { Code = "BadArguments", Message = message })
         {
             StatusCode = StatusCodes.Status422UnprocessableEntity;
         }

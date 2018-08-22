@@ -62,7 +62,7 @@ namespace Mind.Builders
                 var arg = _args[nameof(ForAttachmentSet)];
                 if (arg.GetType() == typeof(AttachmentSet))
                 {
-                    _attachmentSetRoutingInstance.AttachmentSet = (AttachmentSet)arg;
+                    _attachmentSetRoutingInstance.AttachmentSet = (arg as AttachmentSet);
                 }
                 else
                 {

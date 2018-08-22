@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
 
@@ -15,6 +16,7 @@ namespace SCM.Models
         public int? MulticastGeographicalScopeID { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
+        [ForeignKey("TenantMulticastGroupID")]
         public virtual TenantMulticastGroup TenantMulticastGroup { get; set; }
         public virtual MulticastVpnRp MulticastVpnRp { get; set; }
         public virtual AttachmentSet AttachmentSet { get; set; }

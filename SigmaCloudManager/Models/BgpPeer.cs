@@ -11,7 +11,7 @@ namespace SCM.Models
     {
         public int BgpPeerID { get; set; }
         [MaxLength(15)]
-        public string IpAddress { get; set; }
+        public string Ipv4PeerAddress { get; set; }
         [Required]
         [Range(1,65535)]
         public int AutonomousSystem { get; set; }
@@ -25,7 +25,7 @@ namespace SCM.Models
         {
             get
             {
-                return $"{IpAddress} (AS {AutonomousSystem})";
+                return $"{Ipv4PeerAddress} (AS {AutonomousSystem})";
             }
         }
         public int RoutingInstanceID { get; set; }
@@ -33,7 +33,7 @@ namespace SCM.Models
         public byte[] RowVersion { get; set; }
         public virtual RoutingInstance RoutingInstance { get; set; }
         public virtual ICollection<VpnTenantCommunityIn> VpnTenantCommunitiesIn { get; set; }
-        public virtual ICollection<VpnTenantNetworkIn> VpnTenantNetworksIn { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
         public virtual ICollection<VpnTenantCommunityOut> VpnTenantCommunitiesOut { get; set; }
         public virtual ICollection<VpnTenantNetworkOut> VpnTenantNetworksOut { get; set; }
     }

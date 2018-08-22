@@ -35,7 +35,7 @@ namespace SCM.Validators
         /// <param name="tenantIpNetwork"></param>
         public async Task ValidateDeleteAsync(int tenantIpNetworkId)
         {
-            (from result in await _unitOfWork.VpnTenantNetworkInRepository.GetAsync(q =>
+            (from result in await _unitOfWork.VpnTenantIpNetworkInRepository.GetAsync(q =>
             q.TenantIpNetwork.TenantIpNetworkID == tenantIpNetworkId,
             includeProperties:"TenantIpNetwork,AttachmentSet", AsTrackable: false)
             select result)
@@ -76,7 +76,7 @@ namespace SCM.Validators
         {
             if (!tenantIpNetwork.AllowExtranet)
             {
-                (from vpnTenantNetworksIn in await _unitOfWork.VpnTenantNetworkInRepository.GetAsync(q => 
+                (from vpnTenantNetworksIn in await _unitOfWork.VpnTenantIpNetworkInRepository.GetAsync(q => 
                     q.TenantIpNetwork.TenantIpNetworkID == tenantIpNetwork.TenantIpNetworkID,
                     includeProperties:"AttachmentSet.VpnAttachmentSets.Vpn.ExtranetVpns.MemberVpn",
                     AsTrackable: false)

@@ -53,12 +53,14 @@ namespace Mind.Api.Controllers
         /// <summary>
         /// Add a routing instance to a given attachment set
         /// </summary>
-        
+
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <param name="routingInstanceId">ID of a routing instance to be added to the attachment set</param>
         /// <param name="body">request object that generates a new routing instance entry for an attachment set</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpPost]
         [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/routing-instances")]
         [ValidateModelState]
@@ -66,6 +68,8 @@ namespace Mind.Api.Controllers
         [SwaggerOperation("AddAttachmentSetRoutingInstance")]
         [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> AddAttachmentSetRoutingInstance([FromRoute][Required]int? attachmentSetId, 
             [FromBody][Required]RoutingInstanceForAttachmentSetRequest body)
         {
@@ -93,7 +97,54 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
+        }
+
+        /// <param name="tenantId">ID of the attachment set</param>
+        /// <param name="routingInstanceId">ID of the routing instance to update</param>
+        /// <param name="body">Attachmment set routing instance request object that applies updates to an existing attachment set routing instance/param>
+        /// <response code="200">Successful operation</response>
+        /// <response code="404">The specified resource was not found</response>
+        /// <response code="412">Precondition failed</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpPut]
+        [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/routing-instances/{routingInstanceId}")]
+        [ValidateModelState]
+        [ValidateAttachmentSetRoutingInstanceExists]
+        [SwaggerOperation("UpdateAttachmentSetRoutingInstance")]
+        [SwaggerResponse(statusCode: 200, type: typeof(TenantIpNetwork), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> UpdateAttachmentSetRoutingInstance([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? routingInstanceId,
+            [FromBody]RoutingInstanceForAttachmentSetUpdate body)
+        {
+            try
+            {
+                var item = await _attachmentSetRoutingInstanceService.GetByAttachmentSetIDAndRoutingInstanceIDAsync(attachmentSetId.Value, routingInstanceId.Value);
+                if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
+
+                Mapper.Map(body, item);
+                item.AttachmentSetID = attachmentSetId.Value;
+                item.RoutingInstanceID = routingInstanceId.Value;
+                var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.UpdateAsync(item);
+                attachmentSetRoutingInstance.SetModifiedHttpHeaders(Response);
+                var attachmentSetRoutingInstanceApiModel = Mapper.Map<Mind.Api.Models.AttachmentSetRoutingInstance>(attachmentSetRoutingInstance);
+
+                return Ok(attachmentSetRoutingInstanceApiModel);
+            }
+
+            catch (ServiceValidationException)
+            {
+                return new ValidationFailedResult(this.ModelState);
+            }
+
+            catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
             }
@@ -145,6 +196,7 @@ namespace Mind.Api.Controllers
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <param name="routingInstanceId">ID of the routing instance</param>
         /// <response code="200">Successful operation</response>
+        /// <response code="304">The resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
         [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/routing-instances/{routingInstanceId}", Name = "GetAttachmentSetRoutingInstance")]
@@ -152,6 +204,7 @@ namespace Mind.Api.Controllers
         [ValidateAttachmentSetRoutingInstanceExists]
         [SwaggerOperation("GetAttachmentSetRoutingInstanceById")]
         [SwaggerResponse(statusCode: 200, type: typeof(AttachmentSet), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 304, description: "The resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetAttachmentSetRoutingInstanceById([FromRoute][Required]int? attachmentSetId,
             [FromRoute][Required]int? routingInstanceId, [FromQuery]bool? deep)

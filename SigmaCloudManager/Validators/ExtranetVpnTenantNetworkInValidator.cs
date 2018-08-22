@@ -14,14 +14,14 @@ namespace SCM.Validators
     public class ExtranetVpnTenantNetworkInValidator : BaseValidator, IExtranetVpnTenantNetworkInValidator
     {
         public ExtranetVpnTenantNetworkInValidator(IExtranetVpnMemberService extranetVpnMemberService,
-            IVpnTenantNetworkInService vpnTenantNetworkInService)
+            IVpnTenantIpNetworkInService vpnTenantNetworkInService)
         {
             VpnTenantNetworkInService = vpnTenantNetworkInService;
             ExtranetVpnMemberService = extranetVpnMemberService;
         }
 
         private IExtranetVpnMemberService ExtranetVpnMemberService { get; }
-        private IVpnTenantNetworkInService VpnTenantNetworkInService { get; }
+        private IVpnTenantIpNetworkInService VpnTenantNetworkInService { get; }
 
         /// <summary>
         /// Validate a new Extranet VPN Tenant Network
@@ -36,7 +36,7 @@ namespace SCM.Validators
                 ValidationDictionary.AddError(string.Empty, $"VPN '{extranetVpnMember.ExtranetVpn.Name}' is not enabled for Extranet.");
             }
 
-            var vpnTenantNetwork = await VpnTenantNetworkInService.GetByIDAsync(extranetVpnTenantNetworkIn.VpnTenantNetworkInID);
+            var vpnTenantNetwork = await VpnTenantNetworkInService.GetByIDAsync(extranetVpnTenantNetworkIn.VpnTenantIpNetworkInID);
             if (!vpnTenantNetwork.TenantIpNetwork.AllowExtranet)
             {
                 ValidationDictionary.AddError(string.Empty, $"Tenant Network '{vpnTenantNetwork.TenantIpNetwork.CidrName}' is not enabled for Extranet.");

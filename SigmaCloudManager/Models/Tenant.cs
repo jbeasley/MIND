@@ -21,6 +21,7 @@ namespace SCM.Models
         public virtual ICollection<Device> Devices { get; set; }
         public virtual ICollection<Port> Ports { get; set; }
         public virtual ICollection<Attachment> Attachments { get; set; }
+        public virtual ICollection<AttachmentSet> AttachmentSets { get; set; }
         public virtual ICollection<Vif> Vifs { get; set; }
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
     }

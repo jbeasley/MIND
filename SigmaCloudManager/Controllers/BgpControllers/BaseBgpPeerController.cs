@@ -144,10 +144,10 @@ namespace SCM.Controllers
             {
                 var exceptionEntry = ex.Entries.Single();
 
-                var proposedIpAddress = (string)exceptionEntry.Property("IpAddress").CurrentValue;
-                if (currentBgpPeer.IpAddress != proposedIpAddress)
+                var proposedIpv4PeerAddress = (string)exceptionEntry.Property("Ipv4PeerAddress").CurrentValue;
+                if (currentBgpPeer.Ipv4PeerAddress != proposedIpv4PeerAddress)
                 {
-                    ModelState.AddModelError("IpAddress", $"Current value: {currentBgpPeer.IpAddress}");
+                    ModelState.AddModelError("Ipv4PeerAddress", $"Current value: {currentBgpPeer.Ipv4PeerAddress}");
                 }
 
                 var proposedAutonomousSystem = (int)exceptionEntry.Property("AutonomousSystem").CurrentValue;

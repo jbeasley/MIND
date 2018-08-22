@@ -38,21 +38,21 @@ namespace Mind.Api.Models
         /// <summary>
         /// Default preference applied to IPv4 and IPv6 routes within the routing instance
         /// </summary>
-        /// <value>Default preference applied to IPv4 and IPv6 routes within the routing instance</value>
+        /// <value>Integer value denoting the default preference applied to IPv4 and IPv6 routes within the routing instance</value>
         [DataMember(Name = "localIpRoutingPreference")]
         public int? LocalIpRoutingPreference { get; set; }
 
         /// <summary>
         /// Default preference of IPv4 and IPv6 routes advertised from the routing instance
         /// </summary>
-        /// <value>Default preference of IPv4 and IPv6 routes advertised from the routing instance</value>
+        /// <value>Integer value denoting the default preference of IPv4 and IPv6 routes advertised from the routing instance</value>
         [DataMember(Name = "advertisedIpRoutingPreference")]
         public int? AdvertisedIpRoutingPreference { get; set; }
 
         /// <summary>
         /// Default multicast designated router preference
         /// </summary>
-        /// <value>Default multicast designated router preference</value>
+        /// <value>Integer value denoting the multicast designated router preference</value>
         [DataMember(Name = "multicastDesignatedRouterPreference")]
         public int? MulticastDesignatedRouterPreference { get; set; }
 

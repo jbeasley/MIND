@@ -18,7 +18,7 @@ namespace SCM.Controllers
     {
         public ExtranetVpnTenantNetworkInController(IExtranetVpnTenantNetworkInService extranetVpnTenantNetworkInService,
             IExtranetVpnMemberService extranetVpnMemberService,
-            IVpnTenantNetworkInService vpnTenantNetworkInService,
+            IVpnTenantIpNetworkInService vpnTenantNetworkInService,
             IExtranetVpnTenantNetworkInValidator extranetVpnTenantNetworkInValidator,
             IMapper mapper)
         {
@@ -32,7 +32,7 @@ namespace SCM.Controllers
 
         private IExtranetVpnTenantNetworkInService ExtranetVpnTenantNetworkInService { get; }
         private IExtranetVpnMemberService ExtranetVpnMemberService { get; }
-        private IVpnTenantNetworkInService VpnTenantNetworkInService { get; }
+        private IVpnTenantIpNetworkInService VpnTenantNetworkInService { get; }
         private IExtranetVpnTenantNetworkInValidator ExtranetVpnTenantNetworkInValidator { get; }
         private IMapper Mapper { get; }
 
@@ -41,8 +41,8 @@ namespace SCM.Controllers
         public async Task<PartialViewResult> VpnTenantNetworks(int vpnID, int tenantID)
         {
             var vpnTenantNetworks = await VpnTenantNetworkInService.GetAllByVpnIDAsync(vpnID, tenantID, 
-                extranet: true, includeProperties: false);
-            return PartialView(Mapper.Map<List<VpnTenantNetworkInViewModel>>(vpnTenantNetworks));
+                extranet: true);
+            return PartialView(Mapper.Map<List<VpnTenantIpNetworkInViewModel>>(vpnTenantNetworks));
         }
 
         [HttpGet]
@@ -251,15 +251,11 @@ namespace SCM.Controllers
 
         private async Task PopulateVpnTenantNetworksDropDownList(int vpnID, int tenantID, object selectedVpnTenantNetwork = null)
         {
-            var tenantNetworks = await VpnTenantNetworkInService.GetAllByVpnIDAsync(vpnID, tenantID, 
-                extranet: true, includeProperties: false);
+            var tenantIpNetworks = (from result in await VpnTenantNetworkInService.GetAllByVpnIDAsync(vpnID, tenantID, extranet: true)
+                                    select new { result.VpnTenantIpNetworkInID, result.TenantIpNetwork.CidrName });
 
-            var result = from networks in tenantNetworks.Select(x => 
-                new { x.VpnTenantNetworkInID,  x.TenantIpNetwork.CidrName })
-                select networks;
-
-            ViewBag.VpnTenantNetworkInID = new SelectList(result,
-                "VpnTenantNetworkInID", "Name", selectedVpnTenantNetwork);
+            ViewBag.VpnTenantNetworkInID = new SelectList(tenantIpNetworks,
+                "VpnTenantIpNetworkInID", "Name", selectedVpnTenantNetwork);
         }
     }
 }

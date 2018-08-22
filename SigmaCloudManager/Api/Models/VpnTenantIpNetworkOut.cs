@@ -25,20 +25,14 @@ namespace Mind.Api.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class VpnTenantIpv4NetworkIn : IEquatable<VpnTenantIpv4NetworkIn>
+    public partial class VpnTenantIpNetworkOut : IEquatable<VpnTenantIpNetworkOut>
     { 
         /// <summary>
         /// The ID of the tenant IPv4 network
         /// </summary>
         /// <value>The ID of the tenant IPv4 network</value>
-        [DataMember(Name="tenantIpv4NetworkId")]
-        public int? TenantIpv4NetworkId { get; private set; }
-
-        /// <summary>
-        /// Gets or Sets AddToAllBgpPeersInAttachmentSet
-        /// </summary>
-        [DataMember(Name="addToAllBgpPeersInAttachmentSet")]
-        public bool? AddToAllBgpPeersInAttachmentSet { get; set; }
+        [DataMember(Name="tenantIpNetworkId")]
+        public int? TenantIpNetworkId { get; private set; }
 
         /// <summary>
         /// An IPv4 BGP peer address
@@ -48,11 +42,11 @@ namespace Mind.Api.Models
         public string Ipv4BgpPeer { get; set; }
 
         /// <summary>
-        /// The local IP routing preference
+        /// The advertised IP routing preference
         /// </summary>
-        /// <value>The local IP routing preference</value>
-        [DataMember(Name="localIpRoutingPreference")]
-        public int? LocalIpRoutingPreference { get; set; }
+        /// <value>The advertised IP routing preference</value>
+        [DataMember(Name="advertisedIpRoutingPreference")]
+        public int? AdvertisedIpRoutingPreference { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -61,11 +55,10 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class VpnTenantIpv4NetworkIn {\n");
-            sb.Append("  TenantIpv4NetworkId: ").Append(TenantIpv4NetworkId).Append("\n");
-            sb.Append("  AddToAllBgpPeersInAttachmentSet: ").Append(AddToAllBgpPeersInAttachmentSet).Append("\n");
+            sb.Append("class VpnTenantIpNetworkOut {\n");
+            sb.Append("  TenantIpNetworkId: ").Append(TenantIpNetworkId).Append("\n");
             sb.Append("  Ipv4BgpPeer: ").Append(Ipv4BgpPeer).Append("\n");
-            sb.Append("  LocalIpRoutingPreference: ").Append(LocalIpRoutingPreference).Append("\n");
+            sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -88,29 +81,24 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((VpnTenantIpv4NetworkIn)obj);
+            return obj.GetType() == GetType() && Equals((VpnTenantIpNetworkOut)obj);
         }
 
         /// <summary>
-        /// Returns true if VpnTenantIpv4NetworkIn instances are equal
+        /// Returns true if VpnTenantIpNetworkOut instances are equal
         /// </summary>
-        /// <param name="other">Instance of VpnTenantIpv4NetworkIn to be compared</param>
+        /// <param name="other">Instance of VpnTenantIpv4NetworkOut to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(VpnTenantIpv4NetworkIn other)
+        public bool Equals(VpnTenantIpNetworkOut other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    TenantIpv4NetworkId == other.TenantIpv4NetworkId ||
-                    TenantIpv4NetworkId != null &&
-                    TenantIpv4NetworkId.Equals(other.TenantIpv4NetworkId)
-                ) && 
-                (
-                    AddToAllBgpPeersInAttachmentSet == other.AddToAllBgpPeersInAttachmentSet ||
-                    AddToAllBgpPeersInAttachmentSet != null &&
-                    AddToAllBgpPeersInAttachmentSet.Equals(other.AddToAllBgpPeersInAttachmentSet)
+                    TenantIpNetworkId == other.TenantIpNetworkId ||
+                    TenantIpNetworkId != null &&
+                    TenantIpNetworkId.Equals(other.TenantIpNetworkId)
                 ) && 
                 (
                     Ipv4BgpPeer == other.Ipv4BgpPeer ||
@@ -118,9 +106,9 @@ namespace Mind.Api.Models
                     Ipv4BgpPeer.Equals(other.Ipv4BgpPeer)
                 ) && 
                 (
-                    LocalIpRoutingPreference == other.LocalIpRoutingPreference ||
-                    LocalIpRoutingPreference != null &&
-                    LocalIpRoutingPreference.Equals(other.LocalIpRoutingPreference)
+                    AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
+                    AdvertisedIpRoutingPreference != null &&
+                    AdvertisedIpRoutingPreference.Equals(other.AdvertisedIpRoutingPreference)
                 );
         }
 
@@ -134,14 +122,12 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (TenantIpv4NetworkId != null)
-                    hashCode = hashCode * 59 + TenantIpv4NetworkId.GetHashCode();
-                    if (AddToAllBgpPeersInAttachmentSet != null)
-                    hashCode = hashCode * 59 + AddToAllBgpPeersInAttachmentSet.GetHashCode();
+                    if (TenantIpNetworkId != null)
+                    hashCode = hashCode * 59 + TenantIpNetworkId.GetHashCode();
                     if (Ipv4BgpPeer != null)
                     hashCode = hashCode * 59 + Ipv4BgpPeer.GetHashCode();
-                    if (LocalIpRoutingPreference != null)
-                    hashCode = hashCode * 59 + LocalIpRoutingPreference.GetHashCode();
+                    if (AdvertisedIpRoutingPreference != null)
+                    hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
                 return hashCode;
             }
         }
@@ -149,12 +135,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(VpnTenantIpv4NetworkIn left, VpnTenantIpv4NetworkIn right)
+        public static bool operator ==(VpnTenantIpNetworkOut left, VpnTenantIpNetworkOut right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(VpnTenantIpv4NetworkIn left, VpnTenantIpv4NetworkIn right)
+        public static bool operator !=(VpnTenantIpNetworkOut left, VpnTenantIpNetworkOut right)
         {
             return !Equals(left, right);
         }

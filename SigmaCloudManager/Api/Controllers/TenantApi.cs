@@ -75,7 +75,7 @@ namespace Mind.Api.Controllers
             }
             catch (DbUpdateException)
             {
-                return new DatabaseUpdateErrorResult();
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -84,6 +84,7 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <param name="body">Updated tenant object</param>
         /// <response code="200">Successful operation</response>
+        /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPut]
@@ -92,6 +93,7 @@ namespace Mind.Api.Controllers
         [ValidateTenantNotExists]
         [SwaggerOperation("UpdateTenant")]
         [SwaggerResponse(statusCode: 200, type: typeof(Tenant), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> UpdateTenant([FromRoute][Required]int? tenantId, [FromBody]Tenant body, [FromQuery]bool? deep)
@@ -109,7 +111,7 @@ namespace Mind.Api.Controllers
 
             catch (DbUpdateException)
             {
-                return new DatabaseUpdateErrorResult();
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -145,7 +147,7 @@ namespace Mind.Api.Controllers
 
             catch (DbUpdateException)
             {
-                return new DatabaseUpdateErrorResult();
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -171,6 +173,7 @@ namespace Mind.Api.Controllers
         /// <remarks>Returns a single tenant</remarks>
         /// <param name="tenantId">ID of the tenant</param>
         /// <response code="200">successful operation</response>
+        /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
         [Route("/v{version:apiVersion}/tenants/{tenantId}", Name = "GetTenant")]
@@ -178,6 +181,7 @@ namespace Mind.Api.Controllers
         [ValidateTenantExists]
         [SwaggerOperation("GetTenantById")]
         [SwaggerResponse(statusCode: 200, type: typeof(Tenant), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetTenantById([FromRoute][Required]int? tenantId,[FromQuery]bool? deep)
         {

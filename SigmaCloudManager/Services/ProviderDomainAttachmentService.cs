@@ -84,7 +84,7 @@ namespace Mind.Services
             await _validator.ValidateChangesAsync(attachmentId, update);
             if (!_validator.IsValid)
             {
-                throw new ServiceValidationException("Validation failed");
+                throw new ServiceValidationException();
             }
 
             var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,

@@ -59,7 +59,6 @@ namespace Mind.Api.Controllers
         /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
-        /// <response code="400">Bad request</response>
         [HttpPost]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments")]
         [ValidateModelState]
@@ -68,7 +67,6 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 201, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Bad arguments")]
         public virtual async Task<IActionResult> CreateProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body)
         {
             try
@@ -139,6 +137,7 @@ namespace Mind.Api.Controllers
         /// <remarks>Returns a single provider domain attachment</remarks>
         /// <param name="attachmentId">ID of the attachment</param>
         /// <response code="200">Successful operation</response>
+        /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments/{attachmentId}", Name = "GetProviderDomainAttachment")]
@@ -146,6 +145,7 @@ namespace Mind.Api.Controllers
         [ValidateProviderDomainAttachmentExists]
         [SwaggerOperation("GetProviderDomainAttachmentById")]
         [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetProviderDomainAttachmentById([FromRoute][Required]int? tenantId, 
             [FromRoute][Required]int? attachmentId, [FromQuery]bool? deep)
@@ -190,8 +190,8 @@ namespace Mind.Api.Controllers
         /// <param name="attachmentId">ID of the attachment</param>
         /// <param name="body">attachment update object that updates an existing attachment</param>
         /// <response code="200">Successful operation</response>
-        /// <response code="400">Bad request</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPut]
@@ -200,8 +200,8 @@ namespace Mind.Api.Controllers
         [ValidateProviderDomainAttachmentExists]
         [SwaggerOperation("UpdateProviderDomainAttachment")]
         [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Bad arguments")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> UpdateProviderDomainAttachment([FromRoute][Required]int? tenantId, 
@@ -217,6 +217,7 @@ namespace Mind.Api.Controllers
 
                 var update = Mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentUpdate>(body);
                 var attachment = await _attachmentService.UpdateAsync(attachmentId.Value, update);
+                attachment.SetModifiedHttpHeaders(Response);
                 var attachmentApiModel = Mapper.Map<Mind.Api.Models.Attachment>(attachment);
                 return Ok(attachmentApiModel);
             }

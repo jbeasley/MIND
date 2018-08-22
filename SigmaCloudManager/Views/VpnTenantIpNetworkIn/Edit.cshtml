@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.VpnTenantNetworkInViewModel
+@model SCM.Models.ViewModels.VpnTenantIpNetworkInViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -8,18 +8,18 @@
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
     <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
-    <li class="breadcrumb-item"><a href="/VpnTenantNetworkIn/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant Networks Inbound Policy - [@Model.AttachmentSet.Name]</a></li>
-    <li class="breadcrumb-item active">Edit - [@Model.TenantNetwork.CidrName]</li>
+    <li class="breadcrumb-item"><a href="/VpnTenantIpNetworkIn/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant IP Networks Inbound Policy - [@Model.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item active">Edit - [@Model.TenantIpNetwork.CidrName]</li>
 </ol>
 
-<h2>Edit Inbound Policy for Network '@Model.TenantNetwork.CidrName'</h2>
+<h2>Edit Inbound Policy for Network '@Model.TenantIpNetwork.CidrName'</h2>
 
 <form asp-action="Edit">
     <div class="form-horizontal">
         <hr />
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-        <input type="hidden" asp-for="VpnTenantNetworkInID" />
-        <input type="hidden" asp-for="TenantNetworkID" />
+        <input type="hidden" asp-for="VpnTenantIpNetworkInID" />
+        <input type="hidden" asp-for="TenantIpNetworkID" />
         <input type="hidden" asp-for="AttachmentSetID" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-group">
@@ -129,7 +129,7 @@
 
                 if (vrfID != null && vrfID.length > 0) {
 
-                    PopulateHtmlFromUrl($bgpPeer, "/VpnTenantNetworkIn/BgpPeers", { vrfID: vrfID });
+                    PopulateHtmlFromUrl($bgpPeer, "/VpnTenantIpNetworkIn/BgpPeers", { vrfID: vrfID });
                 }
             }
 

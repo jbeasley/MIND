@@ -16,7 +16,7 @@ namespace SCM.Validators
         public VpnValidator(IVpnService vpnService,
             IVpnTopologyTypeService vpnTopologyTypeService,
             IVpnTenancyTypeService vpnTenancyTypeService,
-            IVpnTenantNetworkInService vpnTenantNetworkInService,
+            IVpnTenantIpNetworkInService vpnTenantNetworkInService,
             IVpnTenantCommunityInService vpnTenantCommunityInService,
             IVpnTenantMulticastGroupService vpnTenantMulticastGroupService,
             IMulticastVpnDirectionTypeService multicastVpnDirectionTypeService,
@@ -35,7 +35,7 @@ namespace SCM.Validators
         private IVpnService VpnService { get; }
         private IVpnTopologyTypeService VpnTopologyTypeService { get; }
         private IVpnTenancyTypeService VpnTenancyTypeService { get; }
-        private IVpnTenantNetworkInService VpnTenantNetworkInService { get; }
+        private IVpnTenantIpNetworkInService VpnTenantNetworkInService { get; }
         private IVpnTenantCommunityInService VpnTenantCommunityInService { get; }
         private IVpnTenantMulticastGroupService VpnTenantMulticastGroupService { get; }
         private IMulticastVpnDirectionTypeService MulticastVpnDirectionTypeService { get; }

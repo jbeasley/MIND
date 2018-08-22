@@ -52,7 +52,7 @@ namespace SCM.Services
         public async Task<IEnumerable<ExtranetVpnTenantNetworkIn>> GetAllByTenantNetworkIDAsync(int id, bool includeProperties = true)
         {
             var p = includeProperties ? Properties : string.Empty;
-            return await UnitOfWork.ExtranetVpnTenantNetworkInRepository.GetAsync(q => q.VpnTenantNetworkIn.TenantNetworkID == id,
+            return await UnitOfWork.ExtranetVpnTenantNetworkInRepository.GetAsync(q => q.VpnTenantIpNetworkIn.TenantIpNetworkID == id,
                 includeProperties: p, 
                 AsTrackable: false);
         }

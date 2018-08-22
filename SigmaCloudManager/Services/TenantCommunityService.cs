@@ -96,45 +96,6 @@ namespace SCM.Services
         public async Task<int> UpdateAsync(TenantCommunity tenantCommunity)
         {
             this.UnitOfWork.TenantCommunityRepository.Update(tenantCommunity);
-
-            // Update the 'RequiresSync' property of all VPNs associated with the Tenant Community
-
-            var vpns = await UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantCommunitiesIn)
-                                                        .Select(y => y.TenantCommunity)
-                                                        .Concat(q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantCommunitiesOut)
-                                                        .Select(y => y.TenantCommunity)
-                                                        .Concat(q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantCommunitiesRoutingInstance)
-                                                        .Where(x => x.TenantCommunity != null)
-                                                        .Select(y => y.TenantCommunity)
-                                                        .Concat(q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantCommunitiesRoutingInstance)
-                                                        .SelectMany(x => x.TenantCommunitySet.TenantCommunitySetCommunities)
-                                                        .Where(x => x.TenantCommunitySet != null)
-                                                        .Select(y => y.TenantCommunity)
-                                                        .Concat(q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantNetworksIn)
-                                                        .SelectMany(y => y.VpnTenantNetworkCommunitiesIn)
-                                                        .Select(z => z.TenantCommunity)))))
-                                                        .Where(z => z.TenantCommunityID == tenantCommunity.TenantCommunityID)
-                                                        .GroupBy(x => x.TenantCommunityID)
-                                                        .Select(group => group.First())
-                                                        .Any());
-
-            foreach (var vpn in vpns.GroupBy(x => x.VpnID).Select(group => group.First()))
-            {
-                vpn.RequiresSync = true;
-                vpn.ShowRequiresSyncAlert = true;
-                this.UnitOfWork.VpnRepository.Update(vpn);
-            }
-
             return await this.UnitOfWork.SaveAsync();
         }
 

@@ -24,7 +24,7 @@ namespace SCM.Models
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual Tenant Tenant { get; set; }
-        public virtual ICollection<VpnTenantNetworkIn> VpnTenantNetworksIn { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
         public virtual ICollection<VpnTenantNetworkOut> VpnTenantNetworksOut { get; set; }
         public virtual ICollection<VpnTenantNetworkRoutingInstance> VpnTenantNetworksRoutingInstance { get; set; }
         [NotMapped]

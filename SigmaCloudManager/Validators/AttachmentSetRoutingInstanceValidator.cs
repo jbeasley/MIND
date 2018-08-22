@@ -43,7 +43,7 @@ namespace SCM.Validators
             var attachmentSet = attachmentSetRoutingInstance.AttachmentSet;
 
             var vpnTenantNetworksIn = routingInstance.BgpPeers
-                .SelectMany(x => x.VpnTenantNetworksIn
+                .SelectMany(x => x.VpnTenantIpNetworksIn
                 .Where(y => y.AttachmentSet.AttachmentSetID == attachmentSet.AttachmentSetID));
 
             if (vpnTenantNetworksIn.Any())

@@ -48,11 +48,15 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
                 .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name));
             CreateMap<SCM.Models.Tenant, Mind.Api.Models.Tenant>();
+            CreateMap<SCM.Models.VpnTenantIpNetworkIn, Mind.Api.Models.VpnTenantIpNetworkIn>()
+                .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrName))
+                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
 
             // API model to entity model mappings
 
             CreateMap<Mind.Api.Models.Tenant, SCM.Models.Tenant>();
             CreateMap<Mind.Api.Models.TenantIpNetwork, SCM.Models.TenantIpNetwork>();
+            CreateMap<Mind.Api.Models.RoutingInstanceForAttachmentSetUpdate, SCM.Models.AttachmentSetRoutingInstance>();
         }
     }
 }

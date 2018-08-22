@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.VpnTenantNetworkCommunityInViewModel
+@model SCM.Models.ViewModels.VpnTenantIpNetworkCommunityInViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -7,19 +7,19 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@ViewBag.VpnTenantNetworkIn.AttachmentSet.TenantID">Attachment Sets- [@ViewBag.VpnTenantNetworkIn.AttachmentSet.Tenant.Name]</a></li>
-    <li class="breadcrumb-item"><a href="/VpnTenantNetworkIn/GetAllByAttachmentSetID/@ViewBag.VpnTenantNetworkIn.AttachmentSetID">Tenant Network Inbound Policy - [@ViewBag.VpnTenantNetworkIn.AttachmentSet.Name]</a></li>
-    <li class="breadcrumb-item"><a href="/VpnTenantNetworkCommunityIn/GetAllByVpnTenantNetworkID/@ViewBag.VpnTenantNetworkIn.VpnTenantNetworkInID">VPN Tenant Network Communities - [@ViewBag.VpnTenantNetworkIn.TenantNetwork.CidrName]</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@ViewBag.VpnTenantIpNetworkIn.AttachmentSet.TenantID">Attachment Sets- [@ViewBag.VpnTenantIpNetworkIn.AttachmentSet.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantIpNetworkIn/GetAllByAttachmentSetID/@ViewBag.VpnTenantIpNetworkIn.AttachmentSetID">Tenant Network Inbound Policy - [@ViewBag.VpnTenantIpNetworkIn.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantNetworkCommunityIn/GetAllByVpnTenantNetworkID/@ViewBag.VpnTenantNetworkIn.VpnTenantIpNetworkInID">VPN Tenant IP Network Communities - [@ViewBag.VpnTenantIpNetworkIn.TenantIpNetwork.CidrName]</a></li>
     <li class="breadcrumb-item active">Add Community</li>
 </ol>
 
-<h2>Add a Tenant Community to '@ViewBag.VpnTenantNetworkIn.TenantNetwork.CidrName'</h2>
+<h2>Add a Tenant Community to '@ViewBag.VpnTenantIpNetworkIn.TenantIpNetwork.CidrName'</h2>
 
 <form asp-action="Create">
     <div class="form-horizontal">
         <hr />
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-        <input type="hidden" asp-for="VpnTenantNetworkInID" value="@ViewBag.VpnTenantNetworkIn.VpnTenantNetworkInID" />
+        <input type="hidden" asp-for="VpnTenantIpNetworkInID" value="@ViewBag.VpnTenantIpNetworkIn.VpnTenantIpNetworkInID" />
         <div class="form-group">
             <label asp-for="TenantCommunity" class="col-md-2 control-label"></label>
             <div class="col-md-10">
@@ -40,7 +40,7 @@
 </form>
 
 <div>
-    <a asp-action="GetAllByVpnTenantNetworkInID" asp-route-id="@ViewBag.VpnTenantNetworkIn.VpnTenantNetworkInID" >Back to List</a>
+    <a asp-action="GetAllByVpnTenantIpNetworkInID" asp-route-id="@ViewBag.VpnTenantIpNetworkIn.VpnTenantIpNetworkInID" >Back to List</a>
 </div>
 
 @section Scripts {

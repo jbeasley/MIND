@@ -101,7 +101,7 @@ namespace Mind.Services
                                                 .Single();
 
             await _validator.ValidateDeleteAsync(attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID);
-            if (!_validator.IsValid) throw new ServiceValidationException("Validation failed");
+            if (!_validator.IsValid) throw new ServiceValidationException();
 
             this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Delete(attachmentSetRoutingInstance);
             await this.UnitOfWork.SaveAsync();

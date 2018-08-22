@@ -36,19 +36,19 @@ namespace SCM.Services
                 + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Vifs.Tenant,"
                 + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Tenant,"
                 + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.BgpPeers,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksIn.TenantNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksIn.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesIn.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworkStaticRoutesRoutingInstance.TenantNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksIn.TenantNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksIn.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksIn.VpnTenantNetworkCommunitiesIn.TenantCommunity,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesIn.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksOut.TenantNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksOut.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesOut.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksRoutingInstance.TenantNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksRoutingInstance.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunity,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunitySet.RoutingPolicyMatchOption,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunitySet.TenantCommunitySetCommunities.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworkStaticRoutesRoutingInstance.TenantNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.Tenant,"
                 + "VpnAttachmentSets.AttachmentSet.MulticastVpnRps.VpnTenantMulticastGroups.TenantMulticastGroup,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantMulticastGroups.TenantMulticastGroup,"
@@ -235,7 +235,7 @@ namespace SCM.Services
             var tasks = new List<Task<IList<Vpn>>> {
                 this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
                                                         .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantNetworksIn)
+                                                        .SelectMany(x => x.VpnTenantIpNetworksIn)
                                                         .Select(y => y.TenantIpNetwork)
                                                         .Where(x => x.TenantIpNetworkID == id)
                                                         .Any(), includeProperties: p, AsTrackable: false),

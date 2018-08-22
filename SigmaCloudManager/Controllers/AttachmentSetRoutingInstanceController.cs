@@ -251,7 +251,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(id.Value);
+            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSetRoutingInstance == null)
             {
                 if (concurrencyError.GetValueOrDefault())
@@ -272,7 +272,7 @@ namespace SCM.Controllers
                     + "click the Back to List hyperlink.";
             }
 
-            ViewBag.AttachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
+            ViewBag.AttachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetID, deep: true);
             return View(Mapper.Map<AttachmentSetRoutingInstanceViewModel>(attachmentSetRoutingInstance));
         }
 
@@ -280,7 +280,7 @@ namespace SCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(AttachmentSetRoutingInstanceViewModel attachmentSetRoutingInstanceModel)
         {
-            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetRoutingInstanceID);
+            var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetRoutingInstanceID, deep: true);
             if (attachmentSetRoutingInstance == null)
             {
                 return RedirectToAction("GetAllByAttachmentSetID", new
@@ -291,7 +291,7 @@ namespace SCM.Controllers
 
             try
             {
-                await _attachmentSetRoutingInstanceService.DeleteAsync(attachmentSetRoutingInstanceModel.AttachmentSetID, attachmentSetRoutingInstanceModel.RoutingInstanceID);
+                await _attachmentSetRoutingInstanceService.DeleteAsync(attachmentSetRoutingInstance.AttachmentSetID, attachmentSetRoutingInstance.RoutingInstanceID);
                 var vpns = await _vpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
 
                 return RedirectToAction("GetAllByAttachmentSetID", new

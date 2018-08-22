@@ -90,8 +90,8 @@ namespace SCM
                         Description = "MIND API (ASP.NET Core 2.0)",
                         Contact = new Contact()
                         {
-                            Name = "Swagger Codegen Contributors",
-                            Url = "https://github.com/swagger-api/swagger-codegen",
+                            Name = "Jon Beasley",
+                            Url = "https://thehub.thomsonreuters.com/people/9000359",
                             Email = "jonathan.beasley@thomsonreuters.com"
                         },
                         TermsOfService = ""
@@ -157,14 +157,14 @@ namespace SCM
             services.AddScoped<IRoutingPolicyMatchOptionService, RoutingPolicyMatchOptionService>();
             services.AddScoped<ITenantCommunitySetService, TenantCommunitySetService>();
             services.AddScoped<ITenantCommunitySetCommunityService, TenantCommunitySetCommunityService>();
-            services.AddScoped<IVpnTenantNetworkInService, VpnTenantNetworkInService>();
+            services.AddScoped<IVpnTenantIpNetworkInService, VpnTenantIpNetworkInService>();
             services.AddScoped<IVpnTenantNetworkStaticRouteRoutingInstanceService, VpnTenantNetworkStaticRouteRoutingInstanceService>();
             services.AddScoped<IVpnTenantNetworkOutService, VpnTenantNetworkOutService>();
             services.AddScoped<IVpnTenantNetworkRoutingInstanceService, VpnTenantNetworkRoutingInstanceService>();
             services.AddScoped<IVpnTenantCommunityInService, VpnTenantCommunityInService>();
             services.AddScoped<IVpnTenantCommunityOutService, VpnTenantCommunityOutService>();
             services.AddScoped<IVpnTenantCommunityRoutingInstanceService, VpnTenantCommunityRoutingInstanceService>();
-            services.AddScoped<IVpnTenantNetworkCommunityInService, VpnTenantNetworkCommunityInService>();
+            services.AddScoped<IVpnTenantIpNetworkCommunityInService, VpnTenantIpNetworkCommunityInService>();
             services.AddScoped<IVpnTenantMulticastGroupService, VpnTenantMulticastGroupService>();
             services.AddScoped<IAttachmentService, AttachmentService>();
             services.AddScoped<IInfrastructureAttachmentService, InfrastructureAttachmentService>();
@@ -255,6 +255,8 @@ namespace SCM
             builder.RegisterType<AttachmentSetDirector>().As<IAttachmentSetDirector>();
             builder.RegisterType<AttachmentSetUpdateDirector>().As<IAttachmentSetUpdateDirector>();
             builder.RegisterType<AttachmentSetRoutingInstanceDirector>().As<IAttachmentSetRoutingInstanceDirector>();
+            builder.RegisterType<VpnTenantIpNetworkInDirector>().As<IVpnTenantIpNetworkInDirector>();
+            builder.RegisterType<VpnTenantIpNetworkInUpdateDirector>().As<IVpnTenantIpNetworkInUpdateDirector>();
 
             builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
             builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
@@ -266,6 +268,8 @@ namespace SCM
             builder.RegisterType<AttachmentSetBuilder>().As<IAttachmentSetBuilder>();
             builder.RegisterType<AttachmentSetUpdateBuilder>().As<IAttachmentSetUpdateBuilder>();
             builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkInBuilder>().As<IVpnTenantIpNetworkInBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkInUpdateBuilder>().As<IVpnTenantIpNetworkInUpdateBuilder>();
 
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
             {

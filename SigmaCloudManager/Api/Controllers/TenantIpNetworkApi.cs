@@ -81,7 +81,7 @@ namespace Mind.Api.Controllers
 
             catch (DbUpdateException)
             {
-                return new DatabaseUpdateErrorResult();
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -132,7 +132,7 @@ namespace Mind.Api.Controllers
 
             catch (DbUpdateException)
             {
-                return new DatabaseUpdateErrorResult();
+                return new DatabaseUpdateFailedResult();
             }
         }
 
@@ -170,12 +170,12 @@ namespace Mind.Api.Controllers
 
             catch (DbUpdateException)
             {
-                return new DatabaseUpdateErrorResult();
+                return new DatabaseUpdateFailedResult();
             }
         }
 
         /// <summary>
-        /// Find all IPv4 networks for a given tenant
+        /// Find all IP networks for a given tenant
         /// </summary>
         /// <remarks>Returns all IP networks for a given tenant</remarks>
         /// <param name="tenantId">ID of the tenant</param>
@@ -185,10 +185,10 @@ namespace Mind.Api.Controllers
         [Route("/v{version:apiVersion}/tenants/{tenantId}/ip-networks")]
         [ValidateModelState]
         [ValidateTenantExists]
-        [SwaggerOperation("GetTenantIpNetworksByTenantId")]
+        [SwaggerOperation("GetIpNetworksByTenantId")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<TenantIpNetwork>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual async Task<IActionResult> GetIpv4NetworksByTenantId([FromRoute][Required]int? tenantId,[FromQuery]bool? deep)
+        public virtual async Task<IActionResult> GetIpNetworksByTenantId([FromRoute][Required]int? tenantId,[FromQuery]bool? deep)
         {
             var tenantIpNetworks = await _tenantIpNetworkService.GetAllByTenantIDAsync(tenantId.Value, deep: deep);
             return Ok(Mapper.Map<List<TenantIpNetwork>>(tenantIpNetworks));
@@ -201,7 +201,7 @@ namespace Mind.Api.Controllers
         /// <param name="tenantId">ID of the tenant</param>
         /// <param name="tenantIpNetworkId">ID of the tenant IPv4 network</param>
         /// <response code="200">Successful operation</response>
-        /// <response code="304">Resource has been modified</response>
+        /// <response code="304">The specifie resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/ip-networks/{tenantIpNetworkId}", Name ="GetTenantIpNetwork")]
@@ -209,19 +209,18 @@ namespace Mind.Api.Controllers
         [ValidateTenantIpNetworkExists]
         [SwaggerOperation("GetTenantIpNetworkById")]
         [SwaggerResponse(statusCode: 200, type: typeof(TenantIpNetwork), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 304, description: "Resource not modified")]
+        [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetTenantIpNetworkById([FromRoute][Required]int? tenantId, 
             [FromRoute][Required]int? tenantIpNetworkId,[FromQuery] bool? deep)
         {
             var tenantIpNetwork = await _tenantIpNetworkService.GetByIDAsync(tenantIpNetworkId.Value, deep: deep);
-            if (!tenantIpNetwork.HasBeenModified(Request)) {
-
-                return StatusCode(StatusCodes.Status304NotModified);
+            if (tenantIpNetwork.HasBeenModified(Request)) {
+                tenantIpNetwork.SetModifiedHttpHeaders(Response);
             }
             else
             {
-                tenantIpNetwork.SetModifiedHttpHeaders(Response);
+                return StatusCode(StatusCodes.Status304NotModified);
             }
 
             return Ok(Mapper.Map<TenantIpNetwork>(tenantIpNetwork));

@@ -7,11 +7,8 @@ using SCM.Data;
 
 namespace SCM.Services
 {
-    public interface IVpnTenantCommunityInService
+    public interface IVpnTenantCommunityInService : IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
-
-        Task<IEnumerable<VpnTenantCommunityIn>> GetAllAsync(bool includeProperties = true);
         Task<IEnumerable<VpnTenantCommunityIn>> GetAllByAttachmentSetIDAsync(int id, bool includeProperties = true);
         Task<IEnumerable<VpnTenantCommunityIn>> GetAllByTenantCommunityIDAsync(int id, bool includeProperties = true);
         Task<IEnumerable<VpnTenantCommunityIn>> GetAllByVpnIDAsync(int vpnID, int? tenantID = null, bool? extranet = null, bool includeProperties = true);

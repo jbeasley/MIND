@@ -22,13 +22,14 @@ namespace SCM.Models
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual AttachmentRedundancy AttachmentRedundancy { get; set; }
+        [ForeignKey("TenantID")]
         public virtual Tenant Tenant { get; set; }
         public virtual Region Region { get; set; }
         public virtual SubRegion SubRegion { get; set; }
         public virtual MulticastVpnDomainType MulticastVpnDomainType { get; set; }
         public virtual ICollection<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; set; }
         public virtual ICollection<VpnAttachmentSet> VpnAttachmentSets { get; set; }
-        public virtual ICollection<VpnTenantNetworkIn> VpnTenantNetworksIn { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
         public virtual ICollection<VpnTenantNetworkStaticRouteRoutingInstance> VpnTenantNetworkStaticRoutesRoutingInstance { get; set; }
         public virtual ICollection<VpnTenantCommunityIn> VpnTenantCommunitiesIn { get; set; }
         public virtual ICollection<VpnTenantNetworkOut> VpnTenantNetworksOut { get; set; }

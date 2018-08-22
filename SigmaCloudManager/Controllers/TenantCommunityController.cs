@@ -273,7 +273,7 @@ namespace SCM.Controllers
             try
             {
                 this.Validator.ValidationDictionary.Clear();
-                await TenantCommunityValidator.ValidateDeleteAsync(tenantCommunity);
+                await TenantCommunityValidator.ValidateDeleteAsync(tenantCommunity.TenantCommunityID);
 
                 if (TenantCommunityValidator.ValidationDictionary.IsValid)
                 {

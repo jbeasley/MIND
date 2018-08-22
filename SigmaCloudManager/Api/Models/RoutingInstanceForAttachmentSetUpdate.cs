@@ -25,28 +25,31 @@ namespace Mind.Api.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class VpnTenantIpv4NetworkOut : IEquatable<VpnTenantIpv4NetworkOut>
+    public partial class RoutingInstanceForAttachmentSetUpdate : IEquatable<RoutingInstanceForAttachmentSetUpdate>
     { 
         /// <summary>
-        /// The ID of the tenant IPv4 network
+        /// Default preference applied to IPv4 and IPv6 routes within the routing instance
         /// </summary>
-        /// <value>The ID of the tenant IPv4 network</value>
-        [DataMember(Name="tenantIpv4NetworkId")]
-        public int? TenantIpv4NetworkId { get; private set; }
+        /// <value>Default preference applied to IPv4 and IPv6 routes within the routing instance</value>
+        [DataMember(Name = "localIpRoutingPreference")]
+        [Range(1, 500, ErrorMessage = "Local IP routing preference must be a number between 1 and 500")]
+        public int? LocalIpRoutingPreference { get; set; } = 100;
 
         /// <summary>
-        /// An IPv4 BGP peer address
+        /// Default preference of IPv4 and IPv6 routes advertised from the routing instance
         /// </summary>
-        /// <value>An IPv4 BGP peer address</value>
-        [DataMember(Name="ipv4BgpPeer")]
-        public string Ipv4BgpPeer { get; set; }
+        /// <value>Default preference of IPv4 and IPv6 routes advertised from the routing instance</value>
+        [DataMember(Name = "advertisedIpRoutingPreference")]
+        [Range(1, 20, ErrorMessage = "Advertised IP routing preference must be a number between 1 and 20")]
+        public int? AdvertisedIpRoutingPreference { get; set; } = 1;
 
         /// <summary>
-        /// The advertised IP routing preference
+        /// Default multicast designated router preference
         /// </summary>
-        /// <value>The advertised IP routing preference</value>
-        [DataMember(Name="advertisedIpRoutingPreference")]
-        public int? AdvertisedIpRoutingPreference { get; set; }
+        /// <value>Default multicast designated router preference</value>
+        [DataMember(Name = "multicastDesignatedRouterPreference")]
+        [Range(1, 500, ErrorMessage = "Multicast designated router preference must be a number between 1 and 500")]
+        public int? MulticastDesignatedRouterPreference { get; set; } = 1;
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -55,10 +58,10 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class VpnTenantIpv4NetworkOut {\n");
-            sb.Append("  TenantIpv4NetworkId: ").Append(TenantIpv4NetworkId).Append("\n");
-            sb.Append("  Ipv4BgpPeer: ").Append(Ipv4BgpPeer).Append("\n");
+            sb.Append("class RoutingInstanceForAttachmentSetRequest {\n");
+            sb.Append("  LocaIpRoutingPreference: ").Append(LocalIpRoutingPreference).Append("\n");
             sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
+            sb.Append("  MulticastDesignateRouterPreference: ").Append(MulticastDesignatedRouterPreference).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -81,34 +84,34 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((VpnTenantIpv4NetworkOut)obj);
+            return obj.GetType() == GetType() && Equals((RoutingInstanceForAttachmentSetUpdate)obj);
         }
 
         /// <summary>
-        /// Returns true if VpnTenantIpv4NetworkOut instances are equal
+        /// Returns true if AttachmentSetRequestRoutingInstances instances are equal
         /// </summary>
-        /// <param name="other">Instance of VpnTenantIpv4NetworkOut to be compared</param>
+        /// <param name="other">Instance of AttachmentSetRequestRoutingInstances to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(VpnTenantIpv4NetworkOut other)
+        public bool Equals(RoutingInstanceForAttachmentSetUpdate other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return 
                 (
-                    TenantIpv4NetworkId == other.TenantIpv4NetworkId ||
-                    TenantIpv4NetworkId != null &&
-                    TenantIpv4NetworkId.Equals(other.TenantIpv4NetworkId)
-                ) && 
-                (
-                    Ipv4BgpPeer == other.Ipv4BgpPeer ||
-                    Ipv4BgpPeer != null &&
-                    Ipv4BgpPeer.Equals(other.Ipv4BgpPeer)
+                    LocalIpRoutingPreference == other.LocalIpRoutingPreference ||
+                    LocalIpRoutingPreference != null &&
+                    LocalIpRoutingPreference.Equals(other.LocalIpRoutingPreference)
                 ) && 
                 (
                     AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
                     AdvertisedIpRoutingPreference != null &&
                     AdvertisedIpRoutingPreference.Equals(other.AdvertisedIpRoutingPreference)
+                ) &&
+                (
+                    MulticastDesignatedRouterPreference == other.MulticastDesignatedRouterPreference ||
+                    MulticastDesignatedRouterPreference != null &&
+                    MulticastDesignatedRouterPreference.Equals(other.MulticastDesignatedRouterPreference)
                 );
         }
 
@@ -122,12 +125,12 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (TenantIpv4NetworkId != null)
-                    hashCode = hashCode * 59 + TenantIpv4NetworkId.GetHashCode();
-                    if (Ipv4BgpPeer != null)
-                    hashCode = hashCode * 59 + Ipv4BgpPeer.GetHashCode();
-                    if (AdvertisedIpRoutingPreference != null)
+                if (LocalIpRoutingPreference != null)
+                    hashCode = hashCode * 59 + LocalIpRoutingPreference.GetHashCode();
+                if (AdvertisedIpRoutingPreference != null)
                     hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
+                if (MulticastDesignatedRouterPreference != null)
+                    hashCode = hashCode * 59 + MulticastDesignatedRouterPreference.GetHashCode();
                 return hashCode;
             }
         }
@@ -135,12 +138,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(VpnTenantIpv4NetworkOut left, VpnTenantIpv4NetworkOut right)
+        public static bool operator ==(RoutingInstanceForAttachmentSetUpdate left, RoutingInstanceForAttachmentSetUpdate right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(VpnTenantIpv4NetworkOut left, VpnTenantIpv4NetworkOut right)
+        public static bool operator !=(RoutingInstanceForAttachmentSetUpdate left, RoutingInstanceForAttachmentSetUpdate right)
         {
             return !Equals(left, right);
         }

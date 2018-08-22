@@ -32,6 +32,6 @@ namespace SCM.Models
         public virtual ICollection<VpnTenantCommunityOut> VpnTenantCommunitiesOut { get; set; }
         public virtual ICollection<VpnTenantCommunityRoutingInstance> VpnTenantCommunitiesRoutingInstance { get; set; }
         public virtual ICollection<TenantCommunitySet> TenantCommunitySets { get; set; }
-        public virtual ICollection<VpnTenantNetworkCommunityIn> VpnTenantNetworkCommunitiesIn { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkCommunityIn> VpnTenantIpNetworkCommunitiesIn { get; set; }
     }
 }

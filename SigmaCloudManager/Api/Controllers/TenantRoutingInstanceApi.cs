@@ -29,6 +29,7 @@ namespace Mind.Api.Controllers
     /// <summary>
     /// 
     /// </summary>
+    [ApiVersion("1.0")]
     public class TenantRoutingInstanceApiController : Controller
     { 
         /// <summary>
@@ -41,7 +42,7 @@ namespace Mind.Api.Controllers
         /// <response code="400">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/tenant/routing-instance/{routingInstanceId}/bgp-peer")]
+        [Route("/v{version:apiVersion}/tenant/routing-instance/{routingInstanceId}/bgp-peer")]
         [ValidateModelState]
         [SwaggerOperation("AddRoutingInstanceBgpPeer")]
         [SwaggerResponse(statusCode: 200, type: typeof(BgpPeer), description: "Successful operation")]
@@ -110,7 +111,7 @@ namespace Mind.Api.Controllers
         /// <response code="200">successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/routing-instance/{routingInstanceId}/bgp-peer")]
+        [Route("/v{version:apiVersion}/tenant/routing-instance/{routingInstanceId}/bgp-peer")]
         [ValidateModelState]
         [SwaggerOperation("GetAllBgpPeersByRoutingInstance")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<BgpPeer>), description: "successful operation")]
@@ -142,7 +143,7 @@ namespace Mind.Api.Controllers
         /// <response code="200">successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/{tenantId}/routing-instance")]
+        [Route("/v{version:apiVersion}/tenant/{tenantId}/routing-instance")]
         [ValidateModelState]
         [SwaggerOperation("GetAllRoutingInstancesByTenant")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<RoutingInstance>), description: "successful operation")]
@@ -174,7 +175,7 @@ namespace Mind.Api.Controllers
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/routing-instance/{routingInstanceId}")]
+        [Route("/v{version:apiVersion}/tenant/routing-instance/{routingInstanceId}")]
         [ValidateModelState]
         [SwaggerOperation("GetRoutingInstanceById")]
         [SwaggerResponse(statusCode: 200, type: typeof(RoutingInstance), description: "Successful operation")]

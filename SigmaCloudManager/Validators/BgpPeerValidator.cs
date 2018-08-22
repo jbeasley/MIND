@@ -46,7 +46,7 @@ namespace SCM.Validators
         public async Task ValidateChangesAsync(BgpPeer bgpPeer)
         {
             var currentBgpPeer = await BgpPeerService.GetByIDAsync(bgpPeer.BgpPeerID);
-            if (currentBgpPeer.IpAddress != bgpPeer.IpAddress)
+            if (currentBgpPeer.Ipv4PeerAddress != bgpPeer.Ipv4PeerAddress)
             {
                 if (currentBgpPeer.VpnTenantCommunitiesIn.Any())
                 {
@@ -70,12 +70,12 @@ namespace SCM.Validators
                     }
                 }
 
-                if (currentBgpPeer.VpnTenantNetworksIn.Any())
+                if (currentBgpPeer.VpnTenantIpNetworksIn.Any())
                 {
                     ValidationDictionary.AddError(string.Empty, "The IP address of the BGP Peer cannot be changed because inbound network-based "
                         + $"policy is applied to the peer for the following Attachment Sets:");
 
-                    foreach (var vpnTenantNetworkIn in currentBgpPeer.VpnTenantNetworksIn)
+                    foreach (var vpnTenantNetworkIn in currentBgpPeer.VpnTenantIpNetworksIn)
                     {
                         ValidationDictionary.AddError(string.Empty, $"Attachment Set '{vpnTenantNetworkIn.AttachmentSet.Name}'.");
                     }
@@ -118,9 +118,9 @@ namespace SCM.Validators
                 }
             }
 
-            if (bgpPeer.VpnTenantNetworksIn.Any())
+            if (bgpPeer.VpnTenantIpNetworksIn.Any())
             {
-                foreach (var vpnTenantNetwork in bgpPeer.VpnTenantNetworksIn)
+                foreach (var vpnTenantNetwork in bgpPeer.VpnTenantIpNetworksIn)
                 {
                     ValidationDictionary.AddError(string.Empty, "The BGP Peer cannot be deleted because it is associated with an inbound routing policy "
                         + $"for Tenant Network '{vpnTenantNetwork.TenantIpNetwork.CidrName}' in Attachment Set {vpnTenantNetwork.AttachmentSet.Name}.");
@@ -164,7 +164,7 @@ namespace SCM.Validators
             }
 
             var routingInstance = await RoutingInstanceService.GetByIDAsync(bgpPeer.RoutingInstanceID);
-            var bgpPeerIpAddress = IPAddress.Parse(bgpPeer.IpAddress);
+            var bgpPeerIpAddress = IPAddress.Parse(bgpPeer.Ipv4PeerAddress);
             var match = false;
             var messages = new List<string>();
 
@@ -184,7 +184,7 @@ namespace SCM.Validators
                     else
                     {
                         var vif = await VifService.GetByIDAsync(vlan.VifID.Value);
-                        messages.Add($"IP Address '{bgpPeer.IpAddress}' is not contained by the network " +
+                        messages.Add($"IP Address '{bgpPeer.Ipv4PeerAddress}' is not contained by the network " +
                             $"assigned to Vif '{vif.Name}' ({network.Network.ToString()}/{network.Cidr.ToString()}).");
                     }
                 }
@@ -213,7 +213,7 @@ namespace SCM.Validators
                     else
                     {
                         var attachment = await AttachmentService.GetByIDAsync(iface.AttachmentID);
-                        messages.Add($"IP Address '{bgpPeer.IpAddress}' is not contained by the network " +
+                        messages.Add($"IP Address '{bgpPeer.Ipv4PeerAddress}' is not contained by the network " +
                             $"assigned to Attachment '{attachment.Name}' ({network.Network.ToString()}/{network.Cidr.ToString()}).");
                     }
                 }

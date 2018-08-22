@@ -47,14 +47,14 @@ namespace SCM.Data
         GenericRepository<ExtranetVpnMember> ExtranetVpnMemberRepository { get; }
         GenericRepository<ExtranetVpnTenantCommunityIn> ExtranetVpnTenantCommunityInRepository { get; }
         GenericRepository<ExtranetVpnTenantNetworkIn> ExtranetVpnTenantNetworkInRepository { get; }
-        GenericRepository<VpnTenantNetworkIn> VpnTenantNetworkInRepository { get; }
+        GenericRepository<VpnTenantIpNetworkIn> VpnTenantIpNetworkInRepository { get; }
         GenericRepository<VpnTenantNetworkStaticRouteRoutingInstance> VpnTenantNetworkStaticRouteRoutingInstanceRepository { get; }
         GenericRepository<VpnTenantNetworkOut> VpnTenantNetworkOutRepository { get; }
         GenericRepository<VpnTenantNetworkRoutingInstance> VpnTenantNetworkRoutingInstanceRepository { get; }
         GenericRepository<VpnTenantCommunityIn> VpnTenantCommunityInRepository { get; }
         GenericRepository<VpnTenantCommunityOut> VpnTenantCommunityOutRepository { get; }
         GenericRepository<VpnTenantCommunityRoutingInstance> VpnTenantCommunityRoutingInstanceRepository { get; }
-        GenericRepository<VpnTenantNetworkCommunityIn> VpnTenantNetworkCommunityInRepository { get; }
+        GenericRepository<VpnTenantIpNetworkCommunityIn> VpnTenantIpNetworkCommunityInRepository { get; }
         GenericRepository<VpnTenantMulticastGroup> VpnTenantMulticastGroupRepository { get; }
         GenericRepository<VpnProtocolType> VpnProtocolTypeRepository { get; }
         GenericRepository<VpnTenancyType> VpnTenancyTypeRepository { get; }

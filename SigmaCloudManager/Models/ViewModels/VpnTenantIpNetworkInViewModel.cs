@@ -6,12 +6,12 @@ using System.Net;
 
 namespace SCM.Models.ViewModels
 {
-    public class VpnTenantNetworkInViewModel : IValidatableObject
+    public class VpnTenantIpNetworkInViewModel : IValidatableObject
     {
         [Display(AutoGenerateField = false)]
-        public int VpnTenantNetworkInID { get; set; }
-        [Required(ErrorMessage = "A Tenant Network must be selected.")]
-        public int TenantNetworkID { get; set; }
+        public int VpnTenantIpNetworkInID { get; set; }
+        [Required(ErrorMessage = "A Tenant IP Network must be selected.")]
+        public int TenantIpNetworkID { get; set; }
         [Required(ErrorMessage = "An Attachment Set must be selected.")]
         public int AttachmentSetID { get; set; }
         [Display(Name = "Add to all BGP Peers in Attachment Set")]

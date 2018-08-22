@@ -16,47 +16,39 @@ namespace SCM.Controllers
 {
     public class VpnTenantNetworkCommunityInController : BaseViewController
     {
-        public VpnTenantNetworkCommunityInController(IVpnTenantNetworkCommunityInService vpnTenantNetworkCommunityInService,
-            IVpnTenantNetworkInService vpnTenantNetworkInService,
+
+        private readonly IVpnTenantIpNetworkCommunityInService _vpnTenantIpNetworkCommunityInService;
+        private readonly IVpnTenantIpNetworkInService _vpnTenantIpNetworkInService;
+        private readonly ITenantCommunityService _tenantCommunityService;
+
+        public VpnTenantNetworkCommunityInController(IVpnTenantIpNetworkCommunityInService vpnTenantIpNetworkCommunityInService,
+            IVpnTenantIpNetworkInService vpnTenantIpNetworkInService,
             ITenantCommunityService tenantCommunityService,
-            IMapper mapper)
+            IMapper mapper) : base (vpnTenantIpNetworkCommunityInService, mapper)
         {
-            VpnTenantNetworkCommunityInService = vpnTenantNetworkCommunityInService;
-            VpnTenantNetworkInService = vpnTenantNetworkInService;
-            TenantCommunityService = tenantCommunityService;
-            Mapper = mapper;
+            _vpnTenantIpNetworkCommunityInService = vpnTenantIpNetworkCommunityInService;
+            _vpnTenantIpNetworkInService = vpnTenantIpNetworkInService;
+            _tenantCommunityService = tenantCommunityService;
         }
 
-        private IVpnTenantNetworkCommunityInService VpnTenantNetworkCommunityInService { get; }
-        private IVpnTenantNetworkInService VpnTenantNetworkInService { get; }
-        private ITenantCommunityService TenantCommunityService { get; }
-        private IMapper Mapper { get; set; }
-
         [HttpGet]
-        public async Task<IActionResult> GetAllByVpnTenantNetworkInID(int? id, bool? showWarningMessage = false)
+        public async Task<IActionResult> GetAllByVpnTenantIpNetworkInID(int? id, bool? showWarningMessage = false)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var vpnTenantNetworkIn = await VpnTenantNetworkInService.GetByIDAsync(id.Value);
-            if (vpnTenantNetworkIn == null)
+            var vpnTenantIpNetworkIn = await _vpnTenantIpNetworkInService.GetByIDAsync(id.Value);
+            if (vpnTenantIpNetworkIn == null)
             {
                 return NotFound();
             }
 
-            if (showWarningMessage.GetValueOrDefault())
-            {
-                ViewData["NetworkWarningMessage"] = "The VPN requires synchronisation with the network as a result of this update. "
-                  + "Follow this <a href = '/Vpn/GetAll'>link</a> to go to the VPNs page."; ;
-            }
+            var vpnTenantIpNetworkCommunitiesIn = await _vpnTenantIpNetworkCommunityInService.GetAllByVpnTenantIpNetworkInIDAsync(id.Value);
+            ViewBag.VpnTenantIpNetworkIn = Mapper.Map<VpnTenantIpNetworkIn>(vpnTenantIpNetworkIn);
 
-
-            var vpnTenantNetworkCommunitiesIn = await VpnTenantNetworkCommunityInService.GetAllByVpnTenantNetworkInIDAsync(id.Value);
-            ViewBag.VpnTenantNetworkIn = Mapper.Map<VpnTenantNetworkIn>(vpnTenantNetworkIn);
-
-            return View(Mapper.Map<List<VpnTenantNetworkCommunityInViewModel>>(vpnTenantNetworkCommunitiesIn));
+            return View(Mapper.Map<List<VpnTenantIpNetworkCommunityInViewModel>>(vpnTenantIpNetworkCommunitiesIn));
         }
 
         [HttpGet]
@@ -67,13 +59,13 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var item = await VpnTenantNetworkCommunityInService.GetByIDAsync(id.Value);
+            var item = await _vpnTenantIpNetworkCommunityInService.GetByIDAsync(id.Value);
             if (item == null)
             {
                 return NotFound();
             }
 
-            return View(Mapper.Map<VpnTenantNetworkCommunityInViewModel>(item));
+            return View(Mapper.Map<VpnTenantIpNetworkCommunityInViewModel>(item));
         }
 
         [HttpGet]
@@ -84,27 +76,27 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var vpnTenantNetworkIn = await VpnTenantNetworkInService.GetByIDAsync(id.Value);
-            ViewBag.VpnTenantNetworkIn = vpnTenantNetworkIn;
-            await PopulateTenantCommunitiesDropDownList(vpnTenantNetworkIn.TenantIpNetwork.TenantID);
+            var vpnTenantIpNetworkIn = await _vpnTenantIpNetworkInService.GetByIDAsync(id.Value);
+            ViewBag.VpnTenantIpNetworkIn = vpnTenantIpNetworkIn;
+            await PopulateTenantCommunitiesDropDownList(vpnTenantIpNetworkIn.TenantIpNetwork.TenantID);
 
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("VpnTenantNetworkInID,TenantCommunityID")] VpnTenantNetworkCommunityInViewModel vpnTenantNetworkCommunityInModel)
+        public async Task<IActionResult> Create([Bind("VpnTenantIpNetworkInID,TenantCommunityID")] VpnTenantIpNetworkCommunityInViewModel vpnTenantIpNetworkCommunityInModel)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var vpnTenantNetworkCommunityIn = Mapper.Map<VpnTenantNetworkCommunityIn>(vpnTenantNetworkCommunityInModel);
-                    await VpnTenantNetworkCommunityInService.AddAsync(vpnTenantNetworkCommunityIn);
+                    var vpnTenantIpNetworkCommunityIn = Mapper.Map<VpnTenantIpNetworkCommunityIn>(vpnTenantIpNetworkCommunityInModel);
+                    await _vpnTenantIpNetworkCommunityInService.AddAsync(vpnTenantIpNetworkCommunityIn);
 
-                    return RedirectToAction("GetAllByVpnTenantNetworkInID", new
+                    return RedirectToAction("GetAllByVpnTenantIpNetworkInID", new
                     {
-                        id = vpnTenantNetworkCommunityIn.VpnTenantNetworkInID,
+                        id = vpnTenantIpNetworkCommunityIn.VpnTenantIpNetworkInID,
                         showWarningMessage = true
                     });
                 }
@@ -118,29 +110,29 @@ namespace SCM.Controllers
                     "see your system administrator.");
             }
 
-            var vpnTenantNetworkIn = await VpnTenantNetworkInService.GetByIDAsync(vpnTenantNetworkCommunityInModel.VpnTenantNetworkInID);
-            ViewBag.VpnTenantNetworkIn = Mapper.Map<VpnTenantNetworkIn>(vpnTenantNetworkIn);
-            await PopulateTenantCommunitiesDropDownList(vpnTenantNetworkIn.TenantIpNetwork.TenantID);
+            var vpnTenantIpNetworkIn = await _vpnTenantIpNetworkInService.GetByIDAsync(vpnTenantIpNetworkCommunityInModel.VpnTenantIpNetworkInID);
+            ViewBag.VpnTenantNetworkIn = Mapper.Map<VpnTenantIpNetworkIn>(vpnTenantIpNetworkIn);
+            await PopulateTenantCommunitiesDropDownList(vpnTenantIpNetworkIn.TenantIpNetwork.TenantID);
 
-            return View(vpnTenantNetworkCommunityInModel);
+            return View(vpnTenantIpNetworkCommunityInModel);
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int? id, int? vpnTenantNetworkInID, bool? concurrencyError = false)
+        public async Task<IActionResult> Delete(int? id, int? vpnTenantIpNetworkInID, bool? concurrencyError = false)
         {
             if (id == null)
             {
                 return NotFound();
             }
 
-            var vpnTenantNetworkCommunityIn = await VpnTenantNetworkCommunityInService.GetByIDAsync(id.Value);
-            if (vpnTenantNetworkCommunityIn == null)
+            var vpnTenantIpNetworkCommunityIn = await _vpnTenantIpNetworkCommunityInService.GetByIDAsync(id.Value);
+            if (vpnTenantIpNetworkCommunityIn == null)
             {
                 if (concurrencyError.GetValueOrDefault())
                 {
-                    return RedirectToAction("GetAllByVpnTenantNetworkInID", new
+                    return RedirectToAction("GetAllByVpnTenantIpNetworkInID", new
                     {
-                        id = vpnTenantNetworkInID
+                        id = vpnTenantIpNetworkInID
                     });
                 }
 
@@ -157,29 +149,29 @@ namespace SCM.Controllers
                     + "click the Back to List hyperlink.";
             }
 
-            return View(Mapper.Map<VpnTenantNetworkCommunityInViewModel>(vpnTenantNetworkCommunityIn));
+            return View(Mapper.Map<VpnTenantIpNetworkCommunityInViewModel>(vpnTenantIpNetworkCommunityIn));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(VpnTenantNetworkCommunityInViewModel vpnTenantNetworkCommunityInModel)
+        public async Task<IActionResult> Delete(VpnTenantIpNetworkCommunityInViewModel vpnTenantIpNetworkCommunityInModel)
         {
-            var vpnTenantNetworkCommunityIn = await VpnTenantNetworkCommunityInService.GetByIDAsync(vpnTenantNetworkCommunityInModel.VpnTenantNetworkCommunityInID);
-            if (vpnTenantNetworkCommunityIn == null)
+            var vpnTenantIpNetworkCommunityIn = await _vpnTenantIpNetworkCommunityInService.GetByIDAsync(vpnTenantIpNetworkCommunityInModel.VpnTenantIpNetworkCommunityInID);
+            if (vpnTenantIpNetworkCommunityIn == null)
             {
-                return RedirectToAction("GetAllByVpnTenantNetworkInID", new
+                return RedirectToAction("GetAllByVpnTenantIpNetworkInID", new
                 {
-                    id = vpnTenantNetworkCommunityInModel.VpnTenantNetworkInID
+                    id = vpnTenantIpNetworkCommunityInModel.VpnTenantIpNetworkInID
                 });
             }
 
             try
             {
-                await VpnTenantNetworkCommunityInService.DeleteAsync(Mapper.Map<VpnTenantNetworkCommunityIn>(vpnTenantNetworkCommunityInModel));
+                await _vpnTenantIpNetworkCommunityInService.DeleteAsync(vpnTenantIpNetworkCommunityInModel.VpnTenantIpNetworkCommunityInID);
 
-                return RedirectToAction("GetAllByVpnTenantNetworkInID", new
+                return RedirectToAction("GetAllByVpnTenantIpNetworkInID", new
                 {
-                    id = vpnTenantNetworkCommunityIn.VpnTenantNetworkInID,
+                    id = vpnTenantIpNetworkCommunityIn.VpnTenantIpNetworkInID,
                     showWarningMessage = true
                 });
             }
@@ -190,15 +182,15 @@ namespace SCM.Controllers
                 return RedirectToAction("Delete", new
                 {
                     concurrencyError = true,
-                    id = vpnTenantNetworkCommunityIn.VpnTenantNetworkCommunityInID,
-                    vpnTenantNetworkInID = vpnTenantNetworkCommunityIn.VpnTenantNetworkInID
+                    id = vpnTenantIpNetworkCommunityIn.VpnTenantIpNetworkCommunityInID,
+                    vpnTenantIpNetworkInID = vpnTenantIpNetworkCommunityIn.VpnTenantIpNetworkInID
                 });
             }
         }
 
         private async Task PopulateTenantCommunitiesDropDownList(int tenantID, object selectedTenantCommunity = null)
         {
-            var tenantCommunities = await TenantCommunityService.GetAllByTenantIDAsync(tenantID);
+            var tenantCommunities = await _tenantCommunityService.GetAllByTenantIDAsync(tenantID);
             ViewBag.TenantCommunityID = new SelectList(Mapper.Map<List<TenantCommunityViewModel>>(tenantCommunities), 
                 "TenantCommunityID", "Name", selectedTenantCommunity);
         }

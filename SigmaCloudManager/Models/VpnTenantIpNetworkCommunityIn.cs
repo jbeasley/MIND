@@ -7,14 +7,14 @@ using System.Net;
 
 namespace SCM.Models
 {
-    public class VpnTenantNetworkCommunityIn
+    public class VpnTenantIpNetworkCommunityIn
     {
-        public int VpnTenantNetworkCommunityInID { get; set; }
-        public int VpnTenantNetworkInID { get; set; }
+        public int VpnTenantIpNetworkCommunityInID { get; set; }
+        public int VpnTenantIpNetworkInID { get; set; }
         public int TenantCommunityID { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
-        public virtual VpnTenantNetworkIn VpnTenantNetworkIn { get; set; }
+        public virtual VpnTenantIpNetworkIn VpnTenantIpNetworkIn { get; set; }
         [ForeignKey("TenantCommunityID")]
         public virtual TenantCommunity TenantCommunity { get; set; }
     }

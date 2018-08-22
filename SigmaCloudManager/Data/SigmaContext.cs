@@ -67,14 +67,14 @@ namespace SCM.Data
         public DbSet<TenantCommunitySet> TenantCommunitySets { get; set; }
         public DbSet<RoutingPolicyMatchOption> RoutingPolicyMatchOptions { get; set; }
         public DbSet<TenantCommunitySetCommunity> TenantCommunitySetCommunities { get; set; }
-        public DbSet<VpnTenantNetworkIn> VpnTenantNetworksIn { get; set; }
+        public DbSet<VpnTenantIpNetworkIn> VpnTenantNetworksIn { get; set; }
         public DbSet<VpnTenantNetworkStaticRouteRoutingInstance> VpnTenantNetworkStaticRoutesRoutingInstance { get; set; }
         public DbSet<VpnTenantNetworkOut> VpnTenantNetworksOut { get; set; }
         public DbSet<VpnTenantNetworkRoutingInstance> VpnTenantNetworksRoutingInstance { get; set; }
         public DbSet<VpnTenantCommunityIn> VpnTenantCommunitiesIn { get; set; }
         public DbSet<VpnTenantCommunityOut> VpnTenantCommunitiesOut { get; set; }
         public DbSet<VpnTenantCommunityRoutingInstance> VpnTenantCommunitiesRoutingInstance { get; set; }
-        public DbSet<VpnTenantNetworkCommunityIn> VpnTenantNetworkCommunitiesIn { get; set; }
+        public DbSet<VpnTenantIpNetworkCommunityIn> VpnTenantNetworkCommunitiesIn { get; set; }
         public DbSet<VpnTenantMulticastGroup> VpnTenantMulticastGroups { get; set; }
         public DbSet<Plane> Planes { get; set; }
         public DbSet<AddressFamily> AddressFamilies { get; set; }
@@ -128,14 +128,14 @@ namespace SCM.Data
             builder.Entity<ExtranetVpnTenantNetworkIn>().ToTable("ExtranetVpnTenantNetworkIn");
             builder.Entity<ExtranetVpnTenantCommunityIn>().ToTable("ExtranetVpnTenantCommunityIn");
             builder.Entity<ExtranetVpnMember>().ToTable("ExtranetVpnMember");
-            builder.Entity<VpnTenantNetworkIn>().ToTable("VpnTenantNetworkIn");
+            builder.Entity<VpnTenantIpNetworkIn>().ToTable("VpnTenantIpNetworkIn");
             builder.Entity<VpnTenantNetworkStaticRouteRoutingInstance>().ToTable("VpnTenantNetworkStaticRouteRoutingInstance");
             builder.Entity<VpnTenantNetworkOut>().ToTable("VpnTenantNetworkOut");
             builder.Entity<VpnTenantNetworkRoutingInstance>().ToTable("VpnTenantNetworkRoutingInstance");
             builder.Entity<VpnTenantCommunityIn>().ToTable("VpnTenantCommunityIn");
             builder.Entity<VpnTenantCommunityOut>().ToTable("VpnTenantCommunityOut");
             builder.Entity<VpnTenantCommunityRoutingInstance>().ToTable("VpnTenantCommunityRoutingInstance");
-            builder.Entity<VpnTenantNetworkCommunityIn>().ToTable("VpnTenantNetworkCommunityIn");
+            builder.Entity<VpnTenantIpNetworkCommunityIn>().ToTable("VpnTenantIpNetworkCommunityIn");
             builder.Entity<VpnTenantMulticastGroup>().ToTable("VpnTenantMulticastGroup");
             builder.Entity<VpnProtocolType>().ToTable("VpnProtocolType");
             builder.Entity<VpnTenancyType>().ToTable("VpnTenancyType");
@@ -157,11 +157,6 @@ namespace SCM.Data
 
             builder.Entity<Attachment>()
                     .HasOne(c => c.AttachmentBandwidth)
-                    .WithMany()
-                    .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<AttachmentSet>()
-                    .HasOne(c => c.Tenant)
                     .WithMany()
                     .OnDelete(DeleteBehavior.Restrict);
 
@@ -230,15 +225,55 @@ namespace SCM.Data
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<VpnTenantNetworkCommunityIn>()
+            builder.Entity<VpnTenantIpNetworkCommunityIn>()
                    .HasOne(c => c.TenantCommunity)
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantIpNetworkIn>()
+                    .HasOne(c => c.TenantIpNetwork)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantNetworkOut>()
+                    .HasOne(c => c.TenantIpNetwork)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantCommunityIn>()
+                    .HasOne(c => c.TenantCommunity)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantCommunityOut>()
+                    .HasOne(c => c.TenantCommunity)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<TenantCommunitySetCommunity>()
                    .HasOne(c => c.TenantCommunity)
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantNetworkStaticRouteRoutingInstance>()
+                   .HasOne(c => c.TenantIpNetwork)
+                   .WithMany()
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantNetworkRoutingInstance>()
+                   .HasOne(c => c.TenantIpNetwork)
+                   .WithMany()
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantCommunityRoutingInstance>()
+                    .HasOne(c => c.TenantCommunity)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantMulticastGroup>()
+                    .HasOne(c => c.TenantMulticastGroup)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Restrict);
 
             // Set Indexes to ensure data uniqueness
 
@@ -258,7 +293,7 @@ namespace SCM.Data
             .HasIndex(p => new { p.ExtranetVpnID, p.MemberVpnID }).IsUnique();
 
             builder.Entity<ExtranetVpnTenantNetworkIn>()
-            .HasIndex(p => new { p.ExtranetVpnMemberID, p.VpnTenantNetworkInID }).IsUnique();
+            .HasIndex(p => new { p.ExtranetVpnMemberID, p.VpnTenantIpNetworkInID }).IsUnique();
 
             builder.Entity<ExtranetVpnTenantCommunityIn>()
             .HasIndex(p => new { p.ExtranetVpnMemberID, p.VpnTenantCommunityInID }).IsUnique();
@@ -374,8 +409,8 @@ namespace SCM.Data
             builder.Entity<AddressFamily>()
             .HasIndex(p => p.Name).IsUnique();
 
-            builder.Entity<VpnTenantNetworkIn>()
-            .HasIndex(p => new { p.TenantNetworkID, p.AttachmentSetID }).IsUnique();
+            builder.Entity<VpnTenantIpNetworkIn>()
+            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID, p.AddToAllBgpPeersInAttachmentSet, p.BgpPeerID }).IsUnique();
 
             builder.Entity<VpnTenantNetworkStaticRouteRoutingInstance>()
             .HasIndex(p => new { p.TenantNetworkID, p.AttachmentSetID }).IsUnique();
@@ -398,11 +433,11 @@ namespace SCM.Data
             builder.Entity<VpnTenantCommunityRoutingInstance>()
             .HasIndex(p => new { p.TenantCommunitySetID, p.AttachmentSetID }).IsUnique();
 
-            builder.Entity<VpnTenantNetworkCommunityIn>()
-            .HasIndex(p => new { p.VpnTenantNetworkInID, p.TenantCommunityID }).IsUnique();
+            builder.Entity<VpnTenantIpNetworkCommunityIn>()
+            .HasIndex(p => new { p.VpnTenantIpNetworkInID, p.TenantCommunityID }).IsUnique();
 
             builder.Entity<BgpPeer>()
-            .HasIndex(p => new { p.RoutingInstanceID, p.IpAddress }).IsUnique();
+            .HasIndex(p => new { p.RoutingInstanceID, p.Ipv4PeerAddress }).IsUnique();
         }
     }
 }

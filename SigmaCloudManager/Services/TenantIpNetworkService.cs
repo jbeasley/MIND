@@ -13,7 +13,7 @@ namespace Mind.Services
     public class TenantIpNetworkService : BaseService, ITenantIpNetworkService
     {
         private readonly string _properties = "Tenant,"
-                + "VpnTenantNetworksIn.AttachmentSet,"
+                + "VpnTenantIpNetworksIn.AttachmentSet,"
                 + "VpnTenantNetworksOut.AttachmentSet";
 
         private readonly ITenantIpNetworkValidator _validator;

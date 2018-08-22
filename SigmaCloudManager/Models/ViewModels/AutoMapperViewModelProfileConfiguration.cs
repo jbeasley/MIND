@@ -77,7 +77,7 @@ namespace SCM.Models.ViewModels
             CreateMap<TenantCommunitySet, TenantCommunitySetViewModel>().ReverseMap();
             CreateMap<TenantCommunitySetCommunity, TenantCommunitySetCommunityViewModel>().ReverseMap();
             CreateMap<TenantMulticastGroup, TenantMulticastGroupViewModel>().ReverseMap();
-            CreateMap<VpnTenantNetworkIn, VpnTenantNetworkInViewModel>().ReverseMap();
+            CreateMap<VpnTenantIpNetworkIn, VpnTenantIpNetworkInViewModel>().ReverseMap();
             CreateMap<VpnTenantNetworkStaticRouteRoutingInstance, VpnTenantNetworkStaticRouteRoutingInstanceViewModel>().ReverseMap();
             CreateMap<VpnTenantNetworkOut, VpnTenantNetworkOutViewModel>().ReverseMap();
             CreateMap<VpnTenantNetworkRoutingInstance, VpnTenantNetworkRoutingInstanceViewModel>().ReverseMap();
@@ -86,7 +86,7 @@ namespace SCM.Models.ViewModels
             CreateMap<ExtranetVpnTenantNetworkIn, ExtranetVpnTenantNetworkInViewModel>().ReverseMap();
             CreateMap<VpnTenantCommunityOut, VpnTenantCommunityOutViewModel>().ReverseMap();
             CreateMap<VpnTenantCommunityRoutingInstance, VpnTenantCommunityRoutingInstanceViewModel>().ReverseMap();
-            CreateMap<VpnTenantNetworkCommunityIn, VpnTenantNetworkCommunityInViewModel>().ReverseMap();
+            CreateMap<VpnTenantIpNetworkCommunityIn, VpnTenantIpNetworkCommunityInViewModel>().ReverseMap();
             CreateMap<Attachment, AttachmentViewModel>()
                 .ForMember(dest => dest.CountOfMultiPortMembers, conf => conf.MapFrom(src => src.Interfaces.Count))
                 .ForMember(dest => dest.IpAddress, conf => conf.MapFrom(src => src.Interfaces.Count == 1 ? src.Interfaces.Single().IpAddress : null))

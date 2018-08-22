@@ -54,14 +54,14 @@ namespace SCM.Data
         private GenericRepository<ExtranetVpnMember> extranetVpnMemberRepository;
         private GenericRepository<ExtranetVpnTenantNetworkIn> extranetVpnTenantNetworkInRepository;
         private GenericRepository<ExtranetVpnTenantCommunityIn> extranetVpnTenantCommunityInRepository;
-        private GenericRepository<VpnTenantNetworkIn> vpnTenantNetworkInRepository;
+        private GenericRepository<VpnTenantIpNetworkIn> vpnTenantIpNetworkInRepository;
         private GenericRepository<VpnTenantNetworkStaticRouteRoutingInstance> vpnTenantNetworkStaticRouteRoutingInstanceRepository;
         private GenericRepository<VpnTenantNetworkOut> vpnTenantNetworkOutRepository;
         private GenericRepository<VpnTenantNetworkRoutingInstance> vpnTenantNetworkRoutingInstanceRepository;
         private GenericRepository<VpnTenantCommunityIn> vpnTenantCommunityInRepository;
         private GenericRepository<VpnTenantCommunityOut> vpnTenantCommunityOutRepository;
         private GenericRepository<VpnTenantCommunityRoutingInstance> vpnTenantCommunityRoutingInstanceRepository;
-        private GenericRepository<VpnTenantNetworkCommunityIn> vpnTenantNetworkCommunityInRepository;
+        private GenericRepository<VpnTenantIpNetworkCommunityIn> vpnTenantIpNetworkCommunityInRepository;
         private GenericRepository<VpnTenantMulticastGroup> vpnTenantMulticastGroupRepository;
         private GenericRepository<VpnProtocolType> vpnProtocolTypeRepository;
         private GenericRepository<VpnTenancyType> vpnTenancyTypeRepository;
@@ -591,15 +591,15 @@ namespace SCM.Data
             }
         }
 
-        public GenericRepository<VpnTenantNetworkIn> VpnTenantNetworkInRepository
+        public GenericRepository<VpnTenantIpNetworkIn> VpnTenantIpNetworkInRepository
         {
             get
             {
-                if (this.vpnTenantNetworkInRepository == null)
+                if (this.vpnTenantIpNetworkInRepository == null)
                 {
-                    this.vpnTenantNetworkInRepository = new GenericRepository<VpnTenantNetworkIn>(context);
+                    this.vpnTenantIpNetworkInRepository = new GenericRepository<VpnTenantIpNetworkIn>(context);
                 }
-                return vpnTenantNetworkInRepository;
+                return vpnTenantIpNetworkInRepository;
             }
         }
 
@@ -675,15 +675,15 @@ namespace SCM.Data
             }
         }
 
-        public GenericRepository<VpnTenantNetworkCommunityIn> VpnTenantNetworkCommunityInRepository
+        public GenericRepository<VpnTenantIpNetworkCommunityIn> VpnTenantIpNetworkCommunityInRepository
         {
             get
             {
-                if (this.vpnTenantNetworkCommunityInRepository == null)
+                if (this.vpnTenantIpNetworkCommunityInRepository == null)
                 {
-                    this.vpnTenantNetworkCommunityInRepository = new GenericRepository<VpnTenantNetworkCommunityIn>(context);
+                    this.vpnTenantIpNetworkCommunityInRepository = new GenericRepository<VpnTenantIpNetworkCommunityIn>(context);
                 }
-                return vpnTenantNetworkCommunityInRepository;
+                return vpnTenantIpNetworkCommunityInRepository;
             }
         }
 

@@ -12,13 +12,11 @@ namespace SCM.Services
     {
         Task<IEnumerable<VpnTenantIpNetworkIn>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<VpnTenantIpNetworkIn> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
-        Task<VpnTenantIpNetworkIn> GetByAttachmentSetIDAndTenantIpNetworkIDAsync(int attachmentSetId, int tenantIpNetworkId, bool? deep = false, bool asTrackable = false);
         Task<IEnumerable<VpnTenantIpNetworkIn>> GetAllByVpnIDAsync(int vpnId, int? tenantId = null, bool extranet = false, bool? deep = false, bool asTrackable = false);
         Task<VpnTenantIpNetworkIn> AddAsync(VpnTenantIpNetworkIn vpnTenantIpNetworkIn);
-        Task<VpnTenantIpNetworkIn> AddAsync(int attachmentSetId, int tenantIpNetworkId, VpnTenantIpNetworkInRequest request);
+        Task<VpnTenantIpNetworkIn> AddAsync(int attachmentSetId, VpnTenantIpNetworkInRequest request);
         Task<VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInRequest request);
         Task<VpnTenantIpNetworkIn> UpdateAsync(VpnTenantIpNetworkIn vpnTenantIpNetworkIn);
         Task DeleteAsync(int vpnTenantIpNetworkInId);
-        Task DeleteAsync(int attachmentSetId, int tenantIpNetworkInId);
     }
 }

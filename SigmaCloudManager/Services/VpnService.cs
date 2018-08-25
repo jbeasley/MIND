@@ -242,21 +242,21 @@ namespace SCM.Services
 
                 this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
                                                         .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantNetworksOut)
+                                                        .SelectMany(x => x.VpnTenantIpNetworksOut)
                                                         .Select(y => y.TenantIpNetwork)
                                                         .Where(x => x.TenantIpNetworkID == id)
                                                         .Any(), includeProperties: p, AsTrackable: false),
 
                 this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
                                                         .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantNetworksRoutingInstance)
+                                                        .SelectMany(x => x.VpnTenantIpNetworksRoutingInstance)
                                                         .Select(y => y.TenantIpNetwork)
                                                         .Where(x => x.TenantIpNetworkID == id)
                                                         .Any(), includeProperties: p, AsTrackable: false),
 
                 this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
                                                         .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantNetworkStaticRoutesRoutingInstance)
+                                                        .SelectMany(x => x.VpnTenantIpNetworkStaticRoutesRoutingInstance)
                                                         .Select(y => y.TenantIpNetwork)
                                                         .Where(x => x.TenantIpNetworkID == id)
                                                         .Any(), includeProperties: p, AsTrackable: false)

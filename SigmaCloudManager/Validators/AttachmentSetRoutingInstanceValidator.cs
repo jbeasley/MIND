@@ -33,8 +33,8 @@ namespace SCM.Validators
                                                 "RoutingInstance.VpnTenantNetworksRoutingInstance.TenantIpNetwork," +
                                                 "RoutingInstance.BgpPeers.VpnTenantCommunitiesIn.TenantCommunity," +
                                                 "RoutingInstance.BgpPeers.VpnTenantCommunitiesOut.TenantCommunity," +
-                                                "RoutingInstance.VpnTenantCommunitiesRoutingInstance.TenantCommunity," +
-                                                "RoutingInstance.VpnTenantNetworkStaticRoutesRoutingInstance.TenantIpNetwork",
+                                                "RoutingInstance.VpnTenantCommunityRoutingInstances.TenantCommunity," +
+                                                "RoutingInstance.VpnTenantNetworkStaticRouteRoutingInstances.TenantIpNetwork",
                                                 AsTrackable: false)
                                                 select attachmentSetRoutingInstances)
                                                 .Single();
@@ -59,7 +59,7 @@ namespace SCM.Validators
             }
 
             var vpnTenantNetworksOut = routingInstance.BgpPeers
-                .SelectMany(x => x.VpnTenantNetworksOut
+                .SelectMany(x => x.VpnTenantIpNetworksOut
                 .Where(y => y.AttachmentSetID == attachmentSet.AttachmentSetID));
 
             if (vpnTenantNetworksOut.Any())
@@ -74,33 +74,33 @@ namespace SCM.Validators
                 }
             }
 
-            var vpnTenantNetworksRoutingInstance = routingInstance.VpnTenantNetworksRoutingInstance
+            var vpnTenantIpNetworkRoutingInstances = routingInstance.VpnTenantIpNetworkRoutingInstances
                 .Where(x => x.AttachmentSetID == attachmentSet.AttachmentSetID);
 
-            if (vpnTenantNetworksRoutingInstance.Any())
+            if (vpnTenantIpNetworkRoutingInstances.Any())
             {
                 ValidationDictionary.AddError(string.Empty, $"Routing instance '{routingInstance.Name}' cannot be removed from attachment set "
                    + $"'{attachmentSet.Name}' because "
                    + $"it is used for routing instance routing policy for the following tenant networks:");
 
-                foreach (var vpnTenantNetwork in vpnTenantNetworksRoutingInstance)
+                foreach (var vpnTenantIpNetwork in vpnTenantIpNetworkRoutingInstances)
                 {
-                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetwork.TenantIpNetwork.CidrName}.");
+                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantIpNetwork.TenantIpNetwork.CidrName}.");
                 }
             }
 
-            var vpnTenantNetworkStaticRoutesRoutingInstance = routingInstance.VpnTenantNetworkStaticRoutesRoutingInstance
+            var vpnTenantIpNetworkStaticRouteRoutingInstances = routingInstance.VpnTenantIpNetworkStaticRouteRoutingInstances
                 .Where(x => x.RoutingInstanceID == attachmentSetRoutingInstance.RoutingInstanceID);
 
-            if (vpnTenantNetworkStaticRoutesRoutingInstance.Any())
+            if (vpnTenantIpNetworkStaticRouteRoutingInstances.Any())
             {
                 ValidationDictionary.AddError(string.Empty, $"Routing instance '{routingInstance.Name}' cannot be removed from attachment set "
                    + $"'{attachmentSet.Name}' because "
                    + $"it is used for routing instance static routes for the following tenant networks:");
 
-                foreach (var vpnTenantNetworkStaticRouteRoutingInstance in vpnTenantNetworkStaticRoutesRoutingInstance)
+                foreach (var vpnTenantIpNetworkStaticRouteRoutingInstance in vpnTenantIpNetworkStaticRouteRoutingInstances)
                 {
-                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantNetworkStaticRouteRoutingInstance.TenantIpNetwork.CidrName}.");
+                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantIpNetworkStaticRouteRoutingInstance.TenantIpNetwork.CidrName}.");
                 }
             }
 
@@ -136,18 +136,18 @@ namespace SCM.Validators
                 }
             }
 
-            var vpnTenantCommunitiesRoutingInstance = routingInstance.VpnTenantCommunitiesRoutingInstance
+            var vpnTenantCommunityRoutingInstances = routingInstance.VpnTenantCommunityRoutingInstances
                 .Where(x => x.AttachmentSetID == attachmentSet.AttachmentSetID);
 
-            if (vpnTenantCommunitiesRoutingInstance.Any())
+            if (vpnTenantCommunityRoutingInstances.Any())
             {
                 ValidationDictionary.AddError(string.Empty, $"Routing instance '{routingInstance.Name}' cannot be removed from attachment set "
                    + $"'{attachmentSet.Name}' because "
                    + $"it is used for routing instance routing policy for the following tenant communities:");
 
-                foreach (var vpnTenantCommunity in vpnTenantCommunitiesRoutingInstance)
+                foreach (var vpnTenantCommunityRoutingInstance in vpnTenantCommunityRoutingInstances)
                 {
-                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantCommunity.TenantCommunity.Name}.");
+                    ValidationDictionary.AddError(string.Empty, $"{vpnTenantCommunityRoutingInstance.TenantCommunity.Name}.");
                 }
             }
         }

@@ -26,27 +26,46 @@ namespace Mind.Api.Models
     /// </summary>
     [DataContract]
     public partial class VpnTenantIpNetworkOut : IEquatable<VpnTenantIpNetworkOut>
-    { 
+    {
         /// <summary>
-        /// The ID of the tenant IPv4 network
+        /// The ID of the vpn tenant IP network
         /// </summary>
-        /// <value>The ID of the tenant IPv4 network</value>
+        /// <value>Integer for the ID of the vpn tenant IP network</value>
+        /// <example>8001</example>
+        [DataMember(Name = "vpnTenantIpNetworkOutId")]
+        public int? VpnTenantIpNetworkOutId { get; private set; }
+
+        /// <summary>
+        /// The ID of the tenant IP network
+        /// </summary>
+        /// <value>The ID of the tenant IP network</value>
+        /// <example>9001</example>
         [DataMember(Name="tenantIpNetworkId")]
         public int? TenantIpNetworkId { get; private set; }
 
         /// <summary>
-        /// An IPv4 BGP peer address
+        /// The CIDR block representation of the tenant IP network
         /// </summary>
-        /// <value>An IPv4 BGP peer address</value>
-        [DataMember(Name="ipv4BgpPeer")]
-        public string Ipv4BgpPeer { get; set; }
+        /// <value>String representing the CIDR notation of the tenant IP network</value>
+        /// <exampel>10.1.1.0/24 le 32</exampel>
+        [DataMember(Name = "cidrName")]
+        public string CidrName { get; private set; }
 
         /// <summary>
-        /// The advertised IP routing preference
+        /// An IPv4 BGP peer address from which the tenant IP network should be advertised
         /// </summary>
-        /// <value>The advertised IP routing preference</value>
+        /// <value>string representing the address of an existing configured IPv4 BGP peer</value>
+        /// <example>192.168.0.1</example>
+        [DataMember(Name = "ipv4PeerAddress")]
+        public string Ipv4PeerAddress { get; private set; }
+
+        /// <summary>
+        /// The routing preference advertised with the route for the tenant IP network
+        /// </summary>
+        /// <value>An integer denoting the advertised IP routing preference</value>
+        /// <example>10</example>
         [DataMember(Name="advertisedIpRoutingPreference")]
-        public int? AdvertisedIpRoutingPreference { get; set; }
+        public int? AdvertisedIpRoutingPreference { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -56,8 +75,10 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class VpnTenantIpNetworkOut {\n");
+            sb.Append("  VpnTenantIpNetworkOutId: ").Append(VpnTenantIpNetworkOutId).Append("\n");
             sb.Append("  TenantIpNetworkId: ").Append(TenantIpNetworkId).Append("\n");
-            sb.Append("  Ipv4BgpPeer: ").Append(Ipv4BgpPeer).Append("\n");
+            sb.Append("  CidrName: ").Append(CidrName).Append("\n");
+            sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
             sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -94,22 +115,32 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
-                (
-                    TenantIpNetworkId == other.TenantIpNetworkId ||
-                    TenantIpNetworkId != null &&
-                    TenantIpNetworkId.Equals(other.TenantIpNetworkId)
-                ) && 
-                (
-                    Ipv4BgpPeer == other.Ipv4BgpPeer ||
-                    Ipv4BgpPeer != null &&
-                    Ipv4BgpPeer.Equals(other.Ipv4BgpPeer)
-                ) && 
-                (
-                    AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
-                    AdvertisedIpRoutingPreference != null &&
-                    AdvertisedIpRoutingPreference.Equals(other.AdvertisedIpRoutingPreference)
-                );
+            return
+                            (
+                                VpnTenantIpNetworkOutId == other.VpnTenantIpNetworkOutId ||
+                                VpnTenantIpNetworkOutId != null &&
+                                VpnTenantIpNetworkOutId.Equals(other.VpnTenantIpNetworkOutId)
+                            ) &&
+                            (
+                                TenantIpNetworkId == other.TenantIpNetworkId ||
+                                TenantIpNetworkId != null &&
+                                TenantIpNetworkId.Equals(other.TenantIpNetworkId)
+                            ) &&
+                            (
+                                CidrName == other.CidrName ||
+                                CidrName != null &&
+                                CidrName.Equals(other.CidrName)
+                            ) &&
+                            (
+                                Ipv4PeerAddress == other.Ipv4PeerAddress ||
+                                Ipv4PeerAddress != null &&
+                                Ipv4PeerAddress.Equals(other.Ipv4PeerAddress)
+                            ) &&
+                            (
+                                AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
+                                AdvertisedIpRoutingPreference != null &&
+                                AdvertisedIpRoutingPreference.Equals(other.AdvertisedIpRoutingPreference)
+                            );
         }
 
         /// <summary>
@@ -122,11 +153,15 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (TenantIpNetworkId != null)
+                if (VpnTenantIpNetworkOutId != null)
+                    hashCode = hashCode * 59 + VpnTenantIpNetworkOutId.GetHashCode();
+                if (TenantIpNetworkId != null)
                     hashCode = hashCode * 59 + TenantIpNetworkId.GetHashCode();
-                    if (Ipv4BgpPeer != null)
-                    hashCode = hashCode * 59 + Ipv4BgpPeer.GetHashCode();
-                    if (AdvertisedIpRoutingPreference != null)
+                if (CidrName != null)
+                    hashCode = hashCode * 59 + CidrName.GetHashCode();
+                if (Ipv4PeerAddress != null)
+                    hashCode = hashCode * 59 + Ipv4PeerAddress.GetHashCode();
+                if (AdvertisedIpRoutingPreference != null)
                     hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
                 return hashCode;
             }

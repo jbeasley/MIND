@@ -6,17 +6,17 @@ using System.Net;
 
 namespace SCM.Models.ViewModels
 {
-    public class VpnTenantNetworkOutViewModel
+    public class VpnTenantIpNetworkOutViewModel
     {
         [Display(AutoGenerateField = false)]
-        public int VpnTenantNetworkOutID { get; set; }
+        public int VpnTenantIpNetworkOutID { get; set; }
         [Required(ErrorMessage = "A Tenant must be selected.")]
         public int TenantID { get; set; }
-        [Required(ErrorMessage = "A Tenant Network must be selected.")]
-        public int TenantNetworkID { get; set; }
+        [Required(ErrorMessage = "A Tenant IP Network must be selected.")]
+        public int TenantIpNetworkID { get; set; }
         [Required(ErrorMessage = "An Attachment Set must be selected.")]
         public int AttachmentSetID { get; set; }
-        [Required(ErrorMessage = "A VRF must be selected.")]
+        [Required(ErrorMessage = "A Routing Instance must be selected.")]
         public int RoutingInstanceID { get; set; }
         [Required(ErrorMessage = "A BGP Peer must be selected.")]
         public int BgpPeerID { get; set; }
@@ -27,10 +27,10 @@ namespace SCM.Models.ViewModels
         public byte[] RowVersion { get; set; }
         [Display(Name = "Tenant")]
         public TenantViewModel Tenant { get; set; }
-        [Display(Name = "Tenant Network")]
+        [Display(Name = "Tenant IP Network")]
         public TenantIpNetworkViewModel TenantIpNetwork { get; set; }
         public AttachmentSetViewModel AttachmentSet { get; set; }
-        [Display(Name = "VRF")]
+        [Display(Name = "Routing Instance")]
         public RoutingInstanceViewModel RoutingInstance { get; set; }
         [Display(Name = "BGP Peer")]
         public BgpPeerViewModel BgpPeer { get; set; }

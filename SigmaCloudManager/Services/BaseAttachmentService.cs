@@ -77,6 +77,9 @@ namespace SCM.Services
         /// Find all attachments for a given tenant
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="deep"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="portRoleType"></param>
         /// <returns></returns>
         protected internal async virtual Task<List<Attachment>> GetAllByTenantIDAsync(int id, SCM.Models.PortRoleType portRoleType,
             bool? deep = false, bool asTrackable = false)

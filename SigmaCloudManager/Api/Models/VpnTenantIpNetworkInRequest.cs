@@ -27,49 +27,64 @@ namespace Mind.Api.Models
     [DataContract]
     public partial class VpnTenantIpNetworkInRequest : IEquatable<VpnTenantIpNetworkInRequest>, IValidatableObject
     {
+
         /// <summary>
-        /// Gets or Sets AddToAllBgpPeersInAttachmentSet
+        /// The ID of the tenant owner of the IP network to ba added to the inbound
+        /// policy of the attachment set.
         /// </summary>
-        /// <value>Boolean denoting whether the tenant IP network should be registered against all BGP peers that exist within the attachment set</value>
+        /// <value>An integer denoting the ID of the tenant</value>
+        /// <example>1001</example>
+        [DataMember(Name = "tenantId")]
+        [Required(ErrorMessage = "Please supply the ID of the tenant owner of the IP network to be added to the attachment set")]
+        public int? TenantId { get; set; }
+
+        /// <summary>
+        /// CIDR block name of the tenant IP network
+        /// </summary>
+        /// <value>String value for the CIDR representation of the tenant IP network</value>
+        /// <example>10.1.1.0/24 le 32</example>
+        [DataMember(Name = "tenantIpNetworkCidrName")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "A CIDR block range must be specified, e.g. 10.1.1.0/24. You can also include the " +
+            "'less than or equal to' parameter, e.g. 10.1.1.0/24 le 32")]
+        public string TenantIpNetworkCidrName { get; set; }
+
+        /// <summary>
+        /// Denotes whether the tenant IP network should be learned from all BGP peers that are configured within the attachment set. This property 
+        /// caanot be used concurrently with the 'Ipv4PeerAddress' property.
+        /// </summary>
+        /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
+        /// <example>true</example>
         [DataMember(Name = "addToAllBgpPeersInAttachmentSet")]
         public bool? AddToAllBgpPeersInAttachmentSet { get; set; } = true;
 
         /// <summary>
-        /// An IPv4 BGP peer address
+        /// An IPv4 BGP peer address from which the tenant IP network should be learned. THe specified BGP peer must be configured and exist
+        /// within the attachment set. This property cannot be used concurrently with the 'AddToAllBgpPeersInAttachmentSet' property.
         /// </summary>
-        /// <value>string representing an IPv4 BGP peer address</value>
+        /// <value>string representing the address of an existing configured IPv4 BGP peer</value>
+        /// <example>192.168.0.1</example>
         [DataMember(Name="ipv4PeerAddress")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", 
             ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string Ipv4PeerAddress { get; set; }
 
         /// <summary>
-        /// The local IP routing preference
+        /// The local IP routing preference to be applied to the route towards the tenant IP network
         /// </summary>
         /// <value>Integer representing the local IP routing preference</value>
+        /// <example>200</example>
         [DataMember(Name = "localIpRoutingPreference")]
         [Range(1, 500, ErrorMessage = "Local IP routing preference must be a number between 1 and 500")]
         public int? LocalIpRoutingPreference { get; set; } = 100;
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (AddToAllBgpPeersInAttachmentSet.HasValue && AddToAllBgpPeersInAttachmentSet.Value)
+
+            if (!AddToAllBgpPeersInAttachmentSet.Value && string.IsNullOrEmpty(Ipv4PeerAddress))
             {
-                if (!string.IsNullOrEmpty(Ipv4PeerAddress))
-                {
-                    yield return new ValidationResult(
-                    "A BGP Peer cannot be specified when the 'AddToAllBgpPeersInAttachmentSet' argument is true. " +
-                    "Specify 'AddToAllBgpPeersInAttachmentSet = false' if you wish to add the tenant IP network to a specific BGP peer.");
-                }
-            }
-            else
-            {
-                if (string.IsNullOrEmpty(Ipv4PeerAddress))
-                {
-                    yield return new ValidationResult(
-                        "A BGP Peer address must be specified with the 'Ipv4PeerAddress' argument when the " +
-                        "'AddToAllBgpPeersInAttachmentSet' argument is set to false.");
-                }
+                yield return new ValidationResult(
+                    "A BGP Peer address must be specified with the 'Ipv4PeerAddress' argument when the " +
+                    "'AddToAllBgpPeersInAttachmentSet' argument is set to false.");
             }
         }
 
@@ -81,6 +96,8 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class VpnTenantIpNetworkInRequest {\n");
+            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
+            sb.Append("  TenantIpNetworkCidrName: ").Append(TenantIpNetworkCidrName).Append("\n");
             sb.Append("  AddToAllBgpPeersInAttachmentSet: ").Append(AddToAllBgpPeersInAttachmentSet).Append("\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
             sb.Append("  LocalIpRoutingPreference: ").Append(LocalIpRoutingPreference).Append("\n");
@@ -119,7 +136,17 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
+                (
+                    TenantId == other.TenantId ||
+                    TenantId != null &&
+                    TenantId.Equals(other.TenantId)
+                ) &&
+                (
+                    TenantIpNetworkCidrName == other.TenantIpNetworkCidrName ||
+                    TenantIpNetworkCidrName != null &&
+                    TenantIpNetworkCidrName.Equals(other.TenantIpNetworkCidrName)
+                ) &&
                 (
                     AddToAllBgpPeersInAttachmentSet == other.AddToAllBgpPeersInAttachmentSet ||
                     AddToAllBgpPeersInAttachmentSet != null &&
@@ -147,6 +174,10 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (TenantId != null)
+                    hashCode = hashCode * 59 + TenantId.GetHashCode();
+                    if (TenantIpNetworkCidrName != null)
+                    hashCode = hashCode * 59 + TenantIpNetworkCidrName.GetHashCode();
                     if (AddToAllBgpPeersInAttachmentSet != null)
                     hashCode = hashCode * 59 + AddToAllBgpPeersInAttachmentSet.GetHashCode();
                     if (Ipv4PeerAddress != null)

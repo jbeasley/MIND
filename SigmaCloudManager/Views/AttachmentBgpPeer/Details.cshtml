@@ -9,10 +9,10 @@
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
     <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
     <li class="breadcrumb-item"><a href="/AttachmentBgpPeer/GetAllByRoutingInstanceID?routingInstanceID=@ViewBag.Attachment.RoutingInstance.RoutingInstanceID&attachmentID=@ViewBag.Attachment.AttachmentID">BGP Peers - [@ViewBag.Attachment.Name]</a></li>
-    <li class="breadcrumb-item active">Details - [@Model.IpAddress]</li>
+    <li class="breadcrumb-item active">Details - [@Model.Ipv4PeerAddress]</li>
 </ol>
 
-<h2>Details for BGP Peer '@Model.IpAddress'</h2>
+<h2>Details for BGP Peer '@Model.Ipv4PeerAddress'</h2>
 
 <div>
     <hr />
@@ -24,22 +24,22 @@
             @Html.DisplayFor(model => model.RoutingInstance.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.IpAddress)
+            @Html.DisplayNameFor(model => model.Ipv4PeerAddress)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.IpAddress)
+            @Html.DisplayFor(model => model.Ipv4PeerAddress)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.AutonomousSystem)
+            @Html.DisplayNameFor(model => model.Peer2ByteAutonomousSystem)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AutonomousSystem)
+            @Html.DisplayFor(model => model.Peer2ByteAutonomousSystem)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Md5Password)
+            @Html.DisplayNameFor(model => model.PeerPassword)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Md5Password)
+            @Html.DisplayFor(model => model.PeerPassword)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.MaximumRoutes)

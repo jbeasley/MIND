@@ -49,14 +49,18 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name));
             CreateMap<SCM.Models.Tenant, Mind.Api.Models.Tenant>();
             CreateMap<SCM.Models.VpnTenantIpNetworkIn, Mind.Api.Models.VpnTenantIpNetworkIn>()
-                .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrName))
+                .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
+                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
+            CreateMap<SCM.Models.VpnTenantIpNetworkOut, Mind.Api.Models.VpnTenantIpNetworkOut>()
+                .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
                 .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
 
             // API model to entity model mappings
 
-            CreateMap<Mind.Api.Models.Tenant, SCM.Models.Tenant>();
-            CreateMap<Mind.Api.Models.TenantIpNetwork, SCM.Models.TenantIpNetwork>();
+            CreateMap<Mind.Api.Models.TenantRequest, SCM.Models.Tenant>();
+            CreateMap<Mind.Api.Models.TenantIpNetworkRequest, SCM.Models.TenantIpNetwork>();
             CreateMap<Mind.Api.Models.RoutingInstanceForAttachmentSetUpdate, SCM.Models.AttachmentSetRoutingInstance>();
+            CreateMap<Mind.Api.Models.BgpPeerRequest, SCM.Models.BgpPeer>();
         }
     }
 }

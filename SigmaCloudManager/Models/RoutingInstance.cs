@@ -28,8 +28,8 @@ namespace SCM.Models
         public virtual ICollection<BgpPeer> BgpPeers { get; set; }
         public virtual ICollection<LogicalInterface> LogicalInterfaces { get; set; }
         public virtual ICollection<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; set; }
-        public virtual ICollection<VpnTenantCommunityRoutingInstance> VpnTenantCommunitiesRoutingInstance { get; set; }
-        public virtual ICollection<VpnTenantNetworkRoutingInstance> VpnTenantNetworksRoutingInstance { get; set; }
-        public virtual ICollection<VpnTenantNetworkStaticRouteRoutingInstance> VpnTenantNetworkStaticRoutesRoutingInstance { get; set; }
+        public virtual ICollection<VpnTenantCommunityRoutingInstance> VpnTenantCommunityRoutingInstances { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworkRoutingInstances { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkStaticRouteRoutingInstance> VpnTenantIpNetworkStaticRouteRoutingInstances { get; set; }
     }
 }

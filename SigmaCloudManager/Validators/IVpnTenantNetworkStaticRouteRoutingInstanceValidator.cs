@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 
 namespace SCM.Validators
 {
-    public interface IVpnTenantNetworkStaticRouteRoutingInstanceValidator : IValidator
+    public interface IVpnTenantIpNetworkStaticRouteRoutingInstanceValidator : IValidator
     {
-        Task ValidateNewAsync(VpnTenantNetworkStaticRouteRoutingInstance vpnTenantNetworkStaticRouteRoutingInstance);
+        Task ValidateNewAsync(VpnTenantIpNetworkStaticRouteRoutingInstance vpnTenantIpNetworkStaticRouteRoutingInstance);
     }
 }

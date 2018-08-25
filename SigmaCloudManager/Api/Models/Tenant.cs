@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of a tenant
     /// </summary>
     [DataContract]
     public partial class Tenant : IEquatable<Tenant>
@@ -30,6 +30,8 @@ namespace Mind.Api.Models
         /// <summary>
         /// Gets or Sets TenantId
         /// </summary>
+        /// <value>An integer denoting the ID of the tenant</value>
+        /// <example>1001</example>
         [DataMember(Name="tenantId")]
         public Int32? TenantId { get; private set; }
 
@@ -37,11 +39,9 @@ namespace Mind.Api.Models
         /// The name of the tenant
         /// </summary>
         /// <value>The name of the tenant</value>
-        [Required(AllowEmptyStrings = false, ErrorMessage = "A tenant name must be specified")]
-        [RegularExpression(@"^[a-zA-Z0-9-]+$", ErrorMessage = "The tenant name must contain letters, numbers, and dashes (-) only and no whitespace.")]
-        [StringLength(30)]
+        /// <example>product-group-tenant</example>
         [DataMember(Name="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
         
         /// <summary>
         /// List of IP networks which are registered to the tenant

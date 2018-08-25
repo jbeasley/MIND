@@ -69,23 +69,6 @@ namespace SCM.Services
         }
 
         /// <summary>
-        /// Get a single VPN Tenant IP Network by attachment set ID and tenant IP network ID.
-        /// </summary>
-        /// <param name="attachmentSetId"></param>
-        /// <param name="tenantIpNetworkId"></param>
-        /// <returns></returns>
-        public async Task<VpnTenantIpNetworkIn> GetByAttachmentSetIDAndTenantIpNetworkIDAsync(int attachmentSetId, int tenantIpNetworkId, bool? deep = false, bool asTrackable = false)
-        {
-            return (from result in await UnitOfWork.VpnTenantIpNetworkInRepository.GetAsync(q => 
-                    q.AttachmentSetID == attachmentSetId
-                    && q.TenantIpNetworkID == tenantIpNetworkId,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
-                    AsTrackable: asTrackable)
-                    select result)
-                    .SingleOrDefault();
-        }
-
-        /// <summary>
         /// TO-BE-REMOVED
         /// </summary>
         /// <param name="vpnTenantNetworkIn"></param>
@@ -97,9 +80,9 @@ namespace SCM.Services
             return await GetByIDAsync(vpnTenantNetworkIn.VpnTenantIpNetworkInID, deep: true, asTrackable: false);
         }
 
-        public async Task<VpnTenantIpNetworkIn> AddAsync(int attachmentSetId, int tenantIpNetworkId, VpnTenantIpNetworkInRequest request)
+        public async Task<VpnTenantIpNetworkIn> AddAsync(int attachmentSetId, VpnTenantIpNetworkInRequest request)
         {
-            var vpnTenantIpNetworkIn = await _director.BuildAsync(attachmentSetId, tenantIpNetworkId, request);  
+            var vpnTenantIpNetworkIn = await _director.BuildAsync(attachmentSetId, request);  
             this.UnitOfWork.VpnTenantIpNetworkInRepository.Insert(vpnTenantIpNetworkIn);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(vpnTenantIpNetworkIn.VpnTenantIpNetworkInID, deep: true, asTrackable: false);
@@ -124,13 +107,6 @@ namespace SCM.Services
         public async Task DeleteAsync(int vpnTenantNetworkInId)
         {
             await this.UnitOfWork.VpnTenantIpNetworkInRepository.DeleteAsync(vpnTenantNetworkInId);
-            await this.UnitOfWork.SaveAsync();
-        }
-
-        public async Task DeleteAsync(int attachmentSetId, int tenantIpNetworkId)
-        {
-            var vpnTenantIpNetworkIn = await GetByAttachmentSetIDAndTenantIpNetworkIDAsync(attachmentSetId, tenantIpNetworkId);
-            this.UnitOfWork.VpnTenantIpNetworkInRepository.Delete(vpnTenantIpNetworkIn);
             await this.UnitOfWork.SaveAsync();
         }
     }

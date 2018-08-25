@@ -26,30 +26,33 @@ namespace Mind.Api.Models
     /// </summary>
     [DataContract]
     public partial class RoutingInstanceForAttachmentSetUpdate : IEquatable<RoutingInstanceForAttachmentSetUpdate>
-    { 
+    {
         /// <summary>
-        /// Default preference applied to IPv4 and IPv6 routes within the routing instance
+        /// Default local preference applied to IPv4 and IPv6 routes within the routing instance
         /// </summary>
-        /// <value>Default preference applied to IPv4 and IPv6 routes within the routing instance</value>
+        /// <value>Integer value denoting the local IP routing prefernece/value>
+        /// <example>200</example>
         [DataMember(Name = "localIpRoutingPreference")]
         [Range(1, 500, ErrorMessage = "Local IP routing preference must be a number between 1 and 500")]
-        public int? LocalIpRoutingPreference { get; set; } = 100;
+        public int? LocalIpRoutingPreference { get; set; }
 
         /// <summary>
-        /// Default preference of IPv4 and IPv6 routes advertised from the routing instance
+        /// Default routing preference applied to IPv4 and IPv6 routes advertised from the routing instance
         /// </summary>
-        /// <value>Default preference of IPv4 and IPv6 routes advertised from the routing instance</value>
+        /// <value>Integer denoting the advertised IP routing preference</value>
+        /// <example>10</example>
         [DataMember(Name = "advertisedIpRoutingPreference")]
         [Range(1, 20, ErrorMessage = "Advertised IP routing preference must be a number between 1 and 20")]
-        public int? AdvertisedIpRoutingPreference { get; set; } = 1;
+        public int? AdvertisedIpRoutingPreference { get; set; }
 
         /// <summary>
-        /// Default multicast designated router preference
+        /// Default multicast designated router preference.
         /// </summary>
-        /// <value>Default multicast designated router preference</value>
+        /// <value>Integer denoting the multicast designated router preference</value>
+        /// <example>10</example>
         [DataMember(Name = "multicastDesignatedRouterPreference")]
         [Range(1, 500, ErrorMessage = "Multicast designated router preference must be a number between 1 and 500")]
-        public int? MulticastDesignatedRouterPreference { get; set; } = 1;
+        public int? MulticastDesignatedRouterPreference { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object

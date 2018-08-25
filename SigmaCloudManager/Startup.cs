@@ -31,6 +31,9 @@ using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Autofac;
 using Mind.Validators;
 using Microsoft.AspNetCore.Mvc.Versioning;
+using Microsoft.AspNetCore.Mvc.ApiExplorer;
+using Microsoft.AspNetCore.Mvc;
+using Mind;
 
 namespace SCM
 {
@@ -80,42 +83,47 @@ namespace SCM
                     });
                 });
 
-            services
-                .AddSwaggerGen(c =>
-                {
-                    c.SwaggerDoc("1.0.0", new Info
-                    {
-                        Version = "1.0.0",
-                        Title = "MIND API",
-                        Description = "MIND API (ASP.NET Core 2.0)",
-                        Contact = new Contact()
-                        {
-                            Name = "Jon Beasley",
-                            Url = "https://thehub.thomsonreuters.com/people/9000359",
-                            Email = "jonathan.beasley@thomsonreuters.com"
-                        },
-                        TermsOfService = ""
-                    });
-                    c.CustomSchemaIds(type => type.FriendlyId(true));
-                    c.DescribeAllEnumsAsStrings();
-                    c.IncludeXmlComments($"{AppContext.BaseDirectory}{Path.DirectorySeparatorChar}{_hostingEnv.ApplicationName}.xml");
-                    // Sets the basePath property in the Swagger document generated
-                    c.DocumentFilter<BasePathFilter>("/v1");
+            services.AddMvcCore()
+                    .AddVersionedApiExplorer(o => o.GroupNameFormat = "'v'VVV");
 
-                    // Include DataAnnotation attributes on Controller Action parameters as Swagger validation rules (e.g required, pattern, ..)
-                    // Use [ValidateModelState] on Actions to actually validate it in C# as well!
-                    c.OperationFilter<GeneratePathParamsValidationFilter>();
-                });
-
-            // Add API versioning
             services.AddApiVersioning(o =>
-            {
-                o.AssumeDefaultVersionWhenUnspecified = true;
-                o.DefaultApiVersion = new Microsoft.AspNetCore.Mvc.ApiVersion(majorVersion:1, minorVersion:0);
-               
-            });
-            
+                {
+                    o.DefaultApiVersion = new ApiVersion(1, 0);
+                    o.AssumeDefaultVersionWhenUnspecified = true;
+                }
+            );
 
+            services.AddSwaggerGen
+            (
+              options =>
+              {
+                  var provider = services.BuildServiceProvider()
+                                .GetRequiredService<IApiVersionDescriptionProvider>();
+
+                  foreach (
+                    var description in provider.ApiVersionDescriptions)
+                  {
+                      options.SwaggerDoc(
+                      description.GroupName,
+                      new Info()
+                      {
+                          Title = $"MIND API {description.ApiVersion}",
+                          Version = description.ApiVersion.ToString(),
+                          Contact = new Contact
+                          {
+                              Name = "Jon Beasley",
+                              Email = "jonathan.beasley@thomsonreuters.com",
+                              Url = "https://thehub.thomsonreuters.com/people/9000359"
+                          },
+                          Description = "The MIND API library provides enables users to create and manage resources in the MIND system."
+                      });
+
+                      options.OperationFilter<SwaggerDefaultValues>();
+                      var filePath = Path.Combine(System.AppContext.BaseDirectory, "Mind.xml");
+                      options.IncludeXmlComments(filePath,true);
+                  }
+              }
+            );
 
             // UnitOfWork for access to Repositories
             services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -158,9 +166,9 @@ namespace SCM
             services.AddScoped<ITenantCommunitySetService, TenantCommunitySetService>();
             services.AddScoped<ITenantCommunitySetCommunityService, TenantCommunitySetCommunityService>();
             services.AddScoped<IVpnTenantIpNetworkInService, VpnTenantIpNetworkInService>();
-            services.AddScoped<IVpnTenantNetworkStaticRouteRoutingInstanceService, VpnTenantNetworkStaticRouteRoutingInstanceService>();
-            services.AddScoped<IVpnTenantNetworkOutService, VpnTenantNetworkOutService>();
-            services.AddScoped<IVpnTenantNetworkRoutingInstanceService, VpnTenantNetworkRoutingInstanceService>();
+            services.AddScoped<IVpnTenantIpNetworkStaticRouteRoutingInstanceService, VpnTenantIpNetworkStaticRouteRoutingInstanceService>();
+            services.AddScoped<IVpnTenantIpNetworkOutService, VpnTenantIpNetworkOutService>();
+            services.AddScoped<IVpnTenantIpNetworkRoutingInstanceService, VpnTenantIpNetworkRoutingInstanceService>();
             services.AddScoped<IVpnTenantCommunityInService, VpnTenantCommunityInService>();
             services.AddScoped<IVpnTenantCommunityOutService, VpnTenantCommunityOutService>();
             services.AddScoped<IVpnTenantCommunityRoutingInstanceService, VpnTenantCommunityRoutingInstanceService>();
@@ -216,7 +224,7 @@ namespace SCM
             services.AddScoped<IExtranetVpnTenantNetworkInValidator, ExtranetVpnTenantNetworkInValidator>();
             services.AddScoped<IMulticastVpnRpValidator, MulticastVpnRpValidator>();
             services.AddScoped<IVpnTenantMulticastGroupValidator, VpnTenantMulticastGroupValidator>();
-            services.AddScoped<IVpnTenantNetworkStaticRouteRoutingInstanceValidator, VpnTenantNetworkStaticRouteRoutingInstanceValidator>();
+            services.AddScoped<IVpnTenantIpNetworkStaticRouteRoutingInstanceValidator, VpnTenantIpNetworkStaticRouteRoutingInstanceValidator>();
             services.AddScoped<IAttachmentSetValidator, AttachmentSetValidator>();
             services.AddScoped<IAttachmentSetRoutingInstanceValidator, AttachmentSetRoutingInstanceValidator>();
             services.AddScoped<IVpnAttachmentSetValidator, VpnAttachmentSetValidator>();
@@ -257,6 +265,8 @@ namespace SCM
             builder.RegisterType<AttachmentSetRoutingInstanceDirector>().As<IAttachmentSetRoutingInstanceDirector>();
             builder.RegisterType<VpnTenantIpNetworkInDirector>().As<IVpnTenantIpNetworkInDirector>();
             builder.RegisterType<VpnTenantIpNetworkInUpdateDirector>().As<IVpnTenantIpNetworkInUpdateDirector>();
+            builder.RegisterType<VpnTenantIpNetworkOutDirector>().As<IVpnTenantIpNetworkOutDirector>();
+            builder.RegisterType<VpnTenantIpNetworkOutUpdateDirector>().As<IVpnTenantIpNetworkOutUpdateDirector>();
 
             builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
             builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
@@ -270,6 +280,8 @@ namespace SCM
             builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();
             builder.RegisterType<VpnTenantIpNetworkInBuilder>().As<IVpnTenantIpNetworkInBuilder>();
             builder.RegisterType<VpnTenantIpNetworkInUpdateBuilder>().As<IVpnTenantIpNetworkInUpdateBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkOutBuilder>().As<IVpnTenantIpNetworkOutBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkOutUpdateBuilder>().As<IVpnTenantIpNetworkOutUpdateBuilder>();
 
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
             {
@@ -331,7 +343,7 @@ namespace SCM
         }
  
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApiVersionDescriptionProvider provider)
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
@@ -352,22 +364,24 @@ namespace SCM
             app.UseSignalR(routes => routes.MapHub<NetworkSyncHub>("/networkSyncHub"));
             app.UseWebSockets();
 
+            app.UseSwagger();
+            app.UseSwaggerUI(
+                options =>
+                {
+                    foreach (var description in provider.ApiVersionDescriptions)
+                    {
+                        options.SwaggerEndpoint(
+                            $"/swagger/{description.GroupName}/swagger.json",
+                            description.GroupName.ToUpperInvariant());
+                    }
+                });
+
             app.UseMvc(routes =>
             {
                 routes.MapRoute(
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
-
-            app.UseSwagger()
-                .UseSwaggerUI(c =>
-                {
-                    //TODO: Either use the SwaggerGen generated Swagger contract (generated from C# classes)
-                    c.SwaggerEndpoint("/swagger/1.0.0/swagger.json", "MIND API");
-
-                    //TODO: Or alternatively use the original Swagger contract that's included in the static files
-                    // c.SwaggerEndpoint("/swagger-original.json", "MIND API Original");
-                });
         }
     }
 }

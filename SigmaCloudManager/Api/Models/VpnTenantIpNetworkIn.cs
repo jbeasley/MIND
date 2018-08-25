@@ -28,9 +28,19 @@ namespace Mind.Api.Models
     public partial class VpnTenantIpNetworkIn : IEquatable<VpnTenantIpNetworkIn>
     {
         /// <summary>
+        /// The ID of the tenant owner of the IP network which is associated with the inbound
+        /// policy of the attachment set.
+        /// </summary>
+        /// <value>An integer denoting the ID of the tenant</value>
+        /// <example>1001</example>
+        [DataMember(Name = "tenantId")]
+        public Int32? TenantId { get; private set; }
+
+        /// <summary>
         /// The ID of the vpn tenant IP network
         /// </summary>
         /// <value>Integer for the ID of the vpn tenant IP network</value>
+        /// <example>8001</example>
         [DataMember(Name = "vpnTenantIpNetworkInId")]
         public int? VpnTenantIpNetworkInId { get; private set; }
 
@@ -38,36 +48,41 @@ namespace Mind.Api.Models
         /// The ID of the tenant IP network
         /// </summary>
         /// <value>Integer for the ID of the tenant IP network</value>
+        /// <example>9001</example>
         [DataMember(Name="tenantIpNetworkId")]
         public int? TenantIpNetworkId { get; private set; }
 
         /// <summary>
-        /// The CIDR representation of the tenant IP network
+        /// The CIDR block representation of the tenant IP network
         /// </summary>
-        /// <value>String representing the CIDR notation of the tenant IP network/value>
+        /// <value>String representing the CIDR notation of the tenant IP network</value>
+        /// <exampel>10.1.1.0/24 le 32</exampel>
         [DataMember(Name = "cidrName")]
         public string CidrName { get; private set; }
 
         /// <summary>
-        /// Gets or Sets AddToAllBgpPeersInAttachmentSet
+        /// Denotes whether the tenant IP network should be learned from all BGP peers that are configured within the attachment set
         /// </summary>
-        /// <value>Boolean denoting whether the tenant IP network should be registered against all BGP peers that exist within the attachment set</value>
-        [DataMember(Name="addToAllBgpPeersInAttachmentSet")]
-        public bool? AddToAllBgpPeersInAttachmentSet { get; private set; }
+        /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
+        /// <example>true</example>
+        [DataMember(Name = "addToAllBgpPeersInAttachmentSet")]
+        public bool? AddToAllBgpPeersInAttachmentSet { get; set; } = true;
 
         /// <summary>
-        /// An IPv4 BGP peer address
+        /// An IPv4 BGP peer address from which the tenant IP network should be learned
         /// </summary>
-        /// <value>String representing an IPv4 BGP peer address</value>
-        [DataMember(Name="ipv4PeerAddress")]
-        public string Ipv4PeerAddress { get; private set; }
+        /// <value>string representing the address of an existing configured IPv4 BGP peer</value>
+        /// <example>192.168.0.1</example>
+        [DataMember(Name = "ipv4PeerAddress")]
+        public string Ipv4PeerAddress { get; set; }
 
         /// <summary>
-        /// The local IP routing preference
+        /// The local IP routing preference applied to the route towards the tenant IP network
         /// </summary>
-        /// <value>Integer denoting the local IP routing preference</value>
-        [DataMember(Name="localIpRoutingPreference")]
-        public int? LocalIpRoutingPreference { get; private set; }
+        /// <value>Integer representing the local IP routing preference</value>
+        /// <example>200</example>
+        [DataMember(Name = "localIpRoutingPreference")]
+        public int? LocalIpRoutingPreference { get; set; } = 100;
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -77,6 +92,7 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class VpnTenantIpNetworkIn {\n");
+            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  VpnTenantIpNetworkInId: ").Append(VpnTenantIpNetworkInId).Append("\n");
             sb.Append("  TenantIpNetworkId: ").Append(TenantIpNetworkId).Append("\n");
             sb.Append("  CidrName: ").Append(CidrName).Append("\n");
@@ -120,6 +136,11 @@ namespace Mind.Api.Models
 
             return
                 (
+                    TenantId == other.TenantId ||
+                    TenantId != null &&
+                    TenantId.Equals(other.TenantId)
+                ) &&
+                (
                     VpnTenantIpNetworkInId == other.VpnTenantIpNetworkInId ||
                     VpnTenantIpNetworkInId != null &&
                     VpnTenantIpNetworkInId.Equals(other.VpnTenantIpNetworkInId)
@@ -161,6 +182,8 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (TenantId != null)
+                    hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (VpnTenantIpNetworkInId != null)
                     hashCode = hashCode * 59 + VpnTenantIpNetworkInId.GetHashCode();
                     if (TenantIpNetworkId != null)

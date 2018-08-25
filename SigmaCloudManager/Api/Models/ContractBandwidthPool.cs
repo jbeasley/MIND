@@ -26,27 +26,30 @@ namespace Mind.Api.Models
     /// </summary>
     [DataContract]
     public partial class ContractBandwidthPool : IEquatable<ContractBandwidthPool>
-    { 
+    {
         /// <summary>
-        /// The name of the contract bandwidth pool 
+        /// The MIND system-generated name of the contract bandwidth pool 
         /// </summary>
-        /// <value>The name of the contract bandwidth pool </value>
+        /// <value>A string denoting the name of the contract bandwidth pool</value>
+        /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [DataMember(Name="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// The contract bandwidth of the pool in Mbps
         /// </summary>
-        /// <value>The contract bandwidth of the pool in Mbps</value>
+        /// <value>An integer denoting the contract bandwidth of the pool in Mbps</value>
+        /// <example>1000</example>
         [DataMember(Name="contractBandwidthMbps")]
-        public int? ContractBandwidthMbps { get; set; }
+        public int? ContractBandwidthMbps { get; private set; }
 
         /// <summary>
-        /// Determines whether DSCP and COS markings of packets should be trusted by the provider
+        /// Denotes whether DSCP and COS markings of packets are trusted by the provider
         /// </summary>
-        /// <value>Determines whether DSCP and COS markings of packets should be trusted by the provider</value>
+        /// <value>Boolean value denoting the trust stater</value>
+        /// <example>true</example>
         [DataMember(Name = "trustReceivedCosDscp")]
-        public bool? TrustReceivedCosDscp { get; set; }
+        public bool? TrustReceivedCosDscp { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

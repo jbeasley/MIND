@@ -16,7 +16,7 @@ using Mind.Api.Controllers;
 namespace Mind.Api.Attributes
 {
     /// <summary>
-    /// Validates that a 'VPN tenant IP network in' exists in the database
+    /// Validates that a tenant IP network association with the inbound policy of a given attachment set exists in the database
     /// </summary>
     public class ValidateVpnTenantIpNetworkInExistsAttribute : TypeFilterAttribute
     {
@@ -38,11 +38,11 @@ namespace Mind.Api.Attributes
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
                 var attachmentSetId = context.ActionArguments["attachmentSetId"] as int?;                
-                var tenantIpNetworkId = context.ActionArguments["tenantIpNetworkId"] as int?;
+                var vpnTenantIpNetworkInId = context.ActionArguments["vpnTenantIpNetworkInId"] as int?;
 
                 if ((from result in await _unitOfWork.VpnTenantIpNetworkInRepository.GetAsync(q => 
                     q.AttachmentSetID == attachmentSetId.Value
-                    && q.TenantIpNetworkID == tenantIpNetworkId.Value,
+                    && q.VpnTenantIpNetworkInID == vpnTenantIpNetworkInId.Value,
                     AsTrackable: false)
                     select result)
                     .SingleOrDefault() == null)

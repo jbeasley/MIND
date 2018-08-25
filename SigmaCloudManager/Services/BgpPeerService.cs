@@ -4,112 +4,66 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Data;
+using SCM.Validators;
+using Mind.Services;
 
 namespace SCM.Services
 {
     public class BgpPeerService : BaseService, IBgpPeerService
     {
-        public BgpPeerService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
-
-        private string Properties { get; } = "RoutingInstance.Tenant,"
+        private readonly string _properties = "RoutingInstance,"
                   + "VpnTenantCommunitiesIn.TenantCommunity,"
-                  + "VpnTenantNetworksIn.TenantNetwork,"
-                  + "VpnTenantCommunitiesIn.AttachmentSet.VpnAttachmentSets.Vpn,"
-                  + "VpnTenantNetworksIn.AttachmentSet.VpnAttachmentSets.Vpn,"
+                  + "VpnTenantIpNetworksIn.TenantIpNetwork,"
                   + "VpnTenantCommunitiesOut.TenantCommunity,"
-                  + "VpnTenantNetworksOut.TenantNetwork,"
-                  + "VpnTenantCommunitiesOut.AttachmentSet.VpnAttachmentSets.Vpn,"
-                  + "VpnTenantNetworksOut.AttachmentSet.VpnAttachmentSets.Vpn,"
-                  + "VpnTenantCommunitiesIn.AttachmentSet.VpnAttachmentSets.AttachmentSet.Tenant,"
-                  + "VpnTenantNetworksIn.AttachmentSet.VpnAttachmentSets.AttachmentSet.Tenant,"
-                  + "VpnTenantCommunitiesOut.AttachmentSet.VpnAttachmentSets.AttachmentSet.Tenant,"
-                  + "VpnTenantNetworksOut.AttachmentSet.VpnAttachmentSets.AttachmentSet.Tenant";
+                  + "VpnTenantIpNetworksOut.TenantIpNetwork";
+        private readonly IBgpPeerValidator _validator;
 
-        public async Task<IEnumerable<BgpPeer>> GetAllAsync(bool includeProperties = true)
+        public BgpPeerService(IUnitOfWork unitOfWork, IBgpPeerValidator validator) : base(unitOfWork, validator)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            return await this.UnitOfWork.BgpPeerRepository.GetAsync(includeProperties: p,
-                AsTrackable: false);
+            _validator = validator;
         }
 
-        public async Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool includeProperties = true)
+        public async Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
             return  await this.UnitOfWork.BgpPeerRepository.GetAsync(q => q.RoutingInstanceID == id, 
-                includeProperties: p,
-                AsTrackable:false);
+                includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                AsTrackable: asTrackable);
 
         }
 
-        public async Task<BgpPeer> GetByIDAsync(int id, bool includeProperties = true)
+        public async Task<BgpPeer> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await this.UnitOfWork.BgpPeerRepository.GetAsync(q => q.BgpPeerID == id, 
-                includeProperties: p,
-                AsTrackable:false);
-
-            return dbResult.SingleOrDefault();
+            return (from result in await this.UnitOfWork.BgpPeerRepository.GetAsync(q => q.BgpPeerID == id,
+                includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                AsTrackable: asTrackable)
+                    select result)
+                    .SingleOrDefault();
         }
 
-        public async Task<int> AddAsync(BgpPeer bgpPeer)
+        public async Task<BgpPeer> AddAsync(BgpPeer bgpPeer)
         {
+            await _validator.ValidateNewAsync(bgpPeer);
+            if (!_validator.IsValid) throw new ServiceValidationException();
             this.UnitOfWork.BgpPeerRepository.Insert(bgpPeer);
-            await UpdateRequiresSync(bgpPeer.RoutingInstanceID);
-            return await this.UnitOfWork.SaveAsync();
+            await this.UnitOfWork.SaveAsync();
+            return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
         }
  
-        public async Task<int> UpdateAsync(BgpPeer bgpPeer)
+        public async Task<BgpPeer> UpdateAsync(BgpPeer bgpPeer)
         {
+            await _validator.ValidateChangesAsync(bgpPeer);
+            if (!_validator.IsValid) throw new ServiceValidationException();
             this.UnitOfWork.BgpPeerRepository.Update(bgpPeer);
-            await UpdateRequiresSync(bgpPeer.RoutingInstanceID);
-            return await this.UnitOfWork.SaveAsync();
+            await this.UnitOfWork.SaveAsync();
+            return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
         }
 
-        public async Task<int> DeleteAsync(BgpPeer bgpPeer)
+        public async Task DeleteAsync(int bgpPeerId)
         {
-            this.UnitOfWork.BgpPeerRepository.Delete(bgpPeer);
-            await UpdateRequiresSync(bgpPeer.RoutingInstanceID);
-            return await this.UnitOfWork.SaveAsync();
-        }
-
-        /// <summary>
-        /// Helper to update 'RequiresSync' property of the Vif(s) or Attachment(s) which a routing instance 
-        /// is associated with and the associated Device to indicate that sync to network is required.
-        /// </summary>
-        /// <param name="routingInstanceID"></param>
-        /// <returns></returns>
-        private async Task UpdateRequiresSync(int routingInstanceID)
-        {
-            var vifs = await UnitOfWork.VifRepository.GetAsync(q => q.RoutingInstance.RoutingInstanceID == routingInstanceID,
-                includeProperties: "VifRole,Attachment.AttachmentRole,Attachment.Device.DeviceRole");
-
-            foreach (var vif in vifs)
-            {
-                vif.RequiresSync = vif.VifRole.RequireSyncToNetwork;
-                vif.ShowRequiresSyncAlert = vif.VifRole.RequireSyncToNetwork;
-                UnitOfWork.VifRepository.Update(vif);
-                vif.Attachment.RequiresSync = vif.Attachment.AttachmentRole.RequireSyncToNetwork;
-                vif.Attachment.ShowRequiresSyncAlert = vif.Attachment.AttachmentRole.RequireSyncToNetwork;
-                UnitOfWork.AttachmentRepository.Update(vif.Attachment);
-                vif.Attachment.Device.RequiresSync = vif.Attachment.Device.DeviceRole.RequireSyncToNetwork;
-                vif.Attachment.Device.ShowRequiresSyncAlert = vif.Attachment.Device.DeviceRole.RequireSyncToNetwork;
-                UnitOfWork.DeviceRepository.Update(vif.Attachment.Device);
-            }
-
-            var attachments = await UnitOfWork.AttachmentRepository.GetAsync(q => q.RoutingInstanceID == routingInstanceID,
-                    includeProperties: "AttachmentRole,Device.DeviceRole");
-
-            foreach (var attachment in attachments)
-            {
-                attachment.RequiresSync = attachment.AttachmentRole.RequireSyncToNetwork;
-                attachment.ShowRequiresSyncAlert = attachment.AttachmentRole.RequireSyncToNetwork;
-                UnitOfWork.AttachmentRepository.Update(attachment);
-                attachment.Device.RequiresSync = attachment.Device.DeviceRole.RequireSyncToNetwork;
-                attachment.Device.ShowRequiresSyncAlert = attachment.Device.DeviceRole.RequireSyncToNetwork;
-                UnitOfWork.DeviceRepository.Update(attachment.Device);
-            }
+            await _validator.ValidateDeleteAsync(bgpPeerId);
+            if (!_validator.IsValid) throw new ServiceValidationException();
+            await this.UnitOfWork.BgpPeerRepository.DeleteAsync(bgpPeerId);
+            await this.UnitOfWork.SaveAsync();
         }
     }
 }

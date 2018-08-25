@@ -10,32 +10,27 @@ using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Validators;
 using Microsoft.EntityFrameworkCore;
+using Mind.Services;
 
 namespace SCM.Controllers
 {
     public class BaseBgpPeerController : BaseViewController
     {
+        protected internal readonly IBgpPeerService _bgpPeerService;
+        protected internal readonly IRoutingInstanceService _routingInstanceService;
+
         public BaseBgpPeerController(IBgpPeerService bgpPeerService, 
             IRoutingInstanceService vrfService, 
             IBgpPeerValidator bgpPeerValidator, 
-            IMapper mapper)
+            IMapper mapper) : base(bgpPeerService, mapper)
         {
-           BgpPeerService = bgpPeerService;
-           RoutingInstanceService = vrfService;
-           Mapper = mapper;
-
-           BgpPeerValidator = bgpPeerValidator;
-           this.Validator = bgpPeerValidator;
+           _bgpPeerService = bgpPeerService;
+           _routingInstanceService = vrfService;
         }
-
-        public IBgpPeerService BgpPeerService { get; }
-        public IRoutingInstanceService RoutingInstanceService { get; }
-        public IMapper Mapper { get; }
-        private IBgpPeerValidator BgpPeerValidator { get; }
 
         protected async Task<IActionResult> BaseGetAllByRoutingInstanceID(BgpPeerNavigationViewModel nav)
         {
-            var bgpPeers = await BgpPeerService.GetAllByRoutingInstanceIDAsync(nav.RoutingInstanceID.Value);
+            var bgpPeers = await _bgpPeerService.GetAllByRoutingInstanceIDAsync(nav.RoutingInstanceID.Value);
             return View(Mapper.Map<List<BgpPeerViewModel>>(bgpPeers));
         }
 
@@ -46,7 +41,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var item = await BgpPeerService.GetByIDAsync(bgpPeerID.Value);
+            var item = await _bgpPeerService.GetByIDAsync(bgpPeerID.Value);
             if (item == null)
             {
                 return NotFound();
@@ -72,13 +67,8 @@ namespace SCM.Controllers
                 if (ModelState.IsValid)
                 {
                     var bgpPeer = Mapper.Map<BgpPeer>(bgpPeerModel);
-                    await BgpPeerValidator.ValidateNewAsync(bgpPeer);
-
-                    if (BgpPeerValidator.ValidationDictionary.IsValid)
-                    {
-                        await BgpPeerService.AddAsync(bgpPeer);
-                        return RedirectToAction("GetAllByRoutingInstanceID", nav);
-                    }
+                    await _bgpPeerService.AddAsync(bgpPeer);
+                    return RedirectToAction("GetAllByRoutingInstanceID", nav);
                 }
             }
             catch (DbUpdateException /** ex **/ )
@@ -99,7 +89,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var bgpPeer = await BgpPeerService.GetByIDAsync(bgpPeerID.Value);
+            var bgpPeer = await _bgpPeerService.GetByIDAsync(bgpPeerID.Value);
 
             if (bgpPeer == null)
             {
@@ -116,7 +106,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var currentBgpPeer = await BgpPeerService.GetByIDAsync(bgpPeerID);
+            var currentBgpPeer = await _bgpPeerService.GetByIDAsync(bgpPeerID);
             if (currentBgpPeer == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The item was deleted by another user.");
@@ -127,16 +117,11 @@ namespace SCM.Controllers
                 if (ModelState.IsValid)
                 {
                     var bgpPeer = Mapper.Map<BgpPeer>(bgpPeerModel);
-                    await BgpPeerValidator.ValidateChangesAsync(bgpPeer);
+                    await _bgpPeerService.UpdateAsync(bgpPeer);
+                    nav.ShowWarningMessage = true;
+                    nav.RoutingInstanceID = bgpPeer.RoutingInstanceID;
 
-                    if (BgpPeerValidator.ValidationDictionary.IsValid)
-                    {
-                        await BgpPeerService.UpdateAsync(bgpPeer);
-                        nav.ShowWarningMessage = true;
-                        nav.RoutingInstanceID = bgpPeer.RoutingInstanceID;
-
-                        return RedirectToAction("GetAllByRoutingInstanceID", nav);
-                    }
+                    return RedirectToAction("GetAllByRoutingInstanceID", nav);
                 }
             }
 
@@ -150,16 +135,16 @@ namespace SCM.Controllers
                     ModelState.AddModelError("Ipv4PeerAddress", $"Current value: {currentBgpPeer.Ipv4PeerAddress}");
                 }
 
-                var proposedAutonomousSystem = (int)exceptionEntry.Property("AutonomousSystem").CurrentValue;
-                if (currentBgpPeer.AutonomousSystem != proposedAutonomousSystem)
+                var proposedAutonomousSystem = (int)exceptionEntry.Property("Peer2ByteAutonomousSystem").CurrentValue;
+                if (currentBgpPeer.Peer2ByteAutonomousSystem != proposedAutonomousSystem)
                 {
-                    ModelState.AddModelError("AutonomousSystem", $"Current value: {currentBgpPeer.AutonomousSystem}");
+                    ModelState.AddModelError("Peer2ByteAutonomousSystem", $"Current value: {currentBgpPeer.Peer2ByteAutonomousSystem}");
                 }
 
-                var proposedMd5Password = (string)exceptionEntry.Property("Md5Password").CurrentValue;
-                if (currentBgpPeer.Md5Password != proposedMd5Password)
+                var proposedPeerPassword = (string)exceptionEntry.Property("Md5Password").CurrentValue;
+                if (currentBgpPeer.PeerPassword != proposedPeerPassword)
                 {
-                    ModelState.AddModelError("Md5Password", $"Current value: {currentBgpPeer.Md5Password}");
+                    ModelState.AddModelError("PeerPassword", $"Current value: {currentBgpPeer.PeerPassword}");
                 }
 
                 if (currentBgpPeer.MaximumRoutes != null)
@@ -204,7 +189,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var bgpPeer = await BgpPeerService.GetByIDAsync(bgpPeerID.Value);
+            var bgpPeer = await _bgpPeerService.GetByIDAsync(bgpPeerID.Value);
             if (bgpPeer == null)
             {
                 if (concurrencyError.GetValueOrDefault())
@@ -230,7 +215,7 @@ namespace SCM.Controllers
 
         protected async Task<IActionResult> BaseDelete(BgpPeerViewModel bgpPeerModel, BgpPeerNavigationViewModel nav)
         {
-            var currentBgpPeer = await BgpPeerService.GetByIDAsync(bgpPeerModel.BgpPeerID);
+            var currentBgpPeer = await _bgpPeerService.GetByIDAsync(bgpPeerModel.BgpPeerID);
             if (currentBgpPeer == null)
             {
                 return RedirectToAction("GetAllByRoutingInstanceID", nav);
@@ -238,16 +223,16 @@ namespace SCM.Controllers
 
             try
             {
-                BgpPeerValidator.ValidationDictionary.Clear();
-                BgpPeerValidator.ValidateDelete(currentBgpPeer);
+                await _bgpPeerService.DeleteAsync(bgpPeerModel.BgpPeerID);
+                return RedirectToAction("GetAllByRoutingInstanceID", nav);
+            }
 
-                if (BgpPeerValidator.ValidationDictionary.IsValid)
-                {
-                    await BgpPeerService.DeleteAsync(Mapper.Map<BgpPeer>(bgpPeerModel));
-                    nav.ShowWarningMessage = true;
+            catch (ServiceValidationException /* ex */)
+            {
+                nav.BgpPeerID = bgpPeerModel.BgpPeerID;
 
-                    return RedirectToAction("GetAllByRoutingInstanceID", nav);
-                }
+                //Log the error (uncomment ex variable name and write a log.)
+                return RedirectToAction("Delete", nav);
             }
 
             catch (DbUpdateConcurrencyException /* ex */)
@@ -258,8 +243,6 @@ namespace SCM.Controllers
                 //Log the error (uncomment ex variable name and write a log.)
                 return RedirectToAction("Delete", nav);
             }
-
-            return View(Mapper.Map<BgpPeerViewModel>(currentBgpPeer));
         }
     }
 }

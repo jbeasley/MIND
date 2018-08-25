@@ -10,6 +10,6 @@ namespace Mind.Builders
 {
     public interface IVpnTenantIpNetworkInDirector
     {
-        Task<VpnTenantIpNetworkIn> BuildAsync(int attachmentSetId, int tenantIpNetworkIn, VpnTenantIpNetworkInRequest request);
+        Task<VpnTenantIpNetworkIn> BuildAsync(int attachmentSetId, VpnTenantIpNetworkInRequest request);
     }
 }

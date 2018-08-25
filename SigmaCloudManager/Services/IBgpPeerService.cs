@@ -7,14 +7,12 @@ using SCM.Data;
 
 namespace SCM.Services
 {
-    public interface IBgpPeerService
+    public interface IBgpPeerService : IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
-        Task<IEnumerable<BgpPeer>> GetAllAsync(bool includeProperties = true);
-        Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool includeProperties = true);
-        Task<BgpPeer> GetByIDAsync(int id, bool includeProperties = true);
-        Task<int> AddAsync(BgpPeer bgpPeer);
-        Task<int> UpdateAsync(BgpPeer bgpPeer);
-        Task<int> DeleteAsync(BgpPeer bgpPeer);
+        Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<BgpPeer> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<BgpPeer> AddAsync(BgpPeer bgpPeer);
+        Task<BgpPeer> UpdateAsync(BgpPeer bgpPeer);
+        Task DeleteAsync(int bgpPeerId);
     }
 }

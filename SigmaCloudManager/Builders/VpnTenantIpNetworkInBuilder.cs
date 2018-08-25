@@ -8,7 +8,8 @@ using System.Threading.Tasks;
 namespace Mind.Builders
 {
     /// <summary>
-    /// Builder for vpn tenant IP networks. The buidler exposes a fluent UI
+    /// Builder for tenant IP network associations with the inbound policy of attachment sets.
+    /// The buidler exposes a fluent UI
     /// </summary>
     public class VpnTenantIpNetworkInBuilder : BaseBuilder, IVpnTenantIpNetworkInBuilder
     {
@@ -25,9 +26,15 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVpnTenantIpNetworkInBuilder WithTenantIpNetwork(int? tenantIpNetworkId)
+        public virtual IVpnTenantIpNetworkInBuilder WithTenant(int? tenantId)
         {
-            if (tenantIpNetworkId != null) _args.Add(nameof(WithTenantIpNetwork), tenantIpNetworkId);
+            if (tenantId != null) _args.Add(nameof(WithTenant), tenantId);
+            return this;
+        }
+
+        public virtual IVpnTenantIpNetworkInBuilder WithTenantIpNetworkCidrName(string tenantIpNetworkCidrName)
+        {
+            if (!string.IsNullOrEmpty(tenantIpNetworkCidrName)) _args.Add(nameof(WithTenantIpNetworkCidrName), tenantIpNetworkCidrName);
             return this;
         }
 
@@ -55,20 +62,48 @@ namespace Mind.Builders
             {
                 _vpnTenantIpNetworkIn.AttachmentSetID = (int)_args[nameof(ForAttachmentSet)];
             }
-            if (_args.ContainsKey(nameof(WithTenantIpNetwork)))
-            {
-                _vpnTenantIpNetworkIn.TenantIpNetworkID = (int)_args[nameof(WithTenantIpNetwork)];
-            }
+
+            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName))) await SetTenantIpNetworkAsync();
+
             if (_args.ContainsKey(nameof(WithLocalIpRoutingPreference))) { 
                 _vpnTenantIpNetworkIn.LocalIpRoutingPreference = (int)_args[nameof(WithLocalIpRoutingPreference)];
             }
-            if (_args.ContainsKey(nameof(AddToAllBgpPeersInAttachmentSet)))
-            {
-                _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = (bool)_args[nameof(AddToAllBgpPeersInAttachmentSet)];
-            }
+
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await SetIpv4BgpPeerAsync();
 
+            if (_args.ContainsKey(nameof(AddToAllBgpPeersInAttachmentSet))) SetAddToAllBgpPeersInAttachmentSet();
+
             return _vpnTenantIpNetworkIn;
+        }
+
+        protected virtual internal async Task SetAttachmentSetAsync()
+        {
+            var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
+            var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
+                q => q.AttachmentSetID == attachmentSetId, AsTrackable: true)
+                                 select result)
+                                 .Single();
+
+            _vpnTenantIpNetworkIn.AttachmentSet = attachmentSet;
+        }
+
+        protected virtual internal async Task SetTenantIpNetworkAsync()
+        {
+            var tenantIpNetworkCidrName = _args[nameof(WithTenantIpNetworkCidrName)].ToString();
+            var tenantId = (int)_args[nameof(WithTenant)];
+
+            var tenantIpNetwork = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
+                              q =>
+                              q.TenantID == tenantId 
+                              && q.CidrNameIncludingIpv4LessThanOrEqualToLength == tenantIpNetworkCidrName,
+                              AsTrackable: false)
+                                  select result)
+                                 .SingleOrDefault();
+
+            if (tenantIpNetwork == null) throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
+                $"the given arguments. The tenant IP network CIDR block '{tenantIpNetworkCidrName}' does not exist for the given tenant with ID of '{tenantId}'.");
+
+            _vpnTenantIpNetworkIn.TenantIpNetworkID = tenantIpNetwork.TenantIpNetworkID;
         }
 
         protected virtual internal async Task SetIpv4BgpPeerAsync()
@@ -84,11 +119,25 @@ namespace Mind.Builders
                            select bgpPeers)
                                     .SingleOrDefault(x => x.Ipv4PeerAddress == ipv4PeerAddress);
 
-            if (bgpPeer == null) throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association an the attachment set using " +
+            if (bgpPeer == null) throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
                 $"the given arguments. The BGP peer address '{ipv4PeerAddress}' does not exist within any routing instance which belongs to " +
                 $"the attachment set.");
 
+            _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = false;
             _vpnTenantIpNetworkIn.BgpPeerID = bgpPeer.BgpPeerID;
+        }
+
+        protected virtual internal void SetAddToAllBgpPeersInAttachmentSet()
+        {
+            var addToAllBgpPeersInAttachmentSet = (bool)_args[nameof(AddToAllBgpPeersInAttachmentSet)];
+            if (_vpnTenantIpNetworkIn.BgpPeerID != null)
+            {
+                _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = false;
+            }
+            else
+            {
+                _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = true;
+            }
         }
     }
 }

@@ -28,6 +28,7 @@ using Mind.Services;
 using Mind.Builders;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 { 
@@ -95,29 +96,6 @@ namespace Mind.Api.Controllers
             {
                 return new DatabaseUpdateFailedResult();
             }
-        }
-
-    
-        /// <summary>
-        /// Add a tenant IP network to the outbound policy of a given attachment set
-        /// </summary>
-        
-        /// <param name="attachmentSetId">ID of the attachment set</param>
-        /// <param name="tenantIpv4NetworkId">ID of the tenant IPv4 network</param>
-        /// <param name="body">request object that generates a new outbound policy entry for an tenant IP network</param>
-        /// <response code="204">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpPost]
-        [Route("/v{version:apiVersion}/attachment-set/{attachmentSetId}/outbound-policy/ipv4-network/{tenantIpv4NetworkId}")]
-        [ValidateModelState]
-        [ValidateAttachmentSetExists]
-        [ValidateTenantIpNetworkExists]
-        [SwaggerOperation("AddAttachmentSetOutboundPolicyTenantIpNetwork")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult AddAttachmentSetOutboundPolicyTenantIpNetwork([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? tenantIpNetworkId, [FromBody]VpnTenantIpNetworkOut body)
-        {
-            throw new NotImplementedException();
         }
 
         /// <summary>
@@ -196,7 +174,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> DeleteAttachmentSet([FromRoute][Required]int? attachmentSetId)
+        public virtual async Task<IActionResult> DeleteAttachmentSet([FromRoute][Required]int? attachmentSetId,[FromRoute][Required]int? tenantId)
         {
             try
             {
@@ -214,39 +192,6 @@ namespace Mind.Api.Controllers
                 return new DatabaseUpdateFailedResult();
             }
         } 
-
-        /// <summary>
-        /// Delete a tenant IPv4 network from the outbound policy of a given attachment set
-        /// </summary>
-        
-        /// <param name="attachmentSetId">ID of the attachment set</param>
-        /// <param name="tenantIpv4NetworkId">ID of the tenant IPv4 network</param>
-        /// <response code="204">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpDelete]
-        [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/outbound-policy/ipv4-networks/{tenantIpv4NetworkId}")]
-        [ValidateModelState]
-        [SwaggerOperation("DeleteAttachmentSetOutboundPolicyTenantIpv4Network")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult DeleteAttachmentSetOutboundPolicyTenantIpv4Network([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? tenantIpv4NetworkId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
 
         /// <summary>
         /// Find an attachment set by ID

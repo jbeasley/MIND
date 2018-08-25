@@ -44,7 +44,7 @@ namespace SCM.Validators
         /// <summary>
         /// Validate a new VPN
         /// </summary>
-        /// <param name="vpn"></param>
+        /// <param name="request"></param>
         /// <returns></returns>
         public async Task ValidateNewAsync(VpnRequest request)
         {

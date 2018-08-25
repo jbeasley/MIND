@@ -30,11 +30,11 @@ namespace SCM.Models
         public virtual ICollection<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; set; }
         public virtual ICollection<VpnAttachmentSet> VpnAttachmentSets { get; set; }
         public virtual ICollection<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
-        public virtual ICollection<VpnTenantNetworkStaticRouteRoutingInstance> VpnTenantNetworkStaticRoutesRoutingInstance { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkStaticRouteRoutingInstance> VpnTenantIpNetworkStaticRoutesRoutingInstance { get; set; }
         public virtual ICollection<VpnTenantCommunityIn> VpnTenantCommunitiesIn { get; set; }
-        public virtual ICollection<VpnTenantNetworkOut> VpnTenantNetworksOut { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
         public virtual ICollection<VpnTenantCommunityOut> VpnTenantCommunitiesOut { get; set; }
-        public virtual ICollection<VpnTenantNetworkRoutingInstance> VpnTenantNetworksRoutingInstance { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworksRoutingInstance { get; set; }
         public virtual ICollection<VpnTenantCommunityRoutingInstance> VpnTenantCommunitiesRoutingInstance { get; set; }
         public virtual ICollection<MulticastVpnRp> MulticastVpnRps { get; set; }
         public virtual ICollection<VpnTenantMulticastGroup> VpnTenantMulticastGroups { get; set; }

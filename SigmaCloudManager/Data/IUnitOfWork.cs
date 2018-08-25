@@ -48,9 +48,9 @@ namespace SCM.Data
         GenericRepository<ExtranetVpnTenantCommunityIn> ExtranetVpnTenantCommunityInRepository { get; }
         GenericRepository<ExtranetVpnTenantNetworkIn> ExtranetVpnTenantNetworkInRepository { get; }
         GenericRepository<VpnTenantIpNetworkIn> VpnTenantIpNetworkInRepository { get; }
-        GenericRepository<VpnTenantNetworkStaticRouteRoutingInstance> VpnTenantNetworkStaticRouteRoutingInstanceRepository { get; }
-        GenericRepository<VpnTenantNetworkOut> VpnTenantNetworkOutRepository { get; }
-        GenericRepository<VpnTenantNetworkRoutingInstance> VpnTenantNetworkRoutingInstanceRepository { get; }
+        GenericRepository<VpnTenantIpNetworkStaticRouteRoutingInstance> VpnTenantIpNetworkStaticRouteRoutingInstanceRepository { get; }
+        GenericRepository<VpnTenantIpNetworkOut> VpnTenantIpNetworkOutRepository { get; }
+        GenericRepository<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworkRoutingInstanceRepository { get; }
         GenericRepository<VpnTenantCommunityIn> VpnTenantCommunityInRepository { get; }
         GenericRepository<VpnTenantCommunityOut> VpnTenantCommunityOutRepository { get; }
         GenericRepository<VpnTenantCommunityRoutingInstance> VpnTenantCommunityRoutingInstanceRepository { get; }

@@ -25,33 +25,39 @@ namespace Mind.Api.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class ProviderDomainAttachmentUpdate : IEquatable<ProviderDomainAttachmentUpdate>
+    public partial class ProviderDomainAttachmentUpdate : IEquatable<ProviderDomainAttachmentUpdate>, IValidatableObject
     {
         /// <summary>
         /// The required contract bandwidth in Mbps
         /// </summary>
-        /// <value>A bandwidth value in Mbps</value>
+        /// <value>Integer value denoting the required contract bandwidth in Mbps</value>
+        /// <example>100</example>
         [DataMember(Name = "contractBandwidthMbps")]
         public int? ContractBandwidthMbps { get; set; }
 
         /// <summary>
-        /// Determines whether DSCP and COS markings of packets should be trusted by the provider
+        /// Determines whether DSCP and COS markings of packets received from the tenant domain should be trusted by the provider
         /// </summary>
-        /// <value>A boolean to set the required trust</value>
-        [DataMember(Name="trustReceivedCosAndDscp")]
+        /// <value>Boolean value denoting the required trust state</value>
+        [DataMember(Name = "trustReceivedCosAndDscp")]
         public bool? TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
-        /// Determines if the updated attachment should be associated with an existing routing instance
+        /// If specified, the updated attachment should be associated with an existing routing instance
+        /// of the given name. If an existing routing instance name is specified then the 'CreateNewRoutingInstance' property must be
+        /// false.
         /// </summary>
         /// <value>A string value of the name of an existing routing instance</value>
+        /// <exanple>db7c48eaa9864cd0b3aa6af08c8370d6</exanple>
         [DataMember(Name = "existingRoutingInstanceName")]
         public string ExistingRoutingInstanceName { get; set; }
 
         /// <summary>
-        /// Determines if the updated attachment should be associated with a new routing instance.
+        /// Determines if the updated attachment should be associated with a new routing instance. If the value of this property is true
+        /// then the value of the ExistingRoutingInstanceName property must be null.
         /// </summary>
         /// <value>A boolean which when set to true indicates a new routing instance is required</value>
+        /// <examople>true</examople>
         [DataMember(Name = "createNewRoutingInstance")]
         public bool? CreateNewRoutingInstance { get; set; }
 
@@ -59,24 +65,43 @@ namespace Mind.Api.Models
         /// Determines if the updated attachment should use jumbo MTU
         /// </summary>
         /// <value>A boolean which when set to true indicates jumbo MTU is required</value>
+        /// <example>true</example>
         [DataMember(Name = "useJumboMtu")]
         public bool? UseJumboMtu { get; set; }
 
         /// <summary>
-        /// The minimum number of active links in a bundle attachment
+        /// The minimum number of active links in a bundle attachment. A value for this property may only be 
+        /// specified for bundle attachments.
         /// </summary>
         /// <value>A value which specifies the minimum links in the bundle</value>
+        /// <example>2</example>
         [DataMember(Name = "bundleMinLinks")]
         [Range(1, 8)]
         public int? BundleMinLinks { get; set; }
 
         /// <summary>
-        /// The maximum number of active links in a bundle attachment
+        /// The maximum number of active links in a bundle attachment. A value for this property may only be 
+        /// specified for bundle attachments.
         /// </summary>
         /// <value>A value which specifies the maximum links in the bundle</value>
+        /// <example>true</example>
         [DataMember(Name = "bundleMaxLinks")]
         [Range(1, 8)]
         public int? BundleMaxLinks { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (CreateNewRoutingInstance.HasValue && CreateNewRoutingInstance.Value)
+            {
+                if (!string.IsNullOrEmpty(ExistingRoutingInstanceName))
+                {
+                    yield return new ValidationResult(
+                        "The 'CreateNewRoutingInstance' option cannot be used concurrently with the 'ExistingRoutingInstanceName' option." +
+                        "Either remove the 'ExistingRoutingInstanceName' property or remove the 'CreateNewRoutingInstance' property from " +
+                        "the request.");
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -195,7 +220,7 @@ namespace Mind.Api.Models
         }
 
         #region Operators
-        #pragma warning disable 1591
+#pragma warning disable 1591
 
         public static bool operator ==(ProviderDomainAttachmentUpdate left, ProviderDomainAttachmentUpdate right)
         {

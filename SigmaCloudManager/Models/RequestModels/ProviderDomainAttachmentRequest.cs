@@ -13,6 +13,7 @@ namespace SCM.Models.RequestModels
 { 
     /// <summary>
     /// Model for requesting tenant attachment to the provider domain
+    /// </summary>
     public partial class ProviderDomainAttachmentRequest
     { 
         /// <summary>

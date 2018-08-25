@@ -55,9 +55,9 @@ namespace SCM.Data
         private GenericRepository<ExtranetVpnTenantNetworkIn> extranetVpnTenantNetworkInRepository;
         private GenericRepository<ExtranetVpnTenantCommunityIn> extranetVpnTenantCommunityInRepository;
         private GenericRepository<VpnTenantIpNetworkIn> vpnTenantIpNetworkInRepository;
-        private GenericRepository<VpnTenantNetworkStaticRouteRoutingInstance> vpnTenantNetworkStaticRouteRoutingInstanceRepository;
-        private GenericRepository<VpnTenantNetworkOut> vpnTenantNetworkOutRepository;
-        private GenericRepository<VpnTenantNetworkRoutingInstance> vpnTenantNetworkRoutingInstanceRepository;
+        private GenericRepository<VpnTenantIpNetworkStaticRouteRoutingInstance> vpnTenantIpNetworkStaticRouteRoutingInstanceRepository;
+        private GenericRepository<VpnTenantIpNetworkOut> vpnTenantIpNetworkOutRepository;
+        private GenericRepository<VpnTenantIpNetworkRoutingInstance> vpnTenantIpNetworkRoutingInstanceRepository;
         private GenericRepository<VpnTenantCommunityIn> vpnTenantCommunityInRepository;
         private GenericRepository<VpnTenantCommunityOut> vpnTenantCommunityOutRepository;
         private GenericRepository<VpnTenantCommunityRoutingInstance> vpnTenantCommunityRoutingInstanceRepository;
@@ -603,39 +603,39 @@ namespace SCM.Data
             }
         }
 
-        public GenericRepository<VpnTenantNetworkStaticRouteRoutingInstance> VpnTenantNetworkStaticRouteRoutingInstanceRepository
+        public GenericRepository<VpnTenantIpNetworkStaticRouteRoutingInstance> VpnTenantIpNetworkStaticRouteRoutingInstanceRepository
         {
             get
             {
-                if (this.vpnTenantNetworkStaticRouteRoutingInstanceRepository == null)
+                if (this.vpnTenantIpNetworkStaticRouteRoutingInstanceRepository == null)
                 {
-                    this.vpnTenantNetworkStaticRouteRoutingInstanceRepository = new GenericRepository<VpnTenantNetworkStaticRouteRoutingInstance>(context);
+                    this.vpnTenantIpNetworkStaticRouteRoutingInstanceRepository = new GenericRepository<VpnTenantIpNetworkStaticRouteRoutingInstance>(context);
                 }
-                return vpnTenantNetworkStaticRouteRoutingInstanceRepository;
+                return vpnTenantIpNetworkStaticRouteRoutingInstanceRepository;
             }
         }
 
-        public GenericRepository<VpnTenantNetworkOut> VpnTenantNetworkOutRepository
+        public GenericRepository<VpnTenantIpNetworkOut> VpnTenantIpNetworkOutRepository
         {
             get
             {
-                if (this.vpnTenantNetworkOutRepository == null)
+                if (this.vpnTenantIpNetworkOutRepository == null)
                 {
-                    this.vpnTenantNetworkOutRepository = new GenericRepository<VpnTenantNetworkOut>(context);
+                    this.vpnTenantIpNetworkOutRepository = new GenericRepository<VpnTenantIpNetworkOut>(context);
                 }
-                return vpnTenantNetworkOutRepository;
+                return vpnTenantIpNetworkOutRepository;
             }
         }
 
-        public GenericRepository<VpnTenantNetworkRoutingInstance> VpnTenantNetworkRoutingInstanceRepository
+        public GenericRepository<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworkRoutingInstanceRepository
         {
             get
             {
-                if (this.vpnTenantNetworkRoutingInstanceRepository == null)
+                if (this.vpnTenantIpNetworkRoutingInstanceRepository == null)
                 {
-                    this.vpnTenantNetworkRoutingInstanceRepository = new GenericRepository<VpnTenantNetworkRoutingInstance>(context);
+                    this.vpnTenantIpNetworkRoutingInstanceRepository = new GenericRepository<VpnTenantIpNetworkRoutingInstance>(context);
                 }
-                return vpnTenantNetworkRoutingInstanceRepository;
+                return vpnTenantIpNetworkRoutingInstanceRepository;
             }
         }
 

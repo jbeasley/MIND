@@ -21,6 +21,8 @@ namespace SCM.Services
         /// Get all VPN Tenant IP Network Communities for a given VPN Tenant Network.
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="deep"></param>
+        /// <param name="asTrackable"></param>
         /// <returns></returns>
         public async Task<IEnumerable<VpnTenantIpNetworkCommunityIn>> GetAllByVpnTenantIpNetworkInIDAsync(int id, bool? deep = false,bool asTrackable= false)
         {

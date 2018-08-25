@@ -23,24 +23,24 @@
         <input type="hidden" asp-for="BgpPeerID" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-group">
-            <label asp-for="IpAddress" class="col-md-2 control-label"></label>
+            <label asp-for="Ipv4PeerAddress" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="IpAddress" class="form-control" />
-                <span asp-validation-for="IpAddress" class="text-danger"></span>
+                <input asp-for="Ipv4PeerAddress" class="form-control" />
+                <span asp-validation-for="Ipv4PeerAddress" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="AutonomousSystem" class="col-md-2 control-label"></label>
+            <label asp-for="Peer2ByteAutonomousSystem" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="AutonomousSystem" class="form-control" />
-                <span asp-validation-for="AutonomousSystem" class="text-danger"></span>
+                <input asp-for="Peer2ByteAutonomousSystem" class="form-control" />
+                <span asp-validation-for="Peer2ByteAutonomousSystem" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="Md5Password" class="col-md-2 control-label"></label>
+            <label asp-for="PeerPassword" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="Md5Password" class="form-control" />
-                <span asp-validation-for="Md5Password" class="text-danger"></span>
+                <input asp-for="PeerPassword" class="form-control" />
+                <span asp-validation-for="PeerPassword" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">

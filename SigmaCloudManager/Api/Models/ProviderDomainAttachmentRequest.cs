@@ -30,14 +30,16 @@ namespace Mind.Api.Models
         /// <summary>
         /// Determines if a bundle style of attachment is required
         /// </summary>
-        /// <value>Determines if a bundle style of attachment is required</value>
+        /// <value>Boolean value which denotes if a bundle style of attachment is required</value>
+        /// <example>true</example>
         [DataMember(Name="bundleRequired")]
         public bool? BundleRequired { get; set; }
 
         /// <summary>
         /// The minimum number of active links in a bundle attachment
         /// </summary>
-        /// <value>A value which specifies the minimum links in the bundle</value>
+        /// <value>Integer value which specifies the minimum links in the bundle</value>
+        /// <example>2</example>
         [DataMember(Name = "bundleMinLinks")]
         [Range(1,8)]
         public int? BundleMinLinks { get; set; }
@@ -45,7 +47,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// The maximum number of active links in a bundle attachment
         /// </summary>
-        /// <value>A value which specifies the maximum links in the bundle</value>
+        /// <value>Integer value which specifies the maximum links in the bundle</value>
         [DataMember(Name = "bundleMaxLinks")]
         [Range(1, 8)]
         public int? BundleMaxLinks { get; set; }
@@ -53,14 +55,15 @@ namespace Mind.Api.Models
         /// <summary>
         /// Determines if a multi port style of attachment is required
         /// </summary>
-        /// <value>Determines if a multi port style of attachment is required</value>
+        /// <value>Boolean value which denotes if a multi port style of attachment is required</value>
         [DataMember(Name="multiportRequired")]
         public bool? MultiportRequired { get; set; }
 
         /// <summary>
         /// The name of a provider network location within which the new attachment will be provisioned
         /// </summary>
-        /// <value>The name of a provider network location within which the new attachment will be provisioned</value>
+        /// <value>String value denoting the name of a provider network location</value>
+        /// <example>UK2</example>
         [Required]
         [DataMember(Name="locationName")]
         public string LocationName { get; set; }
@@ -68,7 +71,8 @@ namespace Mind.Api.Models
         /// <summary>
         /// The name of a port pool which ports for the new attachment will be allocated from
         /// </summary>
-        /// <value>The name of a port pool</value>
+        /// <value>String value denoting the name of a port pool</value>
+        /// <example>General</example>
         [Required]
         [DataMember(Name = "portPoolName")]
         public string PortPoolName { get; set; }
@@ -76,15 +80,15 @@ namespace Mind.Api.Models
         /// <summary>
         /// The name of an attachment role which sets certain constrains on how the attachment must be configuted
         /// </summary>
-        /// <value>The name of an attachment role</value>
+        /// <value>String value denoting the name of an attachment role</value>
+        /// <example>PE-CE-UNTAGGED</example>
         [Required]
         [DataMember(Name = "attachmentRoleName")]
         public string AttachmentRoleName { get; set; }
 
         /// <summary>
-        /// Optional name of the provider network plane within which the attachment will be provisioned
+        /// Enumeration of provider network plane options
         /// </summary>
-        /// <value>Optional name of the provider network plane within which the attachment will be provisioned</value>
         public enum PlaneNameEnum
         { 
             /// <summary>
@@ -103,35 +107,38 @@ namespace Mind.Api.Models
         /// <summary>
         /// Optional name of the provider network plane within which the attachment will be provisioned
         /// </summary>
-        /// <value>Optional name of the provider network plane within which the attachment will be provisioned</value>
+        /// <value>A member of the PlaneNameEnum enumeration</value>
+        /// <example>Red</example>
         [DataMember(Name="planeName")]
         public PlaneNameEnum? PlaneName { get; set; }
 
         /// <summary>
         /// The required bandwidth of the attachment in Gbps
         /// </summary>
-        /// <value>The required bandwidth of the attachment in Gbps</value>
+        /// <value>Integer value denoting the required attachment bandwidth in Gbps</value>
+        /// <example>10</example>
         [DataMember(Name="attachmentBandwidthGbps")]
         public int? AttachmentBandwidthGbps { get; set; }
 
         /// <summary>
         /// The required contract bandwidth in Mbps
         /// </summary>
-        /// <value>The required contract bandwidth in Mbps</value>
+        /// <value>Integer value denoting the required contract bandwidth in Mbps</value>
+        /// <example>100</example>
         [DataMember(Name="contractBandwidthMbps")]
         public int? ContractBandwidthMbps { get; set; }
 
         /// <summary>
-        /// Determines whether DSCP and COS markings of packets sent from the tenant network should be trusted by the provider
+        /// Determines whether DSCP and COS markings of packets received from the tenant domain should be trusted by the provider
         /// </summary>
-        /// <value>Determines whether DSCP and COS markings of packets sent from the tenant network should be trusted by the provider</value>
+        /// <value>Boolean value denoting the required trust state</value>
         [DataMember(Name="trustReceivedCosAndDscp")]
         public bool? TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
-        /// IPv4 addresses to be assigned to the interfaces of the attachment.
+        /// A list of IPv4 addresses to be assigned to the interfaces of the attachment.
         /// </summary>
-        /// <value>A list of IPv4 addresses and subnet masks</value>
+        /// <value>A list of Ipv4AddressAndMask objcets</value>
         [DataMember(Name="ipv4Addresses")]
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 

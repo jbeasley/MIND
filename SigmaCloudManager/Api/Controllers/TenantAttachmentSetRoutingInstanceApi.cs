@@ -28,6 +28,7 @@ using Mind.Services;
 using Mind.Builders;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 { 
@@ -105,7 +106,7 @@ namespace Mind.Api.Controllers
 
         /// <param name="tenantId">ID of the attachment set</param>
         /// <param name="routingInstanceId">ID of the routing instance to update</param>
-        /// <param name="body">Attachmment set routing instance request object that applies updates to an existing attachment set routing instance/param>
+        /// <param name="body">Attachmment set routing instance request object that applies updates to an existing attachment set routing instance</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>

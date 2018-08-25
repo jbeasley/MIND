@@ -273,8 +273,6 @@ namespace SigmaCloudManager.Migrations
                     b.Property<int>("BgpPeerID")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("AutonomousSystem");
-
                     b.Property<string>("Ipv4PeerAddress")
                         .HasMaxLength(15);
 
@@ -284,7 +282,9 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int?>("MaximumRoutes");
 
-                    b.Property<string>("Md5Password")
+                    b.Property<int>("Peer2ByteAutonomousSystem");
+
+                    b.Property<string>("PeerPassword")
                         .HasMaxLength(50);
 
                     b.Property<int>("RoutingInstanceID");
@@ -1407,10 +1407,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.HasIndex("TenantID");
 
-                    b.HasIndex("Ipv4Prefix", "Ipv4Length")
-                        .IsUnique()
-                        .HasFilter("[Ipv4Prefix] IS NOT NULL");
-
                     b.ToTable("TenantIpNetwork");
                 });
 
@@ -1896,10 +1892,109 @@ namespace SigmaCloudManager.Migrations
 
                     b.HasIndex("TenantIpNetworkID1");
 
-                    b.HasIndex("TenantIpNetworkID", "AttachmentSetID")
+                    b.HasIndex("TenantIpNetworkID", "AttachmentSetID", "AddToAllBgpPeersInAttachmentSet", "BgpPeerID")
                         .IsUnique();
 
                     b.ToTable("VpnTenantIpNetworkIn");
+                });
+
+            modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkOut", b =>
+                {
+                    b.Property<int>("VpnTenantIpNetworkOutID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AdvertisedIpRoutingPreference");
+
+                    b.Property<int>("AttachmentSetID");
+
+                    b.Property<int>("BgpPeerID");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<int>("TenantIpNetworkID");
+
+                    b.Property<int?>("TenantIpNetworkID1");
+
+                    b.HasKey("VpnTenantIpNetworkOutID");
+
+                    b.HasIndex("AttachmentSetID");
+
+                    b.HasIndex("BgpPeerID");
+
+                    b.HasIndex("TenantIpNetworkID1");
+
+                    b.HasIndex("TenantIpNetworkID", "AttachmentSetID")
+                        .IsUnique();
+
+                    b.ToTable("VpnTenantIpNetworkOut");
+                });
+
+            modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkRoutingInstance", b =>
+                {
+                    b.Property<int>("VpnTenantIpNetworkRoutingInstanceID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<int>("AttachmentSetID");
+
+                    b.Property<int>("LocalIpRoutingPreference");
+
+                    b.Property<int>("RoutingInstanceID");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<int>("TenantIpNetworkID");
+
+                    b.Property<int?>("TenantIpNetworkID1");
+
+                    b.HasKey("VpnTenantIpNetworkRoutingInstanceID");
+
+                    b.HasIndex("AttachmentSetID");
+
+                    b.HasIndex("RoutingInstanceID");
+
+                    b.HasIndex("TenantIpNetworkID1");
+
+                    b.HasIndex("TenantIpNetworkID", "AttachmentSetID")
+                        .IsUnique();
+
+                    b.ToTable("VpnTenantIpNetworkRoutingInstance");
+                });
+
+            modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkStaticRouteRoutingInstance", b =>
+                {
+                    b.Property<int>("VpnTenantIpNetworkStaticRouteRoutingInstanceID")
+                        .ValueGeneratedOnAdd();
+
+                    b.Property<bool>("AddToAllRoutingInstancesInAttachmentSet");
+
+                    b.Property<int>("AttachmentSetID");
+
+                    b.Property<string>("Ipv4NextHopAddress");
+
+                    b.Property<bool>("IsBfdEnabled");
+
+                    b.Property<int?>("RoutingInstanceID");
+
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<int>("TenantIpNetworkID");
+
+                    b.HasKey("VpnTenantIpNetworkStaticRouteRoutingInstanceID");
+
+                    b.HasIndex("AttachmentSetID");
+
+                    b.HasIndex("RoutingInstanceID");
+
+                    b.HasIndex("TenantIpNetworkID", "AttachmentSetID")
+                        .IsUnique();
+
+                    b.ToTable("VpnTenantIpNetworkStaticRouteRoutingInstance");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTenantMulticastGroup", b =>
@@ -1935,117 +2030,6 @@ namespace SigmaCloudManager.Migrations
                         .IsUnique();
 
                     b.ToTable("VpnTenantMulticastGroup");
-                });
-
-            modelBuilder.Entity("SCM.Models.VpnTenantNetworkOut", b =>
-                {
-                    b.Property<int>("VpnTenantNetworkOutID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AdvertisedIpRoutingPreference");
-
-                    b.Property<int>("AttachmentSetID");
-
-                    b.Property<int>("BgpPeerID");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate();
-
-                    b.Property<int?>("TenantIpNetworkID");
-
-                    b.Property<int?>("TenantIpNetworkID1");
-
-                    b.Property<int>("TenantNetworkID");
-
-                    b.HasKey("VpnTenantNetworkOutID");
-
-                    b.HasIndex("AttachmentSetID");
-
-                    b.HasIndex("BgpPeerID");
-
-                    b.HasIndex("TenantIpNetworkID");
-
-                    b.HasIndex("TenantIpNetworkID1");
-
-                    b.HasIndex("TenantNetworkID", "AttachmentSetID")
-                        .IsUnique();
-
-                    b.ToTable("VpnTenantNetworkOut");
-                });
-
-            modelBuilder.Entity("SCM.Models.VpnTenantNetworkRoutingInstance", b =>
-                {
-                    b.Property<int>("VpnTenantNetworkRoutingInstanceID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<int>("AttachmentSetID");
-
-                    b.Property<int>("LocalIpRoutingPreference");
-
-                    b.Property<int>("RoutingInstanceID");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate();
-
-                    b.Property<int?>("TenantIpNetworkID");
-
-                    b.Property<int?>("TenantIpNetworkID1");
-
-                    b.Property<int>("TenantNetworkID");
-
-                    b.HasKey("VpnTenantNetworkRoutingInstanceID");
-
-                    b.HasIndex("AttachmentSetID");
-
-                    b.HasIndex("RoutingInstanceID");
-
-                    b.HasIndex("TenantIpNetworkID");
-
-                    b.HasIndex("TenantIpNetworkID1");
-
-                    b.HasIndex("TenantNetworkID", "AttachmentSetID")
-                        .IsUnique();
-
-                    b.ToTable("VpnTenantNetworkRoutingInstance");
-                });
-
-            modelBuilder.Entity("SCM.Models.VpnTenantNetworkStaticRouteRoutingInstance", b =>
-                {
-                    b.Property<int>("VpnTenantNetworkStaticRouteRoutingInstanceID")
-                        .ValueGeneratedOnAdd();
-
-                    b.Property<bool>("AddToAllRoutingInstancesInAttachmentSet");
-
-                    b.Property<int>("AttachmentSetID");
-
-                    b.Property<bool>("IsBfdEnabled");
-
-                    b.Property<string>("NextHopAddress");
-
-                    b.Property<int?>("RoutingInstanceID");
-
-                    b.Property<byte[]>("RowVersion")
-                        .IsConcurrencyToken()
-                        .ValueGeneratedOnAddOrUpdate();
-
-                    b.Property<int?>("TenantIpNetworkID");
-
-                    b.Property<int>("TenantNetworkID");
-
-                    b.HasKey("VpnTenantNetworkStaticRouteRoutingInstanceID");
-
-                    b.HasIndex("AttachmentSetID");
-
-                    b.HasIndex("RoutingInstanceID");
-
-                    b.HasIndex("TenantIpNetworkID");
-
-                    b.HasIndex("TenantNetworkID", "AttachmentSetID")
-                        .IsUnique();
-
-                    b.ToTable("VpnTenantNetworkStaticRouteRoutingInstance");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTopologyType", b =>
@@ -2626,7 +2610,7 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.RoutingInstance", "RoutingInstance")
-                        .WithMany("VpnTenantCommunitiesRoutingInstance")
+                        .WithMany("VpnTenantCommunityRoutingInstances")
                         .HasForeignKey("RoutingInstanceID")
                         .OnDelete(DeleteBehavior.Cascade);
 
@@ -2682,6 +2666,67 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("TenantIpNetworkID1");
                 });
 
+            modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkOut", b =>
+                {
+                    b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
+                        .WithMany("VpnTenantIpNetworksOut")
+                        .HasForeignKey("AttachmentSetID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SCM.Models.BgpPeer", "BgpPeer")
+                        .WithMany("VpnTenantIpNetworksOut")
+                        .HasForeignKey("BgpPeerID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
+                        .WithMany()
+                        .HasForeignKey("TenantIpNetworkID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SCM.Models.TenantIpNetwork")
+                        .WithMany("VpnTenantIpNetworksOut")
+                        .HasForeignKey("TenantIpNetworkID1");
+                });
+
+            modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkRoutingInstance", b =>
+                {
+                    b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
+                        .WithMany("VpnTenantIpNetworksRoutingInstance")
+                        .HasForeignKey("AttachmentSetID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SCM.Models.RoutingInstance", "RoutingInstance")
+                        .WithMany("VpnTenantIpNetworkRoutingInstances")
+                        .HasForeignKey("RoutingInstanceID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
+                        .WithMany()
+                        .HasForeignKey("TenantIpNetworkID")
+                        .OnDelete(DeleteBehavior.Restrict);
+
+                    b.HasOne("SCM.Models.TenantIpNetwork")
+                        .WithMany("VpnTenantIpNetworksRoutingInstance")
+                        .HasForeignKey("TenantIpNetworkID1");
+                });
+
+            modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkStaticRouteRoutingInstance", b =>
+                {
+                    b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
+                        .WithMany("VpnTenantIpNetworkStaticRoutesRoutingInstance")
+                        .HasForeignKey("AttachmentSetID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SCM.Models.RoutingInstance", "RoutingInstance")
+                        .WithMany("VpnTenantIpNetworkStaticRouteRoutingInstances")
+                        .HasForeignKey("RoutingInstanceID");
+
+                    b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
+                        .WithMany()
+                        .HasForeignKey("TenantIpNetworkID")
+                        .OnDelete(DeleteBehavior.Restrict);
+                });
+
             modelBuilder.Entity("SCM.Models.VpnTenantMulticastGroup", b =>
                 {
                     b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
@@ -2705,67 +2750,6 @@ namespace SigmaCloudManager.Migrations
                     b.HasOne("SCM.Models.TenantMulticastGroup")
                         .WithMany("VpnTenantMulticastGroups")
                         .HasForeignKey("TenantMulticastGroupID1");
-                });
-
-            modelBuilder.Entity("SCM.Models.VpnTenantNetworkOut", b =>
-                {
-                    b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
-                        .WithMany("VpnTenantNetworksOut")
-                        .HasForeignKey("AttachmentSetID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SCM.Models.BgpPeer", "BgpPeer")
-                        .WithMany("VpnTenantNetworksOut")
-                        .HasForeignKey("BgpPeerID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
-                        .WithMany()
-                        .HasForeignKey("TenantIpNetworkID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantIpNetwork")
-                        .WithMany("VpnTenantNetworksOut")
-                        .HasForeignKey("TenantIpNetworkID1");
-                });
-
-            modelBuilder.Entity("SCM.Models.VpnTenantNetworkRoutingInstance", b =>
-                {
-                    b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
-                        .WithMany("VpnTenantNetworksRoutingInstance")
-                        .HasForeignKey("AttachmentSetID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SCM.Models.RoutingInstance", "RoutingInstance")
-                        .WithMany("VpnTenantNetworksRoutingInstance")
-                        .HasForeignKey("RoutingInstanceID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
-                        .WithMany()
-                        .HasForeignKey("TenantIpNetworkID")
-                        .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantIpNetwork")
-                        .WithMany("VpnTenantNetworksRoutingInstance")
-                        .HasForeignKey("TenantIpNetworkID1");
-                });
-
-            modelBuilder.Entity("SCM.Models.VpnTenantNetworkStaticRouteRoutingInstance", b =>
-                {
-                    b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
-                        .WithMany("VpnTenantNetworkStaticRoutesRoutingInstance")
-                        .HasForeignKey("AttachmentSetID")
-                        .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SCM.Models.RoutingInstance", "RoutingInstance")
-                        .WithMany("VpnTenantNetworkStaticRoutesRoutingInstance")
-                        .HasForeignKey("RoutingInstanceID");
-
-                    b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
-                        .WithMany()
-                        .HasForeignKey("TenantIpNetworkID")
-                        .OnDelete(DeleteBehavior.Restrict);
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTopologyType", b =>

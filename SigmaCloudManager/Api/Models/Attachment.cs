@@ -30,98 +30,117 @@ namespace Mind.Api.Models
         /// <summary>
         /// ID of the attachment
         /// </summary>
-        /// <value>ID of the attachment</value>
+        /// <value>Integer valude denoting the ID of the attachment</value>
+        /// <exmple>6001</exmple>
         [DataMember(Name="attachmentId")]
-        public int? AttachmentId { get; set; }
+        public int? AttachmentId { get; private set; }
 
         /// <summary>
         /// The attachment is enabled for layer 3
         /// </summary>
-        /// <value>Determines whether the attachment is enabled for layer 3</value>
+        /// <value>Boolean which denotes whether the attachment is enabled for layer 3</value>
+        /// <example>true</example>
         [DataMember(Name="isLayer3")]
-        public bool? IsLayer3 { get; set; }
+        public bool? IsLayer3 { get; private set; }
 
         /// <summary>
         /// The attachment is delivered as a bundle
         /// </summary>
-        /// <value>Determines if the attachment is delivered as a bundle</value>
+        /// <value>Boolean value which denotes if the attachment is delivered as a bundle</value>
+        /// <example>true</example>
         [DataMember(Name="isBundle")]
-        public bool? IsBundle { get; set; }
+        public bool? IsBundle { get; private set; }
 
         /// <summary>
         /// For bundle attachments, the minimum number of active links in the bundle
         /// </summary>
-        /// <value>A value for the minimum links in the bundle</value>
+        /// <value>Integer value denoting the minimum links in the bundle</value>
+        /// <example>2</example>
         [DataMember(Name = "bundleMinLinks")]
-        public int? BundleMinLinks { get; set; }
+        public int? BundleMinLinks { get; private set; }
 
         /// <summary>
         /// For bundle attachments, the maximum number of active links in the bundle
         /// </summary>
-        /// <value>A value for the maximum links in the bundle</value>
+        /// <value>Integer value denoting the maximum links in the bundle</value>
+        /// <example>2</example>
         [DataMember(Name = "bundleMaxLinks")]
-        public int? BundleMaxLinks { get; set; }
+        public int? BundleMaxLinks { get; private set; }
 
         /// <summary>
-        /// Determines if the attachment is delivered as a multiport
+        /// The attachment is delivered as a multiport
         /// </summary>
-        /// <value>Determines if the attachment is delivered as a multiport</value>
+        /// <value>Boolean denoting if the attachment is delivered as a multiport</value>
+        /// <example>true</example>
         [DataMember(Name="isMultiport")]
-        public bool? IsMultiport { get; set; }
+        public bool? IsMultiport { get; private set; }
 
         /// <summary>
-        /// Determines if the attachment is enabled with tagging
+        /// The attachment is enabled with tagging
         /// </summary>
-        /// <value>Determines if the attachment is enabled with tagging</value>
+        /// <value>Boolean value denoting if the attachment is enabled with tagging</value>
+        /// <example>true</example>
         [DataMember(Name="isTagged")]
-        public bool? IsTagged { get; set; }
+        public bool? IsTagged { get; private set; }
 
         /// <summary>
-        /// Gets or Sets Tenant
+        /// The name of the tenant owner of the attachment
         /// </summary>
+        /// <value>String value for the name of the tenant</value>
+        /// <example>product-group-tenant</example>
         [DataMember(Name="tenantName")]
-        public string TenantName { get; set; }
+        public string TenantName { get; private set; }
 
         /// <summary>
-        /// Gets or Sets Infrastructure Device Name
+        /// The name of the provider domain infrastructure device which terminates the attachment within the provider domain
         /// </summary>
+        /// <value>String value denoting the name of the infrastructure device</value>
+        /// <example>UK2-PE1</example>
         [DataMember(Name="infrastructureDeviceName")]
         public string InfrastructureDeviceName { get; set; }
 
         /// <summary>
-        /// Gets or Sets Location Name
+        /// The name of the provider location within which the attachment is terminated
         /// </summary>
+        /// <value>String value denoting the provider location</value>
+        /// <example>UK2</example>
         [DataMember(Name = "LocationName")]
         public string LocationName { get; set; }
 
         /// <summary>
-        /// Gets or Sets Plane Name
+        /// The name of the provider plane within which the attachment is terminated
         /// </summary>
+        /// <value>String value denoting the provider plane</value>
+        /// <example>Red</example>
         [DataMember(Name = "PlaneName")]
         public string PlaneName { get; set; }
 
         /// <summary>
         /// The bandwidth of the attachment in Gbps
         /// </summary>
-        /// <value>The bandwidth of the attachment in Gbps</value>
+        /// <value>Integer value denoting the bandwidth of the attachment in Gbps</value>
+        /// <example>10</example>
         [DataMember(Name="attachmentBandwidthGbps")]
         public int? AttachmentBandwidthGbps { get; set; }
 
         /// <summary>
-        /// Gets or Sets ContractBandwidthPool
+        /// The contract bandwidth pool created for the attachment
         /// </summary>
+        /// <value>An object of type ContractBandwidthPool</value>
         [DataMember(Name="contractBandwidthPool")]
         public ContractBandwidthPool ContractBandwidthPool { get; set; }
 
         /// <summary>
-        /// Gets or Sets RoutingInstance
+        /// The routing instance created for the attachment
         /// </summary>
+        /// <value>An object of type RoutingInstance</value>
         [DataMember(Name="routingInstance")]
         public RoutingInstance RoutingInstance { get; set; }
 
         /// <summary>
-        /// Gets or Sets Interfaces
+        /// A list of interfaces created for the attachment
         /// </summary>
+        /// <value>A list of Interface objects</value>
         [DataMember(Name = "interfaces")]
         public List<Interface> Interfaces { get; set; }
 

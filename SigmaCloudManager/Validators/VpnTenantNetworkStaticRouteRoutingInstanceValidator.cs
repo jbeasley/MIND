@@ -4,48 +4,36 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Services;
 using SCM.Models;
-using Mind.Services;
+using SCM.Data;
 
 namespace SCM.Validators
 {
     /// <summary>
-    /// Validator for VPN Tenant Networks (Tenant Networks which are associated with a VPN)
+    /// Validator for tenant IP network associations with attachment sets
     /// </summary>
-    public class VpnTenantNetworkStaticRouteRoutingInstanceValidator : BaseValidator, IVpnTenantNetworkStaticRouteRoutingInstanceValidator
+    public class VpnTenantIpNetworkStaticRouteRoutingInstanceValidator : BaseValidator, IVpnTenantIpNetworkStaticRouteRoutingInstanceValidator
     {
-        public VpnTenantNetworkStaticRouteRoutingInstanceValidator(IVpnAttachmentSetService vpnAttachmentSetService,
-            ITenantIpNetworkService tenantNetworkService,
-            IVpnTenantNetworkStaticRouteRoutingInstanceService vpnTenantNetworkStaticRouteRoutingInstanceService)
+        public VpnTenantIpNetworkStaticRouteRoutingInstanceValidator(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            VpnAttachmentSetService = vpnAttachmentSetService;
-            TenantNetworkService = tenantNetworkService;
-            VpnTenantNetworkStaticRouteRoutingInstanceService = vpnTenantNetworkStaticRouteRoutingInstanceService;
         }
 
-        private IVpnAttachmentSetService VpnAttachmentSetService { get; set; }
-        private ITenantIpNetworkService TenantNetworkService { get; set; }
-        private IVpnTenantNetworkStaticRouteRoutingInstanceService VpnTenantNetworkStaticRouteRoutingInstanceService { get; set; }
-
         /// <summary>
-        /// Validates a Tenant Network for binding to an Attachment Set.
+        /// Validates a new tenant IP network association with an attachment set as a static route.
         /// </summary>
-        /// <param name="vpnTenantNetworkStaticRouteRoutingInstance"></param>
+        /// <param name="vpnTenantIpNetworkStaticRouteRoutingInstance"></param>
         /// <returns></returns>
-        public async Task ValidateNewAsync(VpnTenantNetworkStaticRouteRoutingInstance vpnTenantNetworkStaticRouteRoutingInstance)
+        public async Task ValidateNewAsync(VpnTenantIpNetworkStaticRouteRoutingInstance vpnTenantIpNetworkStaticRouteRoutingInstance)
         {
-            var vpnAttachmentSets = await VpnAttachmentSetService.GetAllByAttachmentSetIDAsync(vpnTenantNetworkStaticRouteRoutingInstance.AttachmentSetID);
-            var vpns = vpnAttachmentSets.Select(x => x.Vpn);
-
-            foreach (var vpn in vpns)
-            if (vpn.IsExtranet)
-            {
-                var tenantNetwork = await TenantNetworkService.GetByIDAsync(vpnTenantNetworkStaticRouteRoutingInstance.TenantNetworkID);
-                if (!tenantNetwork.AllowExtranet)
-                {
-                    ValidationDictionary.AddError(string.Empty, $"Tenant Network '{tenantNetwork.CidrName}' "
-                        + "is not enabled for Extranet.");
-                }
-            }
+            var tenantIpNetwork = await _unitOfWork.TenantIpNetworkRepository.GetByIDAsync(vpnTenantIpNetworkStaticRouteRoutingInstance.TenantIpNetworkID);
+            (from result in await _unitOfWork.VpnAttachmentSetRepository.GetAsync(q =>
+                                q.AttachmentSetID == vpnTenantIpNetworkStaticRouteRoutingInstance.AttachmentSetID && q.Vpn.IsExtranet)
+                                select result.Vpn)
+                                .ToList()
+                                .ForEach(
+                                   x => ValidationDictionary.AddError(string.Empty, $"Tenant IP network '{tenantIpNetwork.CidrName}' " +
+                                    "cannot be added to the attachment set because the attachment set is associated with VPN {x.Name} which " +
+                                    "is an extranet VPN, and the tenant IP network is not enabled for extranet. Update the tenant IP network " +
+                                    "resource to enable it for extranet services."));
         }
     }
 }

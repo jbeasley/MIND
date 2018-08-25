@@ -104,7 +104,7 @@ namespace SCM.Services
         /// <summary>
         /// Get an Attachment for a given Interface.
         /// </summary>
-        /// <param name= interfaceID"></param>
+        /// <param name="interfaceID"></param>
         /// <returns></returns>
         public async Task<Attachment> GetByInterfaceIDAsync(int interfaceID, bool deep = true)
         {

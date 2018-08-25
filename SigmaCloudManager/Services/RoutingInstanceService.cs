@@ -23,20 +23,19 @@ namespace SCM.Services
                 + "Device.Location.SubRegion.Region,"
                 + "AttachmentSetRoutingInstances.AttachmentSet.VpnAttachmentSets.Vpn,"
                 + "AttachmentSetRoutingInstances.AttachmentSet.Tenant,"
-                + "BgpPeers.VpnTenantNetworksOut.TenantIpNetwork,"
-                + "BgpPeers.VpnTenantNetworksOut.AttachmentSet.VpnAttachmentSets.Vpn,"
+                + "BgpPeers.VpnTenantIpNetworksOut.TenantIpNetwork,"
+                + "BgpPeers.VpnTenantIpNetworksOut.AttachmentSet.VpnAttachmentSets.Vpn,"
                 + "BgpPeers.VpnTenantCommunitiesOut.TenantCommunity,"
                 + "BgpPeers.VpnTenantCommunitiesOut.AttachmentSet.VpnAttachmentSets.Vpn,"
-                + "BgpPeers.VpnTenantNetworksIn.TenantIpNetwork,"
-                + "BgpPeers.VpnTenantNetworksIn.AttachmentSet.VpnAttachmentSets.Vpn,"
+                + "BgpPeers.VpnTenantIpNetworksIn.TenantIpNetwork,"
+                + "BgpPeers.VpnTenantIpNetworksIn.AttachmentSet.VpnAttachmentSets.Vpn,"
                 + "BgpPeers.VpnTenantCommunitiesIn.TenantCommunity,"
                 + "BgpPeers.VpnTenantCommunitiesIn.AttachmentSet.VpnAttachmentSets.Vpn,"
-                + "VpnTenantNetworksRoutingInstance.TenantIpNetwork,"
-                + "VpnTenantNetworksRoutingInstance.AttachmentSet.VpnAttachmentSets.Vpn,"
-                + "VpnTenantCommunitiesRoutingInstance.TenantCommunity,"
-                + "VpnTenantCommunitiesRoutingInstance.AttachmentSet.VpnAttachmentSets.Vpn,"
-                + "VpnTenantNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
-                + "VpnTenantNetworkStaticRoutesRoutingInstance.AttachmentSet.VpnAttachmentSets.Vpn";
+                + "VpnTenantIpNetworkRoutingInstances.AttachmentSet.VpnAttachmentSets.Vpn,"
+                + "VpnTenantCommunityRoutingInstances.TenantCommunity,"
+                + "VpnTenantCommunityRoutingInstances.AttachmentSet.VpnAttachmentSets.Vpn,"
+                + "VpnTenantIpNetworkStaticRouteRoutingInstances.TenantIpNetwork,"
+                + "VpnTenantIpNetworkStaticRouteRoutingInstances.AttachmentSet.VpnAttachmentSets.Vpn";
 
 
         public async Task<RoutingInstance> GetByIDAsync(int id, bool includeProperties = true)

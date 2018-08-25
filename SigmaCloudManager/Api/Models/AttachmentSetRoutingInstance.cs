@@ -31,7 +31,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// ID of the attachment set routing instance
         /// </summary>
-        /// <value>An integer value /value>
+        /// <value>An integer value</value>
         [DataMember(Name = "attachmentSetRoutingInstanceId")]
         public int? AttachmentSetRoutingInstanceID { get; set; }
 

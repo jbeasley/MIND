@@ -38,7 +38,7 @@ namespace Mind.Api.Attributes
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                var tenant = context.ActionArguments["body"] as Tenant;
+                var tenant = context.ActionArguments["body"] as TenantRequest;
                 if (String.IsNullOrEmpty(tenant.Name))
                 {
                     context.ModelState.AddModelError(string.Empty, "An tenant object was not found in the message body.");

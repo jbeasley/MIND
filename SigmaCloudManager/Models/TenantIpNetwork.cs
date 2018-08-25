@@ -25,8 +25,8 @@ namespace SCM.Models
         public byte[] RowVersion { get; set; }
         public virtual Tenant Tenant { get; set; }
         public virtual ICollection<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
-        public virtual ICollection<VpnTenantNetworkOut> VpnTenantNetworksOut { get; set; }
-        public virtual ICollection<VpnTenantNetworkRoutingInstance> VpnTenantNetworksRoutingInstance { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworksRoutingInstance { get; set; }
         [NotMapped]
         public string CidrName { get
             {

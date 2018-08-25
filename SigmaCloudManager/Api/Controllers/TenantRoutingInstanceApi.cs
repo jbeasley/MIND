@@ -23,6 +23,9 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using Mind.Api.Attributes;
 using Mind.Api.Models;
+using SCM.Services;
+using AutoMapper;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 { 
@@ -30,111 +33,13 @@ namespace Mind.Api.Controllers
     /// 
     /// </summary>
     [ApiVersion("1.0")]
-    public class TenantRoutingInstanceApiController : Controller
+    public class TenantRoutingInstanceApiController : BaseApiController
     { 
-        /// <summary>
-        /// Add a bgp peer to a given routing instance
-        /// </summary>
-        
-        /// <param name="routingInstanceId">ID of the routing instance</param>
-        /// <param name="body">request object that creates a new BGP peer entry</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpPost]
-        [Route("/v{version:apiVersion}/tenant/routing-instance/{routingInstanceId}/bgp-peer")]
-        [ValidateModelState]
-        [SwaggerOperation("AddRoutingInstanceBgpPeer")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BgpPeer), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult AddRoutingInstanceBgpPeer([FromRoute][Required]int? routingInstanceId, [FromBody]BgpPeer body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(BgpPeer));
+        public TenantRoutingInstanceApiController(IRoutingInstanceService routingInstanceService, IMapper mapper) : base(routingInstanceService, mapper)
+        {
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<BgpPeer>\n  <peerIpv4Address>aeiou</peerIpv4Address>\n  <Peer2ByteAutonomousSystem>123</Peer2ByteAutonomousSystem>\n  <PeerPassword>aeiou</PeerPassword>\n  <IsMultiHop>true</IsMultiHop>\n  <IsBfdEnabled>true</IsBfdEnabled>\n</BgpPeer>";
-            exampleJson = "{\n  \"peerIpv4Address\" : \"peerIpv4Address\",\n  \"PeerPassword\" : \"PeerPassword\",\n  \"IsMultiHop\" : false,\n  \"Peer2ByteAutonomousSystem\" : 5249,\n  \"IsBfdEnabled\" : true\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<BgpPeer>(exampleJson)
-            : default(BgpPeer);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
         }
-
-        /// <summary>
-        /// Delete a BGP peer from a given routing instance
-        /// </summary>
-        
-        /// <param name="routingInstanceId">ID of the routing instance</param>
-        /// <param name="apiKey"></param>
-        /// <response code="204">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpDelete]
-        [Route("/v1/tenant/routing-instance/{routingInstanceId}/bgp-peer")]
-        [ValidateModelState]
-        [SwaggerOperation("DeleteRoutingInstanceBgpPeer")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult DeleteRoutingInstanceBgpPeer([FromRoute][Required]int? routingInstanceId, [FromHeader]string apiKey)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Find all BGP peers for a given routing instance
-        /// </summary>
-        /// <remarks>Returns all BGP peers for a given routing instance</remarks>
-        /// <param name="routingInstanceId">ID of the routing instance</param>
-        /// <response code="200">successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpGet]
-        [Route("/v{version:apiVersion}/tenant/routing-instance/{routingInstanceId}/bgp-peer")]
-        [ValidateModelState]
-        [SwaggerOperation("GetAllBgpPeersByRoutingInstance")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<BgpPeer>), description: "successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetAllBgpPeersByRoutingInstance([FromRoute][Required]int? routingInstanceId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<BgpPeer>));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<BgpPeer>\n  <peerIpv4Address>aeiou</peerIpv4Address>\n  <Peer2ByteAutonomousSystem>123</Peer2ByteAutonomousSystem>\n  <PeerPassword>aeiou</PeerPassword>\n  <IsMultiHop>true</IsMultiHop>\n  <IsBfdEnabled>true</IsBfdEnabled>\n</BgpPeer>";
-            exampleJson = "[ {\n  \"peerIpv4Address\" : \"peerIpv4Address\",\n  \"PeerPassword\" : \"PeerPassword\",\n  \"IsMultiHop\" : false,\n  \"Peer2ByteAutonomousSystem\" : 5249,\n  \"IsBfdEnabled\" : true\n}, {\n  \"peerIpv4Address\" : \"peerIpv4Address\",\n  \"PeerPassword\" : \"PeerPassword\",\n  \"IsMultiHop\" : false,\n  \"Peer2ByteAutonomousSystem\" : 5249,\n  \"IsBfdEnabled\" : true\n} ]";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<BgpPeer>>(exampleJson)
-            : default(List<BgpPeer>);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
+      
         /// <summary>
         /// Find all routing instances for a given tenant
         /// </summary>

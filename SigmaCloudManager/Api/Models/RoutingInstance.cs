@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of a routing instance
     /// </summary>
     [DataContract]
     public partial class RoutingInstance : IEquatable<RoutingInstance>
@@ -30,30 +30,41 @@ namespace Mind.Api.Models
         /// <summary>
         /// The ID of the routing instance
         /// </summary>
-        /// <value>The ID of the routing instance</value>
+        /// <value>An integer value denoting the ID of the routing instance</value>
+        /// <example>4001</example>
         [DataMember(Name="routingInstanceId")]
-        public int? RoutingInstanceId { get; set; }
+        public int? RoutingInstanceId { get; private set; }
 
         /// <summary>
-        /// The name of the routing instance
+        /// The MIND system-generated name of the routing instance
         /// </summary>
-        /// <value>The name of the routing instance</value>
+        /// <value>A string value denoting the name of the routing instance</value>
+        /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [DataMember(Name="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// The administrator sub-field of the routing instance
         /// </summary>
-        /// <value>The assigned-number sub-field of the routing instance</value>
+        /// <value>An integer value denoting the assigned-number sub-field of the routing instance</value>
+        /// <example>8718</example>
         [DataMember(Name = "administrator-sub-field")]
-        public int? AdministratorSubField { get; set; }
+        public int? AdministratorSubField { get; private set; }
 
         /// <summary>
         /// The assigned-number sub-field of the routing instance
         /// </summary>
-        /// <value>The assigned-number sub-field of the routing instance</value>
+        /// <value>An integer value denoting the assigned-number sub-field of the routing instance</value>
+        /// <example>10000</example>
         [DataMember(Name = "assigned-number-sub-field")]
-        public int? AssignedNumberSubField { get; set; }
+        public int? AssignedNumberSubField { get; private set; }
+
+        /// <summary>
+        /// A list of BGP peers which are configured for the routing instance
+        /// </summary>
+        /// <value>A list of BgpPeer objects</value>
+        [DataMember(Name = "bgpPeers")]
+        public List<BgpPeer> BgpPeers { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -67,6 +78,7 @@ namespace Mind.Api.Models
             sb.Append("  AdministratorSubField: ").Append(AdministratorSubField).Append("\n");
             sb.Append("  AssignedNumberSubField: ").Append(AssignedNumberSubField).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
+            sb.Append("  BgpPeers: ").Append(BgpPeers).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -122,6 +134,11 @@ namespace Mind.Api.Models
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
+                ) &&
+                (
+                    BgpPeers == other.BgpPeers ||
+                    BgpPeers != null &&
+                    BgpPeers.Equals(other.BgpPeers)
                 );
         }
 
@@ -143,6 +160,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AssignedNumberSubField.GetHashCode();
                 if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
+                if (BgpPeers != null)
+                    hashCode = hashCode * 59 + BgpPeers.GetHashCode();
                 return hashCode;
             }
         }

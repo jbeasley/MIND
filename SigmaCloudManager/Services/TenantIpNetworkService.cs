@@ -14,7 +14,7 @@ namespace Mind.Services
     {
         private readonly string _properties = "Tenant,"
                 + "VpnTenantIpNetworksIn.AttachmentSet,"
-                + "VpnTenantNetworksOut.AttachmentSet";
+                + "VpnTenantIpNetworksOut.AttachmentSet";
 
         private readonly ITenantIpNetworkValidator _validator;
 
@@ -49,9 +49,6 @@ namespace Mind.Services
 
             var network = IPNetwork.Parse($"{tenantIpNetwork.Ipv4Prefix}/{tenantIpNetwork.Ipv4Length}");
             tenantIpNetwork.Ipv4Prefix = network.Network.ToString();
-
-            await _validator.ValidateNewAsync(tenantIpNetwork);
-            if (!_validator.IsValid) throw new ServiceValidationException();
 
             this.UnitOfWork.TenantIpNetworkRepository.Insert(tenantIpNetwork);
             await this.UnitOfWork.SaveAsync();

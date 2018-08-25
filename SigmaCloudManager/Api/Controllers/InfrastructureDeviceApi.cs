@@ -23,6 +23,7 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using Mind.Api.Attributes;
 using Mind.Api.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 { 

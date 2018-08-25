@@ -30,65 +30,74 @@ namespace Mind.Api.Models
         /// <summary>
         /// The ID of the port
         /// </summary>
-        /// <value>The ID of the port</value>
+        /// <value>An integer value denoting the ID of the port</value>
+        /// <example>7001</example>
         [DataMember(Name="portId")]
-        public int? PortId { get; set; }
+        public int? PortId { get; private set; }
 
         /// <summary>
         /// The type of the port, e.g. TenGigabitEtheret
         /// </summary>
-        /// <value>The type of the port, e.g. TenGigabitEtheret</value>
+        /// <value>String denoting the type of the port</value>
+        /// <example>TenGigabitEthernet</example>
         [DataMember(Name="type")]
-        public string Type { get; set; }
+        public string Type { get; private set; }
 
         /// <summary>
         /// The name of the port
         /// </summary>
-        /// <value>The name of the port</value>
+        /// <value>String denoting the name of the port</value>
+        /// <example>1/1/1</example>
         [DataMember(Name="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
-        /// Small Form-Factor Pluggable optic for the port
+        /// The name of the small form-factor pluggable optic for the port
         /// </summary>
-        /// <value>Small Form-Factor Pluggable optic for the port</value>
+        /// <value>A string denoting the name of the small form-factor pluggable optic for the port</value>
+        /// <example>SFP-10G-SR</example>
         [DataMember(Name="portSfp")]
-        public string PortSfp { get; set; }
+        public string PortSfp { get; private set; }
 
         /// <summary>
         /// Status of the port
         /// </summary>
-        /// <value>Status of the port</value>
+        /// <value>String denoting the status of the port</value>
+        /// <example>Assigned</example>
         [DataMember(Name="portStatus")]
-        public string PortStatus { get; set; }
+        public string PortStatus { get; private set; }
 
         /// <summary>
         /// The role of the port
         /// </summary>
-        /// <value>The role of the port</value>
+        /// <value>String value denoting the role of the port</value>
+        /// <example>Tenant-Facing</example>
         [DataMember(Name="portRole")]
-        public string PortRole { get; set; }
+        public string PortRole { get; private set; }
 
         /// <summary>
         /// Pool to which the port is assigned
         /// </summary>
-        /// <value>Pool to which the port is assigned</value>
+        /// <value>String value denoting pool to which the port is assigned</value>
+        /// <example>General</example>
         [DataMember(Name="portPool")]
-        public string PortPool { get; set; }
+        public string PortPool { get; private set; }
 
         /// <summary>
         /// Port connector type
         /// </summary>
-        /// <value>Port connector type</value>
+        /// <value>String denoting the port connector type</value>
+        /// <example>SC</example>
         [DataMember(Name = "portConnector")]
-        public string PortConnector { get; set; }
+        public string PortConnector { get; private set; }
 
         /// <summary>
         /// Port Bandwidth in Gbps
         /// </summary>
-        /// <value>Port bandwidth in Gbps</value>
+        /// <value>Integer value denoting the port bandwidth in Gbps</value>
+        /// <example>10</example>
         [DataMember(Name = "portBandwidthGbps")]
-        public int? PortBandwidthGbps { get; set; }
+        public int? PortBandwidthGbps { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

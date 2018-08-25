@@ -28,39 +28,61 @@ namespace Mind.Api.Models
     public partial class BgpPeer : IEquatable<BgpPeer>
     { 
         /// <summary>
-        /// An IPv4 BGP peer address
+        /// The ID of the BGP peer
         /// </summary>
-        /// <value>An IPv4 BGP peer address</value>
-        [DataMember(Name="peerIpv4Address")]
-        public string PeerIpv4Address { get; set; }
+        /// <value>An integer denoting the BGP peer ID</value>
+        /// <example>3001</example>
+        [DataMember(Name = "bgpPeerId")]
+        public int? BgpPeerId { get; private set; }
 
         /// <summary>
-        /// 2 Byte Autonomous system number of the BGP peer
+        /// <summary>
+        /// IPv4 address of the BGP peer
         /// </summary>
-        /// <value>2 Byte Autonomous system number of the BGP peer</value>
-        [DataMember(Name="Peer2ByteAutonomousSystem")]
-        public int? Peer2ByteAutonomousSystem { get; set; }
+        /// <value>An IPv4 address</value>
+        /// <example>12.1.1.1</example>
+        [DataMember(Name = "ipv4PeerAddress")]
+        public string Ipv4PeerAddress { get; private set; }
+
+        /// <summary>
+        /// The 2 Byte Autonomous system number of the BGP peer
+        /// </summary>
+        /// <value>An integer value between 1 and 65535</value>
+        /// <example>65001</example>
+        [DataMember(Name = "Peer2ByteAutonomousSystem")]
+        public int? Peer2ByteAutonomousSystem { get; private set; }
 
         /// <summary>
         /// Authentication password for the BGP peer
         /// </summary>
-        /// <value>Authentication password for the BGP peer</value>
-        [DataMember(Name="PeerPassword")]
-        public string PeerPassword { get; set; }
+        /// <value>A string representing the authentication password for the BGP peer</value>
+        /// <example>pAs5w0rd!</example>
+        [DataMember(Name = "PeerPassword")]
+        public string PeerPassword { get; private set; }
 
         /// <summary>
         /// Determines if multi-hop peering is enabled
         /// </summary>
-        /// <value>Determines if multi-hop peering is enabled</value>
-        [DataMember(Name="IsMultiHop")]
-        public bool? IsMultiHop { get; set; }
+        /// <value>Boolean value which determines if multi-hop peering is enabled</value>
+        /// <example>true</example>
+        [DataMember(Name = "IsMultiHop")]
+        public bool? IsMultiHop { get; private set; }
 
         /// <summary>
-        /// Determines if the peer should be enabled with bidirectional forwarding detection
+        /// Determines if the peer should be enabled with bidirectional forwarding detection.
         /// </summary>
-        /// <value>Determines if the peer should be enabled with bidirectional forwarding detection</value>
-        [DataMember(Name="IsBfdEnabled")]
-        public bool? IsBfdEnabled { get; set; }
+        /// <value>Boolean value which determines if the peer should be enabled with bidirectional forwarding detection</value>
+        /// <example>true</example>
+        [DataMember(Name = "IsBfdEnabled")]
+        public bool? IsBfdEnabled { get; private set; }
+
+        /// <summary>
+        /// Determines the maximum number of routes the peer should accept
+        /// </summary>
+        /// <value>A positive integer which determines the meximum number of routes accepted from the BGP peer/value>
+        /// <example>200</example>
+        [DataMember(Name = "maximumRoutes")]
+        public int? MaximumRoutes { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -70,11 +92,13 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class BgpPeer {\n");
-            sb.Append("  PeerIpv4Address: ").Append(PeerIpv4Address).Append("\n");
+            sb.Append("  BgpPeerId: ").Append(BgpPeerId).Append("\n");
+            sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
             sb.Append("  Peer2ByteAutonomousSystem: ").Append(Peer2ByteAutonomousSystem).Append("\n");
             sb.Append("  PeerPassword: ").Append(PeerPassword).Append("\n");
             sb.Append("  IsMultiHop: ").Append(IsMultiHop).Append("\n");
             sb.Append("  IsBfdEnabled: ").Append(IsBfdEnabled).Append("\n");
+            sb.Append("  MaximumRoutes: ").Append(MaximumRoutes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -110,11 +134,16 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
-                    PeerIpv4Address == other.PeerIpv4Address ||
-                    PeerIpv4Address != null &&
-                    PeerIpv4Address.Equals(other.PeerIpv4Address)
+                    BgpPeerId == other.BgpPeerId ||
+                    BgpPeerId != null &&
+                    BgpPeerId.Equals(other.BgpPeerId)
+                ) &&
+                (
+                    Ipv4PeerAddress == other.Ipv4PeerAddress ||
+                    Ipv4PeerAddress != null &&
+                    Ipv4PeerAddress.Equals(other.Ipv4PeerAddress)
                 ) && 
                 (
                     Peer2ByteAutonomousSystem == other.Peer2ByteAutonomousSystem ||
@@ -135,6 +164,11 @@ namespace Mind.Api.Models
                     IsBfdEnabled == other.IsBfdEnabled ||
                     IsBfdEnabled != null &&
                     IsBfdEnabled.Equals(other.IsBfdEnabled)
+                ) &&
+                (
+                    MaximumRoutes == other.MaximumRoutes ||
+                    MaximumRoutes != null &&
+                    MaximumRoutes.Equals(other.MaximumRoutes)
                 );
         }
 
@@ -148,8 +182,10 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (PeerIpv4Address != null)
-                    hashCode = hashCode * 59 + PeerIpv4Address.GetHashCode();
+                    if (BgpPeerId != null)
+                    hashCode = hashCode * 59 + BgpPeerId.GetHashCode();
+                    if (Ipv4PeerAddress != null)
+                    hashCode = hashCode * 59 + Ipv4PeerAddress.GetHashCode();
                     if (Peer2ByteAutonomousSystem != null)
                     hashCode = hashCode * 59 + Peer2ByteAutonomousSystem.GetHashCode();
                     if (PeerPassword != null)
@@ -158,6 +194,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsMultiHop.GetHashCode();
                     if (IsBfdEnabled != null)
                     hashCode = hashCode * 59 + IsBfdEnabled.GetHashCode();
+                    if (MaximumRoutes != null)
+                    hashCode = hashCode * 59 + MaximumRoutes.GetHashCode();
                 return hashCode;
             }
         }

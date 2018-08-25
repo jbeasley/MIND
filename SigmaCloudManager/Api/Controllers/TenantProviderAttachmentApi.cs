@@ -29,6 +29,7 @@ using SCM.Data;
 using Microsoft.EntityFrameworkCore;
 using Mind.Builders;
 using Mind.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 { 

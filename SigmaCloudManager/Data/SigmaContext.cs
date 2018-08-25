@@ -67,10 +67,10 @@ namespace SCM.Data
         public DbSet<TenantCommunitySet> TenantCommunitySets { get; set; }
         public DbSet<RoutingPolicyMatchOption> RoutingPolicyMatchOptions { get; set; }
         public DbSet<TenantCommunitySetCommunity> TenantCommunitySetCommunities { get; set; }
-        public DbSet<VpnTenantIpNetworkIn> VpnTenantNetworksIn { get; set; }
-        public DbSet<VpnTenantNetworkStaticRouteRoutingInstance> VpnTenantNetworkStaticRoutesRoutingInstance { get; set; }
-        public DbSet<VpnTenantNetworkOut> VpnTenantNetworksOut { get; set; }
-        public DbSet<VpnTenantNetworkRoutingInstance> VpnTenantNetworksRoutingInstance { get; set; }
+        public DbSet<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
+        public DbSet<VpnTenantIpNetworkStaticRouteRoutingInstance> VpnTenantIpNetworkStaticRoutesRoutingInstance { get; set; }
+        public DbSet<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
+        public DbSet<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworksRoutingInstance { get; set; }
         public DbSet<VpnTenantCommunityIn> VpnTenantCommunitiesIn { get; set; }
         public DbSet<VpnTenantCommunityOut> VpnTenantCommunitiesOut { get; set; }
         public DbSet<VpnTenantCommunityRoutingInstance> VpnTenantCommunitiesRoutingInstance { get; set; }
@@ -129,9 +129,9 @@ namespace SCM.Data
             builder.Entity<ExtranetVpnTenantCommunityIn>().ToTable("ExtranetVpnTenantCommunityIn");
             builder.Entity<ExtranetVpnMember>().ToTable("ExtranetVpnMember");
             builder.Entity<VpnTenantIpNetworkIn>().ToTable("VpnTenantIpNetworkIn");
-            builder.Entity<VpnTenantNetworkStaticRouteRoutingInstance>().ToTable("VpnTenantNetworkStaticRouteRoutingInstance");
-            builder.Entity<VpnTenantNetworkOut>().ToTable("VpnTenantNetworkOut");
-            builder.Entity<VpnTenantNetworkRoutingInstance>().ToTable("VpnTenantNetworkRoutingInstance");
+            builder.Entity<VpnTenantIpNetworkStaticRouteRoutingInstance>().ToTable("VpnTenantIpNetworkStaticRouteRoutingInstance");
+            builder.Entity<VpnTenantIpNetworkOut>().ToTable("VpnTenantIpNetworkOut");
+            builder.Entity<VpnTenantIpNetworkRoutingInstance>().ToTable("VpnTenantIpNetworkRoutingInstance");
             builder.Entity<VpnTenantCommunityIn>().ToTable("VpnTenantCommunityIn");
             builder.Entity<VpnTenantCommunityOut>().ToTable("VpnTenantCommunityOut");
             builder.Entity<VpnTenantCommunityRoutingInstance>().ToTable("VpnTenantCommunityRoutingInstance");
@@ -235,7 +235,7 @@ namespace SCM.Data
                     .WithMany()
                     .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<VpnTenantNetworkOut>()
+            builder.Entity<VpnTenantIpNetworkOut>()
                     .HasOne(c => c.TenantIpNetwork)
                     .WithMany()
                     .OnDelete(DeleteBehavior.Restrict);
@@ -255,12 +255,12 @@ namespace SCM.Data
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<VpnTenantNetworkStaticRouteRoutingInstance>()
+            builder.Entity<VpnTenantIpNetworkStaticRouteRoutingInstance>()
                    .HasOne(c => c.TenantIpNetwork)
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<VpnTenantNetworkRoutingInstance>()
+            builder.Entity<VpnTenantIpNetworkRoutingInstance>()
                    .HasOne(c => c.TenantIpNetwork)
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
@@ -388,9 +388,6 @@ namespace SCM.Data
             builder.Entity<Tenant>()
             .HasIndex(p => p.Name).IsUnique();
 
-            builder.Entity<TenantIpNetwork>()
-            .HasIndex(p => new { p.Ipv4Prefix, p.Ipv4Length }).IsUnique();
-
             builder.Entity<TenantCommunity>()
             .HasIndex(p => new { p.AutonomousSystemNumber, p.Number }).IsUnique();
 
@@ -410,16 +407,16 @@ namespace SCM.Data
             .HasIndex(p => p.Name).IsUnique();
 
             builder.Entity<VpnTenantIpNetworkIn>()
-            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID, p.AddToAllBgpPeersInAttachmentSet, p.BgpPeerID }).IsUnique();
+            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID, p.AddToAllBgpPeersInAttachmentSet, p.BgpPeerID }).IsUnique().HasFilter(null);
 
-            builder.Entity<VpnTenantNetworkStaticRouteRoutingInstance>()
-            .HasIndex(p => new { p.TenantNetworkID, p.AttachmentSetID }).IsUnique();
+            builder.Entity<VpnTenantIpNetworkStaticRouteRoutingInstance>()
+            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();
 
-            builder.Entity<VpnTenantNetworkOut>()
-            .HasIndex(p => new { p.TenantNetworkID, p.AttachmentSetID }).IsUnique();
+            builder.Entity<VpnTenantIpNetworkOut>()
+            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();
 
-            builder.Entity<VpnTenantNetworkRoutingInstance>()
-            .HasIndex(p => new { p.TenantNetworkID, p.AttachmentSetID }).IsUnique();
+            builder.Entity<VpnTenantIpNetworkRoutingInstance>()
+            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();
 
             builder.Entity<VpnTenantCommunityIn>()
             .HasIndex(p => new { p.TenantCommunityID, p.AttachmentSetID }).IsUnique();

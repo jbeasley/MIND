@@ -15,12 +15,13 @@ namespace Mind.Builders
             _builder = builder;
         }
 
-        public async Task<SCM.Models.VpnTenantIpNetworkIn> BuildAsync(int attachmentSetId, int tenantIpNetworkId, VpnTenantIpNetworkInRequest request)
+        public async Task<SCM.Models.VpnTenantIpNetworkIn> BuildAsync(int attachmentSetId, VpnTenantIpNetworkInRequest request)
         {
             return await _builder.ForAttachmentSet(attachmentSetId)
+                                 .WithTenant(request.TenantId)
                                  .WithLocalIpRoutingPreference(request.LocalIpRoutingPreference)
                                  .WithIpv4PeerAddress(request.Ipv4PeerAddress)
-                                 .WithTenantIpNetwork(tenantIpNetworkId)
+                                 .WithTenantIpNetworkCidrName(request.TenantIpNetworkCidrName)
                                  .AddToAllBgpPeersInAttachmentSet(request.AddToAllBgpPeersInAttachmentSet)
                                  .BuildAsync();
         }

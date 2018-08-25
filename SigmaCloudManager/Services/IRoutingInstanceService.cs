@@ -8,9 +8,8 @@ using SCM.Models.RequestModels;
 
 namespace SCM.Services
 {
-    public interface IRoutingInstanceService
+    public interface IRoutingInstanceService : IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
         Task<RoutingInstance> GetByIDAsync(int id, bool includeProperties = true);
         Task<IEnumerable<RoutingInstance>> GetAllByNameAsync(string name, bool includeProperties = true);
         Task<IEnumerable<RoutingInstance>> GetAllByRouteDistinguisherRangeNameAsync(string routeDistinguisherRangeName, bool includeProperties = true);

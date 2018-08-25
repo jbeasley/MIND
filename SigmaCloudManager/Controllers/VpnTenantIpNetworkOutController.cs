@@ -15,38 +15,37 @@ using Mind.Services;
 
 namespace SCM.Controllers
 {
-    public class VpnTenantNetworkOutController : BaseViewController
+    public class VpnTenantIpNetworkOutController : BaseViewController
     {
-        public VpnTenantNetworkOutController(ITenantService tenantService,
-            IVpnTenantNetworkOutService vpnTenantNetworkOutService,
+
+        private readonly ITenantService _tenantService;
+        private readonly IVpnTenantIpNetworkOutService _vpnTenantIpNetworkOutService;
+        private readonly IAttachmentSetService _attachmentSetService;
+        private readonly ITenantIpNetworkService _tenantIpNetworkService;
+        private readonly IAttachmentSetRoutingInstanceService _attachmentSetRoutingInstanceService;
+        private readonly IRoutingInstanceService _routingInstanceService;
+        private readonly IVpnService _vpnService;
+        private readonly IBgpPeerService _bgpPeerService;
+
+        public VpnTenantIpNetworkOutController(ITenantService tenantService,
+            IVpnTenantIpNetworkOutService vpnTenantIpNetworkOutService,
             IVpnService vpnService,
             IAttachmentSetService attachmentSetService,
             ITenantIpNetworkService tenantIpNetworkService,
             IAttachmentSetRoutingInstanceService attachmentSetRoutingInstanceService,
-            IRoutingInstanceService vrfService,
+            IRoutingInstanceService routingInstanceService,
             IBgpPeerService bgpPeerService,
-            IMapper mapper)
+            IMapper mapper) : base(vpnTenantIpNetworkOutService, mapper)
         {
-            TenantService = tenantService;
-            VpnTenantNetworkOutService = vpnTenantNetworkOutService;
-            AttachmentSetService = attachmentSetService;
-            TenantIpNetworkService = tenantIpNetworkService;
-            VpnService = vpnService;
-            AttachmentSetRoutingInstanceService = attachmentSetRoutingInstanceService;
-            RoutingInstanceService = vrfService;
-            BgpPeerService = bgpPeerService;
-            Mapper = mapper;
+            _tenantService = tenantService;
+            _vpnTenantIpNetworkOutService = vpnTenantIpNetworkOutService;
+            _attachmentSetService = attachmentSetService;
+            _tenantIpNetworkService = tenantIpNetworkService;
+            _vpnService = vpnService;
+            _attachmentSetRoutingInstanceService = attachmentSetRoutingInstanceService;
+            _routingInstanceService = routingInstanceService;
+            _bgpPeerService = bgpPeerService;
         }
-
-        private ITenantService TenantService { get; }
-        private IVpnTenantNetworkOutService VpnTenantNetworkOutService { get; }
-        private IAttachmentSetService AttachmentSetService { get; }
-        private ITenantIpNetworkService TenantIpNetworkService { get; }
-        private IAttachmentSetRoutingInstanceService AttachmentSetRoutingInstanceService { get; }
-        private IRoutingInstanceService RoutingInstanceService { get; }
-        private IVpnService VpnService { get; }
-        private IBgpPeerService BgpPeerService { get; }
-        private IMapper Mapper { get; }
 
         [HttpGet]
         public async Task<IActionResult> GetAllByAttachmentSetID(int? id, bool? showWarningMessage = false)
@@ -56,40 +55,34 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSet == null)
             {
                 return NotFound();
             }
 
-            if (showWarningMessage.GetValueOrDefault())
-            {
-                ViewData["NetworkWarningMessage"] = "The VPN requires synchronisation with the network as a result of this update. "
-                        + "Follow this <a href = '/Vpn/GetAll'>link</a> to go to the VPNs page.";
-            }
-
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
-            var vpnTenantNetworkOuts = await VpnTenantNetworkOutService.GetAllByAttachmentSetIDAsync(id.Value);
+            var vpnTenantNetworkOuts = await _vpnTenantIpNetworkOutService.GetAllByAttachmentSetIDAsync(id.Value);
 
-            return View(Mapper.Map<List<VpnTenantNetworkOutViewModel>>(vpnTenantNetworkOuts));
+            return View(Mapper.Map<List<VpnTenantIpNetworkOutViewModel>>(vpnTenantNetworkOuts));
         }
 
 
         [HttpGet]
         public async Task<PartialViewResult> TenantNetworks(int tenantID)
         {
-            var tenantNetworks = await TenantIpNetworkService.GetAllByTenantIDAsync(tenantID);
+            var tenantNetworks = await _tenantIpNetworkService.GetAllByTenantIDAsync(tenantID);
             return PartialView(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantNetworks));
         }
 
         [HttpGet]
-        public async Task<PartialViewResult> BgpPeers(int? vrfID)
+        public async Task<PartialViewResult> BgpPeers(int? routingInstanceID)
         {
             var bgpPeers = new List<BgpPeer>();
 
-            if (vrfID != null)
+            if (routingInstanceID != null)
             {
-                var result = await BgpPeerService.GetAllByRoutingInstanceIDAsync(vrfID.Value);
+                var result = await _bgpPeerService.GetAllByRoutingInstanceIDAsync(routingInstanceID.Value);
                 bgpPeers = result.ToList();
             }
 
@@ -104,13 +97,13 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var item = await VpnTenantNetworkOutService.GetByIDAsync(id.Value);
+            var item = await _vpnTenantIpNetworkOutService.GetByIDAsync(id.Value);
             if (item == null)
             {
                 return NotFound();
             }
 
-            return View(Mapper.Map<VpnTenantNetworkOutViewModel>(item));
+            return View(Mapper.Map<VpnTenantIpNetworkOutViewModel>(item));
         }
 
         [HttpGet]
@@ -121,7 +114,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(id.Value, deep: true);
             if (attachmentSet == null)
             {
                 return NotFound();
@@ -131,21 +124,21 @@ namespace SCM.Controllers
             await PopulateTenantsDropDownList();
             await PopulateRoutingInstancesDropDownList(attachmentSet.AttachmentSetID);
 
-            return View(new VpnTenantNetworkOutViewModel());
+            return View(new VpnTenantIpNetworkOutViewModel());
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TenantID,TenantNetworkID,AttachmentSetID," +
+        public async Task<IActionResult> Create([Bind("TenantID,TenantIpNetworkID,AttachmentSetID," +
             "AttachmentSetRoutingInstanceID,BgpPeerID,AdvertisedIpRoutingPreference")]
-            VpnTenantNetworkOutViewModel vpnTenantNetworkOutModel)
+            VpnTenantIpNetworkOutViewModel vpnTenantNetworkOutModel)
         {
             try
             {
                 if (ModelState.IsValid)
                 {
-                    var vpnTenantNetworkOut = Mapper.Map<VpnTenantNetworkOut>(vpnTenantNetworkOutModel);
-                    await VpnTenantNetworkOutService.AddAsync(vpnTenantNetworkOut);
+                    var vpnTenantNetworkOut = Mapper.Map<VpnTenantIpNetworkOut>(vpnTenantNetworkOutModel);
+                    await _vpnTenantIpNetworkOutService.AddAsync(vpnTenantNetworkOut);
 
                     return RedirectToAction("GetAllByAttachmentSetID", new
                     {
@@ -163,16 +156,16 @@ namespace SCM.Controllers
                     "see your system administrator.");
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(vpnTenantNetworkOutModel.AttachmentSetID, deep: true);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(vpnTenantNetworkOutModel.AttachmentSetID, deep: true);
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
             await PopulateTenantsDropDownList();
-            await PopulateTenantNetworksDropDownList(vpnTenantNetworkOutModel.TenantID);
+            await PopulateTenantIpNetworksDropDownList(vpnTenantNetworkOutModel.TenantID);
             await PopulateRoutingInstancesDropDownList(attachmentSet.AttachmentSetID, vpnTenantNetworkOutModel.RoutingInstanceID);
 
-            var vrf = await AttachmentSetRoutingInstanceService.GetByIDAsync(vpnTenantNetworkOutModel.RoutingInstanceID);
-            if (vrf != null)
+            var routingInstance = await _attachmentSetRoutingInstanceService.GetByIDAsync(vpnTenantNetworkOutModel.RoutingInstanceID);
+            if (routingInstance != null)
             {
-                await PopulateBgpPeersDropDownList(vrf.RoutingInstanceID, vpnTenantNetworkOutModel.BgpPeerID);
+                await PopulateBgpPeersDropDownList(routingInstance.RoutingInstanceID, vpnTenantNetworkOutModel.BgpPeerID);
             }
       
             return View(vpnTenantNetworkOutModel);
@@ -186,37 +179,37 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var vpnTenantNetworkOut = await VpnTenantNetworkOutService.GetByIDAsync(id.Value);
+            var vpnTenantNetworkOut = await _vpnTenantIpNetworkOutService.GetByIDAsync(id.Value);
             if (vpnTenantNetworkOut == null)
             {
                 return NotFound();
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(vpnTenantNetworkOut.AttachmentSetID, deep: true);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(vpnTenantNetworkOut.AttachmentSetID, deep: true);
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
-            var bgpPeer = await BgpPeerService.GetByIDAsync(vpnTenantNetworkOut.BgpPeerID);
+            var bgpPeer = await _bgpPeerService.GetByIDAsync(vpnTenantNetworkOut.BgpPeerID);
             if (bgpPeer != null)
             {
                 await PopulateRoutingInstancesDropDownList(vpnTenantNetworkOut.AttachmentSetID, bgpPeer.RoutingInstanceID);
                 await PopulateBgpPeersDropDownList(bgpPeer.RoutingInstanceID, bgpPeer.BgpPeerID);
             }
 
-            return View(Mapper.Map<VpnTenantNetworkOutViewModel>(vpnTenantNetworkOut));
+            return View(Mapper.Map<VpnTenantIpNetworkOutViewModel>(vpnTenantNetworkOut));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, [Bind("VpnTenantNetworkOutID,TenantNetworkID,AttachmentSetID,"
+        public async Task<ActionResult> Edit(int id, [Bind("VpnTenantIpNetworkOutID,TenantIpNetworkID,AttachmentSetID,"
             + "BgpPeerID,AdvertisedIpRoutingPreference,RowVersion")]
-            VpnTenantNetworkOutViewModel updateModel)
+            VpnTenantIpNetworkOutViewModel updateModel)
         {
-            if (id != updateModel.VpnTenantNetworkOutID)
+            if (id != updateModel.VpnTenantIpNetworkOutID)
             {
                 return NotFound();
             }
 
-            var currentVpnTenantNetworkOut = await VpnTenantNetworkOutService.GetByIDAsync(updateModel.VpnTenantNetworkOutID);
-            if (currentVpnTenantNetworkOut == null)
+            var currentVpnTenantIpNetworkOut = await _vpnTenantIpNetworkOutService.GetByIDAsync(updateModel.VpnTenantIpNetworkOutID);
+            if (currentVpnTenantIpNetworkOut == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The item was deleted by another user.");
             }
@@ -225,12 +218,12 @@ namespace SCM.Controllers
             {
                 if (ModelState.IsValid)
                 {
-                    var vpnTenantNetworkOutUpdate = Mapper.Map<VpnTenantNetworkOut>(updateModel);
+                    var vpnTenantNetworkOutUpdate = Mapper.Map<VpnTenantIpNetworkOut>(updateModel);
 
-                    await VpnTenantNetworkOutService.UpdateAsync(vpnTenantNetworkOutUpdate);
+                    await _vpnTenantIpNetworkOutService.UpdateAsync(vpnTenantNetworkOutUpdate);
                     return RedirectToAction("GetAllByAttachmentSetID", new
                     {
-                        id = currentVpnTenantNetworkOut.AttachmentSetID,
+                        id = currentVpnTenantIpNetworkOut.AttachmentSetID,
                         showWarningMessage = true
                     });
                 }
@@ -243,16 +236,16 @@ namespace SCM.Controllers
                 if (exceptionEntry.Property("BgpPeerID").CurrentValue != null)
                 {
                     var proposedBgpPeerID = (int)exceptionEntry.Property("BgpPeerID").CurrentValue;
-                    if (currentVpnTenantNetworkOut.BgpPeerID != proposedBgpPeerID)
+                    if (currentVpnTenantIpNetworkOut.BgpPeerID != proposedBgpPeerID)
                     {
-                        ModelState.AddModelError("BgpPeerID", $"Current value: {currentVpnTenantNetworkOut.BgpPeer.Name}");
+                        ModelState.AddModelError("BgpPeerID", $"Current value: {currentVpnTenantIpNetworkOut.BgpPeer.Name}");
                     }
                 }
 
                 var proposedAdvertisedIpRoutingPreference = (int?)exceptionEntry.Property("AdvertisedIpRoutingPreference").CurrentValue;
-                if (currentVpnTenantNetworkOut.AdvertisedIpRoutingPreference != proposedAdvertisedIpRoutingPreference)
+                if (currentVpnTenantIpNetworkOut.AdvertisedIpRoutingPreference != proposedAdvertisedIpRoutingPreference)
                 {
-                    ModelState.AddModelError("AdvertisedRoutingPreference", $"Current value: {currentVpnTenantNetworkOut.AdvertisedIpRoutingPreference}");
+                    ModelState.AddModelError("AdvertisedRoutingPreference", $"Current value: {currentVpnTenantIpNetworkOut.AdvertisedIpRoutingPreference}");
                 }
 
                 ModelState.AddModelError(string.Empty, "The record you attempted to edit "
@@ -273,16 +266,16 @@ namespace SCM.Controllers
 
             }
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(currentVpnTenantNetworkOut.AttachmentSetID,deep : true);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(currentVpnTenantIpNetworkOut.AttachmentSetID,deep : true);
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
-            await PopulateRoutingInstancesDropDownList(currentVpnTenantNetworkOut.AttachmentSetID, updateModel.RoutingInstanceID);
-            var bgpPeer = await BgpPeerService.GetByIDAsync(updateModel.BgpPeerID);
+            await PopulateRoutingInstancesDropDownList(currentVpnTenantIpNetworkOut.AttachmentSetID, updateModel.RoutingInstanceID);
+            var bgpPeer = await _bgpPeerService.GetByIDAsync(updateModel.BgpPeerID);
             if (bgpPeer != null)
             {
                 await PopulateBgpPeersDropDownList(bgpPeer.RoutingInstanceID, updateModel.BgpPeerID);
             }
 
-            return View(Mapper.Map<VpnTenantNetworkOutViewModel>(currentVpnTenantNetworkOut));
+            return View(Mapper.Map<VpnTenantIpNetworkOutViewModel>(currentVpnTenantIpNetworkOut));
         }
 
         [HttpGet]
@@ -293,7 +286,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var vpnTenantNetworkOut = await VpnTenantNetworkOutService.GetByIDAsync(id.Value);
+            var vpnTenantNetworkOut = await _vpnTenantIpNetworkOutService.GetByIDAsync(id.Value);
             if (vpnTenantNetworkOut == null)
             {
                 if (concurrencyError.GetValueOrDefault())
@@ -317,15 +310,15 @@ namespace SCM.Controllers
                     + "click the Back to List hyperlink.";
             }
 
-            return View(Mapper.Map<VpnTenantNetworkOutViewModel>(vpnTenantNetworkOut));
+            return View(Mapper.Map<VpnTenantIpNetworkOutViewModel>(vpnTenantNetworkOut));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(VpnTenantNetworkOutViewModel vpnTenantNetworkOutModel)
+        public async Task<IActionResult> Delete(VpnTenantIpNetworkOutViewModel vpnTenantNetworkOutModel)
         {
 
-            var vpnTenantNetworkOut = await VpnTenantNetworkOutService.GetByIDAsync(vpnTenantNetworkOutModel.VpnTenantNetworkOutID);
+            var vpnTenantNetworkOut = await _vpnTenantIpNetworkOutService.GetByIDAsync(vpnTenantNetworkOutModel.VpnTenantIpNetworkOutID);
             if (vpnTenantNetworkOut == null)
             {
                 return RedirectToAction("GetAllByAttachmentSetID", new
@@ -336,7 +329,7 @@ namespace SCM.Controllers
 
             try
             {
-                await VpnTenantNetworkOutService.DeleteAsync(Mapper.Map<VpnTenantNetworkOut>(vpnTenantNetworkOutModel));
+                await _vpnTenantIpNetworkOutService.DeleteAsync(vpnTenantNetworkOut.VpnTenantIpNetworkOutID);
 
                 return RedirectToAction("GetAllByAttachmentSetID", new
                 {
@@ -351,7 +344,7 @@ namespace SCM.Controllers
                 return RedirectToAction("Delete", new
                 {
                     concurrencyError = true,
-                    id = vpnTenantNetworkOutModel.VpnTenantNetworkOutID,
+                    id = vpnTenantNetworkOutModel.VpnTenantIpNetworkOutID,
                     attachmentSetID = vpnTenantNetworkOut.AttachmentSetID
                 });
             }
@@ -359,35 +352,35 @@ namespace SCM.Controllers
 
         private async Task PopulateTenantsDropDownList(object selectedTenant = null)
         {
-            var tenants = await TenantService.GetAllAsync();
+            var tenants = await _tenantService.GetAllAsync();
             ViewBag.TenantID = new SelectList(Mapper.Map<List<TenantViewModel>>(tenants),
                 "TenantID", "Name", selectedTenant);
         }
 
         /// <summary>
-        /// Helper to populate the Tenant Networks drop-down list with all Tenant Networks which belong to
+        /// Helper to populate the Tenant IP Networks drop-down list with all Tenant IP Networks which belong to
         /// a given Tenant
         /// </summary>
         /// <param name="tenantID"></param>
-        /// <param name="selectedTenantNetwork"></param>
+        /// <param name="selectedTenantIpNetwork"></param>
         /// <returns></returns>
-        private async Task PopulateTenantNetworksDropDownList(int tenantID, object selectedTenantNetwork = null)
+        private async Task PopulateTenantIpNetworksDropDownList(int tenantID, object selectedTenantIpNetwork = null)
         {
-            var tenantNetworks = await TenantIpNetworkService.GetAllByTenantIDAsync(tenantID);
-            ViewBag.TenantNetworkID = new SelectList(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantNetworks),
-                "TenantNetworkID", "CidrName", selectedTenantNetwork);
+            var tenantIpNetworks = await _tenantIpNetworkService.GetAllByTenantIDAsync(tenantID);
+            ViewBag.TenantIpNetworkID = new SelectList(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantIpNetworks),
+                "TenantIpNetworkID", "CidrName", selectedTenantIpNetwork);
         }
 
         private async Task PopulateRoutingInstancesDropDownList(int attachmentSetID, object selectedRoutingInstance = null)
         {
-            var vrfs = await RoutingInstanceService.GetAllByAttachmentSetIDAsync(attachmentSetID);
-            ViewBag.RoutingInstanceID = new SelectList(Mapper.Map<List<RoutingInstanceViewModel>>(vrfs),
+            var routingInstances = await _routingInstanceService.GetAllByAttachmentSetIDAsync(attachmentSetID);
+            ViewBag.RoutingInstanceID = new SelectList(Mapper.Map<List<RoutingInstanceViewModel>>(routingInstances),
                 "RoutingInstanceID", "Name", selectedRoutingInstance);
         }
 
         private async Task PopulateBgpPeersDropDownList(int vrfID, object selectedBgpPeer = null)
         {
-            var bgpPeers = await BgpPeerService.GetAllByRoutingInstanceIDAsync(vrfID);
+            var bgpPeers = await _bgpPeerService.GetAllByRoutingInstanceIDAsync(vrfID);
             ViewBag.BgpPeerID = new SelectList(Mapper.Map<List<BgpPeerViewModel>>(bgpPeers),
                 "BgpPeerID", "Name", selectedBgpPeer);
         }

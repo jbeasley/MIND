@@ -28,6 +28,7 @@ using Mind.Services;
 using AutoMapper;
 
 using Mind.Models;
+using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 { 
@@ -63,7 +64,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "Resource was not found")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> CreateTenantIpNetwork([FromRoute][Required]int? tenantId, [FromBody]TenantIpNetwork body)
+        public virtual async Task<IActionResult> CreateTenantIpNetwork([FromRoute][Required]int? tenantId, [FromBody]TenantIpNetworkRequest body)
         {
             try
             {
@@ -91,7 +92,7 @@ namespace Mind.Api.Controllers
 
         /// <param name="tenantId">ID of the tenant</param>
         /// <param name="tenantIpNetworkId">ID of the tenant IP network to update</param>
-        /// <param name="body">IPv4 network request object that applies updates to an existing IP network</param>
+        /// <param name="body">IP network request object that applies updates to an existing IP network</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>
@@ -108,7 +109,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> UpdateTenantIpNetwork([FromRoute][Required]int? tenantId,[FromRoute][Required]int? tenantIpNetworkId, 
-            [FromBody]TenantIpNetwork body)
+            [FromBody]TenantIpNetworkRequest body)
         {
             try
             {
@@ -116,8 +117,6 @@ namespace Mind.Api.Controllers
                 if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
                 
                 Mapper.Map(body, item);
-                item.TenantID = tenantId.Value;
-                item.TenantIpNetworkID = tenantIpNetworkId.Value;
                 var tenantIpNetwork = await _tenantIpNetworkService.UpdateAsync(item);
                 tenantIpNetwork.SetModifiedHttpHeaders(Response);
                 var tenantIpNetworkApiModel = Mapper.Map<Mind.Api.Models.TenantIpNetwork>(tenantIpNetwork);

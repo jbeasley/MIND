@@ -10,10 +10,10 @@
     <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Vif.TenantID">Tenant Attachments - [@ViewBag.Attachment.Tenant.Name]</a></li>
     <li class="breadcrumb-item"><a href="/TenantVif/GetAllByAttachmentID/@ViewBag.Vif.AttachmentID">Tenant VIFs - [@ViewBag.Attachment.Name]</a></li>
     <li class="breadcrumb-item"><a href="/VifBgpPeer/GetAllByRoutingInstanceID?RoutingInstanceID=@ViewBag.Vif.RoutingInstanceID&VifID=@ViewBag.Vif.VifID">BGP Peers - [@ViewBag.Vif.Name]</a></li>
-    <li class="breadcrumb-item active">Delete - [@Model.IpAddress]</li>
+    <li class="breadcrumb-item active">Delete - [@Model.Ipv4PeerAddress]</li>
 </ol>
 
-<h2>Delete BGP Peer '@Model.IpAddress'</h2>
+<h2>Delete BGP Peer '@Model.Ipv4PeerAddress'</h2>
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
@@ -23,16 +23,16 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.IpAddress)
+            @Html.DisplayNameFor(model => model.Ipv4PeerAddress)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.IpAddress)
+            @Html.DisplayFor(model => model.Ipv4PeerAddress)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.AutonomousSystem)
+            @Html.DisplayNameFor(model => model.Peer2ByteAutonomousSystem)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AutonomousSystem)
+            @Html.DisplayFor(model => model.Peer2ByteAutonomousSystem)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.RoutingInstance)
@@ -58,6 +58,8 @@
         <input type="hidden" name="VifID" value="@ViewBag.Vif.VifID" />
         <input type="hidden" asp-for="RoutingInstanceID" />
         <input type="hidden" asp-for="BgpPeerID" />
+        <input type="hidden" asp-for="Ipv4PeerAddress" />
+        <input type="hidden" asp-for="Peer2ByteAutonomousSystem" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
             <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">

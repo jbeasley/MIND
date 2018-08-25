@@ -4,154 +4,86 @@ using System.Linq;
 using SCM.Data;
 using SCM.Models;
 using System.Threading.Tasks;
+using SCM.Validators;
+using Mind.Services;
 
 namespace SCM.Services
 {
-    public class VpnTenantNetworkStaticRouteRoutingInstanceService : BaseService, IVpnTenantNetworkStaticRouteRoutingInstanceService
+    public class VpnTenantIpNetworkStaticRouteRoutingInstanceService : BaseService, IVpnTenantIpNetworkStaticRouteRoutingInstanceService
     {
-        public VpnTenantNetworkStaticRouteRoutingInstanceService(IUnitOfWork unitOfWork) : base(unitOfWork)
-        {
-        }
+        private readonly string _properties = "AttachmentSet,"
+        + "RoutingInstance,"
+        + "TenantIpNetwork";
+        private readonly IVpnTenantIpNetworkStaticRouteRoutingInstanceValidator _validator;
 
-        private string Properties { get; } = "AttachmentSet.Tenant,"
-                + "RoutingInstance,"
-                + "TenantNetwork.Tenant";
-
-        /// <summary>
-        /// Get all VPN Tenant Network Static Routes.
-        /// </summary>
-        /// <returns></returns>
-        public async Task<IEnumerable<VpnTenantNetworkStaticRouteRoutingInstance>> GetAllAsync(bool includeProperties = true)
+        public VpnTenantIpNetworkStaticRouteRoutingInstanceService(IUnitOfWork unitOfWork, IVpnTenantIpNetworkStaticRouteRoutingInstanceValidator validator) : 
+            base(unitOfWork, validator)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            return await this.UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.GetAsync(includeProperties: p,
-                AsTrackable: false);
+            _validator = validator;
         }
 
         /// <summary>
-        /// Get all VPN Tenant Network Static Routes for a given Attachment Set.
+        /// Get all tenant IP network static routes for a given attachment set.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<VpnTenantNetworkStaticRouteRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool includeProperties = true)
+        public async Task<IEnumerable<VpnTenantIpNetworkStaticRouteRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            return await this.UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.GetAsync(q => q.AttachmentSetID == id, 
-                includeProperties: p,
-                AsTrackable: false);
+            return await this.UnitOfWork.VpnTenantIpNetworkStaticRouteRoutingInstanceRepository.GetAsync(q => q.AttachmentSetID == id, 
+                includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
+                AsTrackable: asTrackable);
         }
 
         /// <summary>
-        /// Get all VPN Tenant Network Static Routes for a given VPN and Attachment Set.
-        /// </summary>
-        /// <param name="attachmentSetID"></param>
-        /// <param name="vpnID"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<VpnTenantNetworkStaticRouteRoutingInstance>> GetAllByVpnAndAttachmentSetAsync(int vpnID, int attachmentSetID, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            return await this.UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.GetAsync(q => q.AttachmentSet.VpnAttachmentSets
-            .Where(x => x.VpnID == vpnID && x.AttachmentSetID == attachmentSetID).Any(),
-                includeProperties: p,
-                AsTrackable: false);
-        }
-
-        /// <summary>
-        /// Get all VPN Tenant Network Static Routes for a given Tenant Network.
+        /// Get all vpn tenant IP network static routes for a given vpn.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<VpnTenantNetworkStaticRouteRoutingInstance>> GetAllByTenantNetworkIDAsync(int id, bool includeProperties = true)
+        public async Task<IEnumerable<VpnTenantIpNetworkStaticRouteRoutingInstance>> GetAllByVpnIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            return await UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.GetAsync(q => q.TenantNetworkID == id,
-                includeProperties: p,
-                AsTrackable: false);
+            return await UnitOfWork.VpnTenantIpNetworkStaticRouteRoutingInstanceRepository.GetAsync(q => q.AttachmentSet.VpnAttachmentSets
+                         .Where(x => x.VpnID == id).Any(),
+                         includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
+                         AsTrackable: asTrackable);
         }
 
         /// <summary>
-        /// Get all VPN Tenant Network Static Routes for a given VPN.
+        /// Get a single tenant IP network static route.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<VpnTenantNetworkStaticRouteRoutingInstance>> GetAllByVpnIDAsync(int id, bool includeProperties = true)
+        public async Task<VpnTenantIpNetworkStaticRouteRoutingInstance> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            return await UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.GetAsync(q => q.AttachmentSet.VpnAttachmentSets
-            .Where(x => x.VpnID == id).Any(),
-                includeProperties: p,
-                AsTrackable: false);
+            return (from result in await UnitOfWork.VpnTenantIpNetworkStaticRouteRoutingInstanceRepository.GetAsync(
+                q =>
+                   q.VpnTenantIpNetworkStaticRouteRoutingInstanceID == id,
+                   includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
+                   AsTrackable: asTrackable)
+                    select result)
+                    .SingleOrDefault();
         }
 
-        /// <summary>
-        /// Get a single VPN Tenant Network Static Route.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
-        public async Task<VpnTenantNetworkStaticRouteRoutingInstance> GetByIDAsync(int id, bool includeProperties = true)
+        public async Task<VpnTenantIpNetworkStaticRouteRoutingInstance> AddAsync(VpnTenantIpNetworkStaticRouteRoutingInstance vpnTenantNetworkStaticRouteRoutingInstance)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.GetAsync(q => q.VpnTenantNetworkStaticRouteRoutingInstanceID == id, 
-                includeProperties: p,
-                AsTrackable:false);
-
-            return dbResult.SingleOrDefault();
+            await _validator.ValidateNewAsync(vpnTenantNetworkStaticRouteRoutingInstance);
+            if (!_validator.IsValid) throw new ServiceValidationException();
+            
+            this.UnitOfWork.VpnTenantIpNetworkStaticRouteRoutingInstanceRepository.Insert(vpnTenantNetworkStaticRouteRoutingInstance);
+            await this.UnitOfWork.SaveAsync();
+            return await GetByIDAsync(vpnTenantNetworkStaticRouteRoutingInstance.VpnTenantIpNetworkStaticRouteRoutingInstanceID, deep: true, asTrackable: false);
         }
 
-        /// <summary>
-        /// Get a single VPN Tenant Network Static Route for a given Attachment Set
-        /// </summary>
-        /// <param name="attachmentSetID"></param>
-        /// <param name="tenantNetworkID"></param>
-        /// <returns></returns>
-        public async Task<VpnTenantNetworkStaticRouteRoutingInstance> GetOneAsync(int attachmentSetID, int tenantNetworkID, bool includeProperties = true)
+        public async Task<VpnTenantIpNetworkStaticRouteRoutingInstance> UpdateAsync(VpnTenantIpNetworkStaticRouteRoutingInstance vpnTenantNetworkStaticRouteRoutingInstance)
         {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.GetAsync(q => q.AttachmentSetID == attachmentSetID
-            && q.TenantNetworkID == tenantNetworkID,
-                includeProperties: p,
-                AsTrackable: false);
-
-            return dbResult.SingleOrDefault();
+            this.UnitOfWork.VpnTenantIpNetworkStaticRouteRoutingInstanceRepository.Update(vpnTenantNetworkStaticRouteRoutingInstance);
+            await this.UnitOfWork.SaveAsync();
+            return await GetByIDAsync(vpnTenantNetworkStaticRouteRoutingInstance.VpnTenantIpNetworkStaticRouteRoutingInstanceID, deep: true, asTrackable: false);
         }
 
-        public async Task<int> AddAsync(VpnTenantNetworkStaticRouteRoutingInstance vpnTenantNetworkStaticRouteRoutingInstance)
+        public async Task DeleteAsync(int vpnTenantNetworkStaticRouteRoutingInstanceId)
         {
-            this.UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.Insert(vpnTenantNetworkStaticRouteRoutingInstance);
-            await UpdateVpnSyncStateAsync(vpnTenantNetworkStaticRouteRoutingInstance.AttachmentSetID);
-            return await this.UnitOfWork.SaveAsync();
-        }
-
-        public async Task<int> UpdateAsync(VpnTenantNetworkStaticRouteRoutingInstance vpnTenantNetworkStaticRouteRoutingInstance)
-        {
-            this.UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.Update(vpnTenantNetworkStaticRouteRoutingInstance);
-            await UpdateVpnSyncStateAsync(vpnTenantNetworkStaticRouteRoutingInstance.AttachmentSetID);
-            return await this.UnitOfWork.SaveAsync();
-        }
-
-        public async Task<int> DeleteAsync(VpnTenantNetworkStaticRouteRoutingInstance vpnTenantNetworkStaticRouteRoutingInstance)
-        {
-            this.UnitOfWork.VpnTenantNetworkStaticRouteRoutingInstanceRepository.Delete(vpnTenantNetworkStaticRouteRoutingInstance);
-            await UpdateVpnSyncStateAsync(vpnTenantNetworkStaticRouteRoutingInstance.AttachmentSetID);
-            return await this.UnitOfWork.SaveAsync();
-        }
-
-        /// <summary>
-        /// Update the 'RequiresSync' property of all VPNs associated with a given 
-        /// AttachmentSet.
-        /// </summary>
-        /// <param name="attachmentSetID"></param>
-        /// <returns></returns>
-        private async Task UpdateVpnSyncStateAsync(int attachmentSetID)
-        {
-            var vpns = await UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                                         .Where(x => x.AttachmentSetID == attachmentSetID)
-                                                                         .Any());
-            foreach (var vpn in vpns)
-            {
-                vpn.RequiresSync = true;
-                this.UnitOfWork.VpnRepository.Update(vpn);
-            }
+            await this.UnitOfWork.VpnTenantIpNetworkStaticRouteRoutingInstanceRepository.DeleteAsync(vpnTenantNetworkStaticRouteRoutingInstanceId);
+            await this.UnitOfWork.SaveAsync();
         }
     }
 }

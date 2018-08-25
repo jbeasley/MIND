@@ -11,7 +11,8 @@ namespace Mind.Builders
     public interface IVpnTenantIpNetworkInBuilder
     {
         IVpnTenantIpNetworkInBuilder ForAttachmentSet(int? attachmenSetId);
-        IVpnTenantIpNetworkInBuilder WithTenantIpNetwork(int? tenantIpNetworkId);
+        IVpnTenantIpNetworkInBuilder WithTenant(int? tenantId);
+        IVpnTenantIpNetworkInBuilder WithTenantIpNetworkCidrName(string tenantIpNetworkCidrName);
         IVpnTenantIpNetworkInBuilder WithLocalIpRoutingPreference(int? localIpRoutingPreference);
         IVpnTenantIpNetworkInBuilder AddToAllBgpPeersInAttachmentSet(bool? addToAllBgpPeersInAttachmentSet);
         IVpnTenantIpNetworkInBuilder WithIpv4PeerAddress(string peerIpv4Address);

@@ -116,40 +116,19 @@ namespace SCM.Services
         public async Task<int> AddAsync(VpnTenantCommunityOut vpnTenantCommunityOut)
         {
             UnitOfWork.VpnTenantCommunityOutRepository.Insert(vpnTenantCommunityOut);
-            await UpdateVpnSyncStateAsync(vpnTenantCommunityOut.AttachmentSetID);
             return await this.UnitOfWork.SaveAsync();
         }
 
         public async Task<int> UpdateAsync(VpnTenantCommunityOut vpnTenantCommunityOut)
         {
             this.UnitOfWork.VpnTenantCommunityOutRepository.Update(vpnTenantCommunityOut);
-            await UpdateVpnSyncStateAsync(vpnTenantCommunityOut.AttachmentSetID);
             return await this.UnitOfWork.SaveAsync();
         }
 
         public async Task<int> DeleteAsync(VpnTenantCommunityOut vpnTenantCommunityOut)
         {
             this.UnitOfWork.VpnTenantCommunityOutRepository.Delete(vpnTenantCommunityOut);
-            await UpdateVpnSyncStateAsync(vpnTenantCommunityOut.AttachmentSetID);
             return await this.UnitOfWork.SaveAsync();
-        }
-
-        /// <summary>
-        /// Update the 'RequiresSync' property of the VPNs associated with a given 
-        /// AttachmentSet.
-        /// </summary>
-        /// <param name="vpnAttachmentSetID"></param>
-        /// <returns></returns>
-        private async Task UpdateVpnSyncStateAsync(int attachmentSetID)
-        {
-            var vpns = await UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                                     .Where(x => x.AttachmentSetID == attachmentSetID)
-                                                                     .Any());
-            foreach (var vpn in vpns)
-            {
-                vpn.RequiresSync = true;
-                this.UnitOfWork.VpnRepository.Update(vpn);
-            }
         }
     }
 }

@@ -14,8 +14,8 @@ namespace Mind.Builders
     /// </summary>
     public class BundleAttachmentBuilder : AttachmentBuilder<BundleAttachmentBuilder>, IBundleAttachmentBuilder
     {
-        public BundleAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory) : 
-            base(unitOfWork, routingInstanceBuilderFactory)
+        public BundleAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory) : 
+            base(unitOfWork, routingInstanceDirectorFactory)
         {
         }
 
@@ -33,9 +33,9 @@ namespace Mind.Builders
             return this;
         }
 
-        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithInterfaces(List<Ipv4AddressAndMask> ipv4Addresses)
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithIpv4(List<Ipv4AddressAndMask> ipv4Addresses)
         {
-            base.WithInterfaces(ipv4Addresses);
+            base.WithIpv4(ipv4Addresses);
             return this;
         }
 

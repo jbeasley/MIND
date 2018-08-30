@@ -10,7 +10,7 @@ namespace Mind.Builders
     public interface IBundleAttachmentBuilder : IAttachmentBuilder<BundleAttachmentBuilder>
     {
         new IBundleAttachmentBuilder ForTenant(int tenantId);
-        new IBundleAttachmentBuilder WithInterfaces(List<Ipv4AddressAndMask> ipv4Addresses);
+        new IBundleAttachmentBuilder WithIpv4(List<Ipv4AddressAndMask> ipv4Addresses);
         new IBundleAttachmentBuilder WithAttachmentRole(string portPoolName, string attachmentRoleName);
         new IBundleAttachmentBuilder WithAttachmentBandwidth(int? attachmentBandwidthGbps);
         new IBundleAttachmentBuilder WithLocation(string locationName);

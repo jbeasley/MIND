@@ -310,7 +310,7 @@ namespace SCM.Controllers
             object selectedAttachmentSet = null)
         {
             var vpn = await VpnService.GetByIDAsync(vpnAttachmentSetRequest.VpnID);
-            var layer3 = vpn.VpnTopologyType.VpnProtocolType.ProtocolType == Models.ProtocolType.IP ? true : false;
+            var layer3 = vpn.VpnTopologyType.VpnProtocolType.ProtocolType == Models.ProtocolTypeEnum.IP ? true : false;
             var attachmentSets = await AttachmentSetService.GetAllByTenantIDAsync(vpnAttachmentSetRequest.TenantID);
 
             attachmentSets = attachmentSets.Where(x => x.IsLayer3 = layer3);
@@ -331,7 +331,7 @@ namespace SCM.Controllers
 
             // Get all Tenants if the VPN is multi-tenant, other get only the tenant owner
 
-            if (vpn.VpnTenancyType.TenancyType == Models.TenancyType.Multi)
+            if (vpn.VpnTenancyType.TenancyType == Models.TenancyTypeEnum.Multi)
             {
                 tenants = await TenantService.GetAllAsync();
             }

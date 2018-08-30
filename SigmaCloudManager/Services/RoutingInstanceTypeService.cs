@@ -24,9 +24,9 @@ namespace SCM.Services
             return dbResult.SingleOrDefault();
         }
 
-        public async Task<RoutingInstanceType> GetByNameAsync(string name, bool includeProperties = true)
+        public async Task<RoutingInstanceType> GetByTypeAsync(RoutingInstanceTypeEnum routingInstanceTypeEnum, bool includeProperties = true)
         {
-            var dbResult= await UnitOfWork.RoutingInstanceTypeRepository.GetAsync(q => q.Name == name,
+            var dbResult= await UnitOfWork.RoutingInstanceTypeRepository.GetAsync(q => q.Type == routingInstanceTypeEnum,
                 AsTrackable: false);
 
             return dbResult.SingleOrDefault();

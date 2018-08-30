@@ -6,11 +6,18 @@ using System.Linq;
 
 namespace SCM.Models
 {
+    public enum RoutingInstanceTypeEnum
+    {
+        TenantFacingVrf = 0,
+        Default = 1,
+        InfrastructureVrf = 2
+    }
+
     public class RoutingInstanceType
     {
         public int RoutingInstanceTypeID { get; set; }
         [Required(AllowEmptyStrings = false)]
-        public string Name { get; set; }
+        public RoutingInstanceTypeEnum Type { get; set; }
         public string Description { get; set; }
         public bool IsLayer3 { get; set; }
         public bool IsVrf { get; set; }

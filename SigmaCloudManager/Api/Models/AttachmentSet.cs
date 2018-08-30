@@ -22,55 +22,61 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of an attachment set
     /// </summary>
     [DataContract]
     public partial class AttachmentSet : IEquatable<AttachmentSet>
     { 
         /// <summary>
-        /// System-generated ID of the attachment set
+        /// ID of the attachment set
         /// </summary>
         /// <value>Integer value for the ID of the attachment set</value>
+        /// <example>11001</example>
         [DataMember(Name="attachmentSetId")]
         public int AttachmentSetID { get; set; }
 
         /// <summary>
-        /// System-generated name of the attachment set
+        /// MIND System-generated name of the attachment set
         /// </summary>
         /// <value>String value for the name of the attachment set</value>
+        /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [DataMember(Name="name")]
         public string Name { get; set; }
 
         /// <summary>
-        /// The geographic region within which the attachment set operates
+        /// The geographic region within which the attachment set operates.
         /// </summary>
-        /// <value>The geographic region within which the attachment set operates</value>
+        /// <value>String value denoting the geographic region within which the attachment set operates</value>
+        /// <example>EMEA</example>
         [DataMember(Name="region")]
         public string Region { get; set; }
 
         /// <summary>
-        /// The sub-region within which the attachment set operates
+        /// The geographic sub-region within which the attachment set operates
         /// </summary>
-        /// <value>The sub-region within which the attachment set operates</value>
+        /// <value>String value denoting the geographic sub-region within which the attachment set operates</value>
+        /// <example>UK</example>
         [DataMember(Name="subRegion")]
         public string SubRegion { get; set; }
 
         /// <summary>
-        /// Determines the type of attachment redundancy supported by the attachment set
+        /// Denotes the attachment redundancy level supported by the attachment set
         /// </summary>
-        /// <value>Determines the type of attachment redundancy supported by the attachment set</value>
+        /// <value>String value denoting the attachment redundancy level</value>
+        /// <example>Silver</example>
         [DataMember(Name="attachmentRedundancy")]
         public string AttachmentRedundancy { get; set; }
 
         /// <summary>
-        /// Determines if the attachment set is enabled for layer 3
+        /// Denotees whether the attachment set is enabled for layer 3
         /// </summary>
-        /// <value>Determines if the attachment set is enabled for layer 3</value>
+        /// <value>Boolean value denoting if the attachment set is enabled for layer 3</value>
+        /// <example>true</example>
         [DataMember(Name="isLayer3")]
         public bool? IsLayer3 { get; set; }
 
         /// <summary>
-        /// Routing instances for the attachment Set
+        /// The list of routing instances which belong to the attachment Set
         /// </summary>
         /// <value>A list of AttachmentSetRoutingInstance objects</value>
         [DataMember(Name="attachmentSetRoutingInstances")]

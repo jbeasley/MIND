@@ -38,7 +38,7 @@ namespace SCM.Services
             return dbResult.SingleOrDefault();
         }
 
-        public async Task<PortRole> GetByPortRoleTypeAsync(PortRoleType portRoleType)
+        public async Task<PortRole> GetByPortRoleTypeAsync(PortRoleTypeEnum portRoleType)
         {
             var dbResult = await this.UnitOfWork.PortRoleRepository.GetAsync(q => q.PortRoleType == portRoleType);
             return dbResult.SingleOrDefault();

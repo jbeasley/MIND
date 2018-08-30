@@ -14,8 +14,8 @@ namespace Mind.Builders
     /// </summary>
     public class MultiPortAttachmentBuilder : AttachmentBuilder<MultiPortAttachmentBuilder>, IAttachmentBuilder<MultiPortAttachmentBuilder>
     {
-        public MultiPortAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory) : 
-            base(unitOfWork, routingInstanceBuilderFactory)
+        public MultiPortAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory) : 
+            base(unitOfWork, routingInstanceDirectorFactory)
         {
         }
 

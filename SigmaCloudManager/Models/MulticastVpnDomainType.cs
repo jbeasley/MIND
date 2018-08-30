@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SCM.Models
 {
-    public enum MvpnDomainType
+    public enum MvpnDomainTypeEnum
     {
         SenderOnly,
         ReceiverOnly,
@@ -17,7 +17,7 @@ namespace SCM.Models
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
-        public MvpnDomainType MvpnDomainType { get; set; }
+        public MvpnDomainTypeEnum MvpnDomainType { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
     }

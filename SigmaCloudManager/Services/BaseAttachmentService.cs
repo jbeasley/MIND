@@ -14,7 +14,7 @@ using Mind.Builders;
 namespace SCM.Services
 {
     /// <summary>
-    /// Base Service logic for Attachments
+    /// Base service logic for attachments
     /// </summary>
     public abstract class BaseAttachmentService : BaseService
     {
@@ -60,8 +60,11 @@ namespace SCM.Services
         /// Find an attachment by ID
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="deep"></param>
+        /// <param name="portRoleType"></param>
+        /// <param name="asTrackable"></param>
         /// <returns></returns>
-        protected internal async virtual Task<Attachment> GetByIDAsync(int id, SCM.Models.PortRoleType portRoleType, 
+        protected internal async virtual Task<Attachment> GetByIDAsync(int id, SCM.Models.PortRoleTypeEnum portRoleType, 
             bool? deep = false, bool asTrackable = false)
         {
             return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == id 
@@ -81,7 +84,7 @@ namespace SCM.Services
         /// <param name="asTrackable"></param>
         /// <param name="portRoleType"></param>
         /// <returns></returns>
-        protected internal async virtual Task<List<Attachment>> GetAllByTenantIDAsync(int id, SCM.Models.PortRoleType portRoleType,
+        protected internal async virtual Task<List<Attachment>> GetAllByTenantIDAsync(int id, SCM.Models.PortRoleTypeEnum portRoleType,
             bool? deep = false, bool asTrackable = false)
         {
             return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.TenantID == id

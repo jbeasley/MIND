@@ -35,8 +35,8 @@ namespace SCM.Services
         {
             var p = includeProperties ? Properties : "AttachmentRole";
             var query = from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.TenantID == tenantID
-            && (q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleType.TenantFacing ||
-            q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleType.TenantInfrastructure),
+            && (q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing ||
+            q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure),
                 includeProperties: p,
                 AsTrackable: false)
                         select attachments;

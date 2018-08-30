@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for updating an attachment set
     /// </summary>
     [DataContract]
     public partial class AttachmentSetUpdate : IEquatable<AttachmentSetUpdate>
@@ -31,13 +31,13 @@ namespace Mind.Api.Models
         /// The sub-region within which the attachment set operates
         /// </summary>
         /// <value>A string value for the subregion within which the attachment set operates</value>
+        /// <example>UK</example>
         [DataMember(Name="subRegion")]
         public string SubRegion { get; set; }
 
         /// <summary>
-        /// Determines the type of attachment redundancy supported by the attachment set
+        /// Enumeration of attachment redundancy levels
         /// </summary>
-        /// <value>An enumerated list of attachment redundancy options</value>
         public enum AttachmentRedundancyEnum
         { 
             /// <summary>
@@ -66,16 +66,16 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Determines the type of attachment redundancy supported by the attachment set
+        /// Determines the ttachment redundancy level supported by the attachment set
         /// </summary>
         /// <value>An enum member for the attachment redundancy supported by the attachment set</value>
+        /// <example>Silver</example>
         [DataMember(Name="attachmentRedundancy")]
         public AttachmentRedundancyEnum? AttachmentRedundancy { get; set; }
 
         /// <summary>
-        /// Determines the type of multicast domain supported by the attachment set
+        /// Enumeration of multicast domain types
         /// </summary>
-        /// <value>An enumerated list of multicast domain options</value>
         public enum MulticastVpnDomainTypeEnum
         {
             /// <summary>
@@ -98,9 +98,10 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Determines the type of multicast domain supported by the attachment set
+        /// Determines the multicast domain type supported by the attachment set
         /// </summary>
         /// <value>An enum member for the multicast domain supported by the attachment set</value>
+        /// <example>Sender-and-Receiver</example>
         [DataMember(Name = "multicastVpnDomainType")]
         public MulticastVpnDomainTypeEnum? MulticastVpnDomainType { get; set; }
 

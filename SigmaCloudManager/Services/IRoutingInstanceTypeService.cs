@@ -12,6 +12,6 @@ namespace SCM.Services
     {
         IUnitOfWork UnitOfWork { get; }
         Task<RoutingInstanceType> GetByIDAsync(int id, bool includeProperties = true);
-        Task<RoutingInstanceType> GetByNameAsync(string name, bool includeProperties = true);
+        Task<RoutingInstanceType> GetByTypeAsync(RoutingInstanceTypeEnum routingInstanceTypeEnum, bool includeProperties = true);
     }
 }

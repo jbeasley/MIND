@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mind.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -7,7 +8,7 @@ using System.Net;
 
 namespace SCM.Models
 {
-    public class Vif
+    public class Vif : IModifiableResource
     {
         public int VifID { get; set; }
         public bool IsLayer3 { get; set; }
@@ -42,5 +43,6 @@ namespace SCM.Models
         [ForeignKey("VifRoleID")]
         public virtual VifRole VifRole { get; set; }
         public ICollection<Vlan> Vlans { get; set; }
+        string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
     }
 }

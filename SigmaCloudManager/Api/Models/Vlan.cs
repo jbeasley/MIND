@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of a vlan
     /// </summary>
     [DataContract]
     public partial class Vlan : IEquatable<Vlan>
@@ -42,6 +42,20 @@ namespace Mind.Api.Models
         public int? VlanTag { get; set; }
 
         /// <summary>
+        /// IPv4 address assigned to the vlan
+        /// </summary>
+        /// <value>String value representing the IPv4 address assigned to the vlan</value>
+        [DataMember(Name = "ipAddress")]
+        public string IpAddress { get; set; }
+
+        /// <summary>
+        /// IPv4 subnet mask assigned to the vlan
+        /// </summary>
+        /// <value>String value representing the IPv4 subnet mask assigned to the vlan</value>
+        [DataMember(Name = "subnetMask")]
+        public string SubnetMask { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -51,6 +65,8 @@ namespace Mind.Api.Models
             sb.Append("class Vlan {\n");
             sb.Append("  VlanID: ").Append(VlanID).Append("\n");
             sb.Append("  VlanTag: ").Append(VlanTag).Append("\n");
+            sb.Append("  ipAddress: ").Append(IpAddress).Append("\n");
+            sb.Append("  subnetMask: ").Append(SubnetMask).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -86,16 +102,26 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     VlanID == other.VlanID ||
                     VlanID != null &&
                     VlanID.Equals(other.VlanID)
-                ) && 
+                ) &&
                 (
                     VlanTag == other.VlanTag ||
                     VlanTag != null &&
                     VlanTag.Equals(other.VlanTag)
+                ) &&
+                (
+                    IpAddress == other.IpAddress ||
+                    IpAddress != null &&
+                    IpAddress.Equals(other.IpAddress)
+                ) &&
+                (
+                    SubnetMask == other.SubnetMask ||
+                    SubnetMask != null &&
+                    SubnetMask.Equals(other.SubnetMask)
                 );
         }
 
@@ -113,6 +139,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + VlanID.GetHashCode();
                     if (VlanTag != null)
                     hashCode = hashCode * 59 + VlanTag.GetHashCode();
+                    if (IpAddress != null)
+                    hashCode = hashCode * 59 + IpAddress.GetHashCode();
+                    if (SubnetMask != null)
+                    hashCode = hashCode * 59 + SubnetMask.GetHashCode();
                 return hashCode;
             }
         }

@@ -30,8 +30,8 @@ namespace SCM.Data
 
             var vpnProtocolTypes = new List<VpnProtocolType>
             {
-                new VpnProtocolType { Name = "IP", ProtocolType = ProtocolType.IP },
-                new VpnProtocolType { Name = "Ethernet", ProtocolType = ProtocolType.Ethernet }
+                new VpnProtocolType { Name = "IP", ProtocolType = ProtocolTypeEnum.IP },
+                new VpnProtocolType { Name = "Ethernet", ProtocolType = ProtocolTypeEnum.Ethernet }
             };
 
             foreach (VpnProtocolType v in vpnProtocolTypes)
@@ -93,13 +93,13 @@ namespace SCM.Data
             {
                 new DeviceStatus { Name = "Staging",
                     Description = "Device is being staged",
-                    DeviceStatusType = DeviceStatusType.Staging },
+                    DeviceStatusType = DeviceStatusTypeEnum.Staging },
                 new DeviceStatus { Name = "Production",
                     Description = "Device is in production",
-                    DeviceStatusType = DeviceStatusType.Production },
+                    DeviceStatusType = DeviceStatusTypeEnum.Production },
                 new DeviceStatus { Name = "Retired",
                     Description = "Device is retired from production",
-                    DeviceStatusType = DeviceStatusType.Retired }
+                    DeviceStatusType = DeviceStatusTypeEnum.Retired }
             };
 
             foreach (DeviceStatus d in deviceStatus)
@@ -113,13 +113,13 @@ namespace SCM.Data
             {
                 new PortRole { Name = "Tenant-Facing",
                     Description = "Port Role for Provider Domain Attachment to Tenant Domains",
-                    PortRoleType = PortRoleType.TenantFacing }, 
+                    PortRoleType = PortRoleTypeEnum.TenantFacing }, 
                 new PortRole { Name = "Provider-Infrastructure",
                     Description = "Port Role for Provider Domain Infrastructure Attachment",
-                    PortRoleType = PortRoleType.ProviderInfrastructure },
+                    PortRoleType = PortRoleTypeEnum.ProviderInfrastructure },
                 new PortRole { Name = "Tenant-Infrastructure",
                     Description = "Port Role for Tenant Domain Infrastructure Attachment",
-                    PortRoleType = PortRoleType.TenantInfrastructure}
+                    PortRoleType = PortRoleTypeEnum.TenantInfrastructure}
             };
 
             foreach (PortRole p in portRoles)
@@ -136,23 +136,23 @@ namespace SCM.Data
             var deviceRolePortRoles = new List<DeviceRolePortRole>
             {
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "PE").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantFacing).PortRoleID },
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantFacing).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "PE").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.ProviderInfrastructure).PortRoleID },
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "P").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.ProviderInfrastructure).PortRoleID },
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "HBA").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantFacing).PortRoleID },
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantFacing).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "HBA").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.ProviderInfrastructure).PortRoleID },
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "LBA").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantFacing).PortRoleID },
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantFacing).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "LBA").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.ProviderInfrastructure).PortRoleID },
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "SHC").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantInfrastructure).PortRoleID },
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "CE").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantInfrastructure).PortRoleID }
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID }
             };
 
             foreach (DeviceRolePortRole d in deviceRolePortRoles)
@@ -166,19 +166,19 @@ namespace SCM.Data
             {
                 new PortPool { Name = "Delivery-Direct",
                     Description = "Port Pool for port allocations exclusively for Delivery Direct tenant-facing port allocations",
-                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantFacing).PortRoleID },
+                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantFacing).PortRoleID },
                 new PortPool { Name = "General",
                     Description = "Port Pool for general tenant-facing port allocations",
-                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantFacing).PortRoleID },
+                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantFacing).PortRoleID },
                 new PortPool { Name = "Core",
                     Description = "Port Pool for core-facing infrastructure port allocations",
-                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.ProviderInfrastructure).PortRoleID },
+                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure).PortRoleID },
                 new PortPool { Name = "Provider",
                     Description = "Port Pool for provider-facing port allocations",
-                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantInfrastructure).PortRoleID },
+                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID },
                 new PortPool { Name = "Tenant-LAN",
                     Description = "Port Pool for tenant LAN port allocations",
-                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleType.TenantInfrastructure).PortRoleID },
+                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID },
             };
 
             foreach (PortPool p in portPools)
@@ -220,19 +220,19 @@ namespace SCM.Data
             {
                 new PortStatus { Name = "Free",
                     Description = "The port is free for allocation",
-                    PortStatusType = PortStatusType.Free },
+                    PortStatusType = PortStatusTypeEnum.Free },
                 new PortStatus { Name = "Assigned",
                     Description = "The port is assigned",
-                    PortStatusType = PortStatusType.Assigned },
+                    PortStatusType = PortStatusTypeEnum.Assigned },
                 new PortStatus { Name = "Reserved",
                     Description = "The port is reserved",
-                    PortStatusType = PortStatusType.Reserved },
+                    PortStatusType = PortStatusTypeEnum.Reserved },
                 new PortStatus { Name = "Locked",
                     Description = "The port is locked",
-                    PortStatusType = PortStatusType.Locked },
+                    PortStatusType = PortStatusTypeEnum.Locked },
                 new PortStatus { Name = "Migration",
                     Description = "The port is reserved for migration purposes",
-                    PortStatusType = PortStatusType.Migration },
+                    PortStatusType = PortStatusTypeEnum.Migration },
             };
 
             foreach (PortStatus p in portStatuses)
@@ -244,16 +244,16 @@ namespace SCM.Data
 
             var routingInstanceTypes = new List<RoutingInstanceType>
             {
-                new RoutingInstanceType { Name = "Layer3-Default",
+                new RoutingInstanceType { Type =  RoutingInstanceTypeEnum.Default,
                     Description = "Global Layer 3 Default Routing Instance Type",
                     IsLayer3 = true,
                     IsDefault = true},
-                new RoutingInstanceType { Name = "Layer3-Tenant-VRF",
+                new RoutingInstanceType { Type = RoutingInstanceTypeEnum.TenantFacingVrf,
                     Description = "Layer 3 Virtual Routing and Forwarding Routing Instance Type for Tenants",
                     IsLayer3 = true,
                     IsVrf = true,
                     IsTenantFacingVrf = true},
-                new RoutingInstanceType { Name = "Layer3-Infrastructure-VRF",
+                new RoutingInstanceType { Type = RoutingInstanceTypeEnum.InfrastructureVrf,
                     Description = "Layer 3 Virtual Routing and Forwarding Routing Instance Type for Infrastructure",
                     IsLayer3 = true,
                     IsVrf = true,
@@ -555,8 +555,8 @@ namespace SCM.Data
 
             var vpnTenancyTypes = new[]
             {
-                new VpnTenancyType { Name = "Single", TenancyType = TenancyType.Single },
-                new VpnTenancyType { Name = "Multi", TenancyType = TenancyType.Multi }
+                new VpnTenancyType { Name = "Single", TenancyType = TenancyTypeEnum.Single },
+                new VpnTenancyType { Name = "Multi", TenancyType = TenancyTypeEnum.Multi }
             };
 
             foreach (VpnTenancyType v in vpnTenancyTypes)
@@ -571,18 +571,18 @@ namespace SCM.Data
 
             var vpnTopologyTypes = new[]
             {
-                new VpnTopologyType { TopologyType = TopologyType.AnytoAny,
+                new VpnTopologyType { TopologyType = TopologyTypeEnum.AnytoAny,
                     Name = "Any-to-Any",
-                    VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolType.IP).VpnProtocolTypeID },
-                new VpnTopologyType { TopologyType = TopologyType.HubandSpoke,
+                    VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolTypeEnum.IP).VpnProtocolTypeID },
+                new VpnTopologyType { TopologyType = TopologyTypeEnum.HubandSpoke,
                     Name = "Hub-and-Spoke",
-                    VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolType.IP).VpnProtocolTypeID },
-                new VpnTopologyType { TopologyType = TopologyType.PointtoPoint,
+                    VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolTypeEnum.IP).VpnProtocolTypeID },
+                new VpnTopologyType { TopologyType = TopologyTypeEnum.PointtoPoint,
                     Name = "Point-to-Point",
-                    VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolType.Ethernet).VpnProtocolTypeID },
-                new VpnTopologyType { TopologyType = TopologyType.Multipoint,
+                    VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolTypeEnum.Ethernet).VpnProtocolTypeID },
+                new VpnTopologyType { TopologyType = TopologyTypeEnum.Multipoint,
                     Name = "Multipoint",
-                    VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolType.Ethernet).VpnProtocolTypeID }
+                    VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolTypeEnum.Ethernet).VpnProtocolTypeID }
             };
 
             foreach (VpnTopologyType v in vpnTopologyTypes)
@@ -595,8 +595,8 @@ namespace SCM.Data
 
             var multicastVpnServiceTypes = new List<MulticastVpnServiceType>
             {
-                new MulticastVpnServiceType {Name = "ASM", MvpnServiceType = MvpnServiceType.ASM },
-                new MulticastVpnServiceType {Name = "SSM", MvpnServiceType = MvpnServiceType.SSM }
+                new MulticastVpnServiceType {Name = "ASM", MvpnServiceType = MvpnServiceTypeEnum.ASM },
+                new MulticastVpnServiceType {Name = "SSM", MvpnServiceType = MvpnServiceTypeEnum.SSM }
             };
 
             foreach (MulticastVpnServiceType m in multicastVpnServiceTypes)
@@ -609,9 +609,9 @@ namespace SCM.Data
 
             var multicastVpnDomainTypes = new List<MulticastVpnDomainType>
             {
-                new MulticastVpnDomainType {Name = "Sender-Only", MvpnDomainType = MvpnDomainType.SenderOnly },
-                new MulticastVpnDomainType {Name = "Receiver-Only", MvpnDomainType = MvpnDomainType.ReceiverOnly },
-                new MulticastVpnDomainType {Name = "Sender-and-Receiver", MvpnDomainType = MvpnDomainType.SenderAndReceiver }
+                new MulticastVpnDomainType {Name = "Sender-Only", MvpnDomainType = MvpnDomainTypeEnum.SenderOnly },
+                new MulticastVpnDomainType {Name = "Receiver-Only", MvpnDomainType = MvpnDomainTypeEnum.ReceiverOnly },
+                new MulticastVpnDomainType {Name = "Sender-and-Receiver", MvpnDomainType = MvpnDomainTypeEnum.SenderAndReceiver }
             };
 
             foreach (MulticastVpnDomainType m in multicastVpnDomainTypes)
@@ -624,8 +624,8 @@ namespace SCM.Data
 
             var multicastVpnDirectionTypes = new List<MulticastVpnDirectionType>
             {
-                new MulticastVpnDirectionType {Name = "Unidirectional", MvpnDirectionType = MvpnDirectionType.Unidirectional },
-                new MulticastVpnDirectionType {Name = "Bidirectional", MvpnDirectionType = MvpnDirectionType.Bidirectional }
+                new MulticastVpnDirectionType {Name = "Unidirectional", MvpnDirectionType = MvpnDirectionTypeEnum.Unidirectional },
+                new MulticastVpnDirectionType {Name = "Bidirectional", MvpnDirectionType = MvpnDirectionTypeEnum.Bidirectional }
             };
 
             foreach (MulticastVpnDirectionType m in multicastVpnDirectionTypes)
@@ -850,10 +850,10 @@ namespace SCM.Data
 
             var attachmentRedundancies = new List<AttachmentRedundancy>
             {
-                new AttachmentRedundancy {Name = "Bronze", AttachmentRedundancyType = AttachmentRedundancyType.Bronze },
-                new AttachmentRedundancy {Name = "Silver", AttachmentRedundancyType = AttachmentRedundancyType.Silver },
-                new AttachmentRedundancy {Name = "Gold", AttachmentRedundancyType = AttachmentRedundancyType.Gold },
-                new AttachmentRedundancy {Name = "Custom", AttachmentRedundancyType = AttachmentRedundancyType.Custom },
+                new AttachmentRedundancy {Name = "Bronze", AttachmentRedundancyType = AttachmentRedundancyTypeEnum.Bronze },
+                new AttachmentRedundancy {Name = "Silver", AttachmentRedundancyType = AttachmentRedundancyTypeEnum.Silver },
+                new AttachmentRedundancy {Name = "Gold", AttachmentRedundancyType = AttachmentRedundancyTypeEnum.Gold },
+                new AttachmentRedundancy {Name = "Custom", AttachmentRedundancyType = AttachmentRedundancyTypeEnum.Custom },
             };
             foreach (AttachmentRedundancy p in attachmentRedundancies)
             {
@@ -875,7 +875,7 @@ namespace SCM.Data
 
             var defaultRdRange = new RouteDistinguisherRange()
             {
-                Name = "Default",
+                Type = RouteDistinguisherRangeTypeEnum.Default,
                 AdministratorSubField = 8718,
                 AssignedNumberSubFieldStart = 1,
                 AssignedNumberSubFieldCount = 1000000

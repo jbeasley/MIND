@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SCM.Models
 {
-    public enum TopologyType
+    public enum TopologyTypeEnum
     {
         AnytoAny,
         HubandSpoke,
@@ -18,7 +18,7 @@ namespace SCM.Models
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
-        public TopologyType TopologyType { get; set; }
+        public TopologyTypeEnum TopologyType { get; set; }
         public int VpnProtocolTypeID { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }

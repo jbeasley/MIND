@@ -731,7 +731,7 @@ namespace SCM.Controllers
         protected async Task PopulatePortsDropDownList(int deviceID, int? portPoolID, int currentPortID)
         {
             var ports = await PortService.GetAllByDeviceIDAsync(deviceID, portPoolID);
-            var result = ports.Where(x => x.PortStatus.PortStatusType == Models.PortStatusType.Free || x.ID == currentPortID);
+            var result = ports.Where(x => x.PortStatus.PortStatusType == Models.PortStatusTypeEnum.Free || x.ID == currentPortID);
             ViewBag.PortID = new SelectList(Mapper.Map<List<PortViewModel>>(result), "ID", "FullName", currentPortID);
         }
 

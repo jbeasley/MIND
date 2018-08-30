@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SCM.Models
 {
 
-    public enum PortRoleType
+    public enum PortRoleTypeEnum
     {
         TenantFacing,
         ProviderInfrastructure,
@@ -21,7 +21,7 @@ namespace SCM.Models
         public string Name { get; set; }
         [StringLength(250)]
         public string Description { get; set; }
-        public PortRoleType PortRoleType { get; set; }
+        public PortRoleTypeEnum PortRoleType { get; set; }
         [Required]
         [Timestamp]
         public byte[] RowVersion { get; set; }

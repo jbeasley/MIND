@@ -56,10 +56,10 @@ namespace SCM.Services
                 AsTrackable: false);
         }
 
-        public async Task<IEnumerable<RoutingInstance>> GetAllByRouteDistinguisherRangeNameAsync(string routeDistinguisherRangeName, bool includeProperties = true)
+        public async Task<IEnumerable<RoutingInstance>> GetAllByRouteDistinguisherRangeTypeAsync(RouteDistinguisherRangeTypeEnum rdRangeType, bool includeProperties = true)
         {
             var p = includeProperties ? Properties : string.Empty;
-            return await UnitOfWork.RoutingInstanceRepository.GetAsync(q => q.RouteDistinguisherRange.Name == routeDistinguisherRangeName,
+            return await UnitOfWork.RoutingInstanceRepository.GetAsync(q => q.RouteDistinguisherRange.Type == rdRangeType,
                 includeProperties: p,
                 AsTrackable: false);
         }

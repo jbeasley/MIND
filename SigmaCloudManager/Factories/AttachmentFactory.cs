@@ -340,7 +340,7 @@ namespace SCM.Factories
 
             // Filter to get ports with the required bandwidth and which belong to the requested Port Role
 
-            var ports = request.Device.Ports.Where(q => q.PortStatus.PortStatusType == PortStatusType.Free 
+            var ports = request.Device.Ports.Where(q => q.PortStatus.PortStatusType == PortStatusTypeEnum.Free 
                     && q.PortBandwidth.BandwidthGbps == request.PortBandwidthRequired 
                     && q.PortPoolID == request.PortPoolID);
 
@@ -383,7 +383,7 @@ namespace SCM.Factories
                 // Find all devices with Device Status of 'Production' which are in the requested Location and which suport the 
                 // required Attachment Role
 
-                var query = from d in await UnitOfWork.DeviceRepository.GetAsync(q => q.DeviceStatus.DeviceStatusType == DeviceStatusType.Production
+                var query = from d in await UnitOfWork.DeviceRepository.GetAsync(q => q.DeviceStatus.DeviceStatusType == DeviceStatusTypeEnum.Production
                     && q.LocationID == request.LocationID
                     && q.DeviceRole.DeviceRoleAttachmentRoles.Where(x => x.AttachmentRoleID == request.AttachmentRoleID).Any(),
                     includeProperties: "Ports.PortBandwidth,Ports.Device,Ports.PortStatus,Attachments")
@@ -404,7 +404,7 @@ namespace SCM.Factories
                 // and that the device supports the required Attachment Role
 
                 devices = await UnitOfWork.DeviceRepository.GetAsync(q => q.DeviceID == request.DeviceID 
-                    && q.DeviceStatus.DeviceStatusType == DeviceStatusType.Production
+                    && q.DeviceStatus.DeviceStatusType == DeviceStatusTypeEnum.Production
                     && q.DeviceRole.DeviceRoleAttachmentRoles.Where(x => x.AttachmentRoleID == request.AttachmentRoleID).Any(),
                     includeProperties: "Ports.PortBandwidth,Ports.Device,Ports.PortStatus,Attachments");
             }
@@ -412,7 +412,7 @@ namespace SCM.Factories
             // Filter devices collection to only those devices which have the required number of free ports
             // of the required bandwidth and which belong to the requested Port Pool
 
-            devices = devices.Where(q => q.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusType.Free 
+            devices = devices.Where(q => q.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free 
                 && p.PortPoolID == request.PortPoolID
                 && p.PortBandwidth.BandwidthGbps == request.PortBandwidthRequired).Count() >= request.NumPortsRequired).ToList();
 
@@ -428,10 +428,10 @@ namespace SCM.Factories
                 // Get device with the most free ports of the required Port Bandwidth
 
                 request.Device = devices.Aggregate((current, x) =>
-                (x.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusType.Free 
+                (x.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free 
                 && p.PortBandwidth.BandwidthGbps == request.Bandwidth.BandwidthGbps)
                 .Count() > 
-                current.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusType.Free 
+                current.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free 
                 && p.PortBandwidth.BandwidthGbps == request.Bandwidth.BandwidthGbps)
                 .Count() ? x : current));
             }

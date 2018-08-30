@@ -74,7 +74,7 @@ namespace SCM.Factories
             {
                 routingInstance.Name = Guid.NewGuid().ToString("N");
 
-                var dbResult = await UnitOfWork.RouteDistinguisherRangeRepository.GetAsync(q => q.Name == "Default");
+                var dbResult = await UnitOfWork.RouteDistinguisherRangeRepository.GetAsync(q => q.Type == RouteDistinguisherRangeTypeEnum.Default);
                 var rdRange = dbResult.SingleOrDefault();
 
                 if (rdRange == null)

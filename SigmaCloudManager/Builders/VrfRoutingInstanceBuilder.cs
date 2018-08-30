@@ -1,4 +1,5 @@
-﻿using SCM.Models;
+﻿using SCM.Data;
+using SCM.Models;
 using SCM.Services;
 using System;
 using System.Collections.Generic;
@@ -10,62 +11,98 @@ namespace Mind.Builders
     /// <summary>
     /// Builder for vrf routing instances. The builder exposes a fluent API.
     /// </summary>
-    public class VrfRoutingInstanceBuilder : IRoutingInstanceBuilder
+    public class VrfRoutingInstanceBuilder : BaseBuilder, IVrfRoutingInstanceBuilder
     {
-        private readonly IRouteDistinguisherRangeService _routeDistinguisherRangeService;
-        private readonly IRoutingInstanceService _routingInstanceService;
-        private RoutingInstance _routingInstance;
+        private readonly RoutingInstance _routingInstance;
 
-        public VrfRoutingInstanceBuilder(IRouteDistinguisherRangeService routeDistinguisherRangeService,
-            IRoutingInstanceService routingInstanceService)
+        public VrfRoutingInstanceBuilder(IUnitOfWork unitOfWork) : base (unitOfWork)
         {
-            _routeDistinguisherRangeService = routeDistinguisherRangeService;
-            _routingInstanceService = routingInstanceService;
-        }
-
-        public void Init(int tenantId, int deviceId, int routingInstanceTypeID)
-        {
-            _routingInstance = new RoutingInstance {
-
-                TenantID = tenantId,
-                DeviceID = deviceId,
-                RoutingInstanceTypeID = routingInstanceTypeID
+            _routingInstance = new RoutingInstance
+            {
+                Name = Guid.NewGuid().ToString("N")
             };
         }
 
-        public async Task Create()
-        { 
-            _routingInstance.Name = Guid.NewGuid().ToString("N");
+        public virtual IVrfRoutingInstanceBuilder ForDevice(int deviceId)
+        {
+            _args.Add(nameof(ForDevice), deviceId);
+            return this;
+        }
 
-            var rdRange = await _routeDistinguisherRangeService.GetByNameAsync("Default");
+        public virtual IVrfRoutingInstanceBuilder WithTenant(int tenantId)
+        {
+            _args.Add(nameof(WithTenant), tenantId);
+            return this;
+        }
+
+        public virtual IVrfRoutingInstanceBuilder WithRoutingInstanceType(RoutingInstanceTypeEnum routingInstanceTypeEnum)
+        {
+            _args.Add(nameof(WithRoutingInstanceType), routingInstanceTypeEnum);
+            return this;
+        }
+
+        public virtual IVrfRoutingInstanceBuilder WithRouteDistinguisherRange(RouteDistinguisherRangeTypeEnum? rdRangeType)
+        {
+            _args.Add(nameof(WithRouteDistinguisherRange), rdRangeType);
+            return this;
+        }
+
+        public virtual async Task<RoutingInstance> BuildAsync()
+        {
+            _routingInstance.DeviceID = (int)_args[nameof(ForDevice)];
+            _routingInstance.TenantID = (int)_args[nameof(WithTenant)];
+            await SetRoutingInstanceTypeAsync();
+            await SetRouteDistinguisherAsync();
+
+            return _routingInstance;
+        }
+
+        protected internal virtual async Task SetRoutingInstanceTypeAsync()
+        {
+            var routingInstanceTypeEnum = (RoutingInstanceTypeEnum)_args[nameof(WithRoutingInstanceType)];
+            var routingInstanceType = (from result in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
+                                q =>
+                                       q.Type == routingInstanceTypeEnum,
+                                       AsTrackable: true)
+                                       select result)
+                                       .Single();
+            _routingInstance.RoutingInstanceType = routingInstanceType;
+        }
+
+        protected internal virtual async Task SetRouteDistinguisherAsync()
+        {
+            var rdRangeType = (RouteDistinguisherRangeTypeEnum)_args[nameof(WithRouteDistinguisherRange)];
+            var rdRange = (from result in await _unitOfWork.RouteDistinguisherRangeRepository.GetAsync(
+                    q => 
+                        q.Type == rdRangeType,
+                        AsTrackable: true)
+                        select result)
+                        .SingleOrDefault();
+
             if (rdRange == null)
             {
-                throw new BuilderUnableToCompleteException("The default route distinguisher range was not found. " +
+                throw new BuilderUnableToCompleteException($"The route distinguisher range '{rdRangeType.ToString()}' was not found. " +
                     "Please contact your system administrator to resolve this issue.");
             }
 
-            var usedRDs = await _routingInstanceService.GetAllByRouteDistinguisherRangeNameAsync("Default");
+            var usedRDs = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                        q =>
+                           q.RouteDistinguisherRange.Type == rdRangeType,
+                           AsTrackable: true)
+                           select result.AssignedNumberSubField.Value)
+                           .ToList();
 
             // Allocate a new unused RD from the RD range
 
             int? newRdAssignedNumberSubField = Enumerable.Range(rdRange.AssignedNumberSubFieldStart, rdRange.AssignedNumberSubFieldCount)
-                .Except(usedRDs.Select(q => q.AssignedNumberSubField.Value)).FirstOrDefault();
+                           .Except(usedRDs).FirstOrDefault();
 
-            if (newRdAssignedNumberSubField == null)
-            {
-                throw new BuilderUnableToCompleteException("Failed to allocate a free route distinguisher. "
+            if (newRdAssignedNumberSubField == null) throw new BuilderUnableToCompleteException("Failed to allocate a free route distinguisher. "
                     + "Please contact your system administrator, or try another range.");
-            }
 
             _routingInstance.AdministratorSubField = rdRange.AdministratorSubField;
             _routingInstance.AssignedNumberSubField = newRdAssignedNumberSubField.Value;
             _routingInstance.RouteDistinguisherRangeID = rdRange.RouteDistinguisherRangeID;
-
-        }
-
-        public RoutingInstance GetResult()
-        {
-            return _routingInstance;
         }
     }
 }

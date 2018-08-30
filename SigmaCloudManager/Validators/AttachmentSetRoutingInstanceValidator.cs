@@ -189,7 +189,7 @@ namespace SCM.Validators
 
             var attachmentRedundancy = attachmentSet.AttachmentRedundancy;
             var attachmentSetRoutingInstances = attachmentSet.AttachmentSetRoutingInstances.ToList();
-            if (attachmentRedundancy.AttachmentRedundancyType != AttachmentRedundancyType.Custom)
+            if (attachmentRedundancy.AttachmentRedundancyType != AttachmentRedundancyTypeEnum.Custom)
             {
                 foreach (var attachmentSetRoutingInstance in attachmentSetRoutingInstances)
                 {
@@ -203,7 +203,7 @@ namespace SCM.Validators
                 }
             }
 
-            if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyType.Bronze)
+            if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Bronze)
             {
                 if (attachmentSetRoutingInstances.Count != 1)
                 {
@@ -213,7 +213,7 @@ namespace SCM.Validators
             }
             else
             {
-                if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyType.Silver)
+                if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Silver)
                 {
                     if (attachmentSetRoutingInstances.Count != 2)
                     {
@@ -243,7 +243,7 @@ namespace SCM.Validators
                     }
                 }
 
-                else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyType.Gold)
+                else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Gold)
                 {
                     if (attachmentSetRoutingInstances.Count != 2)
                     {
@@ -280,7 +280,7 @@ namespace SCM.Validators
                         }
                     }
                 }
-                else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyType.Custom)
+                else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Custom)
                 {
                     if (!attachmentSetRoutingInstances.Any())
                     {

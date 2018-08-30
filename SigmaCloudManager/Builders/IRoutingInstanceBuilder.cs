@@ -8,8 +8,6 @@ namespace Mind.Builders
 {
     public interface IRoutingInstanceBuilder
     {
-        void Init(int tenantId, int deviceId, int routingInstanceTypeId);
-        Task Create();
-        RoutingInstance GetResult();
+        Task<RoutingInstance> BuildAsync();
     }
 }

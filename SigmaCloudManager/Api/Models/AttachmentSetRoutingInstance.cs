@@ -23,7 +23,7 @@ namespace Mind.Api.Models
 
 { 
     /// <summary>
-    /// 
+    /// Model of an attachment set routing instance - a routing instance which belongs (is associated with) an attachment set
     /// </summary>
     [DataContract]
     public partial class AttachmentSetRoutingInstance : IEquatable<AttachmentSetRoutingInstance>

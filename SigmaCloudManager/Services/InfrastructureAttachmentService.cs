@@ -42,7 +42,7 @@ namespace SCM.Services
             var p = includeProperties ? Properties : "Device";
 
             var query = from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => 
-            q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleType.ProviderInfrastructure,
+            q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure,
                 includeProperties: p,
                 AsTrackable: false)
                         select attachments;
@@ -67,7 +67,7 @@ namespace SCM.Services
             // so that only messages for the new attachment will be displayed.
 
             var lastCreatedAttachments = await UnitOfWork.AttachmentRepository.GetAsync(q => 
-            q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleType.ProviderInfrastructure && q.Created);
+            q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure && q.Created);
 
             foreach (var attachment in lastCreatedAttachments)
             {

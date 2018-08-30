@@ -82,7 +82,7 @@ namespace SCM.Validators
             var countOfRouteTargets = vpn.RouteTargets.Count();
             var countOfExportRouteTarget = vpn.RouteTargets.Where(r => r.IsHubExport == true).Count();
 
-            if (protocolType == ProtocolType.Ethernet)
+            if (protocolType == ProtocolTypeEnum.Ethernet)
             {
                 if (countOfExportRouteTarget > 0)
                 {

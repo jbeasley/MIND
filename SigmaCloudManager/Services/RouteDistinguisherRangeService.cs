@@ -25,9 +25,9 @@ namespace SCM.Services
             return dbResult.SingleOrDefault();
         }
 
-        public async Task<RouteDistinguisherRange> GetByNameAsync(string name)
+        public async Task<RouteDistinguisherRange> GetByTypeAsync(RouteDistinguisherRangeTypeEnum rdRangeType)
         {
-            var dbResult = await this.UnitOfWork.RouteDistinguisherRangeRepository.GetAsync(q => q.Name == name);
+            var dbResult = await this.UnitOfWork.RouteDistinguisherRangeRepository.GetAsync(q => q.Type == rdRangeType);
             return dbResult.SingleOrDefault();
         }
 

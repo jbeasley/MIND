@@ -126,7 +126,7 @@ namespace SCM.Factories
                 {
                     AssignedNumberSubField = rtAssignedNumbers.ToList()[i],
                     RouteTargetRangeID = rtRange.RouteTargetRangeID,
-                    IsHubExport = vpnTopologyType.TopologyType == TopologyType.HubandSpoke && i == 1
+                    IsHubExport = vpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke && i == 1
                 });
             }
 
@@ -155,7 +155,7 @@ namespace SCM.Factories
 
             IEnumerable<int> rtAssignedNumbers = null;
 
-            if (vpnTopologyType.TopologyType == TopologyType.AnytoAny)
+            if (vpnTopologyType.TopologyType == TopologyTypeEnum.AnytoAny)
             {
                 // One RT required for Any-to-Any VPN
 
@@ -168,7 +168,7 @@ namespace SCM.Factories
                         + "Please contact your administrator, or try another range.");
                 }
             }
-            else if (vpnTopologyType.TopologyType == TopologyType.HubandSpoke)
+            else if (vpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke)
             {
                 // Two RTs required for Hub-and-Spoke VPN
 

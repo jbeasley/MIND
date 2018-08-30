@@ -42,7 +42,7 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-             return await base.GetByIDAsync(id, SCM.Models.PortRoleType.TenantFacing, deep, asTrackable);
+             return await base.GetByIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantFacing, deep, asTrackable);
         }
 
         /// <summary>
@@ -54,7 +54,7 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<List<Attachment>> GetAllByTenantIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await base.GetAllByTenantIDAsync(id, SCM.Models.PortRoleType.TenantFacing, deep, asTrackable);
+            return await base.GetAllByTenantIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantFacing, deep, asTrackable);
         }
 
         /// <summary>
@@ -70,14 +70,14 @@ namespace Mind.Services
             UnitOfWork.AttachmentRepository.Insert(attachment);
             await UnitOfWork.SaveAsync();
 
-            return await base.GetByIDAsync(attachment.AttachmentID, PortRoleType.TenantFacing, deep: true, asTrackable: false);
+            return await base.GetByIDAsync(attachment.AttachmentID, PortRoleTypeEnum.TenantFacing, deep: true, asTrackable: false);
         }
 
         /// <summary>
         /// Create a new provider domain attachment
         /// </summary>
-        /// <param name="tenantId"></param>
-        /// <param name="request"></param>
+        /// <param name="attachmentId"></param>
+        /// <param name="update"></param>
         /// <returns></returns>
         public async Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update)
         {
@@ -125,7 +125,7 @@ namespace Mind.Services
             }
 
             await UnitOfWork.SaveAsync();
-            return await base.GetByIDAsync(attachment.AttachmentID, PortRoleType.TenantFacing, deep: true, asTrackable: false);
+            return await base.GetByIDAsync(attachment.AttachmentID, PortRoleTypeEnum.TenantFacing, deep: true, asTrackable: false);
         }
 
         /// <summary>
@@ -137,7 +137,7 @@ namespace Mind.Services
             await _validator.ValidateDeleteAsync(attachmentId);
             if (!_validator.IsValid)
             {
-                throw new ServiceValidationException("Validation failed");
+                throw new ServiceValidationException();
             }
 
             var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
@@ -145,10 +145,10 @@ namespace Mind.Services
                 "Vifs.ContractBandwidthPool,RoutingInstance.RoutingInstanceType,RoutingInstance.Vifs,RoutingInstance.Attachments," +
                 "RoutingInstance.BgpPeers", AsTrackable: true)
                               select attachments)
-                              .SingleOrDefault();
+                              .Single();
 
             var ports = attachment.Interfaces.SelectMany(q => q.Ports).ToList();
-            var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusType.Free)
+            var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusTypeEnum.Free)
                                     select portStatuses)
                                     .Single().PortStatusID;
 

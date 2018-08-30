@@ -14,7 +14,7 @@ namespace SCM.Services
         Task<IEnumerable<PortRole>> GetAllByDeviceRoleIDAsync(int deviceRoleID);
         Task<PortRole> GetByIDAsync(int id);
         Task<PortRole> GetByNameAsync(string name);
-        Task<PortRole> GetByPortRoleTypeAsync(PortRoleType portRoleType);
+        Task<PortRole> GetByPortRoleTypeAsync(PortRoleTypeEnum portRoleType);
         Task<int> AddAsync(PortRole portRole);
         Task<int> UpdateAsync(PortRole portRole);
         Task<int> DeleteAsync(PortRole portRole);

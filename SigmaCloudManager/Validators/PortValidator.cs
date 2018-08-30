@@ -29,7 +29,7 @@ namespace SCM.Validators
         public async Task ValidateNewAsync(Port port)
         {
             var portStatus = await PortStatusService.GetByIDAsync(port.PortStatusID);
-            if (portStatus.PortStatusType == PortStatusType.Assigned)
+            if (portStatus.PortStatusType == PortStatusTypeEnum.Assigned)
             {
                 ValidationDictionary.AddError(string.Empty, $"The port status cannot be manually set to 'Assigned'. The port status is "
                          + "automatically changed to 'Assigned' when the port is allocated for either an Infrastructure Attachment or a Tenant Attachment. "
@@ -45,7 +45,7 @@ namespace SCM.Validators
         public async Task ValidateDeleteAsync(Port port)
         {
             var portStatus = await PortStatusService.GetByIDAsync(port.PortStatusID);
-            if (portStatus.PortStatusType != PortStatusType.Free)
+            if (portStatus.PortStatusType != PortStatusTypeEnum.Free)
             {
                 ValidationDictionary.AddError(string.Empty, "The port cannot be deleted because the port status is not 'Free'.");
             }
@@ -60,7 +60,7 @@ namespace SCM.Validators
         {
             var currentPort = await PortService.GetByIDAsync(port.ID);
             var currentPortStatus = await PortStatusService.GetByIDAsync(currentPort.PortStatusID);
-            if (currentPortStatus.PortStatusType == PortStatusType.Assigned)
+            if (currentPortStatus.PortStatusType == PortStatusTypeEnum.Assigned)
             {
                 if (port.Name != currentPort.Name)
                 {
@@ -85,16 +85,16 @@ namespace SCM.Validators
             }
 
             var portStatus = await PortStatusService.GetByIDAsync(port.PortStatusID);
-            if (currentPort.PortStatus.PortStatusType == PortStatusType.Assigned)
+            if (currentPort.PortStatus.PortStatusType == PortStatusTypeEnum.Assigned)
             {
-                if (portStatus.PortStatusType != PortStatusType.Assigned)
+                if (portStatus.PortStatusType != PortStatusTypeEnum.Assigned)
                 {
                     ValidationDictionary.AddError(string.Empty, $"The port status cannot be changed to '{portStatus.Name}' because the port is assigned.");
                 }
             }
             else 
             {
-                if (portStatus.PortStatusType == PortStatusType.Assigned)
+                if (portStatus.PortStatusType == PortStatusTypeEnum.Assigned)
                 {
                     ValidationDictionary.AddError(string.Empty, $"The port status cannot be manually changed to 'Assigned'. The port status is "
                         + "automatically changed to 'Assigned' when the port is allocated for either an Infrastructure Attachment or a Tenant Attachment.");

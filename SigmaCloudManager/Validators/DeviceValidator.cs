@@ -39,7 +39,7 @@ namespace SCM.Validators
                 }
             }
 
-            if (currentDevice.Ports.Where(x => x.PortStatus.PortStatusType == PortStatusType.Assigned).Any())
+            if (currentDevice.Ports.Where(x => x.PortStatus.PortStatusType == PortStatusTypeEnum.Assigned).Any())
             {
 
                 // The name property must not be changed because this is used as a key
@@ -64,7 +64,7 @@ namespace SCM.Validators
                 }
 
                 var deviceStatus = await DeviceStatusService.GetByIDAsync(device.DeviceStatusID);
-                if (deviceStatus.DeviceStatusType != DeviceStatusType.Production)
+                if (deviceStatus.DeviceStatusType != DeviceStatusTypeEnum.Production)
                 {
                     ValidationDictionary.AddError(string.Empty, "The Device Status must be 'Production' because ports of the device are in the 'Assigned' state.");
                 }
@@ -79,7 +79,7 @@ namespace SCM.Validators
         /// <returns></returns>
         public void ValidateDelete(Device device)
         {
-            var allocatedPorts = device.Ports.Where(q => q.PortStatus.PortStatusType != PortStatusType.Free);
+            var allocatedPorts = device.Ports.Where(q => q.PortStatus.PortStatusType != PortStatusTypeEnum.Free);
             if (allocatedPorts.Count() > 0)
             {
                 ValidationDictionary.AddError(string.Empty, "The Device cannot be deleted because Ports are allocated.");

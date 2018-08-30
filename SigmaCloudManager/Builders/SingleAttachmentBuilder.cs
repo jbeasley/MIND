@@ -13,8 +13,8 @@ namespace Mind.Builders
     /// </summary>
     public class SingleAttachmentBuilder : AttachmentBuilder<SingleAttachmentBuilder>, IAttachmentBuilder<SingleAttachmentBuilder>
     {
-        public SingleAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory) : 
-            base(unitOfWork, routingInstanceBuilderFactory)
+        public SingleAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory) : 
+            base(unitOfWork, routingInstanceDirectorFactory)
         {
         }
 

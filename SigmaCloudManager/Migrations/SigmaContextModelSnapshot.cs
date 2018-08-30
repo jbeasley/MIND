@@ -1095,14 +1095,16 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("AssignedNumberSubFieldStart");
 
-                    b.Property<string>("Name")
-                        .IsRequired();
-
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();
 
+                    b.Property<int>("Type");
+
                     b.HasKey("RouteDistinguisherRangeID");
+
+                    b.HasIndex("Type")
+                        .IsUnique();
 
                     b.ToTable("RouteDistinguisherRange");
                 });
@@ -1214,16 +1216,15 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<bool>("IsVrf");
 
-                    b.Property<string>("Name")
-                        .IsRequired();
-
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();
 
+                    b.Property<int>("Type");
+
                     b.HasKey("RoutingInstanceTypeID");
 
-                    b.HasIndex("Name")
+                    b.HasIndex("Type")
                         .IsUnique();
 
                     b.ToTable("RoutingInstanceType");
@@ -2373,7 +2374,7 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.RouteDistinguisherRange", "RouteDistinguisherRange")
-                        .WithMany("RoutingInstance")
+                        .WithMany("RoutingInstances")
                         .HasForeignKey("RouteDistinguisherRangeID");
 
                     b.HasOne("SCM.Models.RoutingInstanceType", "RoutingInstanceType")

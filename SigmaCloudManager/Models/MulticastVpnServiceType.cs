@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SCM.Models
 {
-    public enum MvpnServiceType
+    public enum MvpnServiceTypeEnum
     {
         ASM,
         SSM
@@ -16,7 +16,7 @@ namespace SCM.Models
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
-        public MvpnServiceType MvpnServiceType { get; set; }
+        public MvpnServiceTypeEnum MvpnServiceType { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
     }

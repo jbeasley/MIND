@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for BGP peer requests
     /// </summary>
     [DataContract]
     public partial class BgpPeerRequest: IEquatable<BgpPeerRequest>

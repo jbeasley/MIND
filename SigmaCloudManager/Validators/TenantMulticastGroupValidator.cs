@@ -84,7 +84,7 @@ namespace SCM.Validators
 
                 if (tenantMulticastGroup.IsSsmGroup)
                 {
-                    if (vpn.MulticastVpnServiceType.MvpnServiceType != MvpnServiceType.SSM)
+                    if (vpn.MulticastVpnServiceType.MvpnServiceType != MvpnServiceTypeEnum.SSM)
                     {
                         ValidationDictionary.AddError(string.Empty, "The 'SSM' attribute cannot be enabled for multicast group range "
                             + $"'{tenantMulticastGroup.Name}' because the group range belongs to Attachment Set '{attachmentSet.Name}' "
@@ -93,7 +93,7 @@ namespace SCM.Validators
                 }
                 else
                 {
-                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceType.SSM)
+                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.SSM)
                     {
                         ValidationDictionary.AddError(string.Empty, "The 'SSM' attribute must be enabled for multicast group range "
                             + $"'{tenantMulticastGroup.Name}' because the group range belongs to Attachment Set '{attachmentSet.Name}' "

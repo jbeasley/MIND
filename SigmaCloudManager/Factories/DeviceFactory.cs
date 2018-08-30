@@ -51,7 +51,7 @@ namespace SCM.Factories
 
             // Create a global routing instance for the new device
 
-            var routingInstanceType = await RoutingInstanceTypeService.GetByNameAsync("Layer3-Default");
+            var routingInstanceType = await RoutingInstanceTypeService.GetByTypeAsync(RoutingInstanceTypeEnum.Default);
             if (routingInstanceType == null)
             {
                 throw new FactoryFailureException("Could not create device. The default layer3 routing instance type was not found.");

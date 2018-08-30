@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of a contract bandwidth pool
     /// </summary>
     [DataContract]
     public partial class ContractBandwidthPool : IEquatable<ContractBandwidthPool>

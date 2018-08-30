@@ -13,20 +13,20 @@ using Newtonsoft.Json;
 namespace SCM.Models.RequestModels
 {
     /// <summary>
-    /// 
+    /// Model for IPv4 address and subnet mask
     /// </summary>
     public partial class Ipv4AddressAndMask
     {
         /// <summary>
         /// IPv4 address
         /// </summary>
-        /// <value>IPv4 address assigned to the first connection in the attachment</value>
+        /// <value>String denoting an IPv4 address/value>
         public string IpAddress { get; set; }
 
         /// <summary>
         /// IPv4 subnet mask 
         /// </summary>
-        /// <value>IPv4 subnet mask assigned to the first connection in the attachment</value>
+        /// <value>String denoting an IPv4 subnet mask</value>
         public string SubnetMask { get; set; }
 
     }

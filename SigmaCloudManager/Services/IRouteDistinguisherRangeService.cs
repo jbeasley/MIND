@@ -12,7 +12,7 @@ namespace SCM.Services
         IUnitOfWork UnitOfWork { get; }
         Task<IEnumerable<RouteDistinguisherRange>> GetAllAsync();
         Task<RouteDistinguisherRange> GetByIDAsync(int id);
-        Task<RouteDistinguisherRange> GetByNameAsync(string name);
+        Task<RouteDistinguisherRange> GetByTypeAsync(RouteDistinguisherRangeTypeEnum rdRangeType);
         Task<int> AddAsync(RouteDistinguisherRange routeDistinguisherRange);
         Task<int> UpdateAsync(RouteDistinguisherRange routeDistinguisherRange);
         Task<int> DeleteAsync(RouteDistinguisherRange routeDistinguisherRange);

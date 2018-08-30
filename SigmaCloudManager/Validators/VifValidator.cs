@@ -136,8 +136,8 @@ namespace SCM.Validators
                     if (updateRoutingInstance.RoutingInstanceTypeID != vif.RoutingInstance.RoutingInstanceTypeID)
                     {
                         ValidationDictionary.AddError(string.Empty, "The VRF cannot be changed because the Routing Instance Types do not match."
-                            + $"The current VRF Routing Instance Type is '{routingInstance.RoutingInstanceType.Name}'. "
-                            + $"The updated VRF Routing Instance Type is '{updateRoutingInstance.RoutingInstanceType.Name}'.");
+                            + $"The current VRF Routing Instance Type is '{routingInstance.RoutingInstanceType.Type.ToString()}'. "
+                            + $"The updated VRF Routing Instance Type is '{updateRoutingInstance.RoutingInstanceType.Type.ToString()}'.");
                     }
                 }
 

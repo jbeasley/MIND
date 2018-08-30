@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for requesting a new tenant
     /// </summary>
     [DataContract]
     public partial class TenantRequest : IEquatable<TenantRequest>

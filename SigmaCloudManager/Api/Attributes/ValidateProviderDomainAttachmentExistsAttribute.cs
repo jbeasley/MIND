@@ -12,6 +12,7 @@ using Mind.Api.Models;
 using Mind.Services;
 using SCM.Data;
 using Mind.Api.Controllers;
+using SCM.Models;
 
 namespace Mind.Api.Attributes
 {
@@ -37,11 +38,11 @@ namespace Mind.Api.Attributes
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {          
-                var tenantId = context.ActionArguments["tenantId"] as int?;
                 var attachmentId = context.ActionArguments["attachmentId"] as int?;
                
                 if ((from result in await _unitOfWork.AttachmentRepository.GetAsync(q =>
-                        q.AttachmentID == attachmentId && q.TenantID == tenantId,
+                        q.AttachmentID == attachmentId 
+                        && q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing,
                         AsTrackable: false)
                         select result)
                        .SingleOrDefault() == null)

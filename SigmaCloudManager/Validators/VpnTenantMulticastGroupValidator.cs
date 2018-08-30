@@ -50,7 +50,7 @@ namespace SCM.Validators
                 return;
             }
 
-            if (attachmentSet.MulticastVpnDomainType.MvpnDomainType == MvpnDomainType.ReceiverOnly)
+            if (attachmentSet.MulticastVpnDomainType.MvpnDomainType == MvpnDomainTypeEnum.ReceiverOnly)
             {
                 ValidationDictionary.AddError(string.Empty, $"A Multicast Group range cannot be added to Attachment '{attachmentSet.Name}' Set because " 
                     + "the Multicast Domain Type of the Attachment Set is designated 'Receiver-Only'.");
@@ -88,7 +88,7 @@ namespace SCM.Validators
 
                 if (tenantMulticastGroup.IsSsmGroup)
                 {
-                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceType.ASM)
+                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.ASM)
                     {
                         ValidationDictionary.AddError(string.Empty, $"Tenant Multicast Group range "
                             + $"'{tenantMulticastGroup.Name}' "
@@ -98,7 +98,7 @@ namespace SCM.Validators
                 }
                 else
                 {
-                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceType.SSM)
+                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.SSM)
                     {
                         ValidationDictionary.AddError(string.Empty, $"Tenant Multicast Group range "
                             + $"'{tenantMulticastGroup.Name}' "
@@ -166,7 +166,7 @@ namespace SCM.Validators
 
                 if (tenantMulticastGroup.IsSsmGroup)
                 {
-                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceType.ASM)
+                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.ASM)
                     {
                         ValidationDictionary.AddError(string.Empty, $"Tenant Multicast Group range "
                             + $"'{tenantMulticastGroup.Name}' "
@@ -175,7 +175,7 @@ namespace SCM.Validators
                 }
                 else
                 {
-                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceType.SSM)
+                    if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.SSM)
                     {
                         ValidationDictionary.AddError(string.Empty, $"Tenant Multicast Group range "
                             + $"'{tenantMulticastGroup.Name}' is an ASM group range and cannot be added "

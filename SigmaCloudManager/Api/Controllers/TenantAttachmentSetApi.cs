@@ -33,7 +33,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Mind.Api.Controllers
 { 
     /// <summary>
-    /// 
+    /// API for creating and managing the lifecycle of attachment sets
     /// </summary>
     [ApiVersion("1.0")]
     public class TenantAttachmentSetApiController : BaseApiController

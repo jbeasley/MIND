@@ -72,9 +72,9 @@ namespace SCM.Validators
                 {
                     if (vpn.IsMulticastVpn)
                     {
-                        if (vpn.VpnTopologyType.TopologyType == TopologyType.HubandSpoke)
+                        if (vpn.VpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke)
                         {
-                            if (vpn.MulticastVpnDirectionType.MvpnDirectionType == MvpnDirectionType.Unidirectional)
+                            if (vpn.MulticastVpnDirectionType.MvpnDirectionType == MvpnDirectionTypeEnum.Unidirectional)
                             {
                                 if (vpnAttachmentSet.IsHub.GetValueOrDefault())
                                 {

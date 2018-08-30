@@ -62,8 +62,8 @@ namespace SCM.Validators
 
             if (vpn.Plane != null)
             {
-                if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyType.Silver || 
-                    attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyType.Gold)
+                if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Silver || 
+                    attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Gold)
                 {
                     ValidationDictionary.AddError(string.Empty, $"A '{attachmentRedundancy.Name}' Attachment Set cannot be used "
                         + "with a planar-scoped VPN. "
@@ -71,7 +71,7 @@ namespace SCM.Validators
                         + "The Attachment Set provides connectivity into both planes.");
                 }
 
-                else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyType.Bronze)
+                else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Bronze)
                 {
                     var attachmentPlane = attachmentSet.AttachmentSetRoutingInstances.Single().RoutingInstance.Device.Plane.Name;
                     if (attachmentPlane != vpn.Plane.Name)
@@ -82,7 +82,7 @@ namespace SCM.Validators
                     }
                 }
 
-                else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyType.Custom)
+                else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Custom)
                 {
                     if (attachmentSet.AttachmentSetRoutingInstances.Where(v => v.RoutingInstance.Device.Plane.Name == vpn.Plane.Name).Count() != 
                         attachmentSet.AttachmentSetRoutingInstances.Count())
@@ -169,14 +169,14 @@ namespace SCM.Validators
 
             var vpnTopologyType = vpn.VpnTopologyType.TopologyType;
 
-            if (vpnTopologyType == TopologyType.HubandSpoke)
+            if (vpnTopologyType == TopologyTypeEnum.HubandSpoke)
             {
                 var multicastVpnDirectionType = vpn.MulticastVpnDirectionType.MvpnDirectionType;
-                if (multicastVpnDirectionType == MvpnDirectionType.Unidirectional)
+                if (multicastVpnDirectionType == MvpnDirectionTypeEnum.Unidirectional)
                 {
                     if (vpnAttachmentSet.IsHub.GetValueOrDefault())
                     {
-                        if (multicastVpnDomainType.MvpnDomainType != MvpnDomainType.SenderOnly)
+                        if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderOnly)
                         {
                             ValidationDictionary.AddError(string.Empty, $"VPN '{vpn.Name}' is a Unidirectional Hub-and-Spoke Multicast VPN and "
                                 + $"therefore the Multicast VPN Domain Type selection for Attachment Set '{attachmentSet.Name}' must be 'Sender-Only' "
@@ -185,7 +185,7 @@ namespace SCM.Validators
                     }
                     else
                     {
-                        if (multicastVpnDomainType.MvpnDomainType != MvpnDomainType.ReceiverOnly)
+                        if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.ReceiverOnly)
                         {
                             ValidationDictionary.AddError(string.Empty, $"VPN '{vpn.Name}' is a Unidirectional Hub-and-Spoke Multicast VPN and "
                                 + $"therefore the Multicast VPN Domain Type selection for Attachment Set '{attachmentSet.Name}' must be 'Receiver-Only' "
@@ -197,8 +197,8 @@ namespace SCM.Validators
                 {
                     if (vpnAttachmentSet.IsHub.GetValueOrDefault())
                     {
-                        if (multicastVpnDomainType.MvpnDomainType != MvpnDomainType.SenderOnly && 
-                            multicastVpnDomainType.MvpnDomainType != MvpnDomainType.SenderAndReceiver)
+                        if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderOnly && 
+                            multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderAndReceiver)
                         {
                             ValidationDictionary.AddError(string.Empty, $"VPN '{vpn.Name}' is a Bidirectional Hub-and-Spoke Multicast VPN and "
                                 + $"therefore the Multicast VPN Domain Type selection for Attachment Set '{attachmentSet.Name}' must be either "
@@ -207,8 +207,8 @@ namespace SCM.Validators
                     }
                     else
                     {
-                        if (multicastVpnDomainType.MvpnDomainType != MvpnDomainType.ReceiverOnly && 
-                            multicastVpnDomainType.MvpnDomainType != MvpnDomainType.SenderAndReceiver)
+                        if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.ReceiverOnly && 
+                            multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderAndReceiver)
                         {
                             ValidationDictionary.AddError(string.Empty, $"VPN '{vpn.Name}' is a Bidirectional Hub-and-Spoke Multicast VPN and "
                                 + $"therefore the Multicast VPN Domain Type selection for Attachment Set '{attachmentSet.Name}' must be "
@@ -218,7 +218,7 @@ namespace SCM.Validators
                 }
             }
 
-            if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceType.ASM)
+            if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.ASM)
             {
                 if (attachmentSet.VpnTenantMulticastGroups.Any(x => x.TenantMulticastGroup.IsSsmGroup))
                 {
@@ -228,7 +228,7 @@ namespace SCM.Validators
                 }
             }
 
-            else if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceType.SSM)
+            else if (vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.SSM)
             {
                 if (attachmentSet.VpnTenantMulticastGroups.Any(x => !x.TenantMulticastGroup.IsSsmGroup))
                 {

@@ -6,7 +6,7 @@ using System.Net;
 
 namespace SCM.Models
 {
-    public enum AttachmentRedundancyType
+    public enum AttachmentRedundancyTypeEnum
     {
         Bronze,
         Silver,
@@ -20,7 +20,7 @@ namespace SCM.Models
         [MaxLength(50)]
         [Required]
         public string Name { get; set; }
-        public AttachmentRedundancyType AttachmentRedundancyType { get; set; }
+        public AttachmentRedundancyTypeEnum AttachmentRedundancyType { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
     }

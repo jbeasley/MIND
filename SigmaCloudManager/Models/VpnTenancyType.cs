@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SCM.Models
 {
-    public enum TenancyType
+    public enum TenancyTypeEnum
     {
         Single,
         Multi
@@ -16,7 +16,7 @@ namespace SCM.Models
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
-        public TenancyType TenancyType { get; set; }
+        public TenancyTypeEnum TenancyType { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual ICollection<Vpn> Vpns { get; set; }

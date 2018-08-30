@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace SCM.Models
 {
-    public enum PortStatusType
+    public enum PortStatusTypeEnum
     {
         Free,
         Assigned,
@@ -22,7 +22,7 @@ namespace SCM.Models
         public string Name { get; set; }
         [StringLength(250)]
         public string Description { get; set; }
-        public PortStatusType PortStatusType { get; set; }
+        public PortStatusTypeEnum PortStatusType { get; set; }
         [Required]
         [Timestamp]
         public byte[] RowVersion { get; set; }

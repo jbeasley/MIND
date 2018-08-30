@@ -7,7 +7,7 @@ using System.Net;
 namespace SCM.Models
 {
 
-    public enum DeviceStatusType
+    public enum DeviceStatusTypeEnum
     {
         Production,
         Staging,
@@ -22,7 +22,7 @@ namespace SCM.Models
         public string Name { get; set; }
         [MaxLength(250)]
         public string Description { get; set; }
-        public DeviceStatusType DeviceStatusType { get; set; }
+        public DeviceStatusTypeEnum DeviceStatusType { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual ICollection<Device> Devices { get; set; }

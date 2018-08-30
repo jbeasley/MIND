@@ -108,7 +108,7 @@ namespace SCM.Controllers
         public async Task<IActionResult> Create()
         {
 
-            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleType.ProviderInfrastructure);
+            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleTypeEnum.ProviderInfrastructure);
             await base.PopulatePortPoolsDropDownList(portRole.PortRoleID);
             await base.PopulateRegionsDropDownList();
 
@@ -162,7 +162,7 @@ namespace SCM.Controllers
             await PopulateRegionsDropDownList(requestModel.RegionID);
             await PopulateSubRegionsDropDownList(requestModel.RegionID, requestModel.SubRegionID);
             await PopulateLocationsDropDownList(requestModel.SubRegionID, requestModel.LocationID);
-            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleType.ProviderInfrastructure);
+            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleTypeEnum.ProviderInfrastructure);
             await base.PopulatePortPoolsDropDownList(portRole.PortRoleID, requestModel.PortPoolID);
             var device = await DeviceService.GetByIDAsync(requestModel.DeviceID);
             await PopulateAttachmentRolesDropDownList(requestModel.PortPoolID, device.DeviceRoleID, requestModel.AttachmentRoleID);

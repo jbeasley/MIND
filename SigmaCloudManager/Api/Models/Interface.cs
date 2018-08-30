@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of an interface
     /// </summary>
     [DataContract]
     public partial class Interface : IEquatable<Interface>
@@ -37,14 +37,14 @@ namespace Mind.Api.Models
         /// <summary>
         /// IPv4 address assigned to the interface
         /// </summary>
-        /// <value>IPv4 address assigned to the interface</value>
+        /// <value>String value representing the IPv4 address assigned to the interface</value>
         [DataMember(Name = "ipAddress")]
         public string IpAddress { get; set; }
 
         /// <summary>
         /// IPv4 subnet mask assigned to the interface
         /// </summary>
-        /// <value>IPv4 subnet mask assigned to the interface</value>
+        /// <value>String value representing the IPv4 subnet mask assigned to the interface</value>
         [DataMember(Name = "subnetMask")]
         public string SubnetMask { get; set; }
 

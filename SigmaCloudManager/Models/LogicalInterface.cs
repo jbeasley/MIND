@@ -6,7 +6,7 @@ using System.Net;
 
 namespace SCM.Models
 {
-    public enum LogicalInterfaceType {
+    public enum LogicalInterfaceTypeEnum {
     
         Loopback,
         Tunnel
@@ -30,7 +30,7 @@ namespace SCM.Models
         public string IpAddress { get; set; }
         [MaxLength(15)]
         public string SubnetMask { get; set; }
-        public LogicalInterfaceType LogicalInterfaceType { get; set; }
+        public LogicalInterfaceTypeEnum LogicalInterfaceType { get; set; }
         [MaxLength(250)]
         public string Description { get; set; }
         [Timestamp]

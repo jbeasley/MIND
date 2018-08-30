@@ -49,7 +49,7 @@ namespace SCM.Validators
         public async Task ValidateNewAsync(VpnRequest request)
         {
             var topologyType = await VpnTopologyTypeService.GetByIDAsync(request.VpnTopologyTypeID);
-            if (topologyType.VpnProtocolType.ProtocolType == ProtocolType.IP)
+            if (topologyType.VpnProtocolType.ProtocolType == ProtocolTypeEnum.IP)
             {
                 if (request.AddressFamilyID == null)
                 {
@@ -79,7 +79,7 @@ namespace SCM.Validators
             var tenancyType = await VpnTenancyTypeService.GetByIDAsync(request.VpnTenancyTypeID);
             if (request.IsExtranet)
             {
-                if (tenancyType.TenancyType != TenancyType.Multi)
+                if (tenancyType.TenancyType != TenancyTypeEnum.Multi)
                 {
                     ValidationDictionary.AddError(string.Empty, "The Tenancy Type must be 'Multi' for Extranet VPNs.");
                 }
@@ -102,7 +102,7 @@ namespace SCM.Validators
                     ValidationDictionary.AddError(string.Empty, "A Multicast VPN Service Type must be specified.");
                 }
 
-                if (topologyType.TopologyType == TopologyType.HubandSpoke)
+                if (topologyType.TopologyType == TopologyTypeEnum.HubandSpoke)
                 {
                     if (request.MulticastVpnDirectionTypeID == null)
                     {
@@ -122,7 +122,7 @@ namespace SCM.Validators
             var currentVpn = await VpnService.GetByIDAsync(vpn.VpnID);
             var vpnTenancyType = await VpnTenancyTypeService.GetByIDAsync(vpn.VpnTenancyTypeID);
 
-            if (vpnTenancyType.TenancyType == TenancyType.Single && currentVpn.VpnTenancyType.TenancyType == TenancyType.Multi)
+            if (vpnTenancyType.TenancyType == TenancyTypeEnum.Single && currentVpn.VpnTenancyType.TenancyType == TenancyTypeEnum.Multi)
             {
                 // The tenancy type can be narrowed ('Multi' to 'Single') if the only Tenant 
                 // of the VPN is the 'Owner'.
@@ -169,7 +169,7 @@ namespace SCM.Validators
             {
                 // Extranet VPN Tenancy Type must be Multi
 
-                if (vpnTenancyType.TenancyType != TenancyType.Multi)
+                if (vpnTenancyType.TenancyType != TenancyTypeEnum.Multi)
                 {
                     ValidationDictionary.AddError(string.Empty, "The Extranet attribute can only be set for Multi-Tenant VPNs.");
                 }
@@ -216,7 +216,7 @@ namespace SCM.Validators
             if (currentVpn.IsMulticastVpn)
             {
                 var vpnTopologyType = await VpnTopologyTypeService.GetByIDAsync(vpn.VpnTopologyTypeID);
-                if (vpnTopologyType.TopologyType == TopologyType.HubandSpoke)
+                if (vpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke)
                 {
                     if (vpn.MulticastVpnDirectionTypeID == null)
                     {
@@ -225,8 +225,8 @@ namespace SCM.Validators
                     }
                 
                     var multicastVpnDirectionType = await MulticastVpnDirectionTypeService.GetByIDAsync(vpn.MulticastVpnDirectionTypeID.Value);
-                    if (currentVpn.MulticastVpnDirectionType.MvpnDirectionType == MvpnDirectionType.Bidirectional 
-                        && multicastVpnDirectionType.MvpnDirectionType == MvpnDirectionType.Unidirectional)
+                    if (currentVpn.MulticastVpnDirectionType.MvpnDirectionType == MvpnDirectionTypeEnum.Bidirectional 
+                        && multicastVpnDirectionType.MvpnDirectionType == MvpnDirectionTypeEnum.Unidirectional)
                     {
                         foreach (var vpnAttachmentSet in currentVpn.VpnAttachmentSets)
                         {

@@ -10,7 +10,7 @@ namespace Mind.Builders
     public interface IAttachmentBuilder<TAttachmentBuilder>
     {
         IAttachmentBuilder<TAttachmentBuilder> ForTenant(int tenantId);
-        IAttachmentBuilder<TAttachmentBuilder> WithInterfaces(List<Ipv4AddressAndMask> ipv4Addresses);
+        IAttachmentBuilder<TAttachmentBuilder> WithIpv4(List<Ipv4AddressAndMask> ipv4Addresses);
         IAttachmentBuilder<TAttachmentBuilder> WithAttachmentRole(string portPoolName, string attachmentRoleName);
         IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps);
         IAttachmentBuilder<TAttachmentBuilder> WithLocation(string locationName);

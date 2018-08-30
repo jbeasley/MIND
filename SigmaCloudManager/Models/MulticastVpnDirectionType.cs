@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace SCM.Models
 {
-    public enum MvpnDirectionType
+    public enum MvpnDirectionTypeEnum
     {
         Unidirectional,
         Bidirectional
@@ -16,7 +16,7 @@ namespace SCM.Models
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }
-        public MvpnDirectionType MvpnDirectionType { get; set; }
+        public MvpnDirectionTypeEnum MvpnDirectionType { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
     }

@@ -227,7 +227,7 @@ namespace SCM.Controllers
             await PopulateRegionsDropDownList();
             await PopulatePlanesDropDownList();
             await PopulateContractBandwidthsDropDownList();
-            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleType.TenantFacing);
+            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleTypeEnum.TenantFacing);
             await base.PopulatePortPoolsDropDownList(portRole.PortRoleID);
 
             return await base.BaseCreateAttachment();
@@ -282,7 +282,7 @@ namespace SCM.Controllers
             await PopulateLocationsDropDownList(requestModel.SubRegionID, requestModel.LocationID);
             await PopulatePlanesDropDownList(requestModel.PlaneID);
             await PopulateContractBandwidthsDropDownList();
-            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleType.TenantFacing);
+            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleTypeEnum.TenantFacing);
             await base.PopulatePortPoolsDropDownList(portRole.PortRoleID, requestModel.PortPoolID);
             await base.PopulateAttachmentRolesDropDownList(requestModel.PortPoolID, selectedAttachmentRole: requestModel.AttachmentRoleID);
             await base.PopulateBandwidthsDropDownList();
@@ -302,7 +302,7 @@ namespace SCM.Controllers
             ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
             await PopulateDevicesByTenantDropDownList(id.Value);
             await PopulateContractBandwidthsDropDownList();
-            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleType.TenantInfrastructure);
+            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleTypeEnum.TenantInfrastructure);
             await base.PopulatePortPoolsDropDownList(portRole.PortRoleID);
 
             return await base.BaseCreateAttachment();
@@ -354,7 +354,7 @@ namespace SCM.Controllers
             ViewBag.Tenant = await TenantService.GetByIDAsync(nav.TenantID.Value);
             await PopulateDevicesByTenantDropDownList(nav.TenantID.Value, requestModel.DeviceID);
             await PopulateContractBandwidthsDropDownList();
-            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleType.TenantInfrastructure);
+            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleTypeEnum.TenantInfrastructure);
             await base.PopulatePortPoolsDropDownList(portRole.PortRoleID, requestModel.PortPoolID);
             var device = await DeviceService.GetByIDAsync(requestModel.DeviceID);
             await PopulateAttachmentRolesDropDownList(requestModel.PortPoolID, device.DeviceRoleID, requestModel.AttachmentRoleID);

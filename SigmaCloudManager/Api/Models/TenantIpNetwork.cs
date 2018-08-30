@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of a tenant IP network - an IP network which is owned (belongs to) a tenant
     /// </summary>
     [DataContract]
     public partial class TenantIpNetwork : IEquatable<TenantIpNetwork>

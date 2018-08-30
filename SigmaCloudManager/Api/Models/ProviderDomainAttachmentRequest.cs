@@ -48,6 +48,7 @@ namespace Mind.Api.Models
         /// The maximum number of active links in a bundle attachment
         /// </summary>
         /// <value>Integer value which specifies the maximum links in the bundle</value>
+        /// <example>2</example>
         [DataMember(Name = "bundleMaxLinks")]
         [Range(1, 8)]
         public int? BundleMaxLinks { get; set; }
@@ -149,7 +150,7 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class TenantAttachmentRequest {\n");
+            sb.Append("class ProviderDomainAtachmentRequest {\n");
             sb.Append("  BundleRequired: ").Append(BundleRequired).Append("\n");
             sb.Append("  BundleMinLinks: ").Append(BundleMinLinks).Append("\n");
             sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
@@ -188,9 +189,9 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Returns true if TenantAttachmentRequest instances are equal
+        /// Returns true if ProviderDomainAttachmentRequest instances are equal
         /// </summary>
-        /// <param name="other">Instance of TenantAttachmentRequest to be compared</param>
+        /// <param name="other">Instance of ProviderDomainAttachmentRequest to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(ProviderDomainAttachmentRequest other)
         {

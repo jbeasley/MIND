@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for updating a tenant attachment to the provider domain
     /// </summary>
     [DataContract]
     public partial class ProviderDomainAttachmentUpdate : IEquatable<ProviderDomainAttachmentUpdate>, IValidatableObject
@@ -144,9 +144,9 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Returns true if AttachmentUpdate instances are equal
+        /// Returns true if ProviderDomainAttachmentUpdate instances are equal
         /// </summary>
-        /// <param name="other">Instance of AttachmentUpdate to be compared</param>
+        /// <param name="other">Instance of ProviderDomainAttachmentUpdate to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(ProviderDomainAttachmentUpdate other)
         {

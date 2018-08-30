@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 {
     /// <summary>
-    /// 
+    /// Model of IPv4 address and subnet mask
     /// </summary>
     [DataContract]
     public partial class Ipv4AddressAndMask : IEquatable<Ipv4AddressAndMask>
@@ -30,7 +30,8 @@ namespace Mind.Api.Models
         /// <summary>
         /// IPv4 address
         /// </summary>
-        /// <value>IPv4 address assigned to the first connection in the attachment</value>
+        /// <value>string value denoting an IPv4 address</value>
+        /// <example>192.168.0.1</example>
         [DataMember(Name = "ipAddress")]
         [Required(AllowEmptyStrings = false)]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
@@ -40,7 +41,8 @@ namespace Mind.Api.Models
         /// <summary>
         /// IPv4 subnet mask 
         /// </summary>
-        /// <value>IPv4 subnet mask assigned to the first connection in the attachment</value>
+        /// <value>String value denoting an IPv4 subnet mask</value>
+        /// <example>255.255.255.252</example>
         [DataMember(Name = "subnetMask")]
         [Required(AllowEmptyStrings = false)]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",

@@ -21,7 +21,7 @@ namespace Mind.Validators
         public async Task ValidateDeleteAsync(int attachmentId)
         {
             var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId 
-                              && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleType.TenantFacing, 
+                              && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing, 
                 includeProperties: "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet," +
                 "Vifs.RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet", AsTrackable: false)
                 select attachments)
@@ -56,12 +56,13 @@ namespace Mind.Validators
         /// <summary>
         /// Validate changes to a provider domain attachment
         /// </summary>
+        /// <param name="attachmentId"></param>
         /// <param name="update"></param>
         /// <returns></returns>
         public async Task ValidateChangesAsync(int attachmentId, ProviderDomainAttachmentUpdate update)
         {
             var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId
-                             && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleType.TenantFacing,
+                             && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing,
                includeProperties: "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet.VpnAttachmentSets.Vpn," +
                "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet.VpnAttachmentSets.AttachmentSet," +
                "Vifs.RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet", AsTrackable: false)
@@ -87,8 +88,8 @@ namespace Mind.Validators
                     {
                         ValidationDictionary.AddError(string.Empty, "The routing instance cannot be changed because the routing instance type of the " +
                             "specified routing instance is different to the routing instance type of the current routing instance. "
-                            + $"The current routing instance type is '{attachment.RoutingInstance.RoutingInstanceType.Name}'. "
-                            + $"The updated routing instance type is '{existingRoutingInstance.RoutingInstanceType.Name}'.");
+                            + $"The current routing instance type is '{attachment.RoutingInstance.RoutingInstanceType.Type.ToString()}'. "
+                            + $"The updated routing instance type is '{existingRoutingInstance.RoutingInstanceType.Type.ToString()}'.");
                     }
                 }
             }

@@ -187,7 +187,7 @@ namespace SCM.Services
                     UnitOfWork.InterfaceRepository.Delete(iface);
                 }
 
-                var portStatusDbResult = await UnitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusType.Free);
+                var portStatusDbResult = await UnitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusTypeEnum.Free);
                 var portStatus = portStatusDbResult.SingleOrDefault();
 
                 foreach (var port in ports)
@@ -466,7 +466,7 @@ namespace SCM.Services
 
             currentPort.InterfaceID = null;
             currentPort.TenantID = null;
-            var portStatusResult = await UnitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusType.Free);
+            var portStatusResult = await UnitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusTypeEnum.Free);
             var portStatus = portStatusResult.SingleOrDefault();
             if (portStatus == null)
             {
@@ -542,7 +542,7 @@ namespace SCM.Services
                 var port = request.Ports.Single();
                 port.TenantID = request.TenantID;
                 var portStatusDbResult = await UnitOfWork.PortStatusRepository.GetAsync(q => 
-                    q.PortStatusType == PortStatusType.Assigned);
+                    q.PortStatusType == PortStatusTypeEnum.Assigned);
                 var portStatus = portStatusDbResult.SingleOrDefault();
                 port.PortStatusID = portStatus.PortStatusID;
                 port.InterfaceID = attachment.Interfaces.Single().InterfaceID;
@@ -578,7 +578,7 @@ namespace SCM.Services
                 await UnitOfWork.SaveAsync();
 
                 var portStatusDbResult = await UnitOfWork.PortStatusRepository.GetAsync(q => 
-                    q.PortStatusType == PortStatusType.Assigned);
+                    q.PortStatusType == PortStatusTypeEnum.Assigned);
                 var portStatus = portStatusDbResult.SingleOrDefault();
 
                 // Update port records - each port is now assigned
@@ -620,7 +620,7 @@ namespace SCM.Services
                 await UnitOfWork.SaveAsync();
 
                 var portStatusDbResult = await UnitOfWork.PortStatusRepository.GetAsync(q => 
-                    q.PortStatusType == PortStatusType.Assigned);
+                    q.PortStatusType == PortStatusTypeEnum.Assigned);
                 var portStatus = portStatusDbResult.SingleOrDefault();
                 var ports = request.Ports.ToList();
                 var interfaces = attachment.Interfaces.ToList();

@@ -8,6 +8,6 @@ namespace Mind.Models
     public interface IModifiableResource
     {
         string ConcurrencyToken { get; }
-        Byte[] RowVersion { get; set; }
+        byte[] RowVersion { get; set; }
     }
 }

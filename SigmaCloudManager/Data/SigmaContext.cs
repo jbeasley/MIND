@@ -317,7 +317,10 @@ namespace SCM.Data
             .HasIndex(p => new { p.AttachmentID, p.VlanTag }).IsUnique();
 
             builder.Entity<RoutingInstanceType>()
-            .HasIndex(p => new { p.Name }).IsUnique();
+            .HasIndex(p => new { p.Type }).IsUnique();
+
+            builder.Entity<RouteDistinguisherRange>()
+            .HasIndex(p => new { p.Type }).IsUnique();
 
             builder.Entity<RoutingInstance>()
             .HasIndex(p => new { p.Name, p.DeviceID }).IsUnique();

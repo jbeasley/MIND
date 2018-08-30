@@ -44,7 +44,7 @@ namespace SCM
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .ConfigureServices(services => services.AddAutofac())
-                .UseStartup<Startup>()
+                .UseStartup<Mind.Startup>()
                 .Build();
     }
 }

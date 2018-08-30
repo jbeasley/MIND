@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for requesting the association of an existing routing instance with an attachment set
     /// </summary>
     [DataContract]
     public partial class RoutingInstanceForAttachmentSetRequest : IEquatable<RoutingInstanceForAttachmentSetRequest>

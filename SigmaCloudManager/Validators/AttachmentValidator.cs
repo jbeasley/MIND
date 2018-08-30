@@ -227,8 +227,8 @@ namespace SCM.Validators
                     if (updateRoutingInstance.RoutingInstanceTypeID != attachment.RoutingInstance.RoutingInstanceTypeID)
                     {
                         ValidationDictionary.AddError(string.Empty, "The VRF cannot be changed because the Routing Instance Types do not match."
-                            + $"The current VRF Routing Instance Type is '{routingInstance.RoutingInstanceType.Name}'. "
-                            + $"The updated VRF Routing Instance Type is '{updateRoutingInstance.RoutingInstanceType.Name}'.");
+                            + $"The current VRF Routing Instance Type is '{routingInstance.RoutingInstanceType.Type.ToString()}'. "
+                            + $"The updated VRF Routing Instance Type is '{updateRoutingInstance.RoutingInstanceType.Type.ToString()}'.");
                     }
                 }
 
@@ -342,7 +342,7 @@ namespace SCM.Validators
 
                 var newPort = await PortService.GetByIDAsync(update.PortID);
                 var newPortStatus = await PortStatusService.GetByIDAsync(newPort.PortStatusID);
-                if (newPortStatus.PortStatusType != PortStatusType.Free)
+                if (newPortStatus.PortStatusType != PortStatusTypeEnum.Free)
                 {
                     ValidationDictionary.AddError(string.Empty, $"Port '{newPort.FullName}' cannot be selected because the status of the port is not 'Free'.");
                 }

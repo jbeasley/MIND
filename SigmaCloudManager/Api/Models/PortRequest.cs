@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for requesting a port
     /// </summary>
     [DataContract]
     public partial class PortRequest : IEquatable<PortRequest>

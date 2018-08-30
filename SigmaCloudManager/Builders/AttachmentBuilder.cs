@@ -14,15 +14,14 @@ namespace Mind.Builders
     public abstract class AttachmentBuilder<TAttachmentBuilder> : BaseBuilder, IAttachmentBuilder<TAttachmentBuilder>
         where TAttachmentBuilder: AttachmentBuilder<TAttachmentBuilder>
     {
-        protected internal IRoutingInstanceBuilder _routingInstanceBuilder;
         protected internal int _portBandwidthRequired;
         protected internal int _numPortsRequired;
         protected internal IEnumerable<Port> _ports;
         protected internal Attachment _attachment;
 
-        private readonly Func<RoutingInstanceType, IRoutingInstanceBuilder> _routingInstanceBuilderFactory;
+        private readonly Func<RoutingInstanceType, IRoutingInstanceDirector> _routingInstanceDirectorFactory;
 
-        public AttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceBuilder> routingInstanceBuilderFactory) : base(unitOfWork)
+        public AttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory) : base(unitOfWork)
         {
             _attachment = new Attachment
             {
@@ -30,12 +29,12 @@ namespace Mind.Builders
                 ShowCreatedAlert = true
             };
 
-            _routingInstanceBuilderFactory = routingInstanceBuilderFactory;
+            _routingInstanceDirectorFactory = routingInstanceDirectorFactory;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> ForTenant(int tenantId)
         {
-            _attachment.TenantID = tenantId;
+             _args.Add(nameof(ForTenant), tenantId);
             return this;
         }
 
@@ -64,9 +63,9 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> WithInterfaces(List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithIpv4(List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses)
         {
-            _args.Add(nameof(ipv4Addresses), ipv4Addresses);
+            if (ipv4Addresses != null) _args.Add(nameof(WithIpv4), ipv4Addresses);
             return this;
         }
 
@@ -111,6 +110,7 @@ namespace Mind.Builders
                 CreateAttachmentBandwidthAsync(),
                 CreateAttachmentRoleAsync()
             });
+            if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
             SetNumberOfPortsRequired();
             SetPortBandwidthRequired();
             await AllocatePortsAsync();
@@ -148,6 +148,19 @@ namespace Mind.Builders
         /// </summary>
         protected abstract internal void SetNumberOfPortsRequired();
 
+        protected internal virtual async Task SetTenantAsync()
+        {
+            var tenantId = (int)_args[nameof(ForTenant)];
+            var tenant = (from result in await _unitOfWork.TenantRepository.GetAsync(
+                     q =>
+                          q.TenantID == tenantId,
+                          AsTrackable: true)
+                          select result)
+                          .Single();
+
+            _attachment.Tenant = tenant;
+        }
+
         /// <summary>
         /// Allocate some ports from inventory for the attachment
         /// </summary>
@@ -155,7 +168,7 @@ namespace Mind.Builders
         protected internal virtual async Task AllocatePortsAsync()
         {
             _ports = await GetPortsAsync();
-            var assignedPortStatus = (from portStatus in await _unitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusType.Assigned)
+            var assignedPortStatus = (from portStatus in await _unitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusTypeEnum.Assigned)
                                       select portStatus)
                                       .Single();
             foreach (var port in _ports)
@@ -217,7 +230,7 @@ namespace Mind.Builders
             List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses;
             if (_attachment.AttachmentRole.IsLayer3Role)
             {
-                ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args["ipv4Addresses"];
+                ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
                 if (!ipv4Addresses.Any())
                 {
                     throw new BuilderBadArgumentsException("An IPv4 address and subnet mask is required in order to create a layer 3 " +
@@ -278,23 +291,27 @@ namespace Mind.Builders
                                        select routingInstanceTypes)
                                        .Single();
 
-            _routingInstanceBuilder = _routingInstanceBuilderFactory(routingInstanceType);
-            _routingInstanceBuilder.Init(_attachment.TenantID.Value, _attachment.Device.DeviceID, routingInstanceType.RoutingInstanceTypeID);
-            await _routingInstanceBuilder.Create();
-            _attachment.RoutingInstance = _routingInstanceBuilder.GetResult();
+            var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
+            var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _attachment.Device.DeviceID,
+                                                                           tenantId: _attachment.Tenant.TenantID);
+
+            _attachment.RoutingInstance = routingInstance;
         }
 
         protected internal virtual async Task AssociateExistingRoutingInstanceAsync()
         {
             var routingInstanceName = _args[nameof(WithExistingRoutingInstance)].ToString();
 
-            var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(x => x.Name == routingInstanceName,
+            var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                                    x => 
+                                           x.Name == routingInstanceName
+                                           && x.TenantID == _attachment.TenantID,
                                            AsTrackable: true)
                                            select routingInstances)
                                            .SingleOrDefault();
 
             _attachment.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
-                $"instance '{routingInstanceName}.'");
+                $"instance '{routingInstanceName}' belonging to tenant '{_attachment.Tenant.Name}'.");
             _attachment.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }
 
@@ -333,7 +350,7 @@ namespace Mind.Builders
             // Find all devices with Device Status of 'Production' which are in the requested Location and which suport the 
             // required Attachment Role
 
-            var query = from d in await _unitOfWork.DeviceRepository.GetAsync(q => q.DeviceStatus.DeviceStatusType == DeviceStatusType.Production
+            var query = from d in await _unitOfWork.DeviceRepository.GetAsync(q => q.DeviceStatus.DeviceStatusType == DeviceStatusTypeEnum.Production
                 && q.LocationID == location.LocationID
                 && q.DeviceRole.DeviceRoleAttachmentRoles.Where(x => x.AttachmentRoleID == _attachment.AttachmentRoleID).Any(),
                 includeProperties: "Ports.PortBandwidth,Ports.Device,Ports.PortStatus,Attachments", AsTrackable: true)
@@ -357,7 +374,7 @@ namespace Mind.Builders
             // Filter devices collection to only those devices which have the required number of free ports
             // of the required bandwidth and which belong to the requested Port Pool
 
-            devices = devices.Where(q => q.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusType.Free
+            devices = devices.Where(q => q.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
                 && p.PortPoolID == _attachment.AttachmentRole.PortPoolID
                 && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired).Count() >= _numPortsRequired).ToList();
 
@@ -373,10 +390,10 @@ namespace Mind.Builders
                 // Get device with the most free ports of the required Port Bandwidth
 
                 _attachment.Device = devices.Aggregate((current, x) =>
-                (x.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusType.Free
+                (x.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
                 && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
                 .Count() >
-                current.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusType.Free
+                current.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
                 && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
                 .Count() ? x : current));
             }
@@ -389,7 +406,7 @@ namespace Mind.Builders
 
             // Get the ports
 
-            var ports = _attachment.Device.Ports.Where(q => q.PortStatus.PortStatusType == PortStatusType.Free
+            var ports = _attachment.Device.Ports.Where(q => q.PortStatus.PortStatusType == PortStatusTypeEnum.Free
                   && q.PortBandwidth.BandwidthGbps == _portBandwidthRequired
                   && q.PortPoolID == _attachment.AttachmentRole.PortPoolID);
 

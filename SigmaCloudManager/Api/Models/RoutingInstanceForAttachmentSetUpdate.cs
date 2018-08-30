@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for updating a routing instance association with an attachment set
     /// </summary>
     [DataContract]
     public partial class RoutingInstanceForAttachmentSetUpdate : IEquatable<RoutingInstanceForAttachmentSetUpdate>

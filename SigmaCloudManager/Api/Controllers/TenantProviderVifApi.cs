@@ -24,82 +24,108 @@ using System.ComponentModel.DataAnnotations;
 using Mind.Api.Attributes;
 using Mind.Api.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using AutoMapper;
+using Mind.Services;
+using Mind.Builders;
+using Microsoft.EntityFrameworkCore;
+using Mind.Models;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
     /// 
     /// </summary>
-    public class TenantVifApiController : Controller
-    { 
+    public class ProviderDomainVifApiController : BaseApiController
+    {
+        private readonly IProviderDomainVifService _vifService;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="vifService"></param>
+        /// <param name="mapper"></param>
+        public ProviderDomainVifApiController(IProviderDomainVifService vifService, IMapper mapper) : base(vifService, mapper)
+        {
+            _vifService = vifService;
+        }
+
         /// <summary>
         /// Create a new vif
         /// </summary>
-        
-        /// <param name="attachmentId">ID of the attachment</param>
+
+        /// <param name="attachmentId">ID of the attachment under which the new vif will be created</param>
         /// <param name="body">vif request object that generates a new vif</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
+        /// <response code="201">Successful operation</response>
+        /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v1/tenant/attachment/{attachmentId}/vif")]
+        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs")]
         [ValidateModelState]
-        [SwaggerOperation("AddTenantVif")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Vif), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
+        [ValidateProviderDomainAttachmentExists]
+        [SwaggerResponse(statusCode: 201, type: typeof(Vif), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult AddTenantVif([FromRoute][Required]int? attachmentId, [FromBody]TenantVifRequest body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Vif));
+        public virtual async Task<IActionResult> CreateTenantProviderVif([FromRoute][Required]int? attachmentId, [FromBody]ProviderDomainVifRequest body)
+        {
+            try
+            {
+                var request = Mapper.Map<Mind.Models.RequestModels.ProviderDomainVifRequest>(body);
+                var vif = await _vifService.AddAsync(attachmentId.Value, request);
+                var vifApiModel = Mapper.Map<Mind.Api.Models.Vif>(vif);
+                return CreatedAtRoute("GetProviderDomainVif", new { vifId = vif.VifID }, vifApiModel);
+            }
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
 
-            string exampleJson = null;
-            exampleJson = "<Vif>\n  <vifId>123</vifId>\n  <name>aeiou</name>\n  <isLayer3>true</isLayer3>\n  <vlanTag>123</vlanTag>\n  <attachmentId>123</attachmentId>\n  <tenantId>123</tenantId>\n</Vif>";
-            exampleJson = "{\n  \"vlans\" : [ {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  }, {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  } ],\n  \"vlanTag\" : 6,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"name\" : \"name\",\n  \"tenantId\" : 5,\n  \"isLayer3\" : true,\n  \"attachmentId\" : 1,\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"vifId\" : 0\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Vif>(exampleJson)
-            : default(Vif);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
         }
 
         /// <summary>
         /// Deletes a vif
         /// </summary>
-        
+
+        /// <param name="attachmentId">ID of the attachment</param>
         /// <param name="vifId">ID of the vif</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="422">Validation failed</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v1/tenant/attachment/vif/{vifId}")]
+        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}")]
         [ValidateModelState]
-        [SwaggerOperation("DeleteTenantVif")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
+        [ValidateProviderDomainVifExists]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult DeleteTenantVif([FromRoute][Required]int? vifId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> DeleteProviderDomainVif([FromRoute][Required]int attachmentId, [FromRoute][Required]int? vifId)
+        {
+            try
+            {
+                await _vifService.DeleteAsync(vifId.Value);
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (ServiceValidationException)
+            {
+                return new ValidationFailedResult(this.ModelState);
+            }
 
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
         }
 
         /// <summary>
@@ -138,37 +164,33 @@ namespace Mind.Api.Controllers
         /// Find vif by ID
         /// </summary>
         /// <remarks>Returns a single vif</remarks>
+        /// <param name="attachmentId"></param>
         /// <param name="vifId">ID of the vif</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
+        /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/attachment/vif/{vifId}")]
+        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}", Name ="GetProviderDomainVif")]
         [ValidateModelState]
-        [SwaggerOperation("GetTenantVifById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Vif), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
+        [ValidateProviderDomainVifExists]
+        [SwaggerOperation("GetProviderDomainVifById")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetTenantVifById([FromRoute][Required]int? vifId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Vif));
+        public async virtual Task<IActionResult> GetProvideDomainVifById([FromRoute][Required]int? attachmentId, [FromRoute][Required]int? vifId,[FromQuery]bool? deep)
+        {
+            var vif = await _vifService.GetByIDAsync(vifId.Value, deep);
+            if (vif.HasBeenModified(Request))
+            {
+                vif.SetModifiedHttpHeaders(Response);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status304NotModified);
+            }
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Vif>\n  <vifId>123</vifId>\n  <name>aeiou</name>\n  <isLayer3>true</isLayer3>\n  <vlanTag>123</vlanTag>\n  <attachmentId>123</attachmentId>\n  <tenantId>123</tenantId>\n</Vif>";
-            exampleJson = "{\n  \"vlans\" : [ {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  }, {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  } ],\n  \"vlanTag\" : 6,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"name\" : \"name\",\n  \"tenantId\" : 5,\n  \"isLayer3\" : true,\n  \"attachmentId\" : 1,\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"vifId\" : 0\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Vif>(exampleJson)
-            : default(Vif);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            return Ok(Mapper.Map<Vif>(vif));
         }
 
         /// <summary>

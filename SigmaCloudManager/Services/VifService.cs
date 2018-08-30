@@ -75,7 +75,7 @@ namespace SCM.Services
         public async Task<Vif> GetByIDAsync(int id, bool includeProperties = true)
         {
             var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await UnitOfWork.VifRepository.GetAsync(q => q.VifID == id, 
+            var dbResult = await UnitOfWork.VifRepository.GetAsync(q => q.VifID == id,
                 includeProperties: p,
                 AsTrackable: false);
 
@@ -83,25 +83,11 @@ namespace SCM.Services
         }
 
         /// <summary>
-        /// Return all VIFs for a given VRF.
-        /// </summary>
-        /// <param name="vrfID"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Vif>> GetAllByRoutingInstanceIDAsync(int vrfID, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-
-            return await UnitOfWork.VifRepository.GetAsync(q => q.RoutingInstanceID == vrfID, 
-                includeProperties: p, 
-                AsTrackable: false);
-        }
-
-        /// <summary>
         /// Get all Vifs for a given Attachment.
         /// </summary>
         /// <param name="id"></param>
         /// <returns></returns>
-        public async Task<List<Vif>> GetAllByAttachmentIDAsync(int id, bool? roleRequireSyncToNetwork = null, bool? requiresSync = null, 
+        public async Task<List<Vif>> GetAllByAttachmentIDAsync(int id, bool? roleRequireSyncToNetwork = null, bool? requiresSync = null,
             bool? created = null, bool? showRequiresSyncAlert = null, bool? showCreatedAlert = null, bool includeProperties = true)
         {
             var p = includeProperties ? Properties : "VifRole";
@@ -119,7 +105,6 @@ namespace SCM.Services
             {
                 query = query.Where(x => x.RequiresSync);
             }
-
             if (created != null)
             {
                 query = query.Where(x => x.Created);
@@ -141,6 +126,20 @@ namespace SCM.Services
             }
 
             return query.ToList();
+        }
+
+        /// <summary>
+        /// Return all VIFs for a given VRF.
+        /// </summary>
+        /// <param name="vrfID"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Vif>> GetAllByRoutingInstanceIDAsync(int vrfID, bool includeProperties = true)
+        {
+            var p = includeProperties ? Properties : string.Empty;
+
+            return await UnitOfWork.VifRepository.GetAsync(q => q.RoutingInstanceID == vrfID, 
+                includeProperties: p, 
+                AsTrackable: false);
         }
 
         /// <summary>

@@ -35,7 +35,7 @@ using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc;
 using Mind;
 
-namespace SCM
+namespace Mind
 {
     public class Startup
     {
@@ -64,7 +64,7 @@ namespace SCM
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
             // Get application configuration options
-            services.Configure<ApplicationConfiguration>(Configuration.GetSection("ApplicationConfiguration"));
+            services.Configure<SCM.ApplicationConfiguration>(Configuration.GetSection("ApplicationConfiguration"));
 
             // SignalR - library for async updates to clients. This is used by the API controllers to 
             // update clients on progress during network sync/checksync operations
@@ -84,7 +84,11 @@ namespace SCM
                 });
 
             services.AddMvcCore()
-                    .AddVersionedApiExplorer(o => o.GroupNameFormat = "'v'VVV");
+                    .AddVersionedApiExplorer(o =>
+                    {
+                        o.GroupNameFormat = "'v'VVV";
+                        o.SubstituteApiVersionInUrl = true;
+                    });
 
             services.AddApiVersioning(o =>
                 {
@@ -100,8 +104,7 @@ namespace SCM
                   var provider = services.BuildServiceProvider()
                                 .GetRequiredService<IApiVersionDescriptionProvider>();
 
-                  foreach (
-                    var description in provider.ApiVersionDescriptions)
+                  foreach ( var description in provider.ApiVersionDescriptions)
                   {
                       options.SwaggerDoc(
                       description.GroupName,
@@ -115,13 +118,14 @@ namespace SCM
                               Email = "jonathan.beasley@thomsonreuters.com",
                               Url = "https://thehub.thomsonreuters.com/people/9000359"
                           },
-                          Description = "The MIND API library provides enables users to create and manage resources in the MIND system."
+                          Description = "The MIND API library enables API consumers to create and manage resources in the MIND system. " +
+                          "Resources include tenants, attachements, attachment sets, BGP peers, IP routes, and virtual private networks"
                       });
-
-                      options.OperationFilter<SwaggerDefaultValues>();
-                      var filePath = Path.Combine(System.AppContext.BaseDirectory, "Mind.xml");
-                      options.IncludeXmlComments(filePath,true);
                   }
+
+                  options.OperationFilter<SwaggerDefaultValues>();
+                  var filePath = Path.Combine(System.AppContext.BaseDirectory, "Mind.xml");
+                  options.IncludeXmlComments(filePath, true);
               }
             );
 
@@ -235,7 +239,7 @@ namespace SCM
             services.AddScoped<IBgpPeerValidator, BgpPeerValidator>();
             services.AddScoped<ILocationValidator, LocationValidator>();
             services.AddScoped<IVlanValidator, VlanValidator>();
-            services.AddScoped<IProviderDomainAttachmentValidator, ProviderDomainAttachmentValidator>();
+
 
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());
@@ -247,7 +251,13 @@ namespace SCM
         /// <param name="builder"></param>
         public void ConfigureContainer(ContainerBuilder builder)
         {
+            //Services
             builder.RegisterType<ProviderDomainAttachmentService>().As<IProviderDomainAttachmentService>();
+            builder.RegisterType<ProviderDomainVifService>().As<IProviderDomainVifService>();
+
+            // Directors
+            builder.RegisterType<ProviderDomainAttachmentValidator>().As<IProviderDomainAttachmentValidator>();
+            builder.RegisterType<ProviderDomainVifValidator>().As<IProviderDomainVifValidator>();
             builder.RegisterType<ProviderDomainAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
                 .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainSingleAttachmentDirector");
             builder.RegisterType<ProviderDomainAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
@@ -267,11 +277,15 @@ namespace SCM
             builder.RegisterType<VpnTenantIpNetworkInUpdateDirector>().As<IVpnTenantIpNetworkInUpdateDirector>();
             builder.RegisterType<VpnTenantIpNetworkOutDirector>().As<IVpnTenantIpNetworkOutDirector>();
             builder.RegisterType<VpnTenantIpNetworkOutUpdateDirector>().As<IVpnTenantIpNetworkOutUpdateDirector>();
+            builder.RegisterType<ProviderDomainVifDirector>().As<IProviderDomainVifDirector>();
+            builder.RegisterType<TenantFacingVrfRoutingInstanceDirector>().As<IRoutingInstanceDirector>()
+                .Keyed<IRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
 
+            //Builders
             builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
             builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
             builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
-            builder.RegisterType<VrfRoutingInstanceBuilder>().As<IRoutingInstanceBuilder>().Keyed<IRoutingInstanceBuilder>("VRFRoutingInstanceBuilder");
+            builder.RegisterType<VrfRoutingInstanceBuilder>().As<IVrfRoutingInstanceBuilder>();
             builder.RegisterType<SingleAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<SingleAttachmentUpdateBuilder>>();
             builder.RegisterType<MultiPortAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>>();
             builder.RegisterType<BundleAttachmentUpdateBuilder>().As<IBundleAttachmentUpdateBuilder>();
@@ -282,6 +296,7 @@ namespace SCM
             builder.RegisterType<VpnTenantIpNetworkInUpdateBuilder>().As<IVpnTenantIpNetworkInUpdateBuilder>();
             builder.RegisterType<VpnTenantIpNetworkOutBuilder>().As<IVpnTenantIpNetworkOutBuilder>();
             builder.RegisterType<VpnTenantIpNetworkOutUpdateBuilder>().As<IVpnTenantIpNetworkOutUpdateBuilder>();
+            builder.RegisterType<VifBuilder>().As<IVifBuilder>();
 
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
             {
@@ -307,14 +322,14 @@ namespace SCM
                 };
             });
 
-            builder.Register<Func<SCM.Models.RoutingInstanceType, IRoutingInstanceBuilder>>((c, p) =>
+            builder.Register<Func<SCM.Models.RoutingInstanceType, IRoutingInstanceDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
                 return (routingInstanceType) =>
                 {
-                    if (routingInstanceType.IsVrf)
+                    if (routingInstanceType.Type == SCM.Models.RoutingInstanceTypeEnum.TenantFacingVrf)
                     {
-                        return context.ResolveKeyed<IRoutingInstanceBuilder>("VRFRoutingInstanceBuilder");
+                        return context.ResolveKeyed<IRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
                     }
 
                     return null;

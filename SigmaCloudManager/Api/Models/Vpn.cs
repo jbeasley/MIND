@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of a VPN
     /// </summary>
     [DataContract]
     public partial class Vpn : IEquatable<Vpn>

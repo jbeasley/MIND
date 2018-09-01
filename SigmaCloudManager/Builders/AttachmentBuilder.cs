@@ -190,7 +190,7 @@ namespace Mind.Builders
                                        select attachmentBandwidths)
                                        .SingleOrDefault();
 
-            if (attachmentBandwidth == null) throw new BuilderBadArgumentsException($"The requested attachment bandwidth is not valid.");
+            if (attachmentBandwidth == null) throw new BuilderBadArgumentsException("The requested attachment bandwidth is not valid.");
 
             _attachment.AttachmentBandwidthID = attachmentBandwidth.AttachmentBandwidthID;
             _attachment.AttachmentBandwidth = attachmentBandwidth;
@@ -305,7 +305,8 @@ namespace Mind.Builders
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                                     x => 
                                            x.Name == routingInstanceName
-                                           && x.TenantID == _attachment.TenantID,
+                                           && x.TenantID == _attachment.TenantID
+                                           && x.DeviceID == _attachment.DeviceID,
                                            AsTrackable: true)
                                            select routingInstances)
                                            .SingleOrDefault();

@@ -40,9 +40,9 @@ namespace Mind.Models.RequestModels
 
         /// <summary>
         /// If specified, the vif should be associated with an existing routing instance
-        /// of the given name. The routing instance must belong to the same tenant as specified int vif request.
+        /// of the given name. The routing instance must belong to the same tenant as the owner of the new vif.
         /// If an existing routing instance is not specified then MIND will automatically create a new routing
-        /// instance for th vif.
+        /// instance for the vif.
         /// </summary>
         /// <value>A string value of the name of an existing routing instance</value>
         public string ExistingRoutingInstanceName { get; set; }

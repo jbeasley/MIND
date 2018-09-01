@@ -20,38 +20,43 @@ namespace Mind.Validators
         /// <param name="attachmentId"></param>
         public async Task ValidateDeleteAsync(int attachmentId)
         {
-            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId 
-                              && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing, 
+            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId
+                              && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing,
                 includeProperties: "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet," +
                 "Vifs.RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet", AsTrackable: false)
-                select attachments)
+                              select attachments)
                 .Single();
-       
+
             if (attachment.RoutingInstance != null)
             {
-                var attachmentSetRoutingInstances = attachment.RoutingInstance.AttachmentSetRoutingInstances;
-                if (attachmentSetRoutingInstances.Any())
-                {
-                    attachmentSetRoutingInstances.ToList().ForEach(x => ValidationDictionary.AddError(string.Empty, "The attachment is a member "
-                        + $"of attachment set '{x.AttachmentSet.Name}' and cannot be deleted."));
-                }
+                (from result in attachment.RoutingInstance.AttachmentSetRoutingInstances
+                 select result)
+                 .ToList()
+                 .ForEach(
+                    x => 
+                        ValidationDictionary.AddError(string.Empty, $"The attachment cannot be deleted because it belongs to routing instance" +
+                        $" '{x.RoutingInstance.Name}' which is a member of attachment set '{x.AttachmentSet.Name}'. Remove the routing instanc from " +
+                        "the attachment set first.")
+                 );
             }
 
             // Validate each Vif associated with the Attachment can be deleted
-
-            if (attachment.Vifs.Any())
-            {
-                foreach (var vif in attachment.Vifs)
-                {
-                    var attachmentSetRoutingInstances = attachment.Vifs.SelectMany(x => x.RoutingInstance.AttachmentSetRoutingInstances);
-                    if (attachmentSetRoutingInstances.Any())
-                    {
-                        attachmentSetRoutingInstances.ToList().ForEach(x => ValidationDictionary.AddError(string.Empty, $"Vif '{vif.Name}' is a member "
-                            + $"of attachment set '{x.AttachmentSet.Name}' and cannot be deleted."));
-                    }
-                }
-            }
+           (from vifs in attachment.Vifs
+            select vifs)
+                        .Select(x => x.RoutingInstance)
+                        .Where(x => x != null)
+                        .SelectMany(x => x.AttachmentSetRoutingInstances)
+                        .ToList()
+                        .ForEach(
+                            x =>
+                                ValidationDictionary.AddError(string.Empty, $"The vif cannot be deleted because it belong to routing instance" +
+                                $" '{x.RoutingInstance.Name}' which is a member of attachment set '{x.AttachmentSet.Name}'. " +
+                                $"Remove the routing instance from the attachment set first.")
+                        );
+        
         }
+
+
 
         /// <summary>
         /// Validate changes to a provider domain attachment
@@ -73,7 +78,9 @@ namespace Mind.Validators
             {
                 if (update.ExistingRoutingInstanceName != attachment.RoutingInstance.Name)
                 {
-                    var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(x => x.Name == update.ExistingRoutingInstanceName)
+                    var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                                                 x =>
+                                                   x.Name == update.ExistingRoutingInstanceName)
                                                    select routingInstances)
                                                    .SingleOrDefault();
 
@@ -96,15 +103,12 @@ namespace Mind.Validators
 
             if (attachment.RoutingInstance != null)
             {
-                // Routing Instance cannot be changed if it belongs to an attachment set
-                var attachmentSets = attachment.RoutingInstance.AttachmentSetRoutingInstances.Select(x => x.AttachmentSet);
-                {
-                    (from attachmentSet in attachmentSets
-                     select attachmentSet)
-                    .ToList()
-                    .ForEach(x => ValidationDictionary.AddError(string.Empty, "The routing instance cannot be changed because it belongs to "
-                            + $"attachment set '{x.Name}'"));
-                }
+                // Routing Instance cannot be changed if it belongs to an attachment set        
+                (from attachmentSet in attachment.RoutingInstance.AttachmentSetRoutingInstances.Select(x => x.AttachmentSet)
+                 select attachmentSet)
+                .ToList()
+                .ForEach(x => ValidationDictionary.AddError(string.Empty, "The routing instance cannot be changed because it belongs to "
+                        + $"attachment set '{x.Name}'"));
             }
         }
     }

@@ -28,7 +28,7 @@ namespace SCM.Validators
         /// <param name="vlan"></param>
         public async Task ValidateChangesAsync(Vlan vlan)
         {
-            var vif = await VifService.GetByIDAsync(vlan.VifID.Value);
+            var vif = await VifService.GetByIDAsync(vlan.VifID);
             if (!vif.IsLayer3)
             {
                 if (!string.IsNullOrEmpty(vlan.IpAddress))

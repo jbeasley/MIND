@@ -61,7 +61,7 @@ namespace Mind.Builders
 
         public virtual IVifBuilder WithContractBandwidth(int? contractBandwidthMbps)
         {
-            if (contractBandwidthMbps != null) _args.Add(nameof(contractBandwidthMbps), contractBandwidthMbps);
+            if (contractBandwidthMbps != null) _args.Add(nameof(WithContractBandwidth), contractBandwidthMbps);
             return this;
         }
 
@@ -118,7 +118,7 @@ namespace Mind.Builders
             var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
                         q =>
                               q.AttachmentID == attachmentId,
-                              includeProperties: "Vifs,AttachmentRole,Interfaces.Vlans",
+                              includeProperties: "AttachmentBandwidth,Vifs.ContractBandwidthPool.ContractBandwidth,AttachmentRole,Interfaces.Vlans",
                               AsTrackable: true)
                               select result)
                               .Single();
@@ -157,6 +157,9 @@ namespace Mind.Builders
                 $"which for the current attachment is '{_vif.Attachment.AttachmentRole.Name}'");
 
             _vif.VifRole = vifRole;
+            _vif.IsLayer3 = vifRole.IsLayer3Role;
+            _vif.RequiresSync = vifRole.RequireSyncToNetwork;
+            _vif.ShowRequiresSyncAlert = vifRole.RequireSyncToNetwork;
         }
 
         protected internal virtual async Task AutoAllocateVlanTagAsync()
@@ -191,8 +194,9 @@ namespace Mind.Builders
         {
             var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
             var aggContractBandwidthMbps = _vif.Attachment.Vifs.Select(
-                vif => vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps).Aggregate(
-                (x, y) => x + y);
+                vif => vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                .Aggregate(0, (x, y) => x + y);
+
             var attachmentBandwidthMbps = _vif.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
 
             if (attachmentBandwidthMbps < (aggContractBandwidthMbps + contractBandwidthMbps))
@@ -212,8 +216,8 @@ namespace Mind.Builders
             var contractBandwidthPool = new ContractBandwidthPool
             {
                 ContractBandwidthID = contractBandwidth.ContractBandwidthID,
-                TenantID = _vif.TenantID,
-                Name = Guid.NewGuid().ToString("N")
+                TenantID = _vif.Tenant.TenantID,
+                Name = Guid.NewGuid().ToString("N")         
             };
 
             _vif.ContractBandwidthPool = contractBandwidthPool;
@@ -252,7 +256,8 @@ namespace Mind.Builders
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                                     x => 
                                            x.Name == routingInstanceName
-                                           && x.TenantID == _vif.TenantID,
+                                           && x.TenantID == _vif.Tenant.TenantID
+                                           && x.DeviceID == _vif.Attachment.DeviceID,
                                            AsTrackable: true)
                                            select routingInstances)
                                            .SingleOrDefault();

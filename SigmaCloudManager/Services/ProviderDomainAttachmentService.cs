@@ -42,7 +42,7 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-             return await base.GetByIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantFacing, deep, asTrackable);
+            return await base.GetByIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantFacing, deep, asTrackable);
         }
 
         /// <summary>
@@ -141,9 +141,21 @@ namespace Mind.Services
             }
 
             var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
-                includeProperties: "ContractBandwidthPool,Interfaces.Ports.PortStatus,Vifs.Vlans,Vifs.RoutingInstance.RoutingInstanceType," +
-                "Vifs.ContractBandwidthPool,RoutingInstance.RoutingInstanceType,RoutingInstance.Vifs,RoutingInstance.Attachments," +
-                "RoutingInstance.BgpPeers", AsTrackable: true)
+                includeProperties:
+                "ContractBandwidthPool.Attachments," +
+                "ContractBandwidthPool.Vifs," +
+                "Interfaces.Ports.PortStatus," +
+                "Vifs.Vlans," +
+                "Vifs.RoutingInstance.RoutingInstanceType," +
+                "Vifs.RoutingInstance.Attachments," +
+                "Vifs.RoutingInstance.Vifs," +
+                "Vifs.ContractBandwidthPool.Vifs," +
+                "Vifs.ContractBandwidthPool.Attachments," +
+                "RoutingInstance.RoutingInstanceType," +
+                "RoutingInstance.Vifs," +
+                "RoutingInstance.Attachments," +
+                "RoutingInstance.BgpPeers",
+                AsTrackable: true)
                               select attachments)
                               .Single();
 
@@ -164,7 +176,7 @@ namespace Mind.Services
 
             if (attachment.RoutingInstance != null)
             {
-                if (attachment.RoutingInstance.RoutingInstanceType.IsVrf)
+                if (attachment.RoutingInstance.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
                 {
                     // Check if the current attachment is the only attachment using the routing instance and no 
                     // vifs are using the routing instance. If so delete the routing instance.
@@ -175,25 +187,75 @@ namespace Mind.Services
                 }
             }
 
-            foreach (var routingInstance in attachment.Vifs.Select(x => x.RoutingInstance).Where(x =>x.RoutingInstanceType.IsVrf))
+            foreach (var routingInstance in attachment.Vifs.Select(x => x.RoutingInstance)
+                                                           .Where(x => x != null && x.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf))
             {
-                // Check if the current vif is the only vif using the routing instance and no
-                // attachments are using the routing instance. If so delete the routing instance.
-                if (!attachment.RoutingInstance.Attachments.Any() && attachment.RoutingInstance.Vifs.Count == 1)
+                // Check if the routing instance can be deleted. If there are no attachments which belong to the routing instance, and the
+                // only vifs which belong to the routing instance belong to the attachment being deleted then the routing instance can be 
+                // deleted.
+                if (!routingInstance.Attachments.Any() && routingInstance.Vifs.Intersect(attachment.Vifs, new VifCompare()).Count() == routingInstance.Vifs.Count())
                 {
-                    UnitOfWork.RoutingInstanceRepository.Delete(attachment.RoutingInstance);
+                    UnitOfWork.RoutingInstanceRepository.Delete(routingInstance);
                 }
             }
 
             foreach (var contractBandwidthPool in attachment.Vifs.Select(x => x.ContractBandwidthPool))
             {
-                UnitOfWork.ContractBandwidthPoolRepository.Delete(contractBandwidthPool);
+                if (contractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(contractBandwidthPool);
             }
 
             if (attachment.ContractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(attachment.ContractBandwidthPool);
 
             UnitOfWork.AttachmentRepository.Delete(attachment);
             await UnitOfWork.SaveAsync();
+        }
+
+        /// <summary>
+        /// Comparer for vif objects
+        /// </summary>
+        internal class VifCompare : IEqualityComparer<Vif>
+        {
+
+            /// <summary>
+            /// Returns true if Vif instances are equal
+            /// </summary>
+            /// <returns>Boolean</returns>
+            public bool Equals(Vif x, Vif y)
+            {
+                if (ReferenceEquals(null, x)) return false;
+                if (ReferenceEquals(null, y)) return false;
+                if (ReferenceEquals(x, y)) return true;
+
+                return
+                    (
+                        x.VifID == y.VifID ||
+                        x.VifID.Equals(y.VifID)
+                    );
+
+            }
+
+            public int GetHashCode(Vif obj)
+            {
+                unchecked // Overflow is fine, just wrap
+                {
+                    var hashCode = 41;
+
+                    // Ignore hashing the name property - we need a deeply populated vif object to calulate
+                    // 'name' and we have enough properties to hash and avoid chance of collision
+                    hashCode = hashCode * 59 + obj.VifID.GetHashCode();
+                    hashCode = hashCode * 59 + obj.IsLayer3.GetHashCode();
+                    hashCode = hashCode * 59 + obj.VlanTag.GetHashCode();
+                    hashCode = hashCode * 59 + obj.AttachmentID.GetHashCode();
+                    hashCode = hashCode * 59 + obj.TenantID.GetHashCode();
+                    if (obj.RoutingInstance != null)
+                        hashCode = hashCode * 59 + obj.RoutingInstance.GetHashCode();
+                    if (obj.Vlans != null)
+                        hashCode = hashCode * 59 + obj.Vlans.GetHashCode();
+                    if (obj.ContractBandwidthPool != null)
+                        hashCode = hashCode * 59 + obj.ContractBandwidthPool.GetHashCode();
+                    return hashCode;
+                }
+            }
         }
     }
 }

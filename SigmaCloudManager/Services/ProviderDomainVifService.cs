@@ -51,7 +51,7 @@ namespace Mind.Services
 
             if (vif.RoutingInstance != null)
             {
-                if (vif.RoutingInstance.RoutingInstanceType.IsVrf)
+                if (vif.RoutingInstance.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
                 {
                     // Check if the current vif is the only vif using the routing instance and no 
                     // attachments are using the routing instance. If so delete the routing instance.

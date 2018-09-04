@@ -83,7 +83,7 @@ namespace Mind.Api.Models
         public bool? TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
-        /// A list of IPv4 addresses to be assigned to the interfaces of the vif
+        /// A list of IPv4 addresses to be assigned to the vlans of the vif
         /// </summary>
         /// <value>A list of Ipv4AddressAndMask objcets</value>
         [DataMember(Name="ipv4Addresses")]

@@ -20,7 +20,7 @@ namespace Mind.Builders
         public async Task<SCM.Models.Attachment> UpdateAsync(SCM.Models.Attachment attachment, ProviderDomainAttachmentUpdate update)
         {
             var builder = _builderFactory(attachment);
-            return await builder.ForAttachment(attachment)
+            return await builder.ForAttachment(attachment.AttachmentID)
                                 .WithExistingRoutingInstance(update.ExistingRoutingInstanceName)
                                 .WithNewRoutingInstance(update.CreateNewRoutingInstance)
                                 .WithContractBandwidth(update.ContractBandwidthMbps)

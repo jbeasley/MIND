@@ -28,13 +28,13 @@ namespace SCM.Validators
             var attachmentSetRoutingInstance = (from attachmentSetRoutingInstances in await _unitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q =>
                                                 q.AttachmentSetRoutingInstanceID == attachmentSetRoutingInstanceId, 
                                                 includeProperties: "AttachmentSet," +
-                                                "RoutingInstance.BgpPeers.VpnTenantNetworksIn.TenantIpNetwork," +
-                                                "RoutingInstance.BgpPeers.VpnTenantNetworksOut.TenantIpNetwork," +
-                                                "RoutingInstance.VpnTenantNetworksRoutingInstance.TenantIpNetwork," +
+                                                "RoutingInstance.BgpPeers.VpnTenantIpNetworksIn.TenantIpNetwork," +
+                                                "RoutingInstance.BgpPeers.VpnTenantIpNetworksOut.TenantIpNetwork," +
+                                                "RoutingInstance.VpnTenantIpNetworkRoutingInstances.TenantIpNetwork," +
                                                 "RoutingInstance.BgpPeers.VpnTenantCommunitiesIn.TenantCommunity," +
                                                 "RoutingInstance.BgpPeers.VpnTenantCommunitiesOut.TenantCommunity," +
                                                 "RoutingInstance.VpnTenantCommunityRoutingInstances.TenantCommunity," +
-                                                "RoutingInstance.VpnTenantNetworkStaticRouteRoutingInstances.TenantIpNetwork",
+                                                "RoutingInstance.VpnTenantIpNetworkStaticRouteRoutingInstances.TenantIpNetwork",
                                                 AsTrackable: false)
                                                 select attachmentSetRoutingInstances)
                                                 .Single();

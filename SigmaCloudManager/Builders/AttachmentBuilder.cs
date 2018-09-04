@@ -40,8 +40,6 @@ namespace Mind.Builders
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps)
         {
-            if (attachmentBandwidthGbps == null) throw new BuilderBadArgumentsException("A value for attachment bandwidth is required.");
-
             _args.Add(nameof(WithAttachmentBandwidth), attachmentBandwidthGbps);
             return this;
         }
@@ -81,7 +79,7 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu)
         {
             _args.Add(nameof(WithJumboMtu), useJumboMtu != null ? useJumboMtu : false);
             return this;
@@ -93,7 +91,7 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp = false)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp)
         {
             _args.Add(nameof(WithTrustReceivedCosAndDscp), trustReceivedCosAndDscp != null ? trustReceivedCosAndDscp : false);
             return this;
@@ -265,7 +263,7 @@ namespace Mind.Builders
             var contractBandwidthPool = new ContractBandwidthPool
             {
                 ContractBandwidthID = contractBandwidth.ContractBandwidthID,
-                TenantID = _attachment.TenantID,
+                TenantID = _attachment.Tenant.TenantID,
                 Name = Guid.NewGuid().ToString("N")
             };
 
@@ -321,7 +319,9 @@ namespace Mind.Builders
             var useLayer2InterfaceMtu = _attachment.Device.UseLayer2InterfaceMtu;
             var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) ? (bool)_args[nameof(WithJumboMtu)] : false;
 
-            var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(x => x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu)
+            var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(
+                x => 
+                    x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu)
                        select mtus)
                        .Single();
 

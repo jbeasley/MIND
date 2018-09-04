@@ -17,9 +17,9 @@ namespace Mind.Builders
         {
         }
 
-        public IBundleAttachmentUpdateBuilder ForAttachment(Attachment attachment)
+        public IBundleAttachmentUpdateBuilder ForAttachment(int attachmentId)
         {
-            _attachment = attachment;
+            _args.Add(nameof(ForAttachment), attachmentId);
             return this;
         }
 
@@ -65,6 +65,7 @@ namespace Mind.Builders
         /// <returns></returns>
         public virtual async Task<Attachment> UpdateAsync()
         {
+            await SetAttachmentAsync();
             await SetMtuAsync();
             if (_attachment.AttachmentRole.RequireContractBandwidth)
             {
@@ -86,6 +87,24 @@ namespace Mind.Builders
             base.SetBundleLinks();
 
             return _attachment;
+        }
+
+        private async Task SetAttachmentAsync()
+        {
+            var attachmentId = (int)_args[nameof(ForAttachment)];
+            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
+               includeProperties: "Tenant," +
+               "Device," +
+               "RoutingInstance.Attachments," +
+               "RoutingInstance.Vifs," +
+               "ContractBandwidthPool," +
+               "AttachmentRole," +
+               "AttachmentBandwidth," +
+               "Interfaces.Ports", AsTrackable: true)
+                              select attachments)
+                             .Single();
+
+            base._attachment = attachment;
         }
     }
 }

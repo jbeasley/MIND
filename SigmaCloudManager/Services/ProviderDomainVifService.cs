@@ -14,12 +14,15 @@ namespace Mind.Services
     public class ProviderDomainVifService : BaseVifService, IProviderDomainVifService
     {
         private readonly IProviderDomainVifDirector _director;
+        private readonly IProviderDomainVifUpdateDirector _updateDirector;
         private readonly IProviderDomainVifValidator _validator;
 
         public ProviderDomainVifService(IUnitOfWork unitOfWork, IMapper mapper,
-            IProviderDomainVifDirector director, IProviderDomainVifValidator validator) : base (unitOfWork, mapper, validator)
+            IProviderDomainVifDirector director, 
+            IProviderDomainVifUpdateDirector updateDirector, IProviderDomainVifValidator validator) : base (unitOfWork, mapper, validator)
         {
             _director = director;
+            _updateDirector = updateDirector;
             _validator = validator;
         }
 
@@ -32,9 +35,53 @@ namespace Mind.Services
             return await base.GetByIDAsync(vif.VifID, deep: true, asTrackable: false);
         }
 
-        public Task<Vif> UpdateAsync(int vifId, ProviderDomainVifUpdate vifUpdate)
+        public async Task<Vif> UpdateAsync(int vifId, ProviderDomainVifUpdate update)
         {
-            throw new NotImplementedException();
+            await _validator.ValidateChangesAsync(vifId, update);
+            if (!_validator.IsValid) throw new ServiceValidationException();
+
+            var vif = await GetByIDAsync(vifId);
+
+            // Remember old routing instance ID and contract bandwidth pool ID for later removal checks
+            var oldRoutingInstanceID = vif.RoutingInstanceID;
+            var oldContractBandwidthPoolID = vif.ContractBandwidthPoolID;
+
+            var updateVif = await _updateDirector.UpdateAsync(vifId, update);
+
+            // Cleanup routing instance if there are no attachment or vifs which are using it.
+            if (oldRoutingInstanceID != null && oldRoutingInstanceID != updateVif.RoutingInstanceID)
+            {
+                var oldRoutingInstance = (from routingInstances in await UnitOfWork.RoutingInstanceRepository.GetAsync(
+                    x =>
+                        x.RoutingInstanceID == oldRoutingInstanceID,
+                        includeProperties: "Attachments,Vifs", AsTrackable: true)
+                                          select routingInstances)
+                                          .Single();
+
+                if (!oldRoutingInstance.Attachments.Any() && !oldRoutingInstance.Vifs.Any())
+                {
+                    UnitOfWork.RoutingInstanceRepository.Delete(oldRoutingInstance);
+                }
+            }
+
+            // Cleanup contract bandwidth pool if the attachment is no longer using it.
+            if (oldContractBandwidthPoolID != null && oldContractBandwidthPoolID != updateVif.ContractBandwidthPoolID)
+            {
+                var oldContractBandwidthPool = (from contractBandwidthPools in await UnitOfWork.ContractBandwidthPoolRepository.GetAsync(
+                        x =>
+                            x.ContractBandwidthPoolID == oldContractBandwidthPoolID,
+                            includeProperties: "Attachments,Vifs", AsTrackable: true)
+                                                select contractBandwidthPools)
+                                               .Single();
+
+                if (!oldContractBandwidthPool.Attachments.Any() && !oldContractBandwidthPool.Vifs.Any())
+                {
+                    UnitOfWork.ContractBandwidthPoolRepository.Delete(oldContractBandwidthPool);
+                }
+            }
+
+            await UnitOfWork.SaveAsync();
+            return await GetByIDAsync(vifId, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int vifId)
@@ -43,9 +90,15 @@ namespace Mind.Services
             if (!_validator.IsValid) throw new ServiceValidationException();
 
             var vif = (from result in await UnitOfWork.VifRepository.GetAsync(q => q.VifID == vifId,
-                includeProperties: "RoutingInstance.Vifs,RoutingInstance.Attachments,ContractBandwidthPool," +
-                "Vlans,RoutingInstance.RoutingInstanceType,ContractBandwidthPool.Vifs,ContractBandwidthPool.Attachments," +
-                "RoutingInstance.BgpPeers", AsTrackable: true)
+                includeProperties: "RoutingInstance.Vifs," +
+                "RoutingInstance.Attachments," +
+                "ContractBandwidthPool," +
+                "Vlans," +
+                "RoutingInstance.RoutingInstanceType," +
+                "ContractBandwidthPool.Vifs," +
+                "ContractBandwidthPool.Attachments," +
+                "RoutingInstance.BgpPeers", 
+                AsTrackable: true)
                               select result)
                               .Single();
 

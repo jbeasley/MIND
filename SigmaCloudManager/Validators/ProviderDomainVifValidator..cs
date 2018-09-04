@@ -25,16 +25,19 @@ namespace Mind.Validators
             var vif = (from result in await _unitOfWork.VifRepository.GetAsync(
                     q =>
                         q.VifID == vifId,
-                        includeProperties: "VifRole,RoutingInstance",
+                        includeProperties: "VifRole," +
+                        "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet",
                         AsTrackable: false)
-                       select result)
+                        select result)
                         .Single();
 
             if (!string.IsNullOrEmpty(update.ExistingRoutingInstanceName))
             {
                 if (update.ExistingRoutingInstanceName != vif.RoutingInstance.Name)
                 {
-                    var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(x => x.Name == update.ExistingRoutingInstanceName)
+                    var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                        x => 
+                            x.Name == update.ExistingRoutingInstanceName)
                                                    select routingInstances)
                                                    .SingleOrDefault();
 
@@ -64,7 +67,7 @@ namespace Mind.Validators
                      select attachmentSet)
                     .ToList()
                     .ForEach(x => ValidationDictionary.AddError(string.Empty, "The routing instance cannot be changed because it belongs to "
-                            + $"attachment set '{x.Name}'"));
+                            + $"attachment set '{x.Name}'. Remove the routing instance from the attachment set first."));
                 }
             }
 
@@ -73,7 +76,7 @@ namespace Mind.Validators
                 if (update.ContractBandwidthMbps == null && string.IsNullOrEmpty(update.ExistingContractBandwidthPoolName))
                 {
                     ValidationDictionary.AddError(string.Empty, "Either an existing Contract Bandwidth Pool which is asociated " +
-                        "with another vif under the same attachment as the current vif, or a Contract Bandwidth value must be specified.");
+                        "with another vif under the same attachment as the current vif, or a Contract Bandwidth value, must be specified.");
                 }
             }
         }
@@ -93,8 +96,9 @@ namespace Mind.Validators
                        .Single()
                        .RoutingInstance?.AttachmentSetRoutingInstances
                        .ToList()
-                       .ForEach(x => ValidationDictionary.AddError(string.Empty, $"The vif belongs to "
-                            + $"attachment set '{x.AttachmentSet.Name}' and cannot be deleted."));
+                       .ForEach(x => ValidationDictionary.AddError(string.Empty, $"The vif cannot be deleted because it belongs to routing instance " +
+                       $"'{x.RoutingInstance.Name}' which belongs to attachment set '{x.AttachmentSet.Name}. Remove the routing instance from the " +
+                       $"attachment set first."));
         }
     }
 }

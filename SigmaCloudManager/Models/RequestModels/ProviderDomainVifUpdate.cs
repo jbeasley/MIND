@@ -43,5 +43,16 @@ namespace Mind.Models.RequestModels
         /// </summary>
         /// <value>Boolean value denoting the required trust state</value>
         public bool? TrustReceivedCosAndDscp { get; set; }
+
+        /// <summary>
+        /// A list of IPv4 addresses to be assigned to the vlans of the vif
+        /// </summary>
+        /// <value>A list of Ipv4AddressAndMask objcets</value>
+        public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
+
+        /// <summary>
+        /// Determines if the updated vif should use jumbo MTU
+        /// </summary>
+        public bool? UseJumboMtu { get; set; }
     }
 }

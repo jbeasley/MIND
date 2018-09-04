@@ -278,6 +278,7 @@ namespace Mind
             builder.RegisterType<VpnTenantIpNetworkOutDirector>().As<IVpnTenantIpNetworkOutDirector>();
             builder.RegisterType<VpnTenantIpNetworkOutUpdateDirector>().As<IVpnTenantIpNetworkOutUpdateDirector>();
             builder.RegisterType<ProviderDomainVifDirector>().As<IProviderDomainVifDirector>();
+            builder.RegisterType<ProviderDomainVifUpdateDirector>().As<IProviderDomainVifUpdateDirector>();
             builder.RegisterType<TenantFacingVrfRoutingInstanceDirector>().As<IRoutingInstanceDirector>()
                 .Keyed<IRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
 
@@ -297,6 +298,7 @@ namespace Mind
             builder.RegisterType<VpnTenantIpNetworkOutBuilder>().As<IVpnTenantIpNetworkOutBuilder>();
             builder.RegisterType<VpnTenantIpNetworkOutUpdateBuilder>().As<IVpnTenantIpNetworkOutUpdateBuilder>();
             builder.RegisterType<VifBuilder>().As<IVifBuilder>();
+            builder.RegisterType<VifUpdateBuilder>().As<IVifUpdateBuilder>();
 
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
             {

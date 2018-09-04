@@ -14,7 +14,7 @@ namespace Mind.Builders
         IBundleAttachmentUpdateBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp = false);
         IBundleAttachmentUpdateBuilder WithExistingRoutingInstance(string routingInstanceName);
         IBundleAttachmentUpdateBuilder WithNewRoutingInstance(bool? newRoutingInstance = false);
-        IBundleAttachmentUpdateBuilder ForAttachment(Attachment attachment);
+        IBundleAttachmentUpdateBuilder ForAttachment(int attachmentId);
         IBundleAttachmentUpdateBuilder WithBundleLinks(int? minLinks, int? maxLinks);
         Task<Attachment> UpdateAsync();
     }

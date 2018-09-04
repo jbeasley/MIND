@@ -13,7 +13,7 @@ namespace Mind.Builders
     /// </summary>
     public class VifBuilder : BaseBuilder, IVifBuilder
     {
-        protected internal readonly Vif _vif;
+        protected internal Vif _vif;
         private const string _defaultVlanTagRange = "Default";
         private readonly Func<RoutingInstanceType, IRoutingInstanceDirector> _routingInstanceDirectorFactory;
 
@@ -79,7 +79,13 @@ namespace Mind.Builders
 
         public virtual IVifBuilder WithIpv4(List<Ipv4AddressAndMask> ipv4AddressesAndMasks)
         {
-            if (ipv4AddressesAndMasks != null) _args.Add(nameof(WithIpv4), ipv4AddressesAndMasks);
+            if (ipv4AddressesAndMasks != null && ipv4AddressesAndMasks.Any()) _args.Add(nameof(WithIpv4), ipv4AddressesAndMasks);
+            return this;
+        }
+
+        public virtual IVifBuilder WithJumboMtu(bool? useJumboMtu)
+        {
+            if (useJumboMtu != null) _args.Add(nameof(WithJumboMtu), useJumboMtu);
             return this;
         }
 
@@ -91,6 +97,7 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
             CreateVlans();
+            await SetMtuAsync();
             if (_args.ContainsKey(nameof(WithRequestedVlanTag)))
             {
                 SetRequestedVlanTag();
@@ -118,7 +125,11 @@ namespace Mind.Builders
             var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
                         q =>
                               q.AttachmentID == attachmentId,
-                              includeProperties: "AttachmentBandwidth,Vifs.ContractBandwidthPool.ContractBandwidth,AttachmentRole,Interfaces.Vlans",
+                              includeProperties: "Device," +
+                              "AttachmentBandwidth," +
+                              "Vifs.ContractBandwidthPool.ContractBandwidth," +
+                              "AttachmentRole," +
+                              "Interfaces.Vlans",
                               AsTrackable: true)
                               select result)
                               .Single();
@@ -152,11 +163,10 @@ namespace Mind.Builders
                            select result)
                            .SingleOrDefault();
 
-            if (vifRole == null) throw new BuilderBadArgumentsException("Unable to create a vif with the supplied arguments. The name of the vif role " +
+            _vif.VifRole = vifRole ?? throw new BuilderBadArgumentsException("Unable to create a vif with the supplied arguments. The name of the vif role " +
                 $"'{vifRoleName}' does not exist in the context of the current attachment. The vifRole argument must belong to the parent attachment role " +
                 $"which for the current attachment is '{_vif.Attachment.AttachmentRole.Name}'");
 
-            _vif.VifRole = vifRole;
             _vif.IsLayer3 = vifRole.IsLayer3Role;
             _vif.RequiresSync = vifRole.RequireSyncToNetwork;
             _vif.ShowRequiresSyncAlert = vifRole.RequireSyncToNetwork;
@@ -295,10 +305,24 @@ namespace Mind.Builders
                     {
                         Interface = x,
                         IpAddress = isLayer3Role ? ipv4AddressAndMask.IpAddress : null,
-                        SubnetMask = isLayer3Role ? ipv4AddressAndMask.SubnetMask : null
+                        SubnetMask = isLayer3Role ? ipv4AddressAndMask.SubnetMask : null                     
                     });
                     ipv4AddressesAndMasks.Remove(ipv4AddressAndMask);
                 });
+        }
+
+        protected internal virtual async Task SetMtuAsync()
+        {
+            var useLayer2InterfaceMtu = _vif.Attachment.Device.UseLayer2InterfaceMtu;
+            var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) ? (bool)_args[nameof(WithJumboMtu)] : false;
+
+            var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(
+                x => 
+                    x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu)
+                       select mtus)
+                       .Single();
+
+            _vif.MtuID = mtu.MtuID;
         }
     }
 }

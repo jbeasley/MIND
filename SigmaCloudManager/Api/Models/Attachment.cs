@@ -145,6 +145,13 @@ namespace Mind.Api.Models
         public List<Interface> Interfaces { get; set; }
 
         /// <summary>
+        /// The maximum transmission unit supported by the attachment
+        /// </summary>
+        /// <value>The MTU in bytes</value>
+        [DataMember(Name = "mtu")]
+        public int? Mtu { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -166,6 +173,7 @@ namespace Mind.Api.Models
             sb.Append("  AttachmentBandwidthGbps: ").Append(AttachmentBandwidthGbps).Append("\n");
             sb.Append("  ContractBandwidthPool: ").Append(ContractBandwidthPool).Append("\n");
             sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
+            sb.Append("  Mtu: ").Append(Mtu).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -201,17 +209,17 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     AttachmentId == other.AttachmentId ||
                     AttachmentId != null &&
                     AttachmentId.Equals(other.AttachmentId)
-                ) && 
+                ) &&
                 (
                     IsLayer3 == other.IsLayer3 ||
                     IsLayer3 != null &&
                     IsLayer3.Equals(other.IsLayer3)
-                ) && 
+                ) &&
                 (
                     IsBundle == other.IsBundle ||
                     IsBundle != null &&
@@ -231,17 +239,17 @@ namespace Mind.Api.Models
                     IsMultiport == other.IsMultiport ||
                     IsMultiport != null &&
                     IsMultiport.Equals(other.IsMultiport)
-                ) && 
+                ) &&
                 (
                     IsTagged == other.IsTagged ||
                     IsTagged != null &&
                     IsTagged.Equals(other.IsTagged)
-                ) && 
+                ) &&
                 (
                     TenantName == other.TenantName ||
                     TenantName != null &&
                     TenantName.Equals(other.TenantName)
-                ) && 
+                ) &&
                 (
                     InfrastructureDeviceName == other.InfrastructureDeviceName ||
                     InfrastructureDeviceName != null &&
@@ -250,7 +258,7 @@ namespace Mind.Api.Models
                 (
                     LocationName == other.LocationName ||
                     LocationName != null &&
-                    LocationName.Equals(other.LocationName) 
+                    LocationName.Equals(other.LocationName)
                 ) &&
                 (
                     PlaneName == other.PlaneName ||
@@ -261,16 +269,21 @@ namespace Mind.Api.Models
                     AttachmentBandwidthGbps == other.AttachmentBandwidthGbps ||
                     AttachmentBandwidthGbps != null &&
                     AttachmentBandwidthGbps.Equals(other.AttachmentBandwidthGbps)
-                ) && 
+                ) &&
                 (
                     ContractBandwidthPool == other.ContractBandwidthPool ||
                     ContractBandwidthPool != null &&
                     ContractBandwidthPool.Equals(other.ContractBandwidthPool)
-                ) && 
+                ) &&
                 (
                     RoutingInstance == other.RoutingInstance ||
                     RoutingInstance != null &&
                     RoutingInstance.Equals(other.RoutingInstance)
+                ) &&
+                (
+                    Mtu == other.Mtu ||
+                    Mtu != null &&
+                    Mtu.Equals(other.Mtu)
                 );
         }
 
@@ -312,6 +325,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + ContractBandwidthPool.GetHashCode();
                     if (RoutingInstance != null)
                     hashCode = hashCode * 59 + RoutingInstance.GetHashCode();
+                    if (Mtu != null)
+                    hashCode = hashCode * 59 + Mtu.GetHashCode();
                 return hashCode;
             }
         }

@@ -18,6 +18,7 @@ namespace Mind.Builders
         IVifBuilder WithExistingRoutingInstance(string existingRoutingInstanceName);
         IVifBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IVifBuilder WithIpv4(List<Ipv4AddressAndMask> ipv4AddressesAndMask);
+        IVifBuilder WithJumboMtu(bool? useJumboMtu);
         Task<Vif> BuildAsync();
     }
 }

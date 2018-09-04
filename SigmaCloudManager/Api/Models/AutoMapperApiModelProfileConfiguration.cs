@@ -33,7 +33,11 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name))
                 .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
                 .ForMember(dst => dst.PlaneName, conf => conf.MapFrom(src => src.Device.Plane.Name))
-                .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps));
+                .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps))
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
+            CreateMap<SCM.Models.Vif, Mind.Api.Models.Vif>()
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
+            CreateMap<SCM.Models.Vlan, Mind.Api.Models.Vlan>();
             CreateMap<SCM.Models.Interface, Mind.Api.Models.Interface>();
             CreateMap<SCM.Models.Port, Mind.Api.Models.Port>()
                 .ForMember(dst => dst.PortId, conf => conf.MapFrom(src => src.ID))

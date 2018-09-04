@@ -74,7 +74,7 @@ namespace Mind.Services
         }
 
         /// <summary>
-        /// Create a new provider domain attachment
+        /// Update an existing provider domain attachment
         /// </summary>
         /// <param name="attachmentId"></param>
         /// <param name="update"></param>
@@ -82,15 +82,9 @@ namespace Mind.Services
         public async Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update)
         {
             await _validator.ValidateChangesAsync(attachmentId, update);
-            if (!_validator.IsValid)
-            {
-                throw new ServiceValidationException();
-            }
+            if (!_validator.IsValid) throw new ServiceValidationException();
 
-            var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
-                includeProperties: "Device,RoutingInstance,ContractBandwidthPool,AttachmentRole,AttachmentBandwidth,Interfaces.Ports", AsTrackable: true)
-                              select attachments)
-                              .Single();
+            var attachment = await GetByIDAsync(attachmentId);
 
             // Remember old routing instance ID and contract bandwidth pool ID for later removal checks
             var oldRoutingInstanceID = attachment.RoutingInstanceID;
@@ -109,7 +103,10 @@ namespace Mind.Services
                                           select routingInstances)
                                           .Single();
 
-                if (!oldRoutingInstance.Attachments.Any() && !oldRoutingInstance.Vifs.Any()) UnitOfWork.RoutingInstanceRepository.Delete(oldRoutingInstance);
+                if (!oldRoutingInstance.Attachments.Any() && !oldRoutingInstance.Vifs.Any())
+                {
+                    UnitOfWork.RoutingInstanceRepository.Delete(oldRoutingInstance);
+                }
             }
 
             // Cleanup contract bandwidth pool if the attachment is no longer using it.
@@ -193,7 +190,7 @@ namespace Mind.Services
                 // Check if the routing instance can be deleted. If there are no attachments which belong to the routing instance, and the
                 // only vifs which belong to the routing instance belong to the attachment being deleted then the routing instance can be 
                 // deleted.
-                if (!routingInstance.Attachments.Any() && routingInstance.Vifs.Intersect(attachment.Vifs, new VifCompare()).Count() == routingInstance.Vifs.Count())
+                if (!routingInstance.Attachments.Any() && routingInstance.Vifs.Intersect(attachment.Vifs).Count() == routingInstance.Vifs.Count())
                 {
                     UnitOfWork.RoutingInstanceRepository.Delete(routingInstance);
                 }
@@ -208,54 +205,6 @@ namespace Mind.Services
 
             UnitOfWork.AttachmentRepository.Delete(attachment);
             await UnitOfWork.SaveAsync();
-        }
-
-        /// <summary>
-        /// Comparer for vif objects
-        /// </summary>
-        internal class VifCompare : IEqualityComparer<Vif>
-        {
-
-            /// <summary>
-            /// Returns true if Vif instances are equal
-            /// </summary>
-            /// <returns>Boolean</returns>
-            public bool Equals(Vif x, Vif y)
-            {
-                if (ReferenceEquals(null, x)) return false;
-                if (ReferenceEquals(null, y)) return false;
-                if (ReferenceEquals(x, y)) return true;
-
-                return
-                    (
-                        x.VifID == y.VifID ||
-                        x.VifID.Equals(y.VifID)
-                    );
-
-            }
-
-            public int GetHashCode(Vif obj)
-            {
-                unchecked // Overflow is fine, just wrap
-                {
-                    var hashCode = 41;
-
-                    // Ignore hashing the name property - we need a deeply populated vif object to calulate
-                    // 'name' and we have enough properties to hash and avoid chance of collision
-                    hashCode = hashCode * 59 + obj.VifID.GetHashCode();
-                    hashCode = hashCode * 59 + obj.IsLayer3.GetHashCode();
-                    hashCode = hashCode * 59 + obj.VlanTag.GetHashCode();
-                    hashCode = hashCode * 59 + obj.AttachmentID.GetHashCode();
-                    hashCode = hashCode * 59 + obj.TenantID.GetHashCode();
-                    if (obj.RoutingInstance != null)
-                        hashCode = hashCode * 59 + obj.RoutingInstance.GetHashCode();
-                    if (obj.Vlans != null)
-                        hashCode = hashCode * 59 + obj.Vlans.GetHashCode();
-                    if (obj.ContractBandwidthPool != null)
-                        hashCode = hashCode * 59 + obj.ContractBandwidthPool.GetHashCode();
-                    return hashCode;
-                }
-            }
         }
     }
 }

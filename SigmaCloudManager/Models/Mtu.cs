@@ -15,5 +15,6 @@ namespace SCM.Models
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual ICollection<Attachment> Attachments { get; set; }
+        public virtual ICollection<Vif> Vifs { get; set; }
     }
 }

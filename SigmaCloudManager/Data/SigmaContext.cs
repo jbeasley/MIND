@@ -271,9 +271,19 @@ namespace SCM.Data
                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantMulticastGroup>()
-                    .HasOne(c => c.TenantMulticastGroup)
-                    .WithMany()
-                    .OnDelete(DeleteBehavior.Restrict);
+                   .HasOne(c => c.TenantMulticastGroup)
+                   .WithMany()
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Vif>()
+                   .HasOne(c => c.Mtu)
+                   .WithMany()
+                   .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Attachment>()
+                   .HasOne(c => c.Mtu)
+                   .WithMany()
+                   .OnDelete(DeleteBehavior.Restrict);
 
             // Set Indexes to ensure data uniqueness
 

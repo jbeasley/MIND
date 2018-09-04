@@ -43,7 +43,8 @@ namespace Mind.Services
                 + "Vlans,"
                 + "ContractBandwidthPool.ContractBandwidth,"
                 + "ContractBandwidthPool.Tenant,"
-                + "Tenant";
+                + "Tenant,"
+                + "Mtu";
 
         public BaseVifService(IUnitOfWork unitOfWork,
             IMapper mapper,

@@ -18,9 +18,9 @@ namespace Mind.Builders
         {
         }
 
-        public IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder> ForAttachment(Attachment attachment)
+        public IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder> ForAttachment(int attachmentId)
         {
-            _attachment = attachment;
+            _args.Add(nameof(ForAttachment), attachmentId);
             return this;
         }
 
@@ -56,6 +56,7 @@ namespace Mind.Builders
 
         async Task<Attachment> IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>.UpdateAsync()
         {
+            await SetAttachmentAsync();
             await SetMtuAsync();
             if (_attachment.AttachmentRole.RequireContractBandwidth)
             {
@@ -76,6 +77,24 @@ namespace Mind.Builders
             if (base._args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
 
             return _attachment;
+        }
+
+        private async Task SetAttachmentAsync()
+        {
+            var attachmentId = (int)_args[nameof(ForAttachment)];
+            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
+               includeProperties: "Tenant," +
+               "Device," +
+               "RoutingInstance.Attachments," +
+               "RoutingInstance.Vifs," +
+               "ContractBandwidthPool," +
+               "AttachmentRole," +
+               "AttachmentBandwidth," +
+               "Interfaces.Ports", AsTrackable: true)
+                              select attachments)
+                             .Single();
+
+            base._attachment = attachment;
         }
     }
 }

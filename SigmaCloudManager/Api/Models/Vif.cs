@@ -88,6 +88,13 @@ namespace Mind.Api.Models
         public ContractBandwidthPool ContractBandwidthPool { get; set; }
 
         /// <summary>
+        /// The maximum transmission unit supported by the vif
+        /// </summary>
+        /// <value>The MTU in bytes</value>
+        [DataMember(Name = "mtu")]
+        public int? Mtu { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -104,6 +111,7 @@ namespace Mind.Api.Models
             sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
             sb.Append("  Vlans: ").Append(Vlans).Append("\n");
             sb.Append("  ContractBandwidthPool: ").Append(ContractBandwidthPool).Append("\n");
+            sb.Append("  Mtu: ").Append(Mtu).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -184,6 +192,11 @@ namespace Mind.Api.Models
                     ContractBandwidthPool == other.ContractBandwidthPool ||
                     ContractBandwidthPool != null &&
                     ContractBandwidthPool.Equals(other.ContractBandwidthPool)
+                ) &&
+                (
+                    Mtu == other.Mtu ||
+                    Mtu != null &&
+                    Mtu.Equals(other.Mtu)
                 );
         }
 
@@ -215,6 +228,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Vlans.GetHashCode();
                     if (ContractBandwidthPool != null)
                     hashCode = hashCode * 59 + ContractBandwidthPool.GetHashCode();
+                    if (Mtu != null)
+                    hashCode = hashCode * 59 + Mtu.GetHashCode();
                 return hashCode;
             }
         }

@@ -196,39 +196,62 @@ namespace Mind.Api.Controllers
         /// <summary>
         /// Update an existing vif
         /// </summary>
-        
+
+        /// <param name="attachmentId">ID of the attachment</param>
         /// <param name="vifId">ID of the vif</param>
         /// <param name="body">vif update object that updates an existing vif</param>
         /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="412">Precondition failed</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpPut]
-        [Route("/v1/tenant/attachment/vif/{vifId}")]
+        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}")]
         [ValidateModelState]
-        [SwaggerOperation("UpdateTenantVif")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Vif), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
+        [ValidateProviderDomainVifExists]
+        [SwaggerOperation("UpdateProviderDomainVif")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult UpdateTenantVif([FromRoute][Required]int? vifId, [FromBody]VifUpdate body)
+        [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> UpdateProviderDomainVif([FromRoute][Required]int? attachmentId,
+            [FromRoute][Required]int? vifId, [FromBody]Mind.Api.Models.ProviderDomainVifUpdate body)
         { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Vif));
+            try
+            {
+                var item = await _vifService.GetByIDAsync(vifId.Value);
+                if (item.HasPreconditionFailed(Request))
+                {
+                    return new PreconditionFailedResult();
+                }
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
+                var update = Mapper.Map<Mind.Models.RequestModels.ProviderDomainVifUpdate>(body);
+                var vif = await _vifService.UpdateAsync(vifId.Value, update);
+                vif.SetModifiedHttpHeaders(Response);
+                var vifApiModel = Mapper.Map<Mind.Api.Models.Vif>(vif);
+                return Ok(vifApiModel);
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
 
-            string exampleJson = null;
-            exampleJson = "<Vif>\n  <vifId>123</vifId>\n  <name>aeiou</name>\n  <isLayer3>true</isLayer3>\n  <vlanTag>123</vlanTag>\n  <attachmentId>123</attachmentId>\n  <tenantId>123</tenantId>\n</Vif>";
-            exampleJson = "{\n  \"vlans\" : [ {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  }, {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  } ],\n  \"vlanTag\" : 6,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"name\" : \"name\",\n  \"tenantId\" : 5,\n  \"isLayer3\" : true,\n  \"attachmentId\" : 1,\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"vifId\" : 0\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Vif>(exampleJson)
-            : default(Vif);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (ServiceValidationException)
+            {
+                return new ValidationFailedResult(this.ModelState);
+            }
+
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
         }
     }
 }

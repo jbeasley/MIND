@@ -25,7 +25,7 @@ namespace Mind.Api.Models
     /// Model for updating a vif which belongs to a tenant attachment to the provider domain
     /// </summary>
     [DataContract]
-    public partial class ProviderDomainVifUpdate : IEquatable<ProviderDomainVifUpdate>
+    public partial class ProviderDomainVifUpdate : IEquatable<ProviderDomainVifUpdate>, IValidatableObject
     {
         /// <summary>
         /// If specified, the vif should be associated with an existing routing instance
@@ -61,6 +61,44 @@ namespace Mind.Api.Models
         public bool? TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
+        /// A list of IPv4 addresses to be assigned to the vlans of the vif
+        /// </summary>
+        /// <value>A list of Ipv4AddressAndMask objcets</value>
+        [DataMember(Name = "ipv4Addresses")]
+        public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
+
+        /// <summary>
+        /// Determines if the updated vif should use jumbo MTU
+        /// </summary>
+        /// <value>A boolean which when set to true indicates jumbo MTU is required</value>
+        /// <example>true</example>
+        [DataMember(Name = "useJumboMtu")]
+        public bool? UseJumboMtu { get; set; }
+
+        /// <summary>
+        /// Determines if the updated vif should be associated with a new routing instance. If the value of this property is true
+        /// then the value of the ExistingRoutingInstanceName property must be null.
+        /// </summary>
+        /// <value>A boolean which when set to true indicates a new routing instance is required</value>
+        /// <examople>true</examople>
+        [DataMember(Name = "createNewRoutingInstance")]
+        public bool? CreateNewRoutingInstance { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (CreateNewRoutingInstance.HasValue && CreateNewRoutingInstance.Value)
+            {
+                if (!string.IsNullOrEmpty(ExistingRoutingInstanceName))
+                {
+                    yield return new ValidationResult(
+                        "The 'CreateNewRoutingInstance' option cannot be used concurrently with the 'ExistingRoutingInstanceName' option." +
+                        "Either remove the 'ExistingRoutingInstanceName' property or remove the 'CreateNewRoutingInstance' property from " +
+                        "the request.");
+                }
+            }
+        }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -72,6 +110,9 @@ namespace Mind.Api.Models
             sb.Append("  ExistingRoutingInstanceName: ").Append(ExistingRoutingInstanceName).Append("\n");
             sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
             sb.Append("  TrustReceivedCosAndDscp: ").Append(TrustReceivedCosAndDscp).Append("\n");
+            sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
+            sb.Append("  CreateNewRoutingInstance: ").Append(CreateNewRoutingInstance).Append("\n");
+            sb.Append("  UseJumboMtu: ").Append(UseJumboMtu).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -127,6 +168,21 @@ namespace Mind.Api.Models
                     ExistingRoutingInstanceName == other.ExistingRoutingInstanceName ||
                     ExistingRoutingInstanceName != null &&
                     ExistingRoutingInstanceName.Equals(other.ExistingRoutingInstanceName)
+                ) &&
+                (
+                    Ipv4Addresses == other.Ipv4Addresses ||
+                    Ipv4Addresses != null &&
+                    Ipv4Addresses.Equals(other.Ipv4Addresses)
+                ) &&
+                (
+                    CreateNewRoutingInstance == other.CreateNewRoutingInstance ||
+                    CreateNewRoutingInstance != null &&
+                    CreateNewRoutingInstance.Equals(other.CreateNewRoutingInstance)
+                ) &&
+                (
+                    UseJumboMtu == other.UseJumboMtu ||
+                    UseJumboMtu != null &&
+                    UseJumboMtu.Equals(other.UseJumboMtu)
                 );
         }
 
@@ -148,6 +204,12 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + ContractBandwidthMbps.GetHashCode();
                     if (TrustReceivedCosAndDscp != null)
                     hashCode = hashCode * 59 + TrustReceivedCosAndDscp.GetHashCode();
+                    if (Ipv4Addresses != null)
+                    hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
+                    if (CreateNewRoutingInstance != null)
+                    hashCode = hashCode * 59 + CreateNewRoutingInstance.GetHashCode();
+                    if (UseJumboMtu != null)
+                    hashCode = hashCode * 59 + UseJumboMtu.GetHashCode();
                 return hashCode;
             }
         }

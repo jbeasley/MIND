@@ -24,6 +24,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public IVifUpdateBuilder WithNewRoutingInstance(bool? newRoutingInstance)
+        {
+            if (newRoutingInstance.HasValue && newRoutingInstance.Value) _args.Add(nameof(WithNewRoutingInstance), newRoutingInstance.Value);
+            return this;
+        }
+
         IVifUpdateBuilder IVifUpdateBuilder.WithIpv4(List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4AddressesAndMask)
         {
             base.WithIpv4(ipv4AddressesAndMask);
@@ -42,6 +48,12 @@ namespace Mind.Builders
             return this;
         }
 
+        IVifUpdateBuilder IVifUpdateBuilder.WithExistingContractBandwidthPool(string existingContractBandwidthPoolName)
+        {
+            base.WithExistingContractBandwidthPool(existingContractBandwidthPoolName);
+            return this;
+        }
+
         IVifUpdateBuilder IVifUpdateBuilder.WithExistingRoutingInstance(string existingRoutingInstanceName)
         {
             base.WithExistingRoutingInstance(existingRoutingInstanceName);
@@ -57,14 +69,68 @@ namespace Mind.Builders
         public async Task<SCM.Models.Vif> UpdateAsync()
         {
             await SetVifAsync();
-            if (_args.ContainsKey(nameof(WithContractBandwidth))) await base.CreateContractBandwidthPoolAsync();
+            if (_args.ContainsKey(nameof(WithContractBandwidth)))
+            {
+                await UpdateContractBandwidthPoolAsync();
+            }
+            else if (_args.ContainsKey(nameof(WithExistingContractBandwidthPool)))
+            {
+                base.AssociateExistingContractBandwidthPool();
+            }
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) base.SetTrustReceivedCosAndDscp();
-            if (_args.ContainsKey(nameof(WithExistingRoutingInstance))) await base.AssociateExistingRoutingInstanceAsync();
+            if (_args.ContainsKey(nameof(WithNewRoutingInstance)))
+            {
+                _vif.RoutingInstanceID = null;
+                await base.CreateRoutingInstanceAsync();
+            }
+            else if (_args.ContainsKey(nameof(WithExistingRoutingInstance)))
+            {
+                await base.AssociateExistingRoutingInstanceAsync();
+            }
             if (_args.ContainsKey(nameof(WithJumboMtu))) await base.SetMtuAsync();
             if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
 
             return base._vif;
 
+        }
+
+        private async Task UpdateContractBandwidthPoolAsync()
+        {
+            // If no contract bandwidth pool exists already then we need to create one
+            if (_vif.ContractBandwidthPool == null)
+            {
+                await base.CreateContractBandwidthPoolAsync();
+                return;
+            }
+
+            // We simply need to repoint the contract bandwidth pool to the new contract bandwidth
+            var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
+
+            var aggContractBandwidthMbps = _vif.Attachment.Vifs
+                .Where(vif => vif.VifID != _vif.VifID)
+                .Select(
+                vif => vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                .Aggregate(0, (x, y) => x + y);
+
+            var attachmentBandwidthMbps = _vif.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
+
+            if (attachmentBandwidthMbps < (aggContractBandwidthMbps + contractBandwidthMbps))
+            {
+                throw new BuilderBadArgumentsException($"The requested contract bandwidth of {contractBandwidthMbps} Mbps is greater " +
+                    $"than the remaining available bandwidth of the attachment ({attachmentBandwidthMbps - aggContractBandwidthMbps} Mbps).");
+            }
+
+            var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(
+                                  q =>
+                                     q.BandwidthMbps == contractBandwidthMbps,
+                                     AsTrackable: false)
+                                     select contractBandwidths)
+                                     .SingleOrDefault();
+
+            if (contractBandwidth == null) throw new BuilderBadArgumentsException($"The requested contract bandwidth of {_args[(nameof(WithContractBandwidth))]} " +
+               $"Mbps is not valid.");
+
+            _vif.ContractBandwidthPool.ContractBandwidthID = contractBandwidth.ContractBandwidthID;
         }
 
         private async Task SetVifAsync()
@@ -75,9 +141,12 @@ namespace Mind.Builders
                     q.VifID == vifId,
                     includeProperties: "Attachment.Vifs.ContractBandwidthPool.ContractBandwidth," +
                     "Attachment.AttachmentBandwidth," +
+                    "Attachment.Device," +
                     "Vlans," +
                     "VifRole," +
-                    "Tenant",
+                    "Tenant," +
+                    "ContractBandwidthPool," +
+                    "Mtu",
                     AsTrackable: true)
                     select result)
                     .Single();

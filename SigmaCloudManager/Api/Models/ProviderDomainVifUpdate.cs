@@ -42,7 +42,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>A string value of the name of an existing contract bandwidth pool</value>
         /// <exanple>db7c48eaa9864cd0b3aa6af08c8370d6</exanple>
-        [DataMember(Name = "existingContractBandwdithPoolName")]
+        [DataMember(Name = "existingContractBandwidthPoolName")]
         public string ExistingContractBandwidthPoolName { get; set; }
 
         /// <summary>
@@ -80,7 +80,7 @@ namespace Mind.Api.Models
         /// then the value of the ExistingRoutingInstanceName property must be null.
         /// </summary>
         /// <value>A boolean which when set to true indicates a new routing instance is required</value>
-        /// <examople>true</examople>
+        /// <example>true</example>
         [DataMember(Name = "createNewRoutingInstance")]
         public bool? CreateNewRoutingInstance { get; set; }
 
@@ -91,8 +91,18 @@ namespace Mind.Api.Models
                 if (!string.IsNullOrEmpty(ExistingRoutingInstanceName))
                 {
                     yield return new ValidationResult(
-                        "The 'CreateNewRoutingInstance' option cannot be used concurrently with the 'ExistingRoutingInstanceName' option." +
+                        "The 'CreateNewRoutingInstance' option cannot be used concurrently with the 'ExistingRoutingInstanceName' option. " +
                         "Either remove the 'ExistingRoutingInstanceName' property or remove the 'CreateNewRoutingInstance' property from " +
+                        "the request.");
+                }
+            }
+            if (ContractBandwidthMbps != null)
+            {
+                if (!string.IsNullOrEmpty(ExistingContractBandwidthPoolName))
+                {
+                    yield return new ValidationResult(
+                        "The 'ContractBandwidthMbps' option cannot be used concurrently with the 'ExistingContractBandwidthPoolName' option. " +
+                        "Either remove the 'ExistingContractBandwidthPoolName' property or remove the 'ContractBandwidthMbps' property from " +
                         "the request.");
                 }
             }

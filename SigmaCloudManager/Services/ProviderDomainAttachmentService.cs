@@ -84,15 +84,15 @@ namespace Mind.Services
             await _validator.ValidateChangesAsync(attachmentId, update);
             if (!_validator.IsValid) throw new ServiceValidationException();
 
-            var attachment = await GetByIDAsync(attachmentId);
+            var attachment = await GetByIDAsync(attachmentId, asTrackable: false);
 
             // Remember old routing instance ID and contract bandwidth pool ID for later removal checks
             var oldRoutingInstanceID = attachment.RoutingInstanceID;
             var oldContractBandwidthPoolID = attachment.ContractBandwidthPoolID;
 
             var director = _updateDirectorFactory(attachment);
-            await director.UpdateAsync(attachment, update);
-            UnitOfWork.AttachmentRepository.Update(attachment);
+            var updatedAttachment = await director.UpdateAsync(attachment, update);
+            UnitOfWork.AttachmentRepository.Update(updatedAttachment);
 
             // Cleanup routing instance if there are no attachment or vifs which are using it.
             if (oldRoutingInstanceID != null && oldRoutingInstanceID != attachment.RoutingInstanceID)

@@ -10,6 +10,8 @@ namespace Mind.Builders
     {
         IVifUpdateBuilder ForVif(int vifId);
         IVifUpdateBuilder WithContractBandwidth(int? contractBandwidthMbps);
+        IVifUpdateBuilder WithExistingContractBandwidthPool(string existingContractBandwidthPoolName);
+        IVifUpdateBuilder WithNewRoutingInstance(bool? newRoutingInstance);
         IVifUpdateBuilder WithExistingRoutingInstance(string existingRoutingInstanceName);
         IVifUpdateBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IVifUpdateBuilder WithIpv4(List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4AddressesAndMask);

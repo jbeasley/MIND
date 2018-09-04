@@ -129,35 +129,24 @@ namespace Mind.Api.Controllers
         }
 
         /// <summary>
-        /// Find all vifs for a given attachment
+        /// Find all provider domain vifs for a given attachment
         /// </summary>
         /// <remarks>Returns all vifs for a given attachment</remarks>
         /// <param name="attachmentId">ID of the attachment</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/tenant/attachment/{attachmentId}/vif")]
+        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs")]
         [ValidateModelState]
-        [SwaggerOperation("GetAllTenantVifsByAttachmentId")]
+        [ValidateProviderDomainAttachmentExists]
+        [SwaggerOperation("GetProviderVifsByAttachmentId")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<Vif>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetAllTenantVifsByAttachmentId([FromRoute][Required]int? attachmentId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Vif>));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Vif>\n  <vifId>123</vifId>\n  <name>aeiou</name>\n  <isLayer3>true</isLayer3>\n  <vlanTag>123</vlanTag>\n  <attachmentId>123</attachmentId>\n  <tenantId>123</tenantId>\n</Vif>";
-            exampleJson = "[ {\n  \"vlans\" : [ {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  }, {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  } ],\n  \"vlanTag\" : 6,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"name\" : \"name\",\n  \"tenantId\" : 5,\n  \"isLayer3\" : true,\n  \"attachmentId\" : 1,\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"vifId\" : 0\n}, {\n  \"vlans\" : [ {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  }, {\n    \"vlanTag\" : 2,\n    \"vlanID\" : 5\n  } ],\n  \"vlanTag\" : 6,\n  \"contractBandwidthPool\" : {\n    \"name\" : \"name\",\n    \"contractBandwidthMbps\" : 5\n  },\n  \"name\" : \"name\",\n  \"tenantId\" : 5,\n  \"isLayer3\" : true,\n  \"attachmentId\" : 1,\n  \"routingInstance\" : {\n    \"routingInstanceId\" : 0,\n    \"name\" : \"name\"\n  },\n  \"vifId\" : 0\n} ]";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<Vif>>(exampleJson)
-            : default(List<Vif>);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+        public virtual async Task<IActionResult> GetProviderDomainVifsByAttachmentId([FromRoute][Required]int? attachmentId, [FromQuery]bool? deep)
+        {
+            var vifs = await _vifService.GetAllByAttachmentIDAsync(attachmentId.Value, deep);
+            return Ok(Mapper.Map<List<Vif>>(vifs));
         }
 
         /// <summary>
@@ -220,7 +209,7 @@ namespace Mind.Api.Controllers
         { 
             try
             {
-                var item = await _vifService.GetByIDAsync(vifId.Value);
+                var item = await _vifService.GetByIDAsync(vifId.Value, asTrackable: false);
                 if (item.HasPreconditionFailed(Request))
                 {
                     return new PreconditionFailedResult();

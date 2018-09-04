@@ -65,6 +65,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IVifBuilder WithExistingContractBandwidthPool(string existingContractBandwidthPoolName)
+        {
+            if (!string.IsNullOrEmpty(existingContractBandwidthPoolName)) _args.Add(nameof(WithExistingContractBandwidthPool), existingContractBandwidthPoolName);
+            return this;
+        }
+
         public virtual IVifBuilder WithExistingRoutingInstance(string existingRoutingInstanceName)
         {
             if (!string.IsNullOrEmpty(existingRoutingInstanceName)) _args.Add(nameof(WithExistingRoutingInstance), existingRoutingInstanceName);
@@ -94,7 +100,15 @@ namespace Mind.Builders
             await SetAttachmentAsync();
             await SetTenantAsync();
             await SetVifRoleAsync();
-            if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
+            if (_args.ContainsKey(nameof(WithContractBandwidth)))
+            {
+                await CreateContractBandwidthPoolAsync();
+            }
+            else if (_args.ContainsKey(nameof(WithExistingContractBandwidthPool)))
+            {
+                AssociateExistingContractBandwidthPool();
+            }
+
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
             CreateVlans();
             await SetMtuAsync();
@@ -203,7 +217,9 @@ namespace Mind.Builders
         protected internal virtual async Task CreateContractBandwidthPoolAsync()
         {
             var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
-            var aggContractBandwidthMbps = _vif.Attachment.Vifs.Select(
+            var aggContractBandwidthMbps = _vif.Attachment.Vifs
+                .Where(vif => vif.VifID != _vif.VifID)
+                .Select(
                 vif => vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
                 .Aggregate(0, (x, y) => x + y);
 
@@ -215,8 +231,10 @@ namespace Mind.Builders
                     $"than the remaining available bandwidth of the attachment ({attachmentBandwidthMbps - aggContractBandwidthMbps} Mbps).");
             }
 
-            var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(q =>
-                                     q.BandwidthMbps == contractBandwidthMbps)
+            var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(
+                                  q =>
+                                     q.BandwidthMbps == contractBandwidthMbps, 
+                                     AsTrackable: false)
                                      select contractBandwidths)
                                     .SingleOrDefault();
 
@@ -231,6 +249,24 @@ namespace Mind.Builders
             };
 
             _vif.ContractBandwidthPool = contractBandwidthPool;
+        }
+
+        protected internal virtual void AssociateExistingContractBandwidthPool()
+        {
+            var contractBandwidthPoolName = _args[nameof(WithExistingContractBandwidthPool)].ToString();
+            var contractBandwidthPool = _vif.Attachment.Vifs
+                                                       .Select(x => x.ContractBandwidthPool)
+                                                       .Where(x => x.Name == contractBandwidthPoolName)
+                                                       .SingleOrDefault();
+
+            if (contractBandwidthPool == null)
+            {
+                throw new BuilderBadArgumentsException($"The requested association to contract bandwidth pool '{contractBandwidthPoolName}' is not valid. " +
+                    $"The contract bandwidth pool was not found. Check that the specified contract bandwidth pool name is correct and that it belongs to " +
+                    $"another vif of same attachment as the vif to be updated.");
+            }
+
+            if (_vif.ContractBandwidthPoolID == contractBandwidthPool.ContractBandwidthID);
         }
 
         protected internal virtual void SetTrustReceivedCosAndDscp()
@@ -273,7 +309,8 @@ namespace Mind.Builders
                                            .SingleOrDefault();
 
             _vif.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
-                $"instance '{routingInstanceName}' belonging to tenant '{_vif.Tenant.Name}'.");
+                $"instance '{routingInstanceName}' belonging to tenant '{_vif.Tenant.Name}'. Check that the routing instance exists and that " +
+                $"it belongs to the same provider domain device as the vif to be updated.");
 
             _vif.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }

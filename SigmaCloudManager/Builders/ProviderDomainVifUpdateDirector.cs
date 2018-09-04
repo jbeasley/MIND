@@ -19,8 +19,10 @@ namespace Mind.Builders
         public async Task<SCM.Models.Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.ProviderDomainVifUpdate update)
         {
             return await _builder.ForVif(vifId)
+                                 .WithNewRoutingInstance(update.CreateNewRoutingInstance)
                                  .WithExistingRoutingInstance(update.ExistingRoutingInstanceName)
                                  .WithContractBandwidth(update.ContractBandwidthMbps)
+                                 .WithExistingContractBandwidthPool(update.ExistingContractBandwidthPoolName)
                                  .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                  .WithIpv4(update.Ipv4Addresses)
                                  .WithJumboMtu(update.UseJumboMtu)

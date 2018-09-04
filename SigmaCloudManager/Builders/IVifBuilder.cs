@@ -15,6 +15,7 @@ namespace Mind.Builders
         IVifBuilder AutoAllocateVlanTag(bool? autoAllocateVlanTag, string vlanTagRangeName = "Default");
         IVifBuilder WithRequestedVlanTag(int? vlanTag);
         IVifBuilder WithContractBandwidth(int? contractBandwidthMbps);
+        IVifBuilder WithExistingContractBandwidthPool(string existingContractBandwidthPoolName);
         IVifBuilder WithExistingRoutingInstance(string existingRoutingInstanceName);
         IVifBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IVifBuilder WithIpv4(List<Ipv4AddressAndMask> ipv4AddressesAndMask);

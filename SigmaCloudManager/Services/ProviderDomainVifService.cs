@@ -40,32 +40,16 @@ namespace Mind.Services
             await _validator.ValidateChangesAsync(vifId, update);
             if (!_validator.IsValid) throw new ServiceValidationException();
 
-            var vif = await GetByIDAsync(vifId);
+            var vif = await GetByIDAsync(vifId, asTrackable: false);
 
             // Remember old routing instance ID and contract bandwidth pool ID for later removal checks
             var oldRoutingInstanceID = vif.RoutingInstanceID;
             var oldContractBandwidthPoolID = vif.ContractBandwidthPoolID;
 
-            var updateVif = await _updateDirector.UpdateAsync(vifId, update);
+            var updatedVif = await _updateDirector.UpdateAsync(vifId, update);
 
-            // Cleanup routing instance if there are no attachment or vifs which are using it.
-            if (oldRoutingInstanceID != null && oldRoutingInstanceID != updateVif.RoutingInstanceID)
-            {
-                var oldRoutingInstance = (from routingInstances in await UnitOfWork.RoutingInstanceRepository.GetAsync(
-                    x =>
-                        x.RoutingInstanceID == oldRoutingInstanceID,
-                        includeProperties: "Attachments,Vifs", AsTrackable: true)
-                                          select routingInstances)
-                                          .Single();
-
-                if (!oldRoutingInstance.Attachments.Any() && !oldRoutingInstance.Vifs.Any())
-                {
-                    UnitOfWork.RoutingInstanceRepository.Delete(oldRoutingInstance);
-                }
-            }
-
-            // Cleanup contract bandwidth pool if the attachment is no longer using it.
-            if (oldContractBandwidthPoolID != null && oldContractBandwidthPoolID != updateVif.ContractBandwidthPoolID)
+            // Cleanup old contract bandwidth pool is there are no attachments or vifs (other than the current vif) which are using it
+            if (oldContractBandwidthPoolID != null && oldContractBandwidthPoolID != updatedVif.ContractBandwidthPoolID)
             {
                 var oldContractBandwidthPool = (from contractBandwidthPools in await UnitOfWork.ContractBandwidthPoolRepository.GetAsync(
                         x =>
@@ -74,9 +58,26 @@ namespace Mind.Services
                                                 select contractBandwidthPools)
                                                .Single();
 
-                if (!oldContractBandwidthPool.Attachments.Any() && !oldContractBandwidthPool.Vifs.Any())
+                if (!oldContractBandwidthPool.Attachments.Any() && oldContractBandwidthPool.Vifs.Count == 1)
                 {
                     UnitOfWork.ContractBandwidthPoolRepository.Delete(oldContractBandwidthPool);
+                }
+            }
+
+            // Cleanup old routing instance if there are no attachment or vifs (other than the current vif) which are using it.
+            if (oldRoutingInstanceID != null && oldRoutingInstanceID != updatedVif.RoutingInstanceID)
+            {
+                var oldRoutingInstance = (from routingInstances in await UnitOfWork.RoutingInstanceRepository.GetAsync(
+                    x =>
+                        x.RoutingInstanceID == oldRoutingInstanceID,
+                        includeProperties: "Attachments,Vifs", 
+                        AsTrackable: true)
+                                          select routingInstances)
+                                          .Single();
+
+                if (!oldRoutingInstance.Attachments.Any() && !oldRoutingInstance.Vifs.Any())
+                {
+                    UnitOfWork.RoutingInstanceRepository.Delete(oldRoutingInstance);
                 }
             }
 

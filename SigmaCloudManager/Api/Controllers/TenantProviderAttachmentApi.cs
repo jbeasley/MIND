@@ -169,6 +169,7 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <remarks>Returns all provider domain attachments for a given tenant</remarks>
         /// <param name="tenantId">ID of the tenant</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]

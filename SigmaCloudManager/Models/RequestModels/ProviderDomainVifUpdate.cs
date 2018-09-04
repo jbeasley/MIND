@@ -19,6 +19,12 @@ namespace Mind.Models.RequestModels
     public class ProviderDomainVifUpdate
     {
         /// <summary>
+        /// Determines if the updated vif should be associated with a new routing instance.
+        /// </summary>
+        /// <value>A boolean which when set to true indicates a new routing instance is required</value>
+        public bool? CreateNewRoutingInstance { get; set; }
+
+        /// <summary>
         /// If specified, the vif should be associated with an existing routing instance
         /// of the given name. The routing instance must belong to the same tenant as the owner of the vif.
         /// </summary>

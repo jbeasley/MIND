@@ -102,6 +102,7 @@ namespace Mind.Api.Controllers
         /// Update an existing attachment set
         /// </summary>
 
+        ///<param name="tenantId"></param>
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <param name="body">attachment set update object that updates an existing attachment set</param>
         /// <response code="200">Successful operation</response>

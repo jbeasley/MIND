@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mind.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -6,7 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace SCM.Models
 {
 
-    public class Vpn
+    public class Vpn : IModifiableResource
     {
         public int VpnID { get; set; }
         [Required]
@@ -45,5 +46,6 @@ namespace SCM.Models
         public virtual ICollection<ExtranetVpnMember> ExtranetVpns { get; set; }
         [InverseProperty("ExtranetVpn")]
         public virtual ICollection<ExtranetVpnMember> ExtranetVpnMembers { get; set; }
+        string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
     }
 }

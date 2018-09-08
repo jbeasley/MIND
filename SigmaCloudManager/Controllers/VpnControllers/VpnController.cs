@@ -44,7 +44,6 @@ namespace SCM.Controllers
             MulticastVpnServiceTypeService = multicastVpnServiceTypeService;
             MulticastVpnDirectionTypeService = multicastVpnDirectionTypeService;
             RouteTargetRangeService = routeTargetRangeService;
-            VpnValidator = vpnValidator;
             this.Validator = vpnValidator;
         }
 
@@ -86,7 +85,7 @@ namespace SCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearCreatedAlerts()
         {
-            var vpns = await VpnService.GetAllAsync(created: true, showCreatedAlert: true);
+            var vpns = await VpnService.GetAllAsync(created: true, showCreatedAlert: true, asTrackable: true);
             foreach (var vpn in vpns)
             {
                 vpn.ShowCreatedAlert = false;
@@ -94,33 +93,7 @@ namespace SCM.Controllers
 
             try
             {
-                await VpnService.UpdateAsync(vpns);
-            }
-
-            catch (DbUpdateConcurrencyException /** ex **/ )
-            {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError(string.Empty, "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator.");
-            }
-
-            return RedirectToAction("GetAll");
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClearRequiresSyncAlerts()
-        {
-            var vpns = await VpnService.GetAllAsync(requiresSync: true, showRequiresSyncAlert: true);
-            foreach (var vpn in vpns)
-            {
-                vpn.ShowRequiresSyncAlert = false;
-            }
-
-            try
-            {
-                await VpnService.UpdateAsync(vpns);
+                await VpnService.UnitOfWork.SaveAsync();   
             }
 
             catch (DbUpdateConcurrencyException /** ex **/ )
@@ -173,27 +146,23 @@ namespace SCM.Controllers
             if (ModelState.IsValid)
             {
                 var request = Mapper.Map<VpnRequest>(vpnRequestModel);
-                await VpnValidator.ValidateNewAsync(request);
-                if (VpnValidator.ValidationDictionary.IsValid)
+                try
                 {
-                    try
-                    {
-                        await VpnService.AddAsync(request);
-                        return RedirectToAction("GetAll");
-                    }
+                    await VpnService.AddAsync(vpnRequestModel.TenantID, Mapper.Map<Mind.Models.RequestModels.VpnRequest>(vpnRequestModel));
+                    return RedirectToAction("GetAll");
+                }
 
-                    catch (DbUpdateException /** ex **/ )
-                    {
-                        //Log the error (uncomment ex variable name and write a log.
-                        ModelState.AddModelError("", "Unable to save changes. " +
-                            "Try again, and if the problem persists " +
-                            "see your system administrator.");
-                    }
+                catch (DbUpdateException /** ex **/ )
+                {
+                    //Log the error (uncomment ex variable name and write a log.
+                    ModelState.AddModelError("", "Unable to save changes. " +
+                        "Try again, and if the problem persists " +
+                        "see your system administrator.");
+                }
 
-                    catch (FactoryFailureException ex)
-                    {
-                        ModelState.AddModelError("", ex.Message);
-                    }
+                catch (FactoryFailureException ex)
+                {
+                    ModelState.AddModelError("", ex.Message);
                 }
             }
 
@@ -255,23 +224,10 @@ namespace SCM.Controllers
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The item was deleted by another user.");
             }
 
-            // Map changes into the VPN for update
-
-            Mapper.Map(vpnModel, updateVpn);
-
             try
             {
-                await VpnValidator.ValidateChangesAsync(updateVpn);
-                if (VpnValidator.ValidationDictionary.IsValid)
-                {
-                    // Set 'RequiresSync' property to indicate the VPN requires sync with the network
-
-                    updateVpn.RequiresSync = true;
-                    updateVpn.ShowRequiresSyncAlert = true;
-
-                    await VpnService.UpdateAsync(updateVpn);
-                    return RedirectToAction("GetAll");
-                }
+                await VpnService.UpdateAsync(updateVpn.VpnID, Mapper.Map<Mind.Models.RequestModels.VpnUpdate>(updateVpn));
+                return RedirectToAction("GetAll");
             }
 
             catch (DbUpdateConcurrencyException ex)
@@ -376,13 +332,8 @@ namespace SCM.Controllers
 
             try
             {
-                VpnValidator.ValidationDictionary.Clear();
-                VpnValidator.ValidateDelete(vpn);
-                if (VpnValidator.ValidationDictionary.IsValid)
-                {
-                    await VpnService.DeleteAsync(vpn);
-                    return RedirectToAction("GetAll");
-                }
+                await VpnService.DeleteAsync(vpnModel.VpnID);
+                return RedirectToAction("GetAll");
             }
 
             catch (DbUpdateConcurrencyException /* ex */)

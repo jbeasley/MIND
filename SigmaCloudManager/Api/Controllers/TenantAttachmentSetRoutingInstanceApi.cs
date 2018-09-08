@@ -104,7 +104,7 @@ namespace Mind.Api.Controllers
             }
         }
 
-        /// <param name="tenantId">ID of the attachment set</param>
+        /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <param name="routingInstanceId">ID of the routing instance to update</param>
         /// <param name="body">Attachmment set routing instance request object that applies updates to an existing attachment set routing instance</param>
         /// <response code="200">Successful operation</response>

@@ -41,14 +41,14 @@ namespace SCM.Controllers
         [HttpGet]
         public async Task<PartialViewResult> MemberVpns(int tenantID)
         {
-            var vpns = await VpnService.GetAllByTenantIDAsync(tenantID, isExtranet: false, includeProperties: false);
+            var vpns = await VpnService.GetAllByTenantIDAsync(tenantID, isExtranet: false);
             return PartialView(Mapper.Map<List<VpnViewModel>>(vpns));
         }
 
         [HttpGet]
         public async Task<PartialViewResult> ExtranetVpns(int tenantID)
         {
-            var vpns = await VpnService.GetAllByTenantIDAsync(tenantID, isExtranet: true, includeProperties: false);
+            var vpns = await VpnService.GetAllByTenantIDAsync(tenantID, isExtranet: true);
             return PartialView(Mapper.Map<List<VpnViewModel>>(vpns));
         }
 

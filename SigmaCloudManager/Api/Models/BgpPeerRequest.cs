@@ -75,7 +75,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// Determines the maximum number of routes the peer should accept. The default is 500
         /// </summary>
-        /// <value>A positive integer which determines the meximum number of routes accepted from the BGP peer/value>
+        /// <value>A positive integer which determines the meximum number of routes accepted from the BGP peer</value>
         /// <example>200</example>
         [DataMember(Name = "maximumRoutes")]
         [Range(1, 1000)]

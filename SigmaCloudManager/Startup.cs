@@ -281,25 +281,10 @@ namespace Mind
             builder.RegisterType<ProviderDomainVifUpdateDirector>().As<IProviderDomainVifUpdateDirector>();
             builder.RegisterType<TenantFacingVrfRoutingInstanceDirector>().As<IRoutingInstanceDirector>()
                 .Keyed<IRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
+            builder.RegisterType<IpVpnDirector>().As<IVpnDirector>().Keyed<IVpnDirector>("IpVpnDirector");
+            builder.RegisterType<IpVpnUpdateDirector>().As<IVpnUpdateDirector>().Keyed<IVpnUpdateDirector>("IpVpnUpdateDirector");
 
-            //Builders
-            builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
-            builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
-            builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
-            builder.RegisterType<VrfRoutingInstanceBuilder>().As<IVrfRoutingInstanceBuilder>();
-            builder.RegisterType<SingleAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<SingleAttachmentUpdateBuilder>>();
-            builder.RegisterType<MultiPortAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>>();
-            builder.RegisterType<BundleAttachmentUpdateBuilder>().As<IBundleAttachmentUpdateBuilder>();
-            builder.RegisterType<AttachmentSetBuilder>().As<IAttachmentSetBuilder>();
-            builder.RegisterType<AttachmentSetUpdateBuilder>().As<IAttachmentSetUpdateBuilder>();
-            builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkInBuilder>().As<IVpnTenantIpNetworkInBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkInUpdateBuilder>().As<IVpnTenantIpNetworkInUpdateBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkOutBuilder>().As<IVpnTenantIpNetworkOutBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkOutUpdateBuilder>().As<IVpnTenantIpNetworkOutUpdateBuilder>();
-            builder.RegisterType<VifBuilder>().As<IVifBuilder>();
-            builder.RegisterType<VifUpdateBuilder>().As<IVifUpdateBuilder>();
-
+            // Director Factories
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -357,6 +342,54 @@ namespace Mind
                     }
                 };
             });
+
+            builder.Register<Func<Mind.Models.RequestModels.VpnRequest, IVpnDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (request) =>
+                {
+                    if (request.AddressFamily == Models.RequestModels.AddressFamilyEnum.IPv4)
+                    {
+                        return context.ResolveKeyed<IVpnDirector>("IpVpnDirector");
+                    }
+
+                    return null;
+                };
+            });
+
+            builder.Register<Func<SCM.Models.Vpn, IVpnUpdateDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (vpn) =>
+                {
+                    if (vpn.AddressFamily.Name == "IPv4")
+                    {
+                        return context.ResolveKeyed<IVpnUpdateDirector>("IpVpnUpdateDirector");
+                    }
+
+                    return null;
+                };
+            });
+
+            //Builders
+            builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
+            builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
+            builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
+            builder.RegisterType<VrfRoutingInstanceBuilder>().As<IVrfRoutingInstanceBuilder>();
+            builder.RegisterType<SingleAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<SingleAttachmentUpdateBuilder>>();
+            builder.RegisterType<MultiPortAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>>();
+            builder.RegisterType<BundleAttachmentUpdateBuilder>().As<IBundleAttachmentUpdateBuilder>();
+            builder.RegisterType<AttachmentSetBuilder>().As<IAttachmentSetBuilder>();
+            builder.RegisterType<AttachmentSetUpdateBuilder>().As<IAttachmentSetUpdateBuilder>();
+            builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkInBuilder>().As<IVpnTenantIpNetworkInBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkInUpdateBuilder>().As<IVpnTenantIpNetworkInUpdateBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkOutBuilder>().As<IVpnTenantIpNetworkOutBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkOutUpdateBuilder>().As<IVpnTenantIpNetworkOutUpdateBuilder>();
+            builder.RegisterType<VifBuilder>().As<IVifBuilder>();
+            builder.RegisterType<VifUpdateBuilder>().As<IVifUpdateBuilder>();
+            builder.RegisterType<IpVpnBuilder>().As<IIpVpnBuilder>();
+            builder.RegisterType<IpVpnUpdateBuilder>().As<IIpVpnUpdateBuilder>();       
         }
  
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

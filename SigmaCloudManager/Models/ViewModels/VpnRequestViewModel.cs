@@ -27,7 +27,8 @@ namespace SCM.Models.ViewModels
         [Required(ErrorMessage = "A Tenant must be selected.")]
         public int TenantID { get; set; }
         public int? PlaneID { get; set; }
-        public int? AddressFamilyID { get; set; }
+        [Required(ErrorMessage = "An Address Family must be selected.")]
+        public int AddressFamilyID { get; set; }
         public int? RegionID { get; set; }
         public int? RouteTargetRangeID { get; set; }
         [Display(Name = "Requires Sync")]

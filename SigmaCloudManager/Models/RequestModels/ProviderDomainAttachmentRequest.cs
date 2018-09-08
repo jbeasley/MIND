@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Mind.Models.RequestModels;
 
 namespace SCM.Models.RequestModels
 { 
@@ -44,45 +45,25 @@ namespace SCM.Models.RequestModels
         /// The name of a provider network location within which the new attachment will be provisioned
         /// </summary>
         /// <value>The name of a provider network location within which the new attachment will be provisioned</value>
-        [Required]
         public string LocationName { get; set; }
 
         /// <summary>
         /// The name of a port pool which ports for the new attachment will be allocated from
         /// </summary>
         /// <value>The name of a port pool</value>
-        [Required]
         public string PortPoolName { get; set; }
 
         /// <summary>
         /// The name of an attachment role which sets certain constrains on how the attachment must be configuted
         /// </summary>
         /// <value>The name of an attachment role</value>
-        [Required]
         public string AttachmentRoleName { get; set; }
 
         /// <summary>
         /// Optional name of the provider network plane within which the attachment will be provisioned
         /// </summary>
         /// <value>Optional name of the provider network plane within which the attachment will be provisioned</value>
-        public enum PlaneNameEnum
-        { 
-            /// <summary>
-            /// Enum member for the Red plane
-            /// </summary>
-            Red = 1,
-            
-            /// <summary>
-            /// Enum member for the Blue plane
-            /// </summary>
-            Blue = 2
-        }
-
-        /// <summary>
-        /// Optional name of the provider network plane within which the attachment will be provisioned
-        /// </summary>
-        /// <value>Optional name of the provider network plane within which the attachment will be provisioned</value>
-        public PlaneNameEnum? PlaneName { get; set; }
+        public PlaneEnum? PlaneName { get; set; }
 
         /// <summary>
         /// The required bandwidth of the attachment in Gbps

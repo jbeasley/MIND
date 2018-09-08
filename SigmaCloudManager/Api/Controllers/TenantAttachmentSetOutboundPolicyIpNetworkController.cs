@@ -194,6 +194,7 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <remarks>Returns a list of vpn tenant IP network objects</remarks>
         /// <param name="attachmentSetId">ID of the attachment set</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]

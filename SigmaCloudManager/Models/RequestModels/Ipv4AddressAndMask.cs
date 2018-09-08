@@ -15,12 +15,12 @@ namespace SCM.Models.RequestModels
     /// <summary>
     /// Model for IPv4 address and subnet mask
     /// </summary>
-    public partial class Ipv4AddressAndMask
+    public class Ipv4AddressAndMask
     {
         /// <summary>
         /// IPv4 address
         /// </summary>
-        /// <value>String denoting an IPv4 address/value>
+        /// <value>String denoting an IPv4 address</value>
         public string IpAddress { get; set; }
 
         /// <summary>

@@ -115,9 +115,9 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Returns true if TenantIpv4Network instances are equal
+        /// Returns true if TenantIpNetwork instances are equal
         /// </summary>
-        /// <param name="other">Instance of TenantIpv4Network to be compared</param>
+        /// <param name="other">Instance of TenantIpNetwork to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(TenantIpNetwork other)
         {

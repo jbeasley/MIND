@@ -333,7 +333,7 @@ namespace SCM.Controllers
         /// <summary>
         /// Helper to populate the drop-down lists for the view.
         /// </summary>
-        /// <param name="attachmentSet"></param>
+        /// <param name="regionID"></param>
         /// <returns></returns>
         private async Task PopulateDropDownLists(int regionID)
         {

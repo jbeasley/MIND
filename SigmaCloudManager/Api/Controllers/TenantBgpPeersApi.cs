@@ -176,6 +176,7 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <remarks>Returns all BGP peers for a given routing instance</remarks>
         /// <param name="routingInstanceId">ID of the routing instance</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]

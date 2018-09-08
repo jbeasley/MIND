@@ -28,30 +28,6 @@ namespace Mind.Api.Models
     public partial class AttachmentSetRequest : IEquatable<AttachmentSetRequest>
     {
         /// <summary>
-        /// Enumeration of major geographic regions
-        /// </summary>
-        public enum RegionEnum
-        {
-            /// <summary>
-            /// Enum for EMEA
-            /// </summary>
-            [EnumMember(Value = "EMEA")]
-            EMEA = 1,
-
-            /// <summary>
-            /// Enum for ASIAPAC
-            /// </summary>
-            [EnumMember(Value = "ASIAPAC")]
-            ASIAPAC = 2,
-
-            /// <summary>
-            /// Enum for AMERS
-            /// </summary>
-            [EnumMember(Value = "AMERS")]
-            AMERS = 3
-        }
-
-        /// <summary>
         /// The major geographic region within which the attachment set operates
         /// </summary>
         /// <value>An enum member denoting the region within which the attachment set operates</value>
@@ -66,36 +42,6 @@ namespace Mind.Api.Models
         /// <example>UK</example>
         [DataMember(Name="subRegion")]
         public string SubRegion { get; set; }
-
-        /// <summary>
-        /// Enumeration of attachment redundancy level options
-        /// </summary>
-        public enum AttachmentRedundancyEnum
-        { 
-            /// <summary>
-            /// Enum for Bronze
-            /// </summary>
-            [EnumMember(Value = "Bronze")]
-            Bronze = 1,
-            
-            /// <summary>
-            /// Enum for Silver
-            /// </summary>
-            [EnumMember(Value = "Silver")]
-            Silver = 2,
-            
-            /// <summary>
-            /// Enum for Gold
-            /// </summary>
-            [EnumMember(Value = "Gold")]
-            Gold = 3,
-            
-            /// <summary>
-            /// Enum for Custom
-            /// </summary>
-            [EnumMember(Value = "Custom")]
-            Custom = 4
-        }
 
         /// <summary>
         /// Determines the attachment redundancy level supported by the attachment set
@@ -121,30 +67,6 @@ namespace Mind.Api.Models
         /// <value>A list of RoutingInstanceForAttachmentSetRequest objects</value>
         [DataMember(Name="routingInstances")]
         public List<RoutingInstanceForAttachmentSetRequest> RoutingInstances { get; set; }
-
-        /// <summary>
-        /// Enumeration of multicast domain types supported by the attachment set
-        /// </summary>
-        public enum MulticastVpnDomainTypeEnum
-        {
-            /// <summary>
-            /// Enum for Sender-Only
-            /// </summary>
-            [EnumMember(Value = "Sender-Only")]
-            SenderOnly = 1,
-
-            /// <summary>
-            /// Enum for Receiver-Only
-            /// </summary>
-            [EnumMember(Value = "Receiver-Only")]
-            ReceiverOnly = 2,
-
-            /// <summary>
-            /// Enum for Sender-and-Receiver
-            /// </summary>
-            [EnumMember(Value = "Sender-and-Receiver")]
-            SenderAndReceiver = 3
-        }
 
         /// <summary>
         /// Determines the multicast domain type supported by the attachment set

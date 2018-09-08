@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Services;
 using SCM.Models;
+using Mind.Services;
 
 namespace SCM.Validators
 
@@ -26,7 +27,7 @@ namespace SCM.Validators
         /// Validate deletion of a Tenant. The Tenant cannot be deleted if either Attachment 
         /// or VPNs are allocated to the Tenant.
         /// </summary>
-        /// <param name="tenant"></param>
+        /// <param name="tenantId"></param>
         public async Task ValidateDeleteAsync(int tenantId)
         {
             var attachments = await _tenantAttachmentService.GetAllByTenantIDAsync(tenantId, includeProperties: false);
@@ -35,7 +36,7 @@ namespace SCM.Validators
                 ValidationDictionary.AddError(string.Empty, $"The tenant cannot be deleted because Attachments are allocated.");
             }
 
-            var vpns = await _vpnService.GetAllByTenantIDAsync(tenantId, includeProperties: false);
+            var vpns = await _vpnService.GetAllByTenantIDAsync(tenantId);
             if (vpns.Any())
             {
                 ValidationDictionary.AddError(string.Empty, $"Tenant cannot be deleted because VPNs are allocated.");

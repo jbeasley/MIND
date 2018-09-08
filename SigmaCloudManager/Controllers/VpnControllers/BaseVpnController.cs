@@ -18,16 +18,14 @@ namespace SCM.Controllers
     {
         public BaseVpnController(IVpnService vpnService,
             IAttachmentSetService attachmentSetService,
-            IMapper mapper)
+            IMapper mapper) : base(vpnService, mapper)
         {
             VpnService = vpnService;
             AttachmentSetService = attachmentSetService;
-            Mapper = mapper;
         }
 
         internal IVpnService VpnService { get; set; }
         internal IAttachmentSetService AttachmentSetService { get; set; }
-        internal IMapper Mapper { get; set; }
 
         [HttpGet]
         public async Task<IActionResult> Details(int? id, int? attachmentSetID)

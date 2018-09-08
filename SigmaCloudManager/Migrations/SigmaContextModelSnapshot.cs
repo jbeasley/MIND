@@ -1154,6 +1154,8 @@ namespace SigmaCloudManager.Migrations
                     b.Property<string>("Name")
                         .IsRequired();
 
+                    b.Property<int>("Range");
+
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();

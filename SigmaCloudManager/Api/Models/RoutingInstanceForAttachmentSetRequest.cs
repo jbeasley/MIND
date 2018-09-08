@@ -40,7 +40,7 @@ namespace Mind.Api.Models
         /// Default local preference applied to IPv4 and IPv6 routes within the routing instance. By default a value of
         /// 100 is applied to the local ip routing preference property
         /// </summary>
-        /// <value>Integer value denoting the local IP routing prefernece/value>
+        /// <value>Integer value denoting the local IP routing prefernece</value>
         /// <example>200</example>
         [DataMember(Name = "localIpRoutingPreference")]
         [Range(1, 500, ErrorMessage = "Local IP routing preference must be a number between 1 and 500")]

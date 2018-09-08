@@ -36,7 +36,6 @@ namespace Mind.Api.Models
         public int? BgpPeerId { get; private set; }
 
         /// <summary>
-        /// <summary>
         /// IPv4 address of the BGP peer
         /// </summary>
         /// <value>An IPv4 address</value>

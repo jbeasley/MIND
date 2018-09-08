@@ -36,66 +36,12 @@ namespace Mind.Api.Models
         public string SubRegion { get; set; }
 
         /// <summary>
-        /// Enumeration of attachment redundancy levels
-        /// </summary>
-        public enum AttachmentRedundancyEnum
-        { 
-            /// <summary>
-            /// Enum for Bronze
-            /// </summary>
-            [EnumMember(Value = "Bronze")]
-            Bronze = 1,
-            
-            /// <summary>
-            /// Enum for Silver
-            /// </summary>
-            [EnumMember(Value = "Silver")]
-            Silver = 2,
-            
-            /// <summary>
-            /// Enum for Gold
-            /// </summary>
-            [EnumMember(Value = "Gold")]
-            Gold = 3,
-            
-            /// <summary>
-            /// Enum for Custom
-            /// </summary>
-            [EnumMember(Value = "Custom")]
-            Custom = 4
-        }
-
-        /// <summary>
         /// Determines the ttachment redundancy level supported by the attachment set
         /// </summary>
         /// <value>An enum member for the attachment redundancy supported by the attachment set</value>
         /// <example>Silver</example>
         [DataMember(Name="attachmentRedundancy")]
         public AttachmentRedundancyEnum? AttachmentRedundancy { get; set; }
-
-        /// <summary>
-        /// Enumeration of multicast domain types
-        /// </summary>
-        public enum MulticastVpnDomainTypeEnum
-        {
-            /// <summary>
-            /// Enum for Sender-Only
-            /// </summary>
-            [EnumMember(Value = "Sender-Only")]
-            SenderOnly = 1,
-
-            /// <summary>
-            /// Enum for Receiver-Only
-            /// </summary>
-            [EnumMember(Value = "Receiver-Only")]
-            ReceiverOnly = 2,
-
-            /// <summary>
-            /// Enum for Sender-and-Receiver
-            /// </summary>
-            [EnumMember(Value = "Sender-and-Receiver")]
-            SenderAndReceiver = 3
-        }
 
         /// <summary>
         /// Determines the multicast domain type supported by the attachment set

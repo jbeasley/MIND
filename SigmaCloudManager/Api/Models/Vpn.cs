@@ -26,62 +26,120 @@ namespace Mind.Api.Models
     /// </summary>
     [DataContract]
     public partial class Vpn : IEquatable<Vpn>
-    { 
+    {
+        /// <summary>
+        /// The ID of the VPN
+        /// </summary>
+        /// <value>Integer value denoting the ID of the vpn</value>
+        /// <example>12001</example>
+        [DataMember(Name = "vpnId")]
+        public int? VpnId { get; set; }
+
         /// <summary>
         /// The name of the VPN
         /// </summary>
-        /// <value>The name of the VPN</value>
+        /// <value>String value denoting the name of the vpn</value>
+        /// <example>cloud-connectivity-vpn</example>
         [DataMember(Name="name")]
         public string Name { get; set; }
 
         /// <summary>
-        /// A description of the VPN
+        /// A description of the vpn
         /// </summary>
-        /// <value>A description of the VPN</value>
+        /// <value>String value denoting the description of the vpn</value>
+        /// <example>vpn for providing IP connectivity between hosts running in public and private clouds</example>
         [DataMember(Name="description")]
         public string Description { get; set; }
 
         /// <summary>
-        /// The geographical region which the VPN operates within.
+        /// The geographical region which the vpn operates within.
         /// </summary>
-        /// <value>The geographical region which the VPN operates within.</value>
+        /// <value>String value denoting the geographical region which the vpn operates within.</value>
+        /// <example>EMEA</example>
         [DataMember(Name="region")]
         public string Region { get; set; }
 
         /// <summary>
-        /// The provider plane which the VPN operates within.
+        /// The provider plane which the vpn operates within.
         /// </summary>
-        /// <value>The provider plane which the VPN operates within.</value>
+        /// <value>String value denoting the provider plane which the vpn operates within.</value>
+        /// <example>red</example>
         [DataMember(Name="plane")]
         public string Plane { get; set; }
 
         /// <summary>
-        /// The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.
+        /// The tenancy type of the vpn. If the tenancy type is 'single' then only the owner of the VPN can participate in the vpn. 
+        /// If the tenancy type is 'multi' then any tenant can participate in the vpn.
         /// </summary>
-        /// <value>The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.</value>
+        /// <value>String value denoting the tenancy type of the vpn.</value>
+        /// <example>single</example>
         [DataMember(Name="tenancyType")]
         public string TenancyType { get; set; }
 
         /// <summary>
-        /// The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. 
+        /// The topology type of the vpn. A meshed vpn allows any endpoint to communicate with any other endpoint. 
+        /// A hub-and-spoke vpn allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. 
         /// </summary>
-        /// <value>The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. </value>
+        /// <value>String value denoting the topology type of the vpn.</value>
+        /// <example>meshed</example>
         [DataMember(Name="topologyType")]
         public string TopologyType { get; set; }
 
         /// <summary>
-        /// The address family of the VPN.
+        /// The address family of the vpn.
         /// </summary>
-        /// <value>The address family of the VPN.</value>
+        /// <value>String valude dneoting the address family of the vpn.</value>
+        /// <example>ipv4</example>
         [DataMember(Name="addressFamily")]
         public string AddressFamily { get; set; }
 
         /// <summary>
-        /// Determines if the VPN is launched as a standard Nova implemented VPN. If this option is disabled the VPN may be customised.
+        /// Denotes whether the vpn conforms to the Nova standard. If this attribute is set to disabled then the VPN does not follow a standard 
+        /// Nova implementation and may be customised.
         /// </summary>
-        /// <value>Determines if the VPN is launched as a standard Nova implemented VPN. If this option is disabled the VPN may be customised.</value>
+        /// <value>Boolean value denoting the vpn as Nova standard compliant.</value>
+        /// <example>true</example>
         [DataMember(Name="isNovaVpn")]
         public bool? IsNovaVpn { get; set; }
+
+        /// <summary>
+        /// Denotes if the vpn supports extranet connectivity
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports extranet</value>
+        /// <example>true</example>
+        [DataMember(Name = "isExtranet")]
+        public bool? IsExtranet { get; set; }
+
+        /// <summary>
+        /// Denotes if the VPN supports IP multicast
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports IP multicast.</value>
+        /// <example>true</example>
+        [DataMember(Name = "isMulticastVpn")]
+        public bool? IsMulticastVpn { get; set; }
+
+        /// <summary>
+        /// The multicast service type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast service type of the vpn.</value>
+        /// <example>ssm</example>
+        [DataMember(Name = "multicastVpnServiceType")]
+        public string MulticastVpnServiceType { get; set; }
+
+        /// <summary>
+        /// The multicast direction type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast direction type of the vpn.</value>
+        /// <example>unidirectional</example>
+        [DataMember(Name = "multicastVpnDirectionType")]
+        public string MulticastVpnDirectionType { get; set; }
+
+        /// <summary>
+        /// Route targets assigned to the vpn
+        /// </summary>
+        /// <value>A list of RouteTarget objects</value>
+        [DataMember(Name = "routeTargets")]
+        public List<RouteTarget> RouteTargets { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -91,6 +149,7 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class Vpn {\n");
+            sb.Append("  VpnId: ").Append(VpnId).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  Region: ").Append(Region).Append("\n");
@@ -99,6 +158,11 @@ namespace Mind.Api.Models
             sb.Append("  TopologyType: ").Append(TopologyType).Append("\n");
             sb.Append("  AddressFamily: ").Append(AddressFamily).Append("\n");
             sb.Append("  IsNovaVpn: ").Append(IsNovaVpn).Append("\n");
+            sb.Append("  IsExtranet: ").Append(IsExtranet).Append("\n");
+            sb.Append("  IsMulticastVpn: ").Append(IsMulticastVpn).Append("\n");
+            sb.Append("  MulticastVpnServiceType: ").Append(MulticastVpnServiceType).Append("\n");
+            sb.Append("  MulticastVpnDirectionType: ").Append(MulticastVpnDirectionType).Append("\n");
+            sb.Append("  RouteTargets: ").Append(RouteTargets).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -134,46 +198,76 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
+                (
+                    VpnId == other.VpnId ||
+                    VpnId != null &&
+                    VpnId.Equals(other.VpnId)
+                ) &&
                 (
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
-                ) && 
+                ) &&
                 (
                     Description == other.Description ||
                     Description != null &&
                     Description.Equals(other.Description)
-                ) && 
+                ) &&
                 (
                     Region == other.Region ||
                     Region != null &&
                     Region.Equals(other.Region)
-                ) && 
+                ) &&
                 (
                     Plane == other.Plane ||
                     Plane != null &&
                     Plane.Equals(other.Plane)
-                ) && 
+                ) &&
                 (
                     TenancyType == other.TenancyType ||
                     TenancyType != null &&
                     TenancyType.Equals(other.TenancyType)
-                ) && 
+                ) &&
                 (
                     TopologyType == other.TopologyType ||
                     TopologyType != null &&
                     TopologyType.Equals(other.TopologyType)
-                ) && 
+                ) &&
                 (
                     AddressFamily == other.AddressFamily ||
                     AddressFamily != null &&
                     AddressFamily.Equals(other.AddressFamily)
-                ) && 
+                ) &&
                 (
                     IsNovaVpn == other.IsNovaVpn ||
                     IsNovaVpn != null &&
                     IsNovaVpn.Equals(other.IsNovaVpn)
+                ) &&
+                (
+                    IsExtranet == other.IsExtranet ||
+                    IsExtranet != null &&
+                    IsExtranet.Equals(other.IsExtranet)
+                ) &&
+                (
+                    IsMulticastVpn == other.IsMulticastVpn ||
+                    IsMulticastVpn != null &&
+                    IsMulticastVpn.Equals(other.IsMulticastVpn)
+                ) &&
+                (
+                    MulticastVpnServiceType == other.MulticastVpnServiceType ||
+                    MulticastVpnServiceType != null &&
+                    MulticastVpnServiceType.Equals(other.MulticastVpnServiceType)
+                ) &&
+                (
+                    MulticastVpnDirectionType == other.MulticastVpnDirectionType ||
+                    MulticastVpnDirectionType != null &&
+                    MulticastVpnDirectionType.Equals(other.MulticastVpnDirectionType)
+                ) &&
+                (
+                    RouteTargets == other.RouteTargets ||
+                    RouteTargets != null &&
+                    RouteTargets.Equals(other.RouteTargets)
                 );
         }
 
@@ -187,6 +281,8 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (VpnId != null)
+                    hashCode = hashCode * 59 + VpnId.GetHashCode();
                     if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)
@@ -203,6 +299,16 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AddressFamily.GetHashCode();
                     if (IsNovaVpn != null)
                     hashCode = hashCode * 59 + IsNovaVpn.GetHashCode();
+                    if (IsExtranet != null)
+                    hashCode = hashCode * 59 + IsExtranet.GetHashCode();
+                    if (IsMulticastVpn != null)
+                    hashCode = hashCode * 59 + IsMulticastVpn.GetHashCode();
+                    if (MulticastVpnServiceType != null)
+                    hashCode = hashCode * 59 + MulticastVpnServiceType.GetHashCode();
+                    if (MulticastVpnDirectionType != null)
+                    hashCode = hashCode * 59 + MulticastVpnDirectionType.GetHashCode();
+                    if (RouteTargets != null)
+                    hashCode = hashCode * 59 + RouteTargets.GetHashCode();
                 return hashCode;
             }
         }

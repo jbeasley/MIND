@@ -571,8 +571,8 @@ namespace SCM.Data
 
             var vpnTopologyTypes = new[]
             {
-                new VpnTopologyType { TopologyType = TopologyTypeEnum.AnytoAny,
-                    Name = "Any-to-Any",
+                new VpnTopologyType { TopologyType = TopologyTypeEnum.Meshed,
+                    Name = "Meshed",
                     VpnProtocolTypeID = vpnProtocolTypes.Single(v => v.ProtocolType == ProtocolTypeEnum.IP).VpnProtocolTypeID },
                 new VpnTopologyType { TopologyType = TopologyTypeEnum.HubandSpoke,
                     Name = "Hub-and-Spoke",
@@ -890,6 +890,7 @@ namespace SCM.Data
 
             var defaultRtRange = new RouteTargetRange()
             {
+                Range = RouteTargetRangeEnum.Default,
                 Name = "Default",
                 AdministratorSubField = 8718,
                 AssignedNumberSubFieldStart = 1,
@@ -904,6 +905,7 @@ namespace SCM.Data
 
             var sigmaRtRange = new RouteTargetRange()
             {
+                Range = RouteTargetRangeEnum.Sigma,
                 Name = "Sigma",
                 AdministratorSubField = 8718,
                 AssignedNumberSubFieldStart = 1000001,

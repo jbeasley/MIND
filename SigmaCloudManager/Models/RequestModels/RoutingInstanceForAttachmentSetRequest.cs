@@ -8,7 +8,7 @@ namespace Mind.Models.RequestModels
     /// <summary>
     /// Model for requesting a routing instance to be added to an attachment set
     /// </summary>
-    public partial class RoutingInstanceForAttachmentSetRequest
+    public class RoutingInstanceForAttachmentSetRequest
     {
         /// <summary>
         /// Name of a routing instance

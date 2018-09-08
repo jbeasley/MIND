@@ -7,20 +7,15 @@ using SCM.Factories;
 using SCM.Data;
 using SCM.Models;
 using SCM.Models.RequestModels;
+using Mind.Builders;
+using SCM.Validators;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
     public class VpnService : BaseService, IVpnService
     {
-        public VpnService(IUnitOfWork unitOfWork,
-            IMapper mapper,
-            IVpnFactory vpnFactory) : base(unitOfWork, mapper)
-        {
-            VpnFactory = vpnFactory;
-        }
-
-        private IVpnFactory VpnFactory { get; }
-        private string Properties { get; } = "Region,"
+        private readonly string _properties = "Region,"
                 + "Plane,"
                 + "VpnTenancyType,"
                 + "MulticastVpnServiceType,"
@@ -36,25 +31,38 @@ namespace SCM.Services
                 + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Vifs.Tenant,"
                 + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Tenant,"
                 + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.BgpPeers,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksIn.TenantIpNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksIn.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesIn.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksIn.TenantIpNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksIn.VpnTenantNetworkCommunitiesIn.TenantCommunity,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksIn.TenantIpNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksIn.VpnTenantIpNetworkCommunitiesIn.TenantCommunity,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesIn.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksOut.TenantIpNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksOut.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesOut.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworksRoutingInstance.TenantIpNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksRoutingInstance.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunity,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunitySet.RoutingPolicyMatchOption,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunitySet.TenantCommunitySetCommunities.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
+                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
                 + "VpnAttachmentSets.AttachmentSet.Tenant,"
                 + "VpnAttachmentSets.AttachmentSet.MulticastVpnRps.VpnTenantMulticastGroups.TenantMulticastGroup,"
                 + "VpnAttachmentSets.AttachmentSet.VpnTenantMulticastGroups.TenantMulticastGroup,"
                 + "VpnAttachmentSets.AttachmentSet.MulticastVpnDomainType,"
                 + "RouteTargets.RouteTargetRange,"
                 + "AddressFamily";
+
+        private readonly Func<Mind.Models.RequestModels.VpnRequest, IVpnDirector> _directorFactory;
+        private readonly Func<Vpn, IVpnUpdateDirector> _updateDirectorFactory;
+        private readonly IVpnValidator _validator;
+
+        public VpnService(IUnitOfWork unitOfWork, IMapper mapper, Func<Mind.Models.RequestModels.VpnRequest, IVpnDirector> directorFactory,
+            Func<Vpn, IVpnUpdateDirector> updateDirectorFactory,
+            IVpnValidator validator) : base(unitOfWork, mapper, validator)
+        {
+            _directorFactory = directorFactory;
+            _updateDirectorFactory = updateDirectorFactory;
+            _validator = validator;
+        }
 
         /// <summary>
         /// Handler for ordering of VPN records. Records are sorted according to 
@@ -99,412 +107,159 @@ namespace SCM.Services
         }
 
         /// <summary>
-        /// Return all VPNs.
+        /// Return all vpns
         /// </summary>
-        /// <param name="includeProperties"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="created"></param>
+        /// <param name="deep"></param>
+        /// <param name="isExtranet"></param>
+        /// <param name="searchString"></param>
+        /// <param name="showCreatedAlert"></param>
+        /// <param name="sortKey"></param>
         /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllAsync(bool? isExtranet = null, 
-            bool? requiresSync = null, bool? created = null, bool? showRequiresSyncAlert = null, bool? showCreatedAlert = null, 
-            string searchString = "", bool includeProperties = true, string sortKey = "")
+        public async Task<IEnumerable<Vpn>> GetAllAsync(bool? isExtranet = null, bool? created = null, bool? showCreatedAlert = null,
+           bool? deep = false, bool asTrackable = false, string sortKey = "", string searchString = "")
         {
-            var p = includeProperties ? Properties : string.Empty;
             var orderBy = OrderBy(sortKey);
+            var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(
+                        includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                        AsTrackable: asTrackable,
+                        orderBy: orderBy)
+                        select vpns;
 
-            var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(includeProperties: p,
+            if (!string.IsNullOrEmpty(searchString)) query = query.Where(x => x.Name.Contains(searchString));
+            if (isExtranet.HasValue) query = query.Where(x => x.IsExtranet = isExtranet.Value);
+            if (created.HasValue) query = query.Where(x => x.Created = created.Value);
+            if (showCreatedAlert.HasValue) query = query.Where(x => x.ShowCreatedAlert);
+
+            return query.ToList();
+        }
+
+        /// <summary>
+        /// Return a single vpn.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="deep"></param>
+        /// <returns></returns>
+        public async Task<Vpn> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
+        {
+            return (from result in await this.UnitOfWork.VpnRepository.GetAsync(
+                q =>
+                    q.VpnID == id,
+                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    AsTrackable: asTrackable)
+                    select result)
+                    .SingleOrDefault();
+        }
+
+        /// <summary>
+        /// Return all vpns which are associated with a given attachment set.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="created"></param>
+        /// <param name="deep"></param>
+        /// <param name="isExtranet"></param>
+        /// <param name="searchString"></param>
+        /// <param name="showCreatedAlert"></param>
+        /// <param name="sortKey"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Vpn>> GetAllByAttachmentSetIDAsync(int id, bool? isExtranet = null, bool? created = null, bool? showCreatedAlert = null,
+           bool? deep = false, bool asTrackable = false, string sortKey = "", string searchString = "")
+        {
+            var orderBy = OrderBy(sortKey);
+            var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(
+                    q =>
+                        q.VpnAttachmentSets
+                        .Where(r => r.AttachmentSetID == id)
+                        .Any(),
+                        includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                        AsTrackable: asTrackable,
+                        orderBy: orderBy)
+                        select vpns;
+
+            if (!string.IsNullOrEmpty(searchString)) query = query.Where(x => x.Name.Contains(searchString));
+            if (isExtranet.HasValue) query = query.Where(x => x.IsExtranet = isExtranet.Value);
+            if (created.HasValue) query = query.Where(x => x.Created = created.Value);
+            if (showCreatedAlert.HasValue) query = query.Where(x => x.ShowCreatedAlert);
+
+            return query.ToList();
+        }
+
+        /// <summary>
+        /// Return all vpns for a given tenant.
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="created"></param>
+        /// <param name="deep"></param>
+        /// <param name="isExtranet"></param>
+        /// <param name="searchString"></param>
+        /// <param name="showCreatedAlert"></param>
+        /// <param name="sortKey"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<Vpn>> GetAllByTenantIDAsync(int id, bool? isExtranet = null, bool? created = null, bool? showCreatedAlert = null,
+           bool? deep = false, bool asTrackable = false, string sortKey = "", string searchString = "")
+        {
+            var orderBy = OrderBy(sortKey);
+            var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(
+                q => 
+                    q.TenantID == id,
+                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
                     AsTrackable: false,
                     orderBy: orderBy)
                         select vpns;
 
-            if (!string.IsNullOrEmpty(searchString))
-            {
-                query = query.Where(x => x.Name.Contains(searchString));
-            }
-
-            if (isExtranet != null)
-            {
-                query = query.Where(x => x.IsExtranet = isExtranet.Value);
-            }
-
-            if (requiresSync != null)
-            {
-                query = query.Where(x => x.RequiresSync);
-            }
-
-            if (created != null)
-            {
-                query = query.Where(x => x.Created);
-            }
-
-            if (showRequiresSyncAlert != null)
-            {
-                query = query.Where(x => x.ShowRequiresSyncAlert);
-            }
-
-            if (showCreatedAlert != null)
-            {
-                query = query.Where(x => x.ShowCreatedAlert);
-            }
-
-            return query.ToList();
-        }
-
-        /// <summary>
-        /// Return a single VPN.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="includeProperties"></param>
-        /// <returns></returns>
-        public async Task<Vpn> GetByIDAsync(int id, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnID == id, 
-                includeProperties: p,
-                AsTrackable: false);
-
-            return dbResult.SingleOrDefault();
-        }
-
-        /// <summary>
-        /// Return all VPNs which are associated with a given VRF.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="includeProperties"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllByRoutingInstanceIDAsync(int id, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                    .SelectMany(r => r.AttachmentSet.AttachmentSetRoutingInstances)
-                    .Where(s => s.RoutingInstanceID == id)
-                    .Any(),
-                includeProperties: p,
-                AsTrackable: false);
-
-            return dbResult.GroupBy(q => q.VpnID).Select(r => r.First());
-        }
-
-        /// <summary>
-        /// Return all VPNs which are associated with a given Attachment Set.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="includeProperties"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllByAttachmentSetIDAsync(int id, bool? requiresSync = null, bool? created = null, 
-            bool? showRequiresSyncAlert = null, bool? showCreatedAlert = null,bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                    .Where(r => r.AttachmentSetID == id)
-                    .Any(),
-                includeProperties: p,
-                AsTrackable: false)
-                        select vpns;
-
-            if (requiresSync != null)
-            {
-                query = query.Where(x => x.RequiresSync);
-            }
-
-            if (created != null)
-            {
-                query = query.Where(x => x.Created);
-            }
-
-            if (showRequiresSyncAlert != null)
-            {
-                query = query.Where(x => x.ShowRequiresSyncAlert);
-            }
-
-            if (showCreatedAlert != null)
-            {
-                query = query.Where(x => x.ShowCreatedAlert);
-            }
-
-            return query.ToList();
-        }
-
-        /// <summary>
-        /// Return all VPNs for a given Tenant Network.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="includeProperties"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllByTenantIpNetworkIDAsync(int id, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            var tasks = new List<Task<IList<Vpn>>> {
-                this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantIpNetworksIn)
-                                                        .Select(y => y.TenantIpNetwork)
-                                                        .Where(x => x.TenantIpNetworkID == id)
-                                                        .Any(), includeProperties: p, AsTrackable: false),
-
-                this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantIpNetworksOut)
-                                                        .Select(y => y.TenantIpNetwork)
-                                                        .Where(x => x.TenantIpNetworkID == id)
-                                                        .Any(), includeProperties: p, AsTrackable: false),
-
-                this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantIpNetworksRoutingInstance)
-                                                        .Select(y => y.TenantIpNetwork)
-                                                        .Where(x => x.TenantIpNetworkID == id)
-                                                        .Any(), includeProperties: p, AsTrackable: false),
-
-                this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantIpNetworkStaticRoutesRoutingInstance)
-                                                        .Select(y => y.TenantIpNetwork)
-                                                        .Where(x => x.TenantIpNetworkID == id)
-                                                        .Any(), includeProperties: p, AsTrackable: false)
-            };
-            var results = new List<Vpn>();
-
-            while (tasks.Count() > 0)
-            {
-                Task<IList<Vpn>> task = await Task.WhenAny(tasks);
-                results.AddRange(task.Result);
-                tasks.Remove(task);
-            }
-
-            await Task.WhenAll(tasks);
-
-            return results.GroupBy(q => q.VpnID).Select(r => r.First());
-        }
-
-        /// <summary>
-        /// Return all VPNs for a given Tenant Community.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="includeProperties"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllByTenantCommunityIDAsync(int id, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            
-            var tasks = new List<Task<IList<Vpn>>> {
-                this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantCommunitiesIn)
-                                                        .Select(y => y.TenantCommunity)
-                                                        .Where(x => x.TenantCommunityID == id)
-                                                        .Any(), includeProperties: p, AsTrackable: false),
-
-                this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantCommunitiesOut)
-                                                        .Select(y => y.TenantCommunity)
-                                                        .Where(x => x.TenantCommunityID == id)
-                                                        .Any(), includeProperties: p, AsTrackable: false),
-
-                this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantCommunitiesRoutingInstance)
-                                                        .Where(x => x.TenantCommunity != null)
-                                                        .Select(x => x.TenantCommunity)
-                                                        .Where(x => x.TenantCommunityID == id)
-                                                        .Any(), includeProperties: p, AsTrackable: false),
-
-                this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                                                        .Select(x => x.AttachmentSet)
-                                                        .SelectMany(x => x.VpnTenantCommunitiesRoutingInstance)
-                                                        .SelectMany(x => x.TenantCommunitySet.TenantCommunitySetCommunities)
-                                                        .Where(x => x.TenantCommunitySet != null)
-                                                        .Select(x => x.TenantCommunity)
-                                                        .Where(x => x.TenantCommunityID == id)
-                                                        .Any(), includeProperties: p, AsTrackable: false)
-            };
-
-            var results = new List<Vpn>();
-
-            while (tasks.Count() > 0)
-            {
-                Task<IList<Vpn>> task = await Task.WhenAny(tasks);
-                results.AddRange(task.Result);
-                tasks.Remove(task);
-            }
-
-            await Task.WhenAll(tasks);
-
-            return results.GroupBy(q => q.VpnID).Select(r => r.First());
-        }
-
-        /// <summary>
-        /// Return all VPNs for a given Tenant Community Set.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="includeProperties"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllByTenantCommunitySetIDAsync(int id, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                    .Select(x => x.AttachmentSet)
-                    .SelectMany(r => r.VpnTenantCommunitiesRoutingInstance)
-                    .Where(s => s.TenantCommunitySetID == id)
-                    .Any(),
-                includeProperties: p,
-                AsTrackable: false);
-
-            return dbResult.GroupBy(q => q.VpnID).Select(r => r.First());
-        }
-
-        /// <summary>
-        /// Return all VPNs for a given Tenant Multicast Group.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="includeProperties"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllByTenantMulticastGroupIDAsync(int id, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            var dbResult = await this.UnitOfWork.VpnRepository.GetAsync(q => q.VpnAttachmentSets
-                    .Select(x => x.AttachmentSet)
-                    .SelectMany(x => x.MulticastVpnRps)
-                    .SelectMany(x => x.VpnTenantMulticastGroups)
-                    .Where(x => x.TenantMulticastGroupID == id)
-                    .Any(),
-                includeProperties: p,
-                AsTrackable: false);
-
-            return dbResult.GroupBy(q => q.VpnID).Select(r => r.First());
-        }
-
-
-        /// <summary>
-        /// Return all VPNs for a given Tenant.
-        /// </summary>
-        /// <param name="id"></param>
-        /// <param name="includeProperties"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<Vpn>> GetAllByTenantIDAsync(int id, bool? isExtranet = null, bool includeProperties = true)
-        {
-            var p = includeProperties ? Properties : string.Empty;
-            var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(q => q.TenantID == id,
-                includeProperties: p,
-                AsTrackable: false)
-                select vpns;
-
-            if (isExtranet.HasValue)
-            {
-                query = query.Where(x => x.IsExtranet == isExtranet.Value);
-            }
+            if (!string.IsNullOrEmpty(searchString)) query = query.Where(x => x.Name.Contains(searchString));
+            if (isExtranet.HasValue) query = query.Where(x => x.IsExtranet = isExtranet.Value);
+            if (created.HasValue) query = query.Where(x => x.Created = created.Value);
+            if (showCreatedAlert.HasValue) query = query.Where(x => x.ShowCreatedAlert);
 
             return query.ToList().GroupBy(q => q.VpnID).Select(r => r.First());
         }
 
-        public async Task<ServiceResult> AddAsync(VpnRequest vpnRequest)
+        public async Task<Vpn> AddAsync(int tenantId, Mind.Models.RequestModels.VpnRequest request)
         {
-            var result = new ServiceResult
-            {
-                IsSuccess = true
-            };
-
-            var vpnFactoryResult = await VpnFactory.NewAsync(vpnRequest);
-            if (!vpnFactoryResult.IsSuccess)
-            {
-                result.IsSuccess = false;
-                result.AddRange(vpnFactoryResult.Messages);
-
-                return result;
-            }
-
-            var vpn = (Vpn)vpnFactoryResult.Item;
-            result.Item = vpn;
+            var director = _directorFactory(request);
+            var vpn = await director.BuildAsync(tenantId, request);
             this.UnitOfWork.VpnRepository.Insert(vpn);
             await this.UnitOfWork.SaveAsync();
 
-            return result;
+            return await GetByIDAsync(vpn.VpnID, deep: true);
         }
 
         /// <summary>
-        /// Update a Vpn.
+        /// Update a vpn.
         /// </summary>
-        /// <param name="vpn"></param>
+        /// <param name="vpnId"></param>
+        /// <param name="update"></param>
         /// <returns></returns>
-        public async Task<ServiceResult> UpdateAsync(Vpn vpn)
+        public async Task<Vpn> UpdateAsync(int vpnId, Mind.Models.RequestModels.VpnUpdate update)
         {
-            var result = new ServiceResult
-            {
-                IsSuccess = true,
-                Item = vpn
-            };
+            await _validator.ValidateChangesAsync(vpnId, update);
+            if (!_validator.IsValid) throw new ServiceValidationException();
 
-            this.UnitOfWork.VpnRepository.Update(vpn);
+            var vpn = await GetByIDAsync(vpnId, asTrackable: false);
+            var updateDirector = _updateDirectorFactory(vpn);
+            await updateDirector.UpdateAsync(vpnId, update);
             await this.UnitOfWork.SaveAsync();
 
-            return result;
+            return await GetByIDAsync(vpnId);
         }
 
         /// <summary>
-        /// Update a collection of Vpns.
+        /// Delete a vpn.
         /// </summary>
-        /// <param name="vpns"></param>
+        /// <param name="vpnId"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(IEnumerable<Vpn> vpns)
+        public async Task DeleteAsync(int vpnId)
         {
-            foreach (var vpn in vpns)
-            {
-                this.UnitOfWork.VpnRepository.Update(vpn);
-            }
+            await _validator.ValidateDeleteAsync(vpnId);
+            if (!_validator.IsValid) throw new ServiceValidationException();
 
-            return await this.UnitOfWork.SaveAsync();
-        }
-
-
-        /// <summary>
-        /// Delete a Vpn.
-        /// </summary>
-        /// <param name="vpn"></param>
-        /// <returns></returns>
-        public async Task<ServiceResult> DeleteAsync(Vpn vpn)
-        {
-            var result = new ServiceResult
-            {
-                IsSuccess = true
-            };
-
-            this.UnitOfWork.VpnRepository.Delete(vpn);
+            await this.UnitOfWork.VpnRepository.DeleteAsync(vpnId);
             await this.UnitOfWork.SaveAsync();
-
-            return result;
-        }
-       
-        /// <summary>
-        /// Helper to execute a collection of async tasks for a VPN
-        /// </summary>
-        /// <param name="tasks"></param>
-        /// <param name="progress"></param>
-        /// <returns></returns>
-        private async Task<IEnumerable<ServiceResult>> VpnTasksAsync(IList<Task<ServiceResult>> tasks,
-            IProgress<ServiceResult> progress)
-        {
-            var results = new List<ServiceResult>();
-
-            while (tasks.Count() > 0)
-            {
-                Task<ServiceResult> task = await Task.WhenAny(tasks);
-                results.Add(task.Result);
-                tasks.Remove(task);
-
-                // Update caller with progress
-
-                progress.Report(task.Result);
-            }
-
-            await Task.WhenAll(tasks);
-
-            foreach (var result in results)
-            {
-                var vpn = (Vpn)result.Item;
-                UnitOfWork.VpnRepository.Update(vpn);
-                await UnitOfWork.SaveAsync();
-            }
-
-            return results;
         }
     }
 }

@@ -88,30 +88,12 @@ namespace Mind.Api.Models
         public string AttachmentRoleName { get; set; }
 
         /// <summary>
-        /// Enumeration of provider network plane options
-        /// </summary>
-        public enum PlaneNameEnum
-        { 
-            /// <summary>
-            /// Enum member for the Red plane
-            /// </summary>
-            [EnumMember(Value = "Red")]
-            Red = 1,
-            
-            /// <summary>
-            /// Enum member for the Blue plane
-            /// </summary>
-            [EnumMember(Value = "Blue")]
-            Blue = 2
-        }
-
-        /// <summary>
         /// Optional name of the provider network plane within which the attachment will be provisioned
         /// </summary>
         /// <value>A member of the PlaneNameEnum enumeration</value>
         /// <example>Red</example>
         [DataMember(Name="planeName")]
-        public PlaneNameEnum? PlaneName { get; set; }
+        public PlaneEnum? PlaneName { get; set; }
 
         /// <summary>
         /// The required bandwidth of the attachment in Gbps

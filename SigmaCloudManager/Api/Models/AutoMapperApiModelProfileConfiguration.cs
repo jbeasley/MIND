@@ -58,6 +58,16 @@ namespace Mind.Api.Models
             CreateMap<SCM.Models.VpnTenantIpNetworkOut, Mind.Api.Models.VpnTenantIpNetworkOut>()
                 .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
                 .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
+            CreateMap<SCM.Models.Vpn, Mind.Api.Models.Vpn>()
+                .ForMember(dst => dst.AddressFamily, conf => conf.MapFrom(src => src.AddressFamily.Name))
+                .ForMember(dst => dst.MulticastVpnDirectionType, conf => conf.MapFrom(src => src.MulticastVpnDirectionType.Name))
+                .ForMember(dst => dst.MulticastVpnServiceType, conf => conf.MapFrom(src => src.MulticastVpnServiceType.Name))
+                .ForMember(dst => dst.Plane, conf => conf.MapFrom(src => src.Plane.Name))
+                .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
+                .ForMember(dst => dst.TenancyType, conf => conf.MapFrom(src => src.VpnTenancyType.Name))
+                .ForMember(dst => dst.TopologyType, conf => conf.MapFrom(src => src.VpnTopologyType.Name));
+            CreateMap<SCM.Models.RouteTarget, Mind.Api.Models.RouteTarget>()
+                 .ForMember(dst => dst.RangeName, conf => conf.MapFrom(src => src.RouteTargetRange.Name));
 
             // API model to entity model mappings
 

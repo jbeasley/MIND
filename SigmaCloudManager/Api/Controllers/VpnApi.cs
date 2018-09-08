@@ -24,243 +24,221 @@ using System.ComponentModel.DataAnnotations;
 using Mind.Api.Attributes;
 using Mind.Api.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using Microsoft.EntityFrameworkCore;
+using AutoMapper;
+using SCM.Services;
+using Mind.Services;
+using Mind.Models;
+using Mind.Builders;
 
 namespace Mind.Api.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
-    public class VpnApiController : Controller
-    { 
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "VPN API")]
+    public class VpnApiController : BaseApiController
+    {
+        private readonly IVpnService _vpnService;
+
+        /// <summary>
+        /// Constructor
+        /// </summary>
+        /// <param name="vpnService"></param>
+        /// <param name="mapper"></param>
+        public VpnApiController(IVpnService vpnService, IMapper mapper) : base(vpnService, mapper)
+        {
+            _vpnService = vpnService;
+        }
+
         /// <summary>
         /// Create a new virtual private network
         /// </summary>
-        
+
+        ///<param name="tenantId"></param>
         /// <param name="body">vpn request object that generates a new vpn</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
+        /// <response code="201">Successful operation</response>
+        /// <response code="404">The specified resource was not found</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpPost]
-        [Route("/v1/vpn")]
-        [ValidateModelState]
-        [SwaggerOperation("AddVpn")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Vpn), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
-        public virtual IActionResult AddVpn([FromBody]VpnRequest body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Vpn));
-
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Vpn>\n  <name>aeiou</name>\n  <description>aeiou</description>\n  <region>aeiou</region>\n  <plane>aeiou</plane>\n  <tenancyType>aeiou</tenancyType>\n  <topologyType>aeiou</topologyType>\n  <addressFamily>aeiou</addressFamily>\n  <isNovaVpn>true</isNovaVpn>\n</Vpn>";
-            exampleJson = "{\n  \"plane\" : \"plane\",\n  \"topologyType\" : \"topologyType\",\n  \"name\" : \"name\",\n  \"tenancyType\" : \"tenancyType\",\n  \"description\" : \"description\",\n  \"isNovaVpn\" : true,\n  \"region\" : \"region\",\n  \"addressFamily\" : \"addressFamily\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Vpn>(exampleJson)
-            : default(Vpn);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Add an attachment set to a virtual private network
-        /// </summary>
-        
-        /// <param name="vpnId">ID of the vpn</param>
-        /// <param name="attachmentSetId">ID of the attachment set</param>
-        /// <response code="204">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpPost]
-        [Route("/v1/vpn/{vpnId}/attachment-set/{attachmentSetId}")]
-        [ValidateModelState]
-        [SwaggerOperation("AddVpnAttachmentSet")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
+        [ValidateTenantExists]
+        [SwaggerResponse(statusCode: 201, type: typeof(Vpn), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult AddVpnAttachmentSet([FromRoute][Required]int? vpnId, [FromRoute][Required]int? attachmentSetId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Deletes a vpn
-        /// </summary>
-        
-        /// <param name="vpnId">ID of the vpn</param>
-        /// <response code="204">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpDelete]
-        [Route("/v1/vpn/{vpnId}")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/vpns")]
         [ValidateModelState]
-        [SwaggerOperation("DeleteVpn")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult DeleteVpn([FromRoute][Required]int? vpnId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
+        [SwaggerOperation("CreateVpn")]
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+        public virtual async Task<IActionResult> CreateVpn([FromRoute][Required]int? tenantId, [FromBody]VpnRequest body)
+        {
+            try
+            {
+                var request = Mapper.Map<Mind.Models.RequestModels.VpnRequest>(body);
+                var vpn = await _vpnService.AddAsync(tenantId.Value, request);
 
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
+                return CreatedAtRoute("GetVpn", new { vpnId = vpn.VpnID }, Mapper.Map<Vpn>(vpn));
+            }
 
-        /// <summary>
-        /// Return all vpns
-        /// </summary>
-        /// <remarks>Returns all vpns</remarks>
-        /// <response code="200">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpGet]
-        [Route("/v1/vpn")]
-        [ValidateModelState]
-        [SwaggerOperation("GetAllVpns")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<Vpn>), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetAllVpns()
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Vpn>));
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
 
-            string exampleJson = null;
-            exampleJson = "<Vpn>\n  <name>aeiou</name>\n  <description>aeiou</description>\n  <region>aeiou</region>\n  <plane>aeiou</plane>\n  <tenancyType>aeiou</tenancyType>\n  <topologyType>aeiou</topologyType>\n  <addressFamily>aeiou</addressFamily>\n  <isNovaVpn>true</isNovaVpn>\n</Vpn>";
-            exampleJson = "[ {\n  \"plane\" : \"plane\",\n  \"topologyType\" : \"topologyType\",\n  \"name\" : \"name\",\n  \"tenancyType\" : \"tenancyType\",\n  \"description\" : \"description\",\n  \"isNovaVpn\" : true,\n  \"region\" : \"region\",\n  \"addressFamily\" : \"addressFamily\"\n}, {\n  \"plane\" : \"plane\",\n  \"topologyType\" : \"topologyType\",\n  \"name\" : \"name\",\n  \"tenancyType\" : \"tenancyType\",\n  \"description\" : \"description\",\n  \"isNovaVpn\" : true,\n  \"region\" : \"region\",\n  \"addressFamily\" : \"addressFamily\"\n} ]";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<Vpn>>(exampleJson)
-            : default(List<Vpn>);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Find vpn by ID
-        /// </summary>
-        /// <remarks>Returns a single vpn</remarks>
-        /// <param name="vpnId">ID of the vpn</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpGet]
-        [Route("/v1/vpn/{vpnId}")]
-        [ValidateModelState]
-        [SwaggerOperation("GetVpnById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Vpn), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetVpnById([FromRoute][Required]int? vpnId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Vpn));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Vpn>\n  <name>aeiou</name>\n  <description>aeiou</description>\n  <region>aeiou</region>\n  <plane>aeiou</plane>\n  <tenancyType>aeiou</tenancyType>\n  <topologyType>aeiou</topologyType>\n  <addressFamily>aeiou</addressFamily>\n  <isNovaVpn>true</isNovaVpn>\n</Vpn>";
-            exampleJson = "{\n  \"plane\" : \"plane\",\n  \"topologyType\" : \"topologyType\",\n  \"name\" : \"name\",\n  \"tenancyType\" : \"tenancyType\",\n  \"description\" : \"description\",\n  \"isNovaVpn\" : true,\n  \"region\" : \"region\",\n  \"addressFamily\" : \"addressFamily\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Vpn>(exampleJson)
-            : default(Vpn);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Remove an attachment set from a vpn
-        /// </summary>
-        
-        /// <param name="vpnId">ID of the vpn</param>
-        /// <param name="attachmentSetId">ID of the attachment set</param>
-        /// <response code="204">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpDelete]
-        [Route("/v1/vpn/{vpnId}/attachment-set/{attachmentSetId}")]
-        [ValidateModelState]
-        [SwaggerOperation("RemoveAttachmentSet")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult RemoveAttachmentSet([FromRoute][Required]int? vpnId, [FromRoute][Required]int? attachmentSetId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (DbUpdateException ex)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
         }
 
         /// <summary>
         /// Update an existing vpn
         /// </summary>
-        
-        /// <param name="vpnId">ID of the vpn</param>
-        /// <param name="body">vpn update object that updates an existing vpn</param>
+        /// <param name="body">Updated vpn object</param>
+        /// <param name="tenantId">The ID of the tenant</param>
+        /// <param name="vpnId">The ID of the vpn</param>
         /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="412">Precondition failed</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpPut]
-        [Route("/v1/vpn/{vpnId}")]
+        [Route("v{version:apiVersion}/tenants/{tenantId}/vpns/{vpnId}")]
         [ValidateModelState]
+        [ValidateVpnExists]
         [SwaggerOperation("UpdateVpn")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Vpn), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult UpdateVpn([FromRoute][Required]int? vpnId, [FromBody]VpnUpdate body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Vpn));
+        [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> UpdateTenant([FromRoute][Required]int? tenantId, [FromRoute][Required]int? vpnId, [FromBody]VpnUpdate body)
+        {
+            try
+            {
+                var item = await _vpnService.GetByIDAsync(vpnId.Value);
+                if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
+                var update = Mapper.Map<Mind.Models.RequestModels.VpnUpdate>(body);
+                var updatedVpn = await _vpnService.UpdateAsync(vpnId.Value, update);
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
+                return Ok(Mapper.Map<Vpn>(updatedVpn));
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
 
-            string exampleJson = null;
-            exampleJson = "<Vpn>\n  <name>aeiou</name>\n  <description>aeiou</description>\n  <region>aeiou</region>\n  <plane>aeiou</plane>\n  <tenancyType>aeiou</tenancyType>\n  <topologyType>aeiou</topologyType>\n  <addressFamily>aeiou</addressFamily>\n  <isNovaVpn>true</isNovaVpn>\n</Vpn>";
-            exampleJson = "{\n  \"plane\" : \"plane\",\n  \"topologyType\" : \"topologyType\",\n  \"name\" : \"name\",\n  \"tenancyType\" : \"tenancyType\",\n  \"description\" : \"description\",\n  \"isNovaVpn\" : true,\n  \"region\" : \"region\",\n  \"addressFamily\" : \"addressFamily\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Vpn>(exampleJson)
-            : default(Vpn);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (ServiceValidationException)
+            {
+                return new ValidationFailedResult(this.ModelState);
+            }
+
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
+        }
+
+        /// <summary>
+        /// Delete a vpn
+        /// </summary>
+        /// <param name="tenantId">The ID of the tenant</param>
+        /// <param name="vpnId">ID of the vpn</param>
+        /// <response code="204">Successful operation</response>
+        /// <response code="404">The specified resource was not found</response>
+        /// <response code="422">Validation failed</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpDelete]
+        [Route("v{version:apiVersion}/tenants/{tenantId}/vpns/{vpnId}")]
+        [ValidateVpnExists]
+        [ValidateModelState]
+        [SwaggerOperation("DeleteVpn")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
+        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> DeleteVpn([FromRoute][Required]int? tenantId, [FromRoute][Required]int? vpnId)
+        {
+            try
+            {
+                await _vpnService.DeleteAsync(vpnId.Value);
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
+
+            catch (ServiceValidationException)
+            {
+                return new ValidationFailedResult(this.ModelState);
+            }
+
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
+        }
+
+        /// <summary>
+        /// Find all vpns for a given tenant
+        /// </summary>
+        /// <remarks>Returns a collection of all vpns for the specified tenant</remarks>
+        /// <param name="tenantId">The ID of the tenant</param>
+        /// <response code="200">Successful operation</response>
+        /// <param name="deep">Perform a deep query to return detailed information on vpns</param>
+        [HttpGet]
+        [Route("v{version:apiVersion}/tenants/{tenantId}/vpns")]
+        [ValidateModelState]
+        [ValidateTenantExists]
+        [SwaggerOperation("GetAllVpnsByTenant")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<Vpn>), description: "Successful operation")]
+        public virtual async Task<IActionResult> GetAllVpnsByTenant([FromRoute][Required]int? tenantId, [FromQuery]bool? deep)
+        {
+            var vpns = await _vpnService.GetAllByTenantIDAsync(tenantId.Value, deep: deep);
+            return Ok(Mapper.Map<List<Vpn>>(vpns));
+        }
+
+        /// <summary>
+        /// Find a vpn by ID
+        /// </summary>
+        /// <remarks>Returns a single vpn</remarks>
+        /// <param name="tenantId">The ID of the tenant</param>
+        /// <param name="vpnId">ID of the vpn</param>
+        /// <param name="deep">Perform a deep query to return deailed information on the vpn</param>
+        /// <response code="200">successful operation</response>
+        /// <response code="304">The specified resource has not been modified</response>
+        /// <response code="404">The specified resource was not found</response>
+        [HttpGet]
+        [Route("v{version:apiVersion}/tenants/{tenantId}/vpns/{vpnId}", Name = "GetVpn")]
+        [ValidateModelState]
+        [ValidateVpnExists]
+        [SwaggerOperation("GetVpnById")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Vpn), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
+        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        public virtual async Task<IActionResult> GetVpnById([FromRoute][Required]int? tenantId, [FromRoute][Required]int? vpnId, [FromQuery]bool? deep)
+        {
+            var vpn = await _vpnService.GetByIDAsync(vpnId.Value, deep: deep);
+            if (!vpn.HasBeenModified(Request))
+            {
+                return StatusCode(StatusCodes.Status304NotModified);
+            }
+            else
+            {
+                vpn.SetModifiedHttpHeaders(Response);
+            }
+
+            return Ok(Mapper.Map<Vpn>(vpn));
         }
     }
 }

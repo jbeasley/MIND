@@ -6,10 +6,10 @@ namespace SCM.Models
 {
     public enum TopologyTypeEnum
     {
-        AnytoAny,
-        HubandSpoke,
-        PointtoPoint,
-        Multipoint
+        Meshed = 0,
+        HubandSpoke = 1,
+        PointtoPoint = 2,
+        Multipoint = 3
     }
 
     public class VpnTopologyType

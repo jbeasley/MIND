@@ -10,6 +10,7 @@ using AutoMapper;
 using SCM.Models;
 using SCM.Models.ViewModels;
 using SCM.Services;
+using Mind.Services;
 
 namespace SCM.Controllers
 {
@@ -97,16 +98,9 @@ namespace SCM.Controllers
                 try
                 {
                     await TenantCommunitySetCommunityService.AddAsync(Mapper.Map<TenantCommunitySetCommunity>(tenantCommunitySetCommunityModel));
-
-                    // Check if VPNs need re-sync to network as a result of the creation of a Tenant Community in the set
-                    // and generate a message for the view if so
-
-                    var vpns = await VpnService.GetAllByTenantCommunitySetIDAsync(tenantCommunitySetCommunityModel.TenantCommunitySetID);
-
                     return RedirectToAction("GetAllByTenantCommunitySetID", new
                     {
-                        id = tenantCommunitySetCommunityModel.TenantCommunitySetID,
-                        showWarningMessage = vpns.Any()
+                        id = tenantCommunitySetCommunityModel.TenantCommunitySetID
                     });
                 }
 
@@ -181,15 +175,9 @@ namespace SCM.Controllers
             {
                 await TenantCommunitySetCommunityService.DeleteAsync(Mapper.Map<TenantCommunitySetCommunity>(tenantCommunitySetCommunityModel));
 
-                // Check if VPNs need re-sync to network as a result of the removeal of the Tenant Community from the set
-                // and generate a message for the view if so
-
-                var vpns = await VpnService.GetAllByTenantCommunitySetIDAsync(tenantCommunitySetCommunityModel.TenantCommunitySetID);
-
                 return RedirectToAction("GetAllByTenantCommunitySetID", new
                 {
-                    id = tenantCommunitySetCommunityModel.TenantCommunitySetID,
-                    showWarningMessage = vpns.Any()
+                    id = tenantCommunitySetCommunityModel.TenantCommunitySetID
                 });
             }
 

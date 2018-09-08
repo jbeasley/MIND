@@ -161,16 +161,10 @@ namespace SCM.Controllers
                 if (TenantCommunityValidator.ValidationDictionary.IsValid)
                 {
                     await TenantCommunityService.UpdateAsync(item);
-
-                    // Check if VPNs need re-sync to network as a result of the change to the Tenant Community
-                    // and generate a message for the view if so
-
-                    var vpns = await VpnService.GetAllByTenantCommunityIDAsync(tenantCommunity.TenantCommunityID);
     
                     return RedirectToAction("GetAllByTenantID", new
                     {
-                        id = tenantCommunity.TenantID,
-                        showWarningMessage = vpns.Any()
+                        id = tenantCommunity.TenantID
                     });
                 }
             }

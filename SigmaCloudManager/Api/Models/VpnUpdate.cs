@@ -22,73 +22,72 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for updating a vpn
     /// </summary>
     [DataContract]
-    public partial class VpnUpdate : IEquatable<VpnUpdate>
-    { 
+    public partial class VpnUpdate : IEquatable<VpnUpdate>, IValidatableObject
+    {
+        /// <summary>
+        /// The name of the vpn
+        /// </summary>
+        /// <value>String value denoting the name of the vpn</value>
+        /// <example>cloud-connectivity-vpn</example>
+        [Required]
+        [DataMember(Name="name")]
+        public string Name { get; set; }
+
         /// <summary>
         /// A description of the VPN
         /// </summary>
-        /// <value>A description of the VPN</value>
+        /// <value>String value denoting the vpn description</value>
+        /// <example>vpn for providing IP connectivity between hosts running in public and private clouds</example>
         [DataMember(Name="description")]
         public string Description { get; set; }
-        /// <summary>
-        /// The geographical region which the VPN operates within. If no region is chosen then the VPN is available in all regions
-        /// </summary>
-        /// <value>The geographical region which the VPN operates within. If no region is chosen then the VPN is available in all regions</value>
-        public enum RegionEnum
-        { 
-            /// <summary>
-            /// Enum EMEAEnum for EMEA
-            /// </summary>
-            [EnumMember(Value = "EMEA")]
-            EMEAEnum = 1,
-            
-            /// <summary>
-            /// Enum ASIAPACEnum for ASIAPAC
-            /// </summary>
-            [EnumMember(Value = "ASIAPAC")]
-            ASIAPACEnum = 2,
-            
-            /// <summary>
-            /// Enum AMERSEnum for AMERS
-            /// </summary>
-            [EnumMember(Value = "AMERS")]
-            AMERSEnum = 3
-        }
 
         /// <summary>
-        /// The geographical region which the VPN operates within. If no region is chosen then the VPN is available in all regions
+        /// The geographical region which the vpn operates within. If no region is chosen then the vpn should be made available in all regions
         /// </summary>
-        /// <value>The geographical region which the VPN operates within. If no region is chosen then the VPN is available in all regions</value>
+        /// <value>Enum value denoting the region</value>
+        /// <example>EMEA</example>
         [DataMember(Name="region")]
         public RegionEnum? Region { get; set; }
-        /// <summary>
-        /// The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.
-        /// </summary>
-        /// <value>The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.</value>
-        public enum TenancyTypeEnum
-        { 
-            /// <summary>
-            /// Enum SingleEnum for Single
-            /// </summary>
-            [EnumMember(Value = "Single")]
-            SingleEnum = 1,
-            
-            /// <summary>
-            /// Enum MultiEnum for Multi
-            /// </summary>
-            [EnumMember(Value = "Multi")]
-            MultiEnum = 2
-        }
 
         /// <summary>
-        /// The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.
+        /// The tenancy type of the vpn. If the tenancy type is single then only the owner of the vpn can participate in the vpn. 
+        /// If the tenancy type is multi then any tenant can participate in the vpn.
         /// </summary>
-        /// <value>The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.</value>
+        /// <value>Enum value denoting the tenancy type of the vpn</value>
+        /// <example>single</example>
+        [Required]
         [DataMember(Name="tenancyType")]
         public TenancyTypeEnum? TenancyType { get; set; }
+
+        /// <summary>
+        /// Determines if the vpn supports extranet connectivity
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports extranet</value>
+        /// <example>true</example>
+        [DataMember(Name = "isExtranet")]
+        public bool? IsExtranet { get; set; }
+
+        /// <summary>
+        /// The multicast direction type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast direction type of the vpn.</value>
+        /// <example>unidirectional</example>
+        [DataMember(Name = "multicastVpnDirectionType")]
+        public MulticastVpnDirectionTypeEnum? MulticastVpnDirectionType { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (IsExtranet.HasValue && IsExtranet.Value)
+            {
+                if (TenancyType.Value != TenancyTypeEnum.Multi)
+                {
+                    yield return new ValidationResult("The tenancy type must be 'multi' for an extranet vpn.");
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -97,10 +96,13 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class VpnUpdate {\n");
+            sb.Append("class IpVpnRequest {\n");
+            sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  Region: ").Append(Region).Append("\n");
             sb.Append("  TenancyType: ").Append(TenancyType).Append("\n");
+            sb.Append("  IsExtranet: ").Append(IsExtranet).Append("\n");
+            sb.Append("  MulticastVpnDirectionType: ").Append(MulticastVpnDirectionType).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -123,7 +125,7 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((VpnUpdate)obj);
+            return obj.GetType() == GetType() && Equals((VpnRequest)obj);
         }
 
         /// <summary>
@@ -138,6 +140,11 @@ namespace Mind.Api.Models
 
             return 
                 (
+                    Name == other.Name ||
+                    Name != null &&
+                    Name.Equals(other.Name)
+                ) && 
+                (
                     Description == other.Description ||
                     Description != null &&
                     Description.Equals(other.Description)
@@ -151,6 +158,16 @@ namespace Mind.Api.Models
                     TenancyType == other.TenancyType ||
                     TenancyType != null &&
                     TenancyType.Equals(other.TenancyType)
+                ) && 
+                (
+                    IsExtranet == other.IsExtranet||
+                    IsExtranet != null &&
+                    IsExtranet.Equals(other.IsExtranet)
+                ) &&
+                (
+                    MulticastVpnDirectionType == other.MulticastVpnDirectionType ||
+                    MulticastVpnDirectionType != null &&
+                    MulticastVpnDirectionType.Equals(other.MulticastVpnDirectionType)
                 );
         }
 
@@ -164,18 +181,24 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (Name != null)
+                    hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
                     if (Region != null)
                     hashCode = hashCode * 59 + Region.GetHashCode();
                     if (TenancyType != null)
                     hashCode = hashCode * 59 + TenancyType.GetHashCode();
+                    if (IsExtranet != null)
+                    hashCode = hashCode * 59 + IsExtranet.GetHashCode();
+                    if (MulticastVpnDirectionType != null)
+                    hashCode = hashCode * 59 + MulticastVpnDirectionType.GetHashCode();
                 return hashCode;
             }
         }
 
         #region Operators
-        #pragma warning disable 1591
+#pragma warning disable 1591
 
         public static bool operator ==(VpnUpdate left, VpnUpdate right)
         {

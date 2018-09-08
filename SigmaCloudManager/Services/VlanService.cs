@@ -51,16 +51,8 @@ namespace SCM.Services
             var dbResult = await this.UnitOfWork.VifRepository.GetAsync(q => q.VifID == vlan.VifID, 
                 includeProperties: "VifRole,Attachment.AttachmentRole,Attachment.Device.DeviceRole");
             var vif = dbResult.Single();
-            vif.RequiresSync = vif.VifRole.RequireSyncToNetwork;
-            vif.ShowRequiresSyncAlert = vif.VifRole.RequireSyncToNetwork;
-            vif.Attachment.RequiresSync = vif.Attachment.AttachmentRole.RequireSyncToNetwork;
-            vif.Attachment.ShowRequiresSyncAlert = vif.Attachment.AttachmentRole.RequireSyncToNetwork;
-            vif.Attachment.Device.RequiresSync = vif.Attachment.Device.DeviceRole.RequireSyncToNetwork;
-            vif.Attachment.Device.ShowRequiresSyncAlert = vif.Attachment.Device.DeviceRole.RequireSyncToNetwork;
 
             this.UnitOfWork.VifRepository.Update(vif);
-            this.UnitOfWork.AttachmentRepository.Update(vif.Attachment);
-            this.UnitOfWork.DeviceRepository.Update(vif.Attachment.Device);
 
             return await this.UnitOfWork.SaveAsync();
         }

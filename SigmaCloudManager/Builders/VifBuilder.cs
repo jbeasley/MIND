@@ -266,7 +266,7 @@ namespace Mind.Builders
                     $"another vif of same attachment as the vif to be updated.");
             }
 
-            if (_vif.ContractBandwidthPoolID == contractBandwidthPool.ContractBandwidthID);
+            _vif.ContractBandwidthPoolID = contractBandwidthPool.ContractBandwidthPoolID;
         }
 
         protected internal virtual void SetTrustReceivedCosAndDscp()

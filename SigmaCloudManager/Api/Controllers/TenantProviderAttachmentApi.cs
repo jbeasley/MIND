@@ -60,6 +60,7 @@ namespace Mind.Api.Controllers
         /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpPost]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments")]
         [ValidateModelState]
@@ -68,6 +69,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 201, type: typeof(Attachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> CreateProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body)
         {
             try
@@ -136,7 +138,9 @@ namespace Mind.Api.Controllers
         /// Find a provider domain attachment by ID
         /// </summary>
         /// <remarks>Returns a single provider domain attachment</remarks>
+        /// <param name="tenantId">The ID of the tenant</param>
         /// <param name="attachmentId">ID of the attachment</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
@@ -189,6 +193,7 @@ namespace Mind.Api.Controllers
         /// Update an existing attachment
         /// </summary>
 
+        /// <param name="tenantId">The ID of the tenant</param>
         /// <param name="attachmentId">ID of the attachment</param>
         /// <param name="body">attachment update object that updates an existing attachment</param>
         /// <response code="200">Successful operation</response>

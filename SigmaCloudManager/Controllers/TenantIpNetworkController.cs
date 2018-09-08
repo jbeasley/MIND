@@ -160,15 +160,9 @@ namespace SCM.Controllers
                 var item = Mapper.Map<TenantIpNetwork>(tenantIpNetworkModel);
                 await _tenantIpNetworkService.UpdateAsync(item);
 
-                // Check if VPNs need re-sync to network as a result of the change to the Tenant Network
-                // and generate a message for the view if so
-
-                var vpns = await _vpnService.GetAllByTenantIpNetworkIDAsync(tenantIpNetwork.TenantIpNetworkID);
-
                 return RedirectToAction("GetAllByTenantID", new
                 {
-                    id = tenantIpNetwork.TenantID,
-                    showWarningMessage = vpns.Any()
+                    id = tenantIpNetwork.TenantID
                 });
             }
 

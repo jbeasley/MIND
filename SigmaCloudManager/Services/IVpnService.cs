@@ -3,30 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SCM.Models;
-using SCM.Data;
-using SCM.Models.RequestModels;
+using Mind.Models.RequestModels;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
-    public interface IVpnService
+    public interface IVpnService : IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
-
-        Task<IEnumerable<Vpn>> GetAllAsync(bool? isExtranet = null, 
-            bool? requiresSync = null, bool? created = null, bool? showRequiresSyncAlert = null, bool? showCreatedAlert = null, 
-            string searchString = "", bool includeProperties = true, string sortKey = "");
-        Task<IEnumerable<Vpn>> GetAllByRoutingInstanceIDAsync(int id, bool includeProperties = true);
-        Task<IEnumerable<Vpn>> GetAllByAttachmentSetIDAsync(int id, bool? requiresSync = null, bool? created = null,
-                   bool? showRequiresSyncAlert = null, bool? showCreatedAlert = null, bool includeProperties = true);
-        Task<IEnumerable<Vpn>> GetAllByTenantIDAsync(int id, bool? isExtranet = null, bool includeProperties = true);
-        Task<IEnumerable<Vpn>> GetAllByTenantIpNetworkIDAsync(int id, bool includeProperties = true);
-        Task<IEnumerable<Vpn>> GetAllByTenantCommunityIDAsync(int id, bool includeProperties = true);
-        Task<IEnumerable<Vpn>> GetAllByTenantCommunitySetIDAsync(int id, bool includeProperties = true);
-        Task<IEnumerable<Vpn>> GetAllByTenantMulticastGroupIDAsync(int id, bool includeProperties = true);
-        Task<Vpn> GetByIDAsync(int id, bool includeProperties = true);
-        Task<ServiceResult> AddAsync(VpnRequest vpnRequest);
-        Task<ServiceResult> UpdateAsync(Vpn vpn);
-        Task<int> UpdateAsync(IEnumerable<Vpn> vpns);
-        Task<ServiceResult> DeleteAsync(Vpn vpn);
+        Task<IEnumerable<Vpn>> GetAllAsync(bool? isExtranet = null, bool? created = null, bool? showCreatedAlert = null, 
+           bool? deep = false, bool asTrackable = false, string sortKey = "", string searchString = "");
+        Task<IEnumerable<Vpn>> GetAllByAttachmentSetIDAsync(int id, bool? isExtranet = null, bool? created = null, bool? showCreatedAlert = null,
+           bool? deep = false, bool asTrackable = false, string sortKey = "", string searchString = "");
+        Task<IEnumerable<Vpn>> GetAllByTenantIDAsync(int id, bool? isExtranet = null, bool? created = null, bool? showCreatedAlert = null,
+           bool? deep = false, bool asTrackable = false, string sortKey = "", string searchString = "");
+        Task<Vpn> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<Vpn> AddAsync(int tenantId, VpnRequest vpnRequest);
+        Task<Vpn> UpdateAsync(int vpnId, VpnUpdate update);
+        Task DeleteAsync(int vpnId);
     }
 }

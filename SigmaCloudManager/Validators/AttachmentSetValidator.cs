@@ -22,7 +22,7 @@ namespace SCM.Validators
         /// <summary>
         /// Validate that an attachment set can be deleted.
         /// </summary>
-        /// <param name="attachmentSet"></param>
+        /// <param name="attachmentSetId"></param>
         /// <returns></returns>
         public async Task ValidateDeleteAsync(int attachmentSetId)
         {
@@ -38,7 +38,7 @@ namespace SCM.Validators
         /// <summary>
         /// Validate changes to an attachment set
         /// </summary>
-        /// <param name="attachmentSet"></param>
+        /// <param name="attachmentSetId"></param>
         /// <returns></returns>
         public async Task ValidateChangesAsync(int attachmentSetId, AttachmentSetUpdate update)
         {
@@ -72,13 +72,13 @@ namespace SCM.Validators
                 {
                     if (vpn.IsMulticastVpn)
                     {
-                        if (vpn.VpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke)
+                        if (vpn.VpnTopologyType.TopologyType == SCM.Models.TopologyTypeEnum.HubandSpoke)
                         {
                             if (vpn.MulticastVpnDirectionType.MvpnDirectionType == MvpnDirectionTypeEnum.Unidirectional)
                             {
                                 if (vpnAttachmentSet.IsHub.GetValueOrDefault())
                                 {
-                                    if (update.MulticastVpnDomainType != AttachmentSetUpdate.MulticastVpnDomainTypeEnum.SenderOnly)
+                                    if (update.MulticastVpnDomainType != MulticastVpnDomainTypeEnum.SenderOnly)
                                     {
                                         ValidationDictionary.AddError(string.Empty, $"The Multicast VPN Domain Type selection of '{update.MulticastVpnDomainType.ToString()}' is not "
                                             + $"valid because Attachment Set '{attachmentSet.Name}' is designated as a HUB for hub-and-spoke multicast VPN "
@@ -88,7 +88,7 @@ namespace SCM.Validators
                                 }
                                 else
                                 {
-                                    if (update.MulticastVpnDomainType != AttachmentSetUpdate.MulticastVpnDomainTypeEnum.ReceiverOnly)
+                                    if (update.MulticastVpnDomainType != MulticastVpnDomainTypeEnum.ReceiverOnly)
                                     {
                                         ValidationDictionary.AddError(string.Empty, $"The Multicast VPN Domain Type selection of '{update.MulticastVpnDomainType.ToString()}' is not "
                                             + $"valid because Attachment Set '{attachmentSet.Name}' is designated as a SPOKE for hub-and-spoke multicast VPN "
@@ -101,8 +101,8 @@ namespace SCM.Validators
                             {
                                 if (vpnAttachmentSet.IsHub.GetValueOrDefault())
                                 {
-                                    if (update.MulticastVpnDomainType != AttachmentSetUpdate.MulticastVpnDomainTypeEnum.SenderOnly
-                                        && update.MulticastVpnDomainType != AttachmentSetUpdate.MulticastVpnDomainTypeEnum.SenderAndReceiver)
+                                    if (update.MulticastVpnDomainType != MulticastVpnDomainTypeEnum.SenderOnly
+                                        && update.MulticastVpnDomainType != MulticastVpnDomainTypeEnum.SenderAndReceiver)
                                     {
                                         ValidationDictionary.AddError(string.Empty, $"The Multicast VPN Domain Type selection of '{update.MulticastVpnDomainType.ToString()}' is not "
                                             + $"valid because Attachment Set '{attachmentSet.Name}' is designated as a HUB for hub-and-spoke multicast VPN "
@@ -112,8 +112,8 @@ namespace SCM.Validators
                                 }
                                 else
                                 {
-                                    if (update.MulticastVpnDomainType != AttachmentSetUpdate.MulticastVpnDomainTypeEnum.ReceiverOnly
-                                        && update.MulticastVpnDomainType != AttachmentSetUpdate.MulticastVpnDomainTypeEnum.SenderAndReceiver)
+                                    if (update.MulticastVpnDomainType != MulticastVpnDomainTypeEnum.ReceiverOnly
+                                        && update.MulticastVpnDomainType != MulticastVpnDomainTypeEnum.SenderAndReceiver)
                                     {
                                         ValidationDictionary.AddError(string.Empty, $"The Multicast VPN Domain Type selection of '{update.MulticastVpnDomainType.ToString()}' is not "
                                             + $"valid because Attachment Set '{attachmentSet.Name}' is designated as a SPOKE for hub-and-spoke multicast VPN "
@@ -124,7 +124,7 @@ namespace SCM.Validators
                             }
                         }
 
-                        if (update.MulticastVpnDomainType == AttachmentSetUpdate.MulticastVpnDomainTypeEnum.ReceiverOnly)
+                        if (update.MulticastVpnDomainType == MulticastVpnDomainTypeEnum.ReceiverOnly)
                         {
                             var tenantMulticastGroups = (from groups in await _unitOfWork.TenantMulticastGroupRepository.GetAsync(q =>
                                                          q.VpnTenantMulticastGroups.Select(x => x.AttachmentSet).Any(x => x.AttachmentSetID == attachmentSetId))
@@ -142,7 +142,7 @@ namespace SCM.Validators
             }
 
 
-            if (update.AttachmentRedundancy == AttachmentSetUpdate.AttachmentRedundancyEnum.Gold)
+            if (update.AttachmentRedundancy == AttachmentRedundancyEnum.Gold)
             {
                 if (update.SubRegion == null)
                 {

@@ -50,7 +50,7 @@ namespace SCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ClearCreatedAlerts(int id)
         {
-            var vpns = await VpnService.GetAllByAttachmentSetIDAsync(id, created: true, showCreatedAlert: true);
+            var vpns = await VpnService.GetAllByAttachmentSetIDAsync(id, created: true, showCreatedAlert: true, asTrackable: true);
             foreach (var vpn in vpns)
             {
                 vpn.ShowCreatedAlert = false;
@@ -58,33 +58,7 @@ namespace SCM.Controllers
 
             try
             {
-                await VpnService.UpdateAsync(vpns);
-            }
-
-            catch (DbUpdateConcurrencyException /** ex **/ )
-            {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError(string.Empty, "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator.");
-            }
-
-            return RedirectToAction("GetAllByAttachmentSetID", new { id });
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ClearRequiresSyncAlerts(int id)
-        {
-            var vpns = await VpnService.GetAllByAttachmentSetIDAsync(id, requiresSync: true, showRequiresSyncAlert: true);
-            foreach (var vpn in vpns)
-            {
-                vpn.ShowRequiresSyncAlert = false;
-            }
-
-            try
-            {
-                await VpnService.UpdateAsync(vpns);
+                await VpnService.UnitOfWork.SaveAsync();
             }
 
             catch (DbUpdateConcurrencyException /** ex **/ )

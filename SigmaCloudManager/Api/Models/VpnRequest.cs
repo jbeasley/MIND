@@ -22,15 +22,16 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// Model for requesting a VPN
+    /// Model for requesting a vpn
     /// </summary>
     [DataContract]
-    public partial class VpnRequest : IEquatable<VpnRequest>
+    public partial class VpnRequest : IEquatable<VpnRequest>, IValidatableObject
     { 
         /// <summary>
-        /// The name of the VPN
+        /// The name of the vpn
         /// </summary>
-        /// <value>The name of the VPN</value>
+        /// <value>String value denoting the name of the vpn</value>
+        /// <example>cloud-connectivity-vpn</example>
         [Required]
         [DataMember(Name="name")]
         public string Name { get; set; }
@@ -38,145 +39,154 @@ namespace Mind.Api.Models
         /// <summary>
         /// A description of the VPN
         /// </summary>
-        /// <value>A description of the VPN</value>
+        /// <value>String value denoting the vpn description</value>
+        /// <example>vpn for providing IP connectivity between hosts running in public and private clouds</example>
         [DataMember(Name="description")]
         public string Description { get; set; }
-        /// <summary>
-        /// The geographical region which the VPN operates within. If no region is chosen then the VPN is available in all regions
-        /// </summary>
-        /// <value>The geographical region which the VPN operates within. If no region is chosen then the VPN is available in all regions</value>
-        public enum RegionEnum
-        { 
-            /// <summary>
-            /// Enum EMEAEnum for EMEA
-            /// </summary>
-            [EnumMember(Value = "EMEA")]
-            EMEAEnum = 1,
-            
-            /// <summary>
-            /// Enum ASIAPACEnum for ASIAPAC
-            /// </summary>
-            [EnumMember(Value = "ASIAPAC")]
-            ASIAPACEnum = 2,
-            
-            /// <summary>
-            /// Enum AMERSEnum for AMERS
-            /// </summary>
-            [EnumMember(Value = "AMERS")]
-            AMERSEnum = 3
-        }
 
         /// <summary>
-        /// The geographical region which the VPN operates within. If no region is chosen then the VPN is available in all regions
+        /// The geographical region which the vpn operates within. If no region is chosen then the vpn should be made available in all regions
         /// </summary>
-        /// <value>The geographical region which the VPN operates within. If no region is chosen then the VPN is available in all regions</value>
+        /// <value>Enum value denoting the region</value>
+        /// <example>EMEA</example>
         [DataMember(Name="region")]
         public RegionEnum? Region { get; set; }
-        /// <summary>
-        /// The provider plane which the VPN operates within. If no plane is chosen then the VPN will operate in both the red and blue planes.
-        /// </summary>
-        /// <value>The provider plane which the VPN operates within. If no plane is chosen then the VPN will operate in both the red and blue planes.</value>
-        public enum PlaneEnum
-        { 
-            /// <summary>
-            /// Enum RedEnum for Red
-            /// </summary>
-            [EnumMember(Value = "Red")]
-            RedEnum = 1,
-            
-            /// <summary>
-            /// Enum BlueEnum for Blue
-            /// </summary>
-            [EnumMember(Value = "Blue")]
-            BlueEnum = 2
-        }
 
         /// <summary>
-        /// The provider plane which the VPN operates within. If no plane is chosen then the VPN will operate in both the red and blue planes.
+        /// The provider plane which the vpn should operate. If no plane is chosen then the vpn should operate in both the red and blue planes.
         /// </summary>
-        /// <value>The provider plane which the VPN operates within. If no plane is chosen then the VPN will operate in both the red and blue planes.</value>
+        /// <value>Enum member denoting the provider plane which the VPN operates within</value>
+        /// <example>Red</example>
         [DataMember(Name="plane")]
         public PlaneEnum? Plane { get; set; }
-        /// <summary>
-        /// The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.
-        /// </summary>
-        /// <value>The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.</value>
-        public enum TenancyTypeEnum
-        { 
-            /// <summary>
-            /// Enum SingleEnum for Single
-            /// </summary>
-            [EnumMember(Value = "Single")]
-            SingleEnum = 1,
-            
-            /// <summary>
-            /// Enum MultiEnum for Multi
-            /// </summary>
-            [EnumMember(Value = "Multi")]
-            MultiEnum = 2
-        }
 
         /// <summary>
-        /// The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.
+        /// The tenancy type of the vpn. If the tenancy type is single then only the owner of the vpn can participate in the vpn. 
+        /// If the tenancy type is multi then any tenant can participate in the vpn.
         /// </summary>
-        /// <value>The tenancy type of the VPN. If the tenancy type is single then only the owner of the VPN can participate in the VPN. If the tenancy type is multi then any tenant can participate in the VPN.</value>
-        [Required]
+        /// <value>Enum value denoting the tenancy type of the vpn</value>
+        /// <example>Single</example>
         [DataMember(Name="tenancyType")]
         public TenancyTypeEnum? TenancyType { get; set; }
-        /// <summary>
-        /// The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. 
-        /// </summary>
-        /// <value>The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. </value>
-        public enum TopologyTypeEnum
-        { 
-            /// <summary>
-            /// Enum MeshedEnum for Meshed
-            /// </summary>
-            [EnumMember(Value = "Meshed")]
-            MeshedEnum = 1,
-            
-            /// <summary>
-            /// Enum HubAndSpokeEnum for Hub-and-Spoke
-            /// </summary>
-            [EnumMember(Value = "Hub-and-Spoke")]
-            HubAndSpokeEnum = 2
-        }
 
         /// <summary>
-        /// The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. 
+        /// The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. 
+        /// A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. 
         /// </summary>
-        /// <value>The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. </value>
+        /// <value>Enum value denoting the topology type of the vpn.</value>
+        /// <example>Meshed</example>
         [Required]
         [DataMember(Name="topologyType")]
         public TopologyTypeEnum? TopologyType { get; set; }
+
         /// <summary>
         /// The address family of the VPN. Currently only IPv4 is available. 
         /// </summary>
-        /// <value>The address family of the VPN. Currently only IPv4 is available. </value>
-        public enum AddressFamilyEnum
-        { 
-            /// <summary>
-            /// Enum IPv4Enum for IPv4
-            /// </summary>
-            [EnumMember(Value = "IPv4")]
-            IPv4Enum = 1
+        /// <value>Enum value denoting the address family of the vpn.</value>
+        /// <example>IPv4</example>
+        [Required]
+        [DataMember(Name = "addressFamily")]
+        public AddressFamilyEnum? AddressFamily { get; set; } = AddressFamilyEnum.IPv4;
+
+        /// <summary>
+        /// Determines if the VPN is launched as a standard 'Nova' implemented vpn. If this option is disabled the vpn may be customised.
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn is launched as a standard Nova VPN.</value>
+        [Required]
+        [DataMember(Name = "isNovaVpn")]
+        public bool? IsNovaVpn { get; set; } = true;
+
+        /// <summary>
+        /// Determines if the vpn supports extranet connectivity
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports extranet</value>
+        /// <example>true</example>
+        [DataMember(Name = "isExtranet")]
+        public bool? IsExtranet { get; set; }
+
+        /// <summary>
+        /// Determines if the VPN supports IP multicast
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports IP multicast.</value>
+        /// <example>true</example>
+        [DataMember(Name = "isMulticastVpn")]
+        public bool? IsMulticastVpn { get; set; }
+
+        /// <summary>
+        /// The multicast service type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast service type of the vpn.</value>
+        /// <example>ssm</example>
+        [DataMember(Name = "multicastVpnServiceType")]
+        public MulticastVpnServiceTypeEnum? MulticastVpnServiceType { get; set; }
+
+        /// <summary>
+        /// The multicast direction type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast direction type of the vpn.</value>
+        /// <example>unidirectional</example>
+        [DataMember(Name = "multicastVpnDirectionType")]
+        public MulticastVpnDirectionTypeEnum? MulticastVpnDirectionType { get; set; }
+
+        /// <summary>
+        /// The route target range. Route targets will be allocated from the specified range.
+        /// </summary>
+        /// <value>String value denoting the name of the route target range</value>
+        /// <example>default</example>
+        [DataMember(Name = "routeTargetRange")]
+        public RouteTargetRangeEnum? RouteTargetRange{ get; set; } = RouteTargetRangeEnum.Default;
+
+        /// <summary>
+        /// A list of requested route targets to be assigned to the vpn
+        /// </summary>
+        /// <value>A list of RouteTargetRequest objects</value>
+        [DataMember(Name="routeTargetRequests")]
+        public List<RouteTargetRequest> RouteTargetRequests { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (!RouteTargetRange.HasValue)
+            {
+                if (RouteTargetRequests != null && RouteTargetRequests.Any())
+                {
+                    yield return new ValidationResult("A route target range cannot be specified concurrently with requested route targets. " +
+                        "Remove either the route target range or the list of requested route targets from the request.");
+                }
+            }
+
+            if (IsExtranet.HasValue && IsExtranet.Value)
+            {
+                if (TenancyType.Value != TenancyTypeEnum.Multi)
+                {
+                    yield return new ValidationResult("The tenancy type must be 'multi' for an extranet vpn.");
+                }
+            }
+            if (IsMulticastVpn.HasValue && IsMulticastVpn.Value)
+            {
+                if (!Plane.HasValue)
+                {
+                    yield return new ValidationResult("A plane option must be specified for a multicast vpn.");
+                }
+
+                if (IsExtranet.HasValue & IsExtranet.Value)
+                {
+                    yield return new ValidationResult("Extranet is not currently available for multicast vpn.");
+                }
+
+                if (!MulticastVpnServiceType.HasValue)
+                {
+                    yield return new ValidationResult("A multicast vpn service type option must be specified for multicast vpn.");
+                }
+
+                if (TopologyType == TopologyTypeEnum.HubAndSpoke)
+                {
+                    if (!MulticastVpnDirectionType.HasValue)
+                    {
+                        yield return new ValidationResult("A multicast vpn direction type option must be specified for a hub-and-spoke vpn.");
+                    }
+                }
+            }
         }
-
-        /// <summary>
-        /// The address family of the VPN. Currently only IPv4 is available. 
-        /// </summary>
-        /// <value>The address family of the VPN. Currently only IPv4 is available. </value>
-        [Required]
-        [DataMember(Name="addressFamily")]
-        public AddressFamilyEnum? AddressFamily { get; set; }
-
-        /// <summary>
-        /// Determines if the VPN is launched as a standard Nova implemented VPN. If this option is disabled the VPN may be customised.
-        /// </summary>
-        /// <value>Determines if the VPN is launched as a standard Nova implemented VPN. If this option is disabled the VPN may be customised.</value>
-        [Required]
-        [DataMember(Name="isNovaVpn")]
-        public bool? IsNovaVpn { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -185,7 +195,7 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class VpnRequest {\n");
+            sb.Append("class IpVpnRequest {\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  Region: ").Append(Region).Append("\n");
@@ -194,6 +204,12 @@ namespace Mind.Api.Models
             sb.Append("  TopologyType: ").Append(TopologyType).Append("\n");
             sb.Append("  AddressFamily: ").Append(AddressFamily).Append("\n");
             sb.Append("  IsNovaVpn: ").Append(IsNovaVpn).Append("\n");
+            sb.Append("  IsExtranet: ").Append(IsExtranet).Append("\n");
+            sb.Append("  IsMulticastVpn: ").Append(IsMulticastVpn).Append("\n");
+            sb.Append("  MulticastVpnServiceType: ").Append(MulticastVpnServiceType).Append("\n");
+            sb.Append("  MulticastVpnDirectionType: ").Append(MulticastVpnDirectionType).Append("\n");
+            sb.Append("  RouteTargetRange: ").Append(RouteTargetRange).Append("\n");
+            sb.Append("  RouteTargetRequests: ").Append(RouteTargetRequests).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -269,6 +285,36 @@ namespace Mind.Api.Models
                     IsNovaVpn == other.IsNovaVpn ||
                     IsNovaVpn != null &&
                     IsNovaVpn.Equals(other.IsNovaVpn)
+                ) &&
+                (
+                    IsExtranet == other.IsExtranet||
+                    IsExtranet != null &&
+                    IsExtranet.Equals(other.IsExtranet)
+                ) &&
+                (
+                    IsMulticastVpn == other.IsMulticastVpn ||
+                    IsMulticastVpn != null &&
+                    IsMulticastVpn.Equals(other.IsMulticastVpn)
+                ) &&
+                (
+                    MulticastVpnServiceType == other.MulticastVpnServiceType ||
+                    MulticastVpnServiceType != null &&
+                    MulticastVpnServiceType.Equals(other.MulticastVpnServiceType)
+                ) &&
+                (
+                    MulticastVpnDirectionType == other.MulticastVpnDirectionType ||
+                    MulticastVpnDirectionType != null &&
+                    MulticastVpnDirectionType.Equals(other.MulticastVpnDirectionType)
+                ) &&
+                (
+                    RouteTargetRequests == other.RouteTargetRequests ||
+                    RouteTargetRequests != null &&
+                    RouteTargetRequests.Equals(other.RouteTargetRequests)
+                ) &&
+                (
+                    RouteTargetRange == other.RouteTargetRange ||
+                    RouteTargetRange != null &&
+                    RouteTargetRange.Equals(other.RouteTargetRange)
                 );
         }
 
@@ -298,12 +344,24 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AddressFamily.GetHashCode();
                     if (IsNovaVpn != null)
                     hashCode = hashCode * 59 + IsNovaVpn.GetHashCode();
+                    if (IsExtranet != null)
+                    hashCode = hashCode * 59 + IsExtranet.GetHashCode();
+                    if (IsMulticastVpn != null)
+                    hashCode = hashCode * 59 + IsMulticastVpn.GetHashCode();
+                    if (MulticastVpnServiceType != null)
+                    hashCode = hashCode * 59 + MulticastVpnServiceType.GetHashCode();
+                    if (MulticastVpnDirectionType != null)
+                    hashCode = hashCode * 59 + MulticastVpnDirectionType.GetHashCode();
+                    if (RouteTargetRequests != null)
+                    hashCode = hashCode * 59 + RouteTargetRequests.GetHashCode();
+                    if (RouteTargetRange != null)
+                    hashCode = hashCode * 59 + RouteTargetRange.GetHashCode();
                 return hashCode;
             }
         }
 
         #region Operators
-        #pragma warning disable 1591
+#pragma warning disable 1591
 
         public static bool operator ==(VpnRequest left, VpnRequest right)
         {

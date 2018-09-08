@@ -155,7 +155,7 @@ namespace SCM.Factories
 
             IEnumerable<int> rtAssignedNumbers = null;
 
-            if (vpnTopologyType.TopologyType == TopologyTypeEnum.AnytoAny)
+            if (vpnTopologyType.TopologyType == TopologyTypeEnum.Meshed)
             {
                 // One RT required for Any-to-Any VPN
 

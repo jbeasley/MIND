@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SCM.Models.RequestModels;
 using SCM.Services;
 using SCM.Models;
+using Mind.Services;
 
 namespace SCM.Validators
 {

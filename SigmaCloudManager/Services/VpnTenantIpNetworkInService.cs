@@ -43,8 +43,9 @@ namespace SCM.Services
         /// <returns></returns>
         public async Task<IEnumerable<VpnTenantIpNetworkIn>> GetAllByVpnIDAsync(int vpnId, int? tenantId = null, bool extranet = false, bool? deep = false, bool asTrackable = false)
         {
-            var query = (from result in await UnitOfWork.VpnTenantIpNetworkInRepository.GetAsync(q =>
-                    q.AttachmentSet.VpnAttachmentSets.Select(x =>
+            var query = (from result in await UnitOfWork.VpnTenantIpNetworkInRepository.GetAsync(
+                  q =>
+                        q.AttachmentSet.VpnAttachmentSets.Select(x =>
                         x.VpnID == vpnId).Any(),
                         includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
                         AsTrackable: asTrackable)
@@ -61,7 +62,9 @@ namespace SCM.Services
         /// <returns></returns>
         public async Task<VpnTenantIpNetworkIn> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return (from result in await UnitOfWork.VpnTenantIpNetworkInRepository.GetAsync(q => q.VpnTenantIpNetworkInID == id,
+            return (from result in await UnitOfWork.VpnTenantIpNetworkInRepository.GetAsync(
+                q => 
+                    q.VpnTenantIpNetworkInID == id,
                     includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
                     AsTrackable: asTrackable)
                     select result)

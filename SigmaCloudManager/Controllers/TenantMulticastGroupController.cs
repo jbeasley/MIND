@@ -224,16 +224,10 @@ namespace SCM.Controllers
                     if (TenantMulticastGroupValidator.ValidationDictionary.IsValid)
                     {
                         await TenantMulticastGroupService.UpdateAsync(item);
-
-                        // Check if VPNs need re-sync to network as a result of the change to the Tenant Multicast Group
-                        // and generate a message for the view if so
-
-                        var vpns = await VpnService.GetAllByTenantMulticastGroupIDAsync(tenantMulticastGroup.TenantMulticastGroupID);
                        
                         return RedirectToAction("GetAllByTenantID", new
                         {
-                            id = tenantMulticastGroup.TenantID,
-                            showWarningMessage = vpns.Any()
+                            id = tenantMulticastGroup.TenantID
                         });
                     }
                 }

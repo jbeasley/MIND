@@ -25,14 +25,13 @@ namespace Mind.Api.Models
     /// Model for updating a vpn
     /// </summary>
     [DataContract]
-    public partial class VpnUpdate : IEquatable<VpnUpdate>, IValidatableObject
+    public partial class VpnUpdate : IEquatable<VpnUpdate>
     {
         /// <summary>
         /// The name of the vpn
         /// </summary>
         /// <value>String value denoting the name of the vpn</value>
         /// <example>cloud-connectivity-vpn</example>
-        [Required]
         [DataMember(Name="name")]
         public string Name { get; set; }
 
@@ -58,7 +57,6 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>Enum value denoting the tenancy type of the vpn</value>
         /// <example>single</example>
-        [Required]
         [DataMember(Name="tenancyType")]
         public TenancyTypeEnum? TenancyType { get; set; }
 
@@ -77,17 +75,6 @@ namespace Mind.Api.Models
         /// <example>unidirectional</example>
         [DataMember(Name = "multicastVpnDirectionType")]
         public MulticastVpnDirectionTypeEnum? MulticastVpnDirectionType { get; set; }
-
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (IsExtranet.HasValue && IsExtranet.Value)
-            {
-                if (TenancyType.Value != TenancyTypeEnum.Multi)
-                {
-                    yield return new ValidationResult("The tenancy type must be 'multi' for an extranet vpn.");
-                }
-            }
-        }
 
         /// <summary>
         /// Returns the string presentation of the object

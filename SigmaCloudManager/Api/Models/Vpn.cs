@@ -52,6 +52,14 @@ namespace Mind.Api.Models
         public string Description { get; set; }
 
         /// <summary>
+        /// The tenant owner of the vpn
+        /// </summary>
+        /// <value>String value denoting the name of the tenant owner</value>
+        /// <example>product-group-tenant</example>
+        [DataMember(Name = "tenantOwnerName")]
+        public string TenantOwnerName { get; set; }
+
+        /// <summary>
         /// The geographical region which the vpn operates within.
         /// </summary>
         /// <value>String value denoting the geographical region which the vpn operates within.</value>
@@ -152,6 +160,7 @@ namespace Mind.Api.Models
             sb.Append("  VpnId: ").Append(VpnId).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
+            sb.Append("  TenantOwnerName: ").Append(TenantOwnerName).Append("\n");
             sb.Append("  Region: ").Append(Region).Append("\n");
             sb.Append("  Plane: ").Append(Plane).Append("\n");
             sb.Append("  TenancyType: ").Append(TenancyType).Append("\n");
@@ -213,6 +222,11 @@ namespace Mind.Api.Models
                     Description == other.Description ||
                     Description != null &&
                     Description.Equals(other.Description)
+                ) &&
+                (
+                    TenantOwnerName == other.TenantOwnerName ||
+                    TenantOwnerName != null &&
+                    TenantOwnerName.Equals(other.TenantOwnerName)
                 ) &&
                 (
                     Region == other.Region ||
@@ -287,6 +301,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
+                    if (TenantOwnerName != null)
+                    hashCode = hashCode * 59 + TenantOwnerName.GetHashCode();
                     if (Region != null)
                     hashCode = hashCode * 59 + Region.GetHashCode();
                     if (Plane != null)

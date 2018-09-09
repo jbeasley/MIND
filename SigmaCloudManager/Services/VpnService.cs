@@ -15,7 +15,16 @@ namespace Mind.Services
 {
     public class VpnService : BaseService, IVpnService
     {
-        private readonly string _properties = "Region,"
+        private readonly string _shallowProperties = "Region,"
+                + "Plane,"
+                + "VpnTenancyType,"
+                + "MulticastVpnServiceType,"
+                + "MulticastVpnDirectionType,"
+                + "VpnTopologyType.VpnProtocolType,"
+                + "Tenant,"
+                + "AddressFamily";
+
+        private readonly string _deepProperties = "Region,"
                 + "Plane,"
                 + "VpnTenancyType,"
                 + "MulticastVpnServiceType,"
@@ -122,7 +131,7 @@ namespace Mind.Services
         {
             var orderBy = OrderBy(sortKey);
             var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(
-                        includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                        includeProperties: deep.HasValue && deep.Value ? _deepProperties : _shallowProperties,
                         AsTrackable: asTrackable,
                         orderBy: orderBy)
                         select vpns;
@@ -147,7 +156,7 @@ namespace Mind.Services
             return (from result in await this.UnitOfWork.VpnRepository.GetAsync(
                 q =>
                     q.VpnID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    includeProperties: deep.HasValue && deep.Value ? _deepProperties : _shallowProperties,
                     AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();
@@ -174,7 +183,7 @@ namespace Mind.Services
                         q.VpnAttachmentSets
                         .Where(r => r.AttachmentSetID == id)
                         .Any(),
-                        includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                        includeProperties: deep.HasValue && deep.Value ? _deepProperties : _shallowProperties,
                         AsTrackable: asTrackable,
                         orderBy: orderBy)
                         select vpns;
@@ -206,7 +215,7 @@ namespace Mind.Services
             var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(
                 q => 
                     q.TenantID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    includeProperties: deep.HasValue && deep.Value ? _deepProperties : _shallowProperties,
                     AsTrackable: false,
                     orderBy: orderBy)
                         select vpns;
@@ -237,15 +246,12 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Vpn> UpdateAsync(int vpnId, Mind.Models.RequestModels.VpnUpdate update)
         {
-            await _validator.ValidateChangesAsync(vpnId, update);
-            if (!_validator.IsValid) throw new ServiceValidationException();
-
             var vpn = await GetByIDAsync(vpnId, asTrackable: false);
             var updateDirector = _updateDirectorFactory(vpn);
             await updateDirector.UpdateAsync(vpnId, update);
             await this.UnitOfWork.SaveAsync();
 
-            return await GetByIDAsync(vpnId);
+            return await GetByIDAsync(vpnId, deep: true);
         }
 
         /// <summary>

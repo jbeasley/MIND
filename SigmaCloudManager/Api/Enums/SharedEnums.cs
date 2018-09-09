@@ -30,6 +30,12 @@ namespace Mind.Api
     public enum RegionEnum
     {
         /// <summary>
+        /// Enum for None
+        /// </summary>
+        [EnumMember(Value = "None")]
+        None = 0,
+
+        /// <summary>
         /// Enum for EMEA
         /// </summary>
         [EnumMember(Value = "EMEA")]
@@ -110,7 +116,7 @@ namespace Mind.Api
         /// <summary>
         /// Enum for Hub-and-Spoke
         /// </summary>
-        [EnumMember(Value = "hub-and-spoke")]
+        [EnumMember(Value = "hubAndSpoke")]
         HubAndSpoke = 2
     }
 

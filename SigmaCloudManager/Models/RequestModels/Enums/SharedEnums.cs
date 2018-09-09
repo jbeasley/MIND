@@ -12,6 +12,11 @@ namespace Mind.Models.RequestModels
     public enum RegionEnum
     {
         /// <summary>
+        /// Enum for None
+        /// </summary>
+        None = 0,
+   
+        /// <summary>
         /// Enum for EMEA
         /// </summary>
         EMEA = 1,

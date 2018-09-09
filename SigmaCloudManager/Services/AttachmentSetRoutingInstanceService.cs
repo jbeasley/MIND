@@ -37,14 +37,18 @@ namespace Mind.Services
 
         public async Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q => q.AttachmentSetID == id,
-               includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
-               AsTrackable: asTrackable);
+            return await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(
+                q =>
+                    q.AttachmentSetID == id,
+                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    AsTrackable: asTrackable);
         }
 
         public async Task<AttachmentSetRoutingInstance> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q => q.AttachmentSetRoutingInstanceID == id,
+            return (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(
+                q => 
+                    q.AttachmentSetRoutingInstanceID == id,
                     includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
                     AsTrackable: asTrackable)
                     select result)
@@ -54,26 +58,14 @@ namespace Mind.Services
         public async Task<AttachmentSetRoutingInstance> GetByAttachmentSetIDAndRoutingInstanceIDAsync(int attachmentSetId, int routingInstanceId,
             bool? deep = false, bool asTrackable = false)
         {
-            return (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q => 
+            return (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(
+                q => 
                     q.AttachmentSetID == attachmentSetId
                     && q.RoutingInstanceID == routingInstanceId,
                     includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
                     AsTrackable: asTrackable)
                     select result)
                    .SingleOrDefault();
-        }
-
-        /// <summary>
-        /// DEFUNCT - REMOVE
-        /// </summary>
-        /// <param name="attachmentSetRoutingInstance"></param>
-        /// <returns></returns>
-        public async Task<AttachmentSetRoutingInstance> AddAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance)
-        {
-            this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Insert(attachmentSetRoutingInstance);
-            await this.UnitOfWork.SaveAsync();
-
-            return await GetByIDAsync(attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID, deep: true, asTrackable: false);
         }
 
         public async Task<AttachmentSetRoutingInstance> AddAsync(int attachmentSetId, RoutingInstanceForAttachmentSetRequest request)
@@ -95,7 +87,8 @@ namespace Mind.Services
 
         public async Task DeleteAsync(int attachmentSetId, int routingInstanceId)
         {
-            var attachmentSetRoutingInstance = (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(q =>
+            var attachmentSetRoutingInstance = (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(
+                                             q =>
                                                 q.AttachmentSetID == attachmentSetId && q.RoutingInstanceID == routingInstanceId)
                                                 select result)
                                                 .Single();
@@ -114,18 +107,15 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<IEnumerable<RoutingInstance>> GetCandidateRoutingInstances(AttachmentSetRoutingInstanceRequest request)
         {
-            var query = (from result in await UnitOfWork.RoutingInstanceRepository.GetAsync(q => 
+            var query = (from result in await UnitOfWork.RoutingInstanceRepository.GetAsync(
+                    q => 
                         q.Device.LocationID == request.LocationID &&
                         q.TenantID == request.TenantID,
                         includeProperties: "Device,Tenant",
                         AsTrackable: false)
                         select result);
 
-            if (request.PlaneID != null)
-            {
-                query = query.Where(q => q.Device.PlaneID == request.PlaneID);
-            }
-
+            if (request.PlaneID != null) query = query.Where(q => q.Device.PlaneID == request.PlaneID);
             return query.ToList();
         }
     }

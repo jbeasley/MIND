@@ -10,7 +10,6 @@ namespace SCM.Validators
 {
     public interface IVpnValidator : IValidator
     {
-        Task ValidateChangesAsync(int vpnId, VpnUpdate update);
         Task ValidateDeleteAsync(int VpnId);
     }
 }

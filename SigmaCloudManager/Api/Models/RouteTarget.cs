@@ -32,7 +32,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>String value denoting the name of the route target range</value>
         /// <example>default</example>
-        [DataMember(Name="range-name")]
+        [DataMember(Name="rangeName")]
         public string RangeName { get; set; }
 
         /// <summary>
@@ -50,6 +50,14 @@ namespace Mind.Api.Models
         /// <example></example>
         [DataMember(Name ="assignedNumberSubField")]
         public int? AssignedNumberSubField { get; set; }
+
+        /// <summary>
+        /// The name of the route target formatted according to type 0 as defined in RFC 4364
+        /// </summary>
+        /// <value>A string value denoting the name of the route target</value>
+        /// <example>8718:1001</example>
+        [DataMember(Name ="name")]
+        public string Name { get; set; }
 
         /// <summary>
         /// Denotes whether the route target is assigned as a hub-export route target for a hub-and-spoke vpn.
@@ -70,6 +78,7 @@ namespace Mind.Api.Models
             sb.Append("  RangeName: ").Append(RangeName).Append("\n");
             sb.Append("  AssignedNumberSubField: ").Append(AssignedNumberSubField).Append("\n");
             sb.Append("  AdministratorSubField: ").Append(AssignedNumberSubField).Append("\n");
+            sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  IsHubExport: ").Append(IsHubExport).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -123,6 +132,11 @@ namespace Mind.Api.Models
                     AdministratorSubField.Equals(other.AdministratorSubField)
                 ) &&
                 (
+                    Name == other.Name ||
+                    Name != null &&
+                    Name.Equals(other.Name)
+                ) &&
+                (
                     IsHubExport == other.IsHubExport ||
                     IsHubExport != null &&
                     IsHubExport.Equals(other.IsHubExport)
@@ -145,6 +159,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AssignedNumberSubField.GetHashCode();
                     if (AdministratorSubField != null)
                     hashCode = hashCode * 59 + AdministratorSubField.GetHashCode();
+                    if (Name != null)
+                    hashCode = hashCode * 59 + Name.GetHashCode();
                     if (IsHubExport != null)
                     hashCode = hashCode * 59 + IsHubExport.GetHashCode();
                 return hashCode;

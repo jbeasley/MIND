@@ -168,7 +168,7 @@ namespace Mind.Api.Models
                     yield return new ValidationResult("A plane option must be specified for a multicast vpn.");
                 }
 
-                if (IsExtranet.HasValue & IsExtranet.Value)
+                if (IsExtranet.HasValue && IsExtranet.Value)
                 {
                     yield return new ValidationResult("Extranet is not currently available for multicast vpn.");
                 }

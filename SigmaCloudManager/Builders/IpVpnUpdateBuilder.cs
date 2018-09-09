@@ -21,37 +21,37 @@ namespace Mind.Builders
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithExtranet(bool? isExtranet)
         {
-            base.WithExtranet(isExtranet);
+            if (isExtranet.HasValue) base.WithExtranet(isExtranet);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithMulticastVpnDirectionType(string multicastVpnDirectionType)
         {
-            base.WithMulticastVpnDirectionType(multicastVpnDirectionType);
+            if (!string.IsNullOrEmpty(multicastVpnDirectionType)) base.WithMulticastVpnDirectionType(multicastVpnDirectionType);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithDescription(string description)
         {
-            base.WithDescription(description);
+            if (!string.IsNullOrEmpty(description)) base.WithDescription(description);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithName(string name)
         {
-            base.WithName(name);
+            if (!string.IsNullOrEmpty(name)) base.WithName(name);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithRegion(string regionName)
         {
-            base.WithRegion(regionName);
+            if (!string.IsNullOrEmpty(regionName)) base.WithRegion(regionName);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithTenancyType(string tenancyName)
         {
-            base.WithTenancyType(tenancyName);
+            if (!string.IsNullOrEmpty(tenancyName)) base.WithTenancyType(tenancyName);
             return this;
         }
 
@@ -65,6 +65,7 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithExtranet))) base.SetExtranet();
             if (_args.ContainsKey(nameof(WithMulticastVpnDirectionType))) await base.SetMulticastVpnDirectionTypeAsync();
 
+            base.Validate();
             return base._vpn;
         }
 
@@ -74,6 +75,18 @@ namespace Mind.Builders
             var vpn = (from result in await _unitOfWork.VpnRepository.GetAsync(
                     q =>
                        q.VpnID == vpnId,
+                       includeProperties:"AddressFamily," +
+                       "ExtranetVpnMembers.MemberVpn.Region," +
+                       "ExtranetVpns.ExtranetVpn.Region," +
+                       "VpnTenancyType," +
+                       "VpnTopologyType.VpnProtocolType," +
+                       "Tenant," +
+                       "Plane," +
+                       "Region," +
+                       "MulticastVpnServiceType," +
+                       "MulticastVpnDirectionType," +
+                       "RouteTargets.RouteTargetRange," +
+                       "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Device.Location.SubRegion.Region",
                        AsTrackable: true)
                        select result)
                        .Single();

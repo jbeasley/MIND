@@ -11,11 +11,9 @@ namespace SCM.Services
     {
         IUnitOfWork UnitOfWork { get; }
 
-        Task<IEnumerable<VpnAttachmentSet>> GetAllAsync(bool includeProperties = true);
-        Task<IEnumerable<VpnAttachmentSet>> GetAllByAttachmentSetIDAsync(int id, bool includeProperties = true);
-        Task<IEnumerable<VpnAttachmentSet>> GetAllByVpnIDAsync(int id, bool includeProperties = true);
-        Task<VpnAttachmentSet> GetByVpnAndAttachmentSetAsync(int vpnID, int attachmentSetID, bool includeProperties = true);
-        Task<VpnAttachmentSet> GetByIDAsync(int id, bool includeProperties = true);
+        Task<IEnumerable<VpnAttachmentSet>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<IEnumerable<VpnAttachmentSet>> GetAllByVpnIDAsync(int id, bool? deep = false, bool asTrackable = false);
+        Task<VpnAttachmentSet> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<int> AddAsync(VpnAttachmentSet attachmentSetVpn);
         Task<int> UpdateAsync(VpnAttachmentSet attachmentSetVpn);
         Task<int> DeleteAsync(VpnAttachmentSet attachmentSetVpn);

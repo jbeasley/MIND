@@ -21,7 +21,10 @@ namespace Mind.Builders
             {
                 Created = true,
                 ShowCreatedAlert = true,
-                RouteTargets = new List<RouteTarget>()
+                RouteTargets = new List<RouteTarget>(),
+                VpnAttachmentSets = new List<VpnAttachmentSet>(),
+                ExtranetVpnMembers = new List<ExtranetVpnMember>(),
+                ExtranetVpns = new List<ExtranetVpnMember>()
             };
         }
 
@@ -111,15 +114,23 @@ namespace Mind.Builders
         protected internal virtual async Task SetRegionAsync()
         {
             var regionName = _args[nameof(WithRegion)].ToString();
-            var region = (from result in await _unitOfWork.RegionRepository.GetAsync(
-                q =>
-                    q.Name == regionName,
-                          AsTrackable: true)
-                          select result)
-                          .SingleOrDefault();
+            if (regionName == "None")
+            {
+                _vpn.Region = null;
+                _vpn.RegionID = null;
+            }
+            else
+            {
+                var region = (from result in await _unitOfWork.RegionRepository.GetAsync(
+                    q =>
+                        q.Name == regionName,
+                              AsTrackable: true)
+                              select result)
+                              .SingleOrDefault();
 
-            _vpn.Region = region ?? throw new BuilderBadArgumentsException("The specified region was not recognised. Check that the " +
-                $"region argument '{regionName}' is correct.");
+                _vpn.Region = region ?? throw new BuilderBadArgumentsException("The specified region was not recognised. Check that the " +
+                    $"region argument '{regionName}' is correct.");
+            }
         }
 
         protected internal virtual async Task SetTenantAsync()
@@ -145,7 +156,7 @@ namespace Mind.Builders
                         select result)
                         .SingleOrDefault();
 
-            _vpn.VpnTenancyType = tenancyType ?? throw new BuilderBadArgumentsException("The specified tenant type was not recognised. Check that " +
+            _vpn.VpnTenancyType = tenancyType ?? throw new BuilderBadArgumentsException("The specified tenancy type was not recognised. Check that " +
                 $"the tenancy type argument '{tenancyTypeName}' is correct.");
         }
 
@@ -155,6 +166,7 @@ namespace Mind.Builders
             var topologyType = (from result in await _unitOfWork.VpnTopologyTypeRepository.GetAsync(
                             q =>
                                 q.Name == topologyTypeName,
+                                includeProperties:"VpnProtocolType",
                                 AsTrackable: true)
                                 select result)
                                .SingleOrDefault();

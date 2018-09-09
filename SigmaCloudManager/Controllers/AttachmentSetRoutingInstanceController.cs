@@ -110,16 +110,16 @@ namespace SCM.Controllers
         {
             if (ModelState.IsValid)
             {
-                var attachmentSetRoutingInstance = Mapper.Map<AttachmentSetRoutingInstance>(attachmentSetRoutingInstanceModel);
+                var attachmentSetRoutingInstanceRequest = Mapper.Map<Mind.Models.RequestModels.RoutingInstanceForAttachmentSetRequest>(attachmentSetRoutingInstanceModel);
 
                 try
                 {
-                    await _attachmentSetRoutingInstanceService.AddAsync(attachmentSetRoutingInstance);
-                    var vpns = await _vpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstance.AttachmentSetID);
+                    await _attachmentSetRoutingInstanceService.AddAsync(attachmentSetRoutingInstanceModel.AttachmentSetID, attachmentSetRoutingInstanceRequest);
+                    var vpns = await _vpnService.GetAllByAttachmentSetIDAsync(attachmentSetRoutingInstanceModel.AttachmentSetID);
 
                     return RedirectToAction("GetAllByAttachmentSetID", new
                     {
-                        id = attachmentSetRoutingInstance.AttachmentSetID,
+                        id = attachmentSetRoutingInstanceModel.AttachmentSetID,
                         showWarningMessage = vpns.Any()
                     });
                 }

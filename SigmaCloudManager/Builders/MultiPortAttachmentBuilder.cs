@@ -21,29 +21,12 @@ namespace Mind.Builders
 
         public override async Task<Attachment> BuildAsync()
         {
-            await Task.WhenAll(new List<Task> {
-                base.BuildAsync(),
-                CreateMultiPortId()
-            });
-
+            await base.BuildAsync();
+            await CreateMultiPortIdAsync();
             _attachment.IsMultiPort = true;
+            Validate();
 
             return _attachment;
-        }
-
-        protected internal override async Task CreateAttachmentRoleAsync()
-        {
-            await base.CreateAttachmentRoleAsync();
-            if (!_attachment.AttachmentRole.SupportedByMultiPort) throw new BuilderBadArgumentsException($"The requested attachment role " +
-                $"'{_attachment.AttachmentRole.Name}' is not supported with a multiport attachment.");
-        }
-
-        protected internal override async Task CreateAttachmentBandwidthAsync()
-        {
-            await base.CreateAttachmentBandwidthAsync();
-            if (!_attachment.AttachmentBandwidth.SupportedByMultiPort) throw new BuilderBadArgumentsException($"The requested attachment " +
-                $"bandwidth '{_attachment.AttachmentBandwidth.BandwidthGbps} Gbps' is not supported with a multiport attachment.");
- 
         }
 
         protected internal override void SetNumberOfPortsRequired()
@@ -59,41 +42,46 @@ namespace Mind.Builders
 
         protected internal override void CreateInterfaces()
         {
-            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses = null;
+            var ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
             var isLayer3Role = _attachment.AttachmentRole.IsLayer3Role;
-            if (isLayer3Role)
-            {
-                ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args["ipv4Addresses"];
-                if (!ipv4Addresses.Any()) throw new BuilderBadArgumentsException("An IPv4 address and subnet mask is required in order to create a layer 3 enabled " +
-                        "interface for the attachment.");
-
-                if (ipv4Addresses.Count < _numPortsRequired) throw new BuilderBadArgumentsException("An insufficient number of IPv4 addressses has been supplied. " +
-                    $"{_numPortsRequired} IPv4 addresses are needed to create the multiport attachment.");
-            }
-
             var ports = _ports.ToList();
             _attachment.Interfaces = new List<Interface>();
             
             for (var i = 0; i < _numPortsRequired; i++)
             {
+                var ipv4AddressAndMask = ipv4Addresses.FirstOrDefault();
                 var iface = new Interface
                 {
                     DeviceID = _attachment.Device.DeviceID,
                     Ports = new List<Port> { ports[i] },
-                    IpAddress = isLayer3Role ? ipv4Addresses[i].IpAddress : null,
-                    SubnetMask = isLayer3Role ? ipv4Addresses[i].SubnetMask : null
+                    IpAddress = ipv4AddressAndMask?.IpAddress,
+                    SubnetMask = ipv4AddressAndMask?.SubnetMask
                 };
 
+                if (ipv4AddressAndMask != null) ipv4Addresses.Remove(ipv4AddressAndMask);
                 _attachment.Interfaces.Add(iface);
             }
         }
 
-        private async Task CreateMultiPortId()
+        protected internal override void Validate()
         {
-            var usedMultiPortIds = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.DeviceID == _attachment.DeviceID && q.IsMultiPort)
+            base.Validate();
+
+            if (!_attachment.AttachmentRole.SupportedByMultiPort) throw new BuilderIllegalStateException($"The requested attachment role " +
+                $"'{_attachment.AttachmentRole.Name}' is not supported with a multiport attachment.");
+
+            if (!_attachment.AttachmentBandwidth.SupportedByMultiPort) throw new BuilderIllegalStateException($"The requested attachment " +
+                $"bandwidth '{_attachment.AttachmentBandwidth.BandwidthGbps} Gbps' is not supported with a multiport attachment.");
+        }
+
+        private async Task CreateMultiPortIdAsync()
+        {
+            var usedMultiPortIds = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(
+                                q => 
+                                    q.DeviceID == _attachment.DeviceID && q.IsMultiPort)
                                     select attachments)
-                        .Select(q => q.ID).Where(q => q != null)
-                        .ToList();
+                                    .Select(q => q.ID).Where(q => q != null)
+                                    .ToList();
 
             int? id = Enumerable.Range(1, 65535).Except(usedMultiPortIds.Select(q => q.Value)).FirstOrDefault();
 

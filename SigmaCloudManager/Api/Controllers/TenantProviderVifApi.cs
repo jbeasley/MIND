@@ -85,6 +85,11 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
+            catch (BuilderIllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
@@ -232,9 +237,9 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (ServiceValidationException)
+            catch (BuilderIllegalStateException ex)
             {
-                return new ValidationFailedResult(this.ModelState);
+                return new ValidationFailedResult(ex.Message);
             }
 
             catch (DbUpdateException)

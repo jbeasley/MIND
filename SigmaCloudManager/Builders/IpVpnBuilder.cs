@@ -301,8 +301,10 @@ namespace Mind.Builders
         /// <summary>
         /// Validate the state of the vpn.
         /// </summary>
-        protected internal virtual void Validate()
+        protected override internal void Validate()
         {
+            base.Validate();
+
             if (_vpn.AddressFamily.Name == "IPv4")
             {
                 if (_vpn.VpnTopologyType.VpnProtocolType.ProtocolType != ProtocolTypeEnum.IP)

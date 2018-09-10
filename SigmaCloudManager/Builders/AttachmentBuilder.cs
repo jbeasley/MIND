@@ -26,7 +26,8 @@ namespace Mind.Builders
             _attachment = new Attachment
             {
                 Created = true,
-                ShowCreatedAlert = true
+                ShowCreatedAlert = true,
+                Vifs = new List<Vif>()
             };
 
             _routingInstanceDirectorFactory = routingInstanceDirectorFactory;
@@ -114,25 +115,22 @@ namespace Mind.Builders
             await AllocatePortsAsync();
             CreateInterfaces();
             await SetMtuAsync();
-            if (_attachment.AttachmentRole.RequireContractBandwidth)
+
+            if (_args.ContainsKey("contractBandwidthMbps"))
             {
-                if (_args.ContainsKey("contractBandwidthMbps"))
-                {
-                    await CreateContractBandwidthPoolAsync();
-                    SetTrustReceivedCosAndDscp();
-                }
+                await CreateContractBandwidthPoolAsync();
+                SetTrustReceivedCosAndDscp();
             }
-            if (!_attachment.AttachmentRole.IsTaggedRole)
+
+            if (_args.ContainsKey(nameof(WithExistingRoutingInstance)) && _args[nameof(WithExistingRoutingInstance)] != null)
             {
-                if (_args.ContainsKey(nameof(WithExistingRoutingInstance)) && _args[nameof(WithExistingRoutingInstance)] != null)
-                {
-                    await AssociateExistingRoutingInstanceAsync();
-                }
-                else
-                {
-                    await CreateRoutingInstanceAsync();
-                }
+                await AssociateExistingRoutingInstanceAsync();
             }
+            else
+            {
+                await CreateRoutingInstanceAsync();
+            }
+
             return _attachment;
         }
 
@@ -154,9 +152,9 @@ namespace Mind.Builders
                           q.TenantID == tenantId,
                           AsTrackable: true)
                           select result)
-                          .Single();
+                          .SingleOrDefault();
 
-            _attachment.Tenant = tenant;
+            _attachment.Tenant = tenant ?? throw new BuilderBadArgumentsException($"The tenant with ID '{tenantId}' was not found.");
         }
 
         /// <summary>
@@ -172,7 +170,7 @@ namespace Mind.Builders
             foreach (var port in _ports)
             {
                 port.PortStatusID = assignedPortStatus.PortStatusID;
-                port.TenantID = _attachment.TenantID;
+                port.TenantID = _attachment.Tenant.TenantID;
             }
         }
 
@@ -183,14 +181,13 @@ namespace Mind.Builders
         protected internal virtual async Task CreateAttachmentBandwidthAsync()
         {
             var attachmentBandwidthGbps = (int)_args[nameof(WithAttachmentBandwidth)];
-            var attachmentBandwidth = (from attachmentBandwidths in await _unitOfWork.AttachmentBandwidthRepository.GetAsync(q =>
-            q.BandwidthGbps == attachmentBandwidthGbps, AsTrackable: true)
+            var attachmentBandwidth = (from attachmentBandwidths in await _unitOfWork.AttachmentBandwidthRepository.GetAsync(
+                                    q =>
+                                       q.BandwidthGbps == attachmentBandwidthGbps, 
+                                       AsTrackable: true)
                                        select attachmentBandwidths)
                                        .SingleOrDefault();
 
-            if (attachmentBandwidth == null) throw new BuilderBadArgumentsException("The requested attachment bandwidth is not valid.");
-
-            _attachment.AttachmentBandwidthID = attachmentBandwidth.AttachmentBandwidthID;
             _attachment.AttachmentBandwidth = attachmentBandwidth;
         }
 
@@ -202,8 +199,12 @@ namespace Mind.Builders
         {
             var attachmentRoleName = _args["attachmentRoleName"].ToString();
             var portPoolName = _args["portPoolName"].ToString();
-            var attachmentRole = (from attachmentRoles in await _unitOfWork.AttachmentRoleRepository.GetAsync(q =>
-            q.PortPool.Name == portPoolName && q.Name == attachmentRoleName, AsTrackable: true)
+            var attachmentRole = (from attachmentRoles in await _unitOfWork.AttachmentRoleRepository.GetAsync(
+                            q =>
+                                q.PortPool.Name == portPoolName && q.Name == attachmentRoleName, 
+                                includeProperties:"RoutingInstanceType," +
+                                "PortPool.PortRole",
+                                AsTrackable: true)
                                   select attachmentRoles)
                                   .SingleOrDefault();
 
@@ -225,20 +226,12 @@ namespace Mind.Builders
                 DeviceID = _attachment.Device.DeviceID,
                 Ports = _ports.ToList()
             };
-            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses;
-            if (_attachment.AttachmentRole.IsLayer3Role)
-            {
-                ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
-                if (!ipv4Addresses.Any())
-                {
-                    throw new BuilderBadArgumentsException("An IPv4 address and subnet mask is required in order to create a layer 3 " +
-                        "enabled interface for the attachment.");
-                }
 
-                var ipv4AddressAndMask = ipv4Addresses.First();
-                iface.IpAddress = ipv4AddressAndMask.IpAddress;
-                iface.SubnetMask = ipv4AddressAndMask.SubnetMask;
-            }
+            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses;
+            ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
+            var ipv4AddressAndMask = ipv4Addresses.FirstOrDefault();
+            iface.IpAddress = ipv4AddressAndMask?.IpAddress;
+            iface.SubnetMask = ipv4AddressAndMask?.SubnetMask;
 
             _attachment.Interfaces = new List<Interface> { iface };
         }
@@ -246,12 +239,6 @@ namespace Mind.Builders
         protected internal virtual async Task CreateContractBandwidthPoolAsync()
         {
             var contractBandwidthMbps = (int)_args["contractBandwidthMbps"];
-            if (contractBandwidthMbps > _attachment.AttachmentBandwidth.BandwidthGbps * 1000)
-            {
-                throw new BuilderBadArgumentsException($"The requested contract bandwidth of {contractBandwidthMbps} Mbps is greater " +
-                    $"than the bandwidth of the attachment which is {_attachment.AttachmentBandwidth.BandwidthGbps} Gbps.");
-            }
-
             var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(q =>
                                      q.BandwidthMbps == contractBandwidthMbps)
                                      select contractBandwidths)
@@ -281,19 +268,20 @@ namespace Mind.Builders
 
         protected internal virtual async Task CreateRoutingInstanceAsync()
         {
-            if (_attachment.AttachmentRole.RoutingInstanceTypeID == null) throw new BuilderUnableToCompleteException("A routing instance type is required " +
-                "for the attachment role but was not found.");
+            if (_attachment.AttachmentRole.RoutingInstanceType != null) {
 
-            var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(q =>
-            q.RoutingInstanceTypeID == _attachment.AttachmentRole.RoutingInstanceTypeID.Value)
-                                       select routingInstanceTypes)
-                                       .Single();
+                var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
+                                        q =>
+                                           q.RoutingInstanceTypeID == _attachment.AttachmentRole.RoutingInstanceType.RoutingInstanceTypeID)
+                                           select routingInstanceTypes)
+                                           .Single();
 
-            var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
-            var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _attachment.Device.DeviceID,
-                                                                           tenantId: _attachment.Tenant.TenantID);
+                var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
+                var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _attachment.Device.DeviceID,
+                                                                               tenantId: _attachment.Tenant.TenantID);
 
-            _attachment.RoutingInstance = routingInstance;
+                _attachment.RoutingInstance = routingInstance;
+            }
         }
 
         protected internal virtual async Task AssociateExistingRoutingInstanceAsync()
@@ -303,15 +291,15 @@ namespace Mind.Builders
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                                     x => 
                                            x.Name == routingInstanceName
-                                           && x.TenantID == _attachment.TenantID
-                                           && x.DeviceID == _attachment.DeviceID,
+                                           && x.TenantID == _attachment.Tenant.TenantID
+                                           && x.DeviceID == _attachment.Device.DeviceID,
                                            AsTrackable: true)
                                            select routingInstances)
                                            .SingleOrDefault();
 
             _attachment.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
                 $"instance '{routingInstanceName}' belonging to tenant '{_attachment.Tenant.Name}'.");
-            _attachment.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
+            _attachment.RoutingInstance = existingRoutingInstance;
         }
 
         protected internal virtual async Task SetMtuAsync()
@@ -321,11 +309,12 @@ namespace Mind.Builders
 
             var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(
                 x => 
-                    x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu)
+                    x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu,
+                    AsTrackable: true)
                        select mtus)
-                       .Single();
+                       .SingleOrDefault();
 
-            _attachment.MtuID = mtu.MtuID;
+            _attachment.Mtu = mtu;
         }
 
         /// <summary>
@@ -353,7 +342,7 @@ namespace Mind.Builders
 
             var query = from d in await _unitOfWork.DeviceRepository.GetAsync(q => q.DeviceStatus.DeviceStatusType == DeviceStatusTypeEnum.Production
                 && q.LocationID == location.LocationID
-                && q.DeviceRole.DeviceRoleAttachmentRoles.Where(x => x.AttachmentRoleID == _attachment.AttachmentRoleID).Any(),
+                && q.DeviceRole.DeviceRoleAttachmentRoles.Where(x => x.AttachmentRoleID == _attachment.AttachmentRole.AttachmentRoleID).Any(),
                 includeProperties: "Ports.PortBandwidth,Ports.Device,Ports.PortStatus,Attachments", AsTrackable: true)
                         select d;
 
@@ -389,29 +378,128 @@ namespace Mind.Builders
             else if (devices.Count > 1)
             {
                 // Get device with the most free ports of the required Port Bandwidth
-
-                _attachment.Device = devices.Aggregate((current, x) =>
-                (x.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
-                && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
-                .Count() >
-                current.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
-                && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
-                .Count() ? x : current));
+                _attachment.Device = devices.Aggregate(
+                    (current, x) =>
+                        (x.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
+                        && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
+                        .Count() >
+                        current.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
+                        && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
+                        .Count() ? x : current));
             }
             else
             {
                 // Only one device found
-
                 _attachment.Device = devices.Single();
             }
 
             // Get the ports
-
-            var ports = _attachment.Device.Ports.Where(q => q.PortStatus.PortStatusType == PortStatusTypeEnum.Free
-                  && q.PortBandwidth.BandwidthGbps == _portBandwidthRequired
-                  && q.PortPoolID == _attachment.AttachmentRole.PortPoolID);
+            var ports = _attachment.Device.Ports.Where(
+                    q => 
+                        q.PortStatus.PortStatusType == PortStatusTypeEnum.Free
+                        && q.PortBandwidth.BandwidthGbps == _portBandwidthRequired
+                        && q.PortPoolID == _attachment.AttachmentRole.PortPoolID);
 
             return ports.Take(_numPortsRequired);
+        }
+
+        /// <summary>
+        /// Validate the state of the attachment.
+        /// </summary>
+        protected virtual internal void Validate()
+        {
+            if (_attachment.Mtu == null) throw new BuilderIllegalStateException("An MTU is required for the attachment.");
+            if (_attachment.AttachmentBandwidth == null) throw new BuilderIllegalStateException("An attachmnt bandwidth is required for the attachment.");
+            if (_attachment.AttachmentRole == null) throw new BuilderIllegalStateException("An attachment role is required for the attachment.");
+            if (_attachment.Device == null) throw new BuilderIllegalStateException("A device is required for the attachment.");
+            if (!_attachment.Interfaces.Any()) throw new BuilderIllegalStateException("At least one interface is required for the attachment.");
+            if (_attachment.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing && _attachment.Tenant == null)
+            {
+                throw new BuilderIllegalStateException("A tenant association is required for the attachment in accordance with the attachment role of " +
+                    $"'{_attachment.AttachmentRole.Name}'.");
+            }
+            else if (_attachment.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure && _attachment.Tenant == null)
+            {
+                throw new BuilderIllegalStateException("A tenant association is required for the attachment in accordance with the attachment role of " +
+                    $"'{_attachment.AttachmentRole.Name}'.");
+            }
+            else if (_attachment.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure && _attachment.Tenant != null)
+            {
+                throw new BuilderIllegalStateException("A tenant association exists for the attachment but is NOT required in accordance with the " +
+                    $"attachment role of '{_attachment.AttachmentRole.Name}'.");
+            }
+
+            if (_attachment.RoutingInstance == null && _attachment.AttachmentRole.RoutingInstanceTypeID.HasValue)
+                throw new BuilderIllegalStateException("Illegal routing instance state. A routing instance for the attachment is required in accordance " +
+                    $"with the requested attachment role of '{_attachment.AttachmentRole.Name}' but was not found.");
+
+            if (_attachment.RoutingInstance != null && !_attachment.AttachmentRole.RoutingInstanceTypeID.HasValue)
+                throw new BuilderIllegalStateException("Illegal routing instance state. A routing instance for the attachment has been assigned but is " +
+                    $"not required for an attachment with attachment role of '{_attachment.AttachmentRole.Name}'.");
+
+            if (_attachment.RoutingInstance != null && _attachment.AttachmentRole.RoutingInstanceType != null)
+            {
+                if (_attachment.RoutingInstance.RoutingInstanceType.RoutingInstanceTypeID != _attachment.AttachmentRole.RoutingInstanceTypeID)
+                {
+                    throw new BuilderIllegalStateException("Illegal routing instance state. The routing instance type for the attachment is different to that " +
+                        $"required by the attachment role. The routing instance type required is '{_attachment.AttachmentRole.RoutingInstanceType.Type.ToString()}'. " +
+                        $"The routing instance type assigned to the attachment is '{_attachment.RoutingInstance.RoutingInstanceType.Type.ToString()}'.");
+                }
+            }
+
+            if (_attachment.IsLayer3)
+            {
+                if (_attachment.Interfaces.Where(x => !string.IsNullOrEmpty(x.IpAddress) &&
+                !string.IsNullOrEmpty(x.SubnetMask)).Count() != _attachment.Interfaces.Count)
+                {
+                    throw new BuilderIllegalStateException("The attachment is enabled for layer 3 but insufficient IPv4 addresses have been requested.");
+                }
+            }
+            else if (_attachment.Interfaces.Where(x => !string.IsNullOrEmpty(x.IpAddress) || !string.IsNullOrEmpty(x.SubnetMask)).Any())
+            {
+                throw new BuilderIllegalStateException("The attachment is NOT enabled for layer 3 but IPv4 addresses have been requested.");
+            }
+
+            if (_attachment.AttachmentRole.RequireContractBandwidth)
+            {
+                if (_attachment.ContractBandwidthPool == null)
+                {
+                    throw new BuilderIllegalStateException("A contract bandwidth for the attachment is required in accordance with the attachment role " +
+                        $"of '{_attachment.AttachmentRole.Name}' but none is defined.");
+                }
+
+                if (_attachment.ContractBandwidthPool.ContractBandwidth.BandwidthMbps > _attachment.AttachmentBandwidth.BandwidthGbps * 1000)
+                {
+                    throw new BuilderIllegalStateException($"The requested contract bandwidth of " +
+                        $"{_attachment.ContractBandwidthPool.ContractBandwidth.BandwidthMbps} Mbps is greater " +
+                        $"than the bandwidth of the attachment which is {_attachment.AttachmentBandwidth.BandwidthGbps} Gbps.");
+                }
+            }
+            else
+            {
+                if (_attachment.ContractBandwidthPool != null)
+                {
+                    throw new BuilderIllegalStateException("A contract bandwidth for the attachment is defined but is NOT required for the attachment role " +
+                        $"of '{_attachment.AttachmentRole.Name}'.");
+                }
+            }
+
+            if (_attachment.AttachmentRole.IsTaggedRole)
+            {
+                if (!_attachment.IsTagged)
+                {
+                    throw new BuilderIllegalStateException("The attachment must be enabled for tagging with the 'isTagged' property in accordance with the " +
+                        $"attachment role of '{_attachment.AttachmentRole.Name}'.");
+                }
+                if (_attachment.IsLayer3) throw new BuilderIllegalStateException("Layer 3 cannot be enabled concurrently with a tagged attachment.");
+            }
+            else
+            {
+                if (_attachment.Vifs.Any())
+                {
+                    throw new BuilderIllegalStateException("Vifs were found for the attachment but the attachment is not enabled for tagging with the 'isTagged' properrty.");
+                }
+            }
         }
     }
 }

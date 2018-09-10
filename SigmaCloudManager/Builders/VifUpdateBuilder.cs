@@ -90,8 +90,32 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithJumboMtu))) await base.SetMtuAsync();
             if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
 
+            Validate();
+
             return base._vif;
 
+        }
+
+        /// <summary>
+        /// Validate the state of the vif.
+        /// </summary>
+        protected internal override void Validate()
+        {
+            base.Validate();
+            var aggContractBandwidthMbps = _vif.Attachment.Vifs
+                                                          .Where(vif => vif.VifID != _vif.VifID)
+                                                          .Select(
+                                                            vif => 
+                                                                vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                                                                .Aggregate(0, (x, y) => x + y);
+
+            var attachmentBandwidthMbps = _vif.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
+            if (attachmentBandwidthMbps < aggContractBandwidthMbps)
+            {
+                throw new BuilderIllegalStateException($"The contract bandwidth requested for the vif of " +
+                    $"{_vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps} Mbps is greater " +
+                    $"than the remaining available bandwidth of the attachment ({attachmentBandwidthMbps - aggContractBandwidthMbps} Mbps).");
+            }
         }
 
         private async Task UpdateContractBandwidthPoolAsync()
@@ -105,21 +129,6 @@ namespace Mind.Builders
 
             // We simply need to repoint the contract bandwidth pool to the new contract bandwidth
             var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
-
-            var aggContractBandwidthMbps = _vif.Attachment.Vifs
-                .Where(vif => vif.VifID != _vif.VifID)
-                .Select(
-                vif => vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
-                .Aggregate(0, (x, y) => x + y);
-
-            var attachmentBandwidthMbps = _vif.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
-
-            if (attachmentBandwidthMbps < (aggContractBandwidthMbps + contractBandwidthMbps))
-            {
-                throw new BuilderBadArgumentsException($"The requested contract bandwidth of {contractBandwidthMbps} Mbps is greater " +
-                    $"than the remaining available bandwidth of the attachment ({attachmentBandwidthMbps - aggContractBandwidthMbps} Mbps).");
-            }
-
             var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(
                                   q =>
                                      q.BandwidthMbps == contractBandwidthMbps,
@@ -143,7 +152,7 @@ namespace Mind.Builders
                     "Attachment.AttachmentBandwidth," +
                     "Attachment.Device," +
                     "Vlans," +
-                    "VifRole," +
+                    "VifRole.AttachmentRole.PortPool.PortRole," +
                     "Tenant," +
                     "ContractBandwidthPool," +
                     "Mtu",
@@ -158,19 +167,16 @@ namespace Mind.Builders
         {
             var ipv4AddressesAndMasks = (List<Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
             if (base._vif.VifRole.IsLayer3Role)
-            {
-                if (ipv4AddressesAndMasks.Count < _vif.Vlans.Count) throw new BuilderBadArgumentsException($"{_vif.Vlans.Count} set(s) of IPv4 addresses and " +
-                    $"subnet masks are required because the vif is configured with this number of vlans. One IPv4 address and subnet mask is required per vlan.");
-
+            { 
                 base._vif.Vlans
                     .ToList()
                     .ForEach(
                         x =>
                             {
-                                var ipv4AddressAndMask = ipv4AddressesAndMasks.First();
-                                x.IpAddress = ipv4AddressAndMask.IpAddress;
-                                x.SubnetMask = ipv4AddressAndMask.SubnetMask;
-                                ipv4AddressesAndMasks.Remove(ipv4AddressAndMask);
+                                var ipv4AddressAndMask = ipv4AddressesAndMasks.FirstOrDefault();
+                                x.IpAddress = ipv4AddressAndMask?.IpAddress;
+                                x.SubnetMask = ipv4AddressAndMask?.SubnetMask;
+                                if (ipv4AddressAndMask != null) ipv4AddressesAndMasks.Remove(ipv4AddressAndMask);
                             });
 
             }

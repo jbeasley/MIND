@@ -11,6 +11,5 @@ namespace Mind.Validators
     public interface IProviderDomainAttachmentValidator : IValidator
     {
         Task ValidateDeleteAsync(int attachmentId);
-        Task ValidateChangesAsync(int attachmentId, ProviderDomainAttachmentUpdate update);
     }
 }

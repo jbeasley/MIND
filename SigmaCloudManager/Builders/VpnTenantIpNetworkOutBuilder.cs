@@ -65,7 +65,7 @@ namespace Mind.Builders
             var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                 q => q.AttachmentSetID == attachmentSetId, AsTrackable: true)
                                  select result)
-                                 .Single();
+                                 .SingleOrDefault();
 
             _vpnTenantIpNetworkOut.AttachmentSet = attachmentSet;
         }
@@ -77,14 +77,12 @@ namespace Mind.Builders
                               q =>
                               q.TenantID == _vpnTenantIpNetworkOut.AttachmentSet.TenantID &&
                               q.CidrNameIncludingIpv4LessThanOrEqualToLength == tenantIpNetworkCidrName,
-                              AsTrackable: false)
+                              AsTrackable: true)
                                    select result)
                                  .SingleOrDefault();
 
-            if (tenantIpNetwork == null) throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
+            _vpnTenantIpNetworkOut.TenantIpNetwork = tenantIpNetwork ?? throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
                 $"the given arguments. The tenant IP network CIDR name '{tenantIpNetworkCidrName}' does not exist.");
-
-            _vpnTenantIpNetworkOut.TenantIpNetworkID = tenantIpNetwork.TenantIpNetworkID;
         }
 
         protected virtual internal async Task SetIpv4BgpPeerAsync()
@@ -100,11 +98,29 @@ namespace Mind.Builders
                            select bgpPeers)
                                     .SingleOrDefault(x => x.Ipv4PeerAddress == ipv4PeerAddress);
 
-            if (bgpPeer == null) throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
+            _vpnTenantIpNetworkOut.BgpPeer = bgpPeer ?? throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
                 $"the given arguments. The BGP peer address '{ipv4PeerAddress}' does not exist within any routing instance which belongs to " +
                 $"the attachment set.");
+        }
 
-            _vpnTenantIpNetworkOut.BgpPeerID = bgpPeer.BgpPeerID;
+        /// <summary>
+        /// Validate the state of the vpn tenant IP network.
+        /// </summary>
+        protected virtual internal void Validate()
+        {
+            if (_vpnTenantIpNetworkOut.AttachmentSet == null) throw new BuilderIllegalStateException("An attachment set association with the " +
+                "tenant IP network is required but was not found.");
+
+            if (_vpnTenantIpNetworkOut.TenantIpNetwork == null)
+                throw new BuilderIllegalStateException("Unable to create a new tenant IP network association with the " +
+                $"attachment set using the given arguments. The tenant IP network CIDR block '{_args[nameof(WithTenantIpNetworkCidrName)].ToString()}' " +
+                $"could not be found.");
+
+            if (_vpnTenantIpNetworkOut.BgpPeer == null)
+            {
+                throw new BuilderIllegalStateException($"A BGP peer association with the tenant IP network '{_vpnTenantIpNetworkOut.TenantIpNetwork.CidrName}' " +
+                    "was not found.");
+            }
         }
     }
 }

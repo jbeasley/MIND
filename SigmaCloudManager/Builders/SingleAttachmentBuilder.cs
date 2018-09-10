@@ -18,6 +18,13 @@ namespace Mind.Builders
         {
         }
 
+        public async override Task<Attachment> BuildAsync()
+        {
+            await base.BuildAsync();
+            base.Validate();
+            return base._attachment;
+        }
+
         /// <summary>
         /// Set the port bandwidth required. The port bandwidth is equal to the requested attachment
         /// bandwidth for single attachments.

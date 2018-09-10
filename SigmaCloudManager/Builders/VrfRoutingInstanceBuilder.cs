@@ -29,9 +29,9 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVrfRoutingInstanceBuilder WithTenant(int tenantId)
+        public virtual IVrfRoutingInstanceBuilder WithTenant(int? tenantId)
         {
-            _args.Add(nameof(WithTenant), tenantId);
+            if (tenantId.HasValue) _args.Add(nameof(WithTenant), tenantId);
             return this;
         }
 
@@ -49,12 +49,39 @@ namespace Mind.Builders
 
         public virtual async Task<RoutingInstance> BuildAsync()
         {
-            _routingInstance.DeviceID = (int)_args[nameof(ForDevice)];
-            _routingInstance.TenantID = (int)_args[nameof(WithTenant)];
+            await SetDeviceAsync();
+            if (_args.ContainsKey(nameof(WithTenant))) await SetTenantAsync();
             await SetRoutingInstanceTypeAsync();
             await SetRouteDistinguisherAsync();
 
+            Validate();
             return _routingInstance;
+        }
+
+        protected internal virtual async Task SetDeviceAsync()
+        {
+            var deviceId = (int)_args[nameof(ForDevice)];
+            var device = (from result in await _unitOfWork.DeviceRepository.GetAsync(
+                    q =>
+                        q.DeviceID == deviceId,
+                        AsTrackable: true)
+                        select result)
+                        .SingleOrDefault();
+
+            _routingInstance.Device = device;      
+        }
+
+        protected internal virtual async Task SetTenantAsync()
+        {
+            var tenantId = (int)_args[nameof(WithTenant)];
+            var tenant = (from result in await _unitOfWork.TenantRepository.GetAsync(
+                     q =>
+                          q.TenantID == tenantId,
+                          AsTrackable: true)
+                          select result)
+                          .SingleOrDefault();
+
+            _routingInstance.Tenant = tenant;
         }
 
         protected internal virtual async Task SetRoutingInstanceTypeAsync()
@@ -65,7 +92,8 @@ namespace Mind.Builders
                                        q.Type == routingInstanceTypeEnum,
                                        AsTrackable: true)
                                        select result)
-                                       .Single();
+                                       .SingleOrDefault();
+
             _routingInstance.RoutingInstanceType = routingInstanceType;
         }
 
@@ -102,7 +130,33 @@ namespace Mind.Builders
 
             _routingInstance.AdministratorSubField = rdRange.AdministratorSubField;
             _routingInstance.AssignedNumberSubField = newRdAssignedNumberSubField.Value;
-            _routingInstance.RouteDistinguisherRangeID = rdRange.RouteDistinguisherRangeID;
+            _routingInstance.RouteDistinguisherRange = rdRange;
+        }
+
+        protected internal virtual void Validate()
+        {
+            if (_routingInstance.Device == null) throw new BuilderIllegalStateException("A device must be defined for the routing instance.");
+            if (!_routingInstance.AdministratorSubField.HasValue) throw new BuilderIllegalStateException("An administrator subfield value must be defined " +
+                "for the routing instance.");
+            if (!_routingInstance.AssignedNumberSubField.HasValue) throw new BuilderIllegalStateException("An assigned number subfield value must be defined " +
+                "for the routing instance.");
+            if (_routingInstance.RouteDistinguisherRange == null) throw new BuilderIllegalStateException("A route distinguisher range must be defined " +
+                "for the routing instance.");
+            if (_routingInstance.RoutingInstanceType == null) throw new BuilderIllegalStateException("A routing instance type must be defined for the " +
+                "routing instance.");
+            if (!_routingInstance.RoutingInstanceType.IsVrf) throw new BuilderIllegalStateException("The routing instance must be defined as a vrf routing " +
+                "instance type.");
+            if (!_routingInstance.RoutingInstanceType.IsTenantFacingVrf && !_routingInstance.RoutingInstanceType.IsInfrastructureVrf)
+                throw new BuilderIllegalStateException("The routing instance must be defined as either a tenant-facing vrf routing instance or an " +
+                    "infrastructure vrf routing instance");
+            if (_routingInstance.RoutingInstanceType.IsTenantFacingVrf)
+            {
+                if (_routingInstance.Tenant == null)
+                {
+                    throw new BuilderIllegalStateException("A tenant must be defined because the routing instance is defined a a tenant-facing vrf " +
+                        "routing instance.");
+                }
+            }
         }
     }
 }

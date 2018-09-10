@@ -56,59 +56,5 @@ namespace Mind.Validators
                         );
             }
         }
-
-        /// <summary>
-        /// Validate changes to a provider domain attachment
-        /// </summary>
-        /// <param name="attachmentId"></param>
-        /// <param name="update"></param>
-        /// <returns></returns>
-        public async Task ValidateChangesAsync(int attachmentId, ProviderDomainAttachmentUpdate update)
-        {
-            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId
-                             && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing,
-               includeProperties: "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet.VpnAttachmentSets.Vpn," +
-               "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet.VpnAttachmentSets.AttachmentSet," +
-               "Vifs.RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet", AsTrackable: false)
-                              select attachments)
-               .Single();
-
-            if (!string.IsNullOrEmpty(update.ExistingRoutingInstanceName))
-            {
-                if (update.ExistingRoutingInstanceName != attachment.RoutingInstance.Name)
-                {
-                    var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
-                                                 x =>
-                                                   x.Name == update.ExistingRoutingInstanceName)
-                                                   select routingInstances)
-                                                   .SingleOrDefault();
-
-                    if (existingRoutingInstance == null)
-                    {
-
-                        ValidationDictionary.AddError(nameof(update.ExistingRoutingInstanceName),
-                        $"Routing instance '{update.ExistingRoutingInstanceName}' was not found.");
-                    }
-
-                    else if (attachment.RoutingInstance.RoutingInstanceTypeID != existingRoutingInstance.RoutingInstanceTypeID)
-                    {
-                        ValidationDictionary.AddError(string.Empty, "The routing instance cannot be changed because the routing instance type of the " +
-                            "specified routing instance is different to the routing instance type of the current routing instance. "
-                            + $"The current routing instance type is '{attachment.RoutingInstance.RoutingInstanceType.Type.ToString()}'. "
-                            + $"The updated routing instance type is '{existingRoutingInstance.RoutingInstanceType.Type.ToString()}'.");
-                    }
-                }
-            }
-
-            if (attachment.RoutingInstance != null)
-            {
-                // Routing Instance cannot be changed if it belongs to an attachment set        
-                (from attachmentSet in attachment.RoutingInstance.AttachmentSetRoutingInstances.Select(x => x.AttachmentSet)
-                 select attachmentSet)
-                .ToList()
-                .ForEach(x => ValidationDictionary.AddError(string.Empty, "The routing instance cannot be changed because it belongs to "
-                        + $"attachment set '{x.Name}'"));
-            }
-        }
     }
 }

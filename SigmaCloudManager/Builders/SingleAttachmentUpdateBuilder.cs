@@ -58,23 +58,18 @@ namespace Mind.Builders
         {
             await SetAttachmentAsync();
             await SetMtuAsync();
-            if (_attachment.AttachmentRole.RequireContractBandwidth)
+            if (_args.ContainsKey("contractBandwidthMbps")) await CreateContractBandwidthPoolAsync();
+            if (base._args.ContainsKey(nameof(WithNewRoutingInstance)) && (bool)base._args[nameof(WithNewRoutingInstance)])
             {
-                if (_args.ContainsKey("contractBandwidthMbps")) await CreateContractBandwidthPoolAsync();
+                await base.CreateRoutingInstanceAsync();
             }
-            if (!base._attachment.AttachmentRole.IsTaggedRole)
+            else if (base._args.ContainsKey(nameof(WithExistingRoutingInstance)) && base._args[nameof(WithExistingRoutingInstance)] != null)
             {
-                if (base._args.ContainsKey(nameof(WithNewRoutingInstance)) &&
-                    (bool)base._args[nameof(WithNewRoutingInstance)])
-                {
-                    await base.CreateRoutingInstanceAsync();
-                }
-                else if (base._args.ContainsKey(nameof(WithExistingRoutingInstance)) && base._args[nameof(WithExistingRoutingInstance)] != null)
-                {
-                    await AssociateExistingRoutingInstanceAsync();
-                }
+                await AssociateExistingRoutingInstanceAsync();
             }
             if (base._args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
+
+            Validate();
 
             return _attachment;
         }
@@ -88,9 +83,10 @@ namespace Mind.Builders
                "RoutingInstance.Attachments," +
                "RoutingInstance.Vifs," +
                "ContractBandwidthPool," +
-               "AttachmentRole," +
+               "AttachmentRole.PortPool.PortRole," +
                "AttachmentBandwidth," +
-               "Interfaces.Ports", AsTrackable: true)
+               "Interfaces.Ports," +
+               "Vifs", AsTrackable: true)
                               select attachments)
                              .Single();
 

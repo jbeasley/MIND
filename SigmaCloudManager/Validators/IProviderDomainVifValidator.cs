@@ -12,6 +12,5 @@ namespace Mind.Validators
     public interface IProviderDomainVifValidator : IValidator
     {
         Task ValidateDeleteAsync(int vifId);
-        Task ValidateChangesAsync(int vifId, ProviderDomainVifUpdate update);
     }
 }

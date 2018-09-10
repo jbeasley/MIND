@@ -70,7 +70,7 @@ namespace Mind.Builders
 
         public virtual async Task<AttachmentSet> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForTenant))) _attachmentSet.TenantID = (int)_args[nameof(ForTenant)];
+            if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
             if (_args.ContainsKey(nameof(WithLayer3))) _attachmentSet.IsLayer3 = (bool)_args[nameof(WithLayer3)];
             if (_args.ContainsKey(nameof(WithAttachmentRedundancy))) await SetAttachmentRedundancyAsync();
             if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
@@ -81,20 +81,31 @@ namespace Mind.Builders
             return _attachmentSet;
         }
 
+        protected internal virtual async Task SetTenantAsync()
+        {
+            var tenantId = (int)_args[nameof(ForTenant)];
+            var tenant = (from result in await _unitOfWork.TenantRepository.GetAsync(
+                     q =>
+                          q.TenantID == tenantId,
+                          AsTrackable: true)
+                          select result)
+                          .SingleOrDefault();
+
+            _attachmentSet.Tenant = tenant ?? throw new BuilderBadArgumentsException($"The tenant with ID '{tenantId}' was not found.");
+        }
+
         protected virtual internal async Task SetMulticastVpnDomainTypeAsync()
         {
             var multicastVpnDomainTypeName = _args[nameof(WithMulticastVpnDomainType)].ToString();
-            var multicastVpnDomainType = (from multicastVpnDomainTypes in await _unitOfWork.MulticastVpnDomainTypeRepository.GetAsync(q => 
-                          q.Name == multicastVpnDomainTypeName)
-                          select multicastVpnDomainTypes)
-                          .SingleOrDefault();
+            var multicastVpnDomainType = (from multicastVpnDomainTypes in await _unitOfWork.MulticastVpnDomainTypeRepository.GetAsync(
+                        q => 
+                            q.Name == multicastVpnDomainTypeName,
+                            AsTrackable: true)
+                            select multicastVpnDomainTypes)
+                            .SingleOrDefault();
 
-            if (multicastVpnDomainType == null)
-            {
+            _attachmentSet.MulticastVpnDomainType = multicastVpnDomainType ?? 
                 throw new BuilderBadArgumentsException($"The multicast vpn domain type argument {multicastVpnDomainType} is not valid.");
-            }
-
-            _attachmentSet.MulticastVpnDomainTypeID = multicastVpnDomainType.MulticastVpnDomainTypeID;
         }
 
         protected virtual internal async Task SetRegionAsync()
@@ -104,28 +115,20 @@ namespace Mind.Builders
                          select regions)
                          .SingleOrDefault();
 
-            if (region == null)
-            {
-                throw new BuilderBadArgumentsException($"The region argument {regionName} is not a valid region.");
-            }
-
-            _attachmentSet.RegionID = region.RegionID;
+            _attachmentSet.Region = region ?? throw new BuilderBadArgumentsException($"The region argument {regionName} is not a valid region.");
         }
 
         protected virtual internal async Task SetSubRegionAsync()
         {
             var subregionName = _args[nameof(WithSubRegion)].ToString();
-            var subregion = (from subRegions in await _unitOfWork.SubRegionRepository.GetAsync(q => 
-                             q.Name == subregionName && q.RegionID == _attachmentSet.RegionID)
+            var subregion = (from subRegions in await _unitOfWork.SubRegionRepository.GetAsync(
+                          q => 
+                             q.Name == subregionName && q.RegionID == _attachmentSet.Region.RegionID,
+                             AsTrackable: true)
                              select subRegions)
                             .SingleOrDefault();
 
-            if (subregion == null)
-            {
-                throw new BuilderBadArgumentsException($"The subregion argument {subregionName} is not a valid subregion.");
-            }
-
-            _attachmentSet.SubRegionID = subregion.SubRegionID;
+            _attachmentSet.SubRegion = subregion ?? throw new BuilderBadArgumentsException($"The subregion argument {subregionName} is not a valid subregion.");
         }
 
         protected virtual internal async Task SetRoutingInstances()
@@ -145,17 +148,42 @@ namespace Mind.Builders
         protected virtual internal async Task SetAttachmentRedundancyAsync()
         {
             var attachmentRedundancyName = _args[nameof(WithAttachmentRedundancy)].ToString();
-            var attachmentRedundancy = (from attachmentRedundancies in await _unitOfWork.AttachmentRedundancyRepository.GetAsync(q => 
-                                        q.Name == attachmentRedundancyName)
+            var attachmentRedundancy = (from attachmentRedundancies in await _unitOfWork.AttachmentRedundancyRepository.GetAsync(
+                                     q => 
+                                        q.Name == attachmentRedundancyName,
+                                        AsTrackable: true)
                                         select attachmentRedundancies)
                                         .SingleOrDefault();
 
-            if (attachmentRedundancy == null)
-            {
-                throw new BuilderBadArgumentsException($"The attachment redundancy argument {attachmentRedundancy} is not valid.");
-            }
+            _attachmentSet.AttachmentRedundancy = attachmentRedundancy;
+        }
 
-            _attachmentSet.AttachmentRedundancyID = attachmentRedundancy.AttachmentRedundancyID;
+        /// <summary>
+        /// Validate the state of the attachment set
+        /// </summary>
+        protected virtual internal void Validate()
+        {
+            if (_attachmentSet.AttachmentRedundancy == null)  throw new BuilderBadArgumentsException($"The attachment redundancy of the attachment set " +
+                $"is not valid.");
+
+            if (_attachmentSet.AttachmentSetRoutingInstances.Any())
+            {
+                if (_attachmentSet.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Bronze)
+                {
+                    if (_attachmentSet.AttachmentSetRoutingInstances.Count != 1)
+                        throw new BuilderIllegalStateException($"Attachment set '{_attachmentSet.Name}' requires 1 routing instance association.");
+                }
+                else if (_attachmentSet.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Silver)
+                {
+                    if (_attachmentSet.AttachmentSetRoutingInstances.Count != 2)
+                        throw new BuilderIllegalStateException($"Attachment set '{_attachmentSet.Name}' requires 2 routing instance associations.");
+                }
+                else if (_attachmentSet.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Gold)
+                {
+                    if (_attachmentSet.AttachmentSetRoutingInstances.Count != 2)
+                        throw new BuilderIllegalStateException($"Attachment set '{_attachmentSet.Name}' requires 2 routing instance associations.");
+                }
+            }
         }
     }
 }

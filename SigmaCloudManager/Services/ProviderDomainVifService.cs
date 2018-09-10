@@ -37,9 +37,6 @@ namespace Mind.Services
 
         public async Task<Vif> UpdateAsync(int vifId, ProviderDomainVifUpdate update)
         {
-            await _validator.ValidateChangesAsync(vifId, update);
-            if (!_validator.IsValid) throw new ServiceValidationException();
-
             var vif = await GetByIDAsync(vifId, asTrackable: false);
 
             // Remember old routing instance ID and contract bandwidth pool ID for later removal checks
@@ -58,7 +55,8 @@ namespace Mind.Services
                                                 select contractBandwidthPools)
                                                .Single();
 
-                if (!oldContractBandwidthPool.Attachments.Any() && oldContractBandwidthPool.Vifs.Count == 1)
+                if (!oldContractBandwidthPool.Attachments.Any() &&
+                    oldContractBandwidthPool.Vifs.Where(x => x.VifID == vifId).Count() == vif.ContractBandwidthPool.Vifs.Count)
                 {
                     UnitOfWork.ContractBandwidthPoolRepository.Delete(oldContractBandwidthPool);
                 }
@@ -75,7 +73,8 @@ namespace Mind.Services
                                           select routingInstances)
                                           .Single();
 
-                if (!oldRoutingInstance.Attachments.Any() && !oldRoutingInstance.Vifs.Any())
+                if (!oldRoutingInstance.Attachments.Any() && 
+                    oldRoutingInstance.Vifs.Where(x => x.VifID == vifId).Count() == oldRoutingInstance.Vifs.Count)
                 {
                     UnitOfWork.RoutingInstanceRepository.Delete(oldRoutingInstance);
                 }
@@ -109,7 +108,8 @@ namespace Mind.Services
                 {
                     // Check if the current vif is the only vif using the routing instance and no 
                     // attachments are using the routing instance. If so delete the routing instance.
-                    if (vif.RoutingInstance.Vifs.Count == 1 && !vif.RoutingInstance.Attachments.Any())
+                    if (vif.RoutingInstance.Vifs.Where(x => x.VifID == vifId).Count() == vif.RoutingInstance.Vifs.Count && 
+                        !vif.RoutingInstance.Attachments.Any())
                     {
                         UnitOfWork.RoutingInstanceRepository.Delete(vif.RoutingInstance);
                     }
@@ -120,7 +120,8 @@ namespace Mind.Services
             {
                 // Check if the current vif is the only vif using the contract bandwidth pool and no 
                 // attachments are using the contract bandwidth pool. If so delete the contract bandwidth pool.
-                if (vif.ContractBandwidthPool.Vifs.Count == 1 && !vif.ContractBandwidthPool.Attachments.Any())
+                if (vif.ContractBandwidthPool.Vifs.Where(x => x.VifID == vifId).Count() == vif.ContractBandwidthPool.Vifs.Count && 
+                    !vif.ContractBandwidthPool.Attachments.Any())
                 {
                     UnitOfWork.ContractBandwidthPoolRepository.Delete(vif.ContractBandwidthPool);
                 }

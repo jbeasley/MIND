@@ -56,7 +56,6 @@ namespace Mind.Api.Controllers
         /// </summary>
 
         /// <param name="attachmentSetId">ID of the attachment set</param>
-        /// <param name="routingInstanceId">ID of a routing instance to be added to the attachment set</param>
         /// <param name="body">request object that generates a new routing instance entry for an attachment set</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
@@ -94,6 +93,11 @@ namespace Mind.Api.Controllers
             }
 
             catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (BuilderIllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }

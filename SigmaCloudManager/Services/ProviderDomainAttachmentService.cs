@@ -81,9 +81,6 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update)
         {
-            await _validator.ValidateChangesAsync(attachmentId, update);
-            if (!_validator.IsValid) throw new ServiceValidationException();
-
             var attachment = await GetByIDAsync(attachmentId, asTrackable: false);
 
             // Remember old routing instance ID and contract bandwidth pool ID for later removal checks
@@ -177,7 +174,8 @@ namespace Mind.Services
                 {
                     // Check if the current attachment is the only attachment using the routing instance and no 
                     // vifs are using the routing instance. If so delete the routing instance.
-                    if (attachment.RoutingInstance.Attachments.Count == 1 && !attachment.RoutingInstance.Vifs.Any())
+                    if (attachment.RoutingInstance.Attachments.Where(x => x.AttachmentID == attachmentId).Count() == attachment.RoutingInstance.Attachments.Count && 
+                        !attachment.RoutingInstance.Vifs.Any())
                     {
                         UnitOfWork.RoutingInstanceRepository.Delete(attachment.RoutingInstance);
                     }
@@ -187,8 +185,9 @@ namespace Mind.Services
             foreach (var routingInstance in attachment.Vifs.Select(x => x.RoutingInstance)
                                                            .Where(x => x != null && x.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf))
             {
-                // Check if the routing instance can be deleted. If there are no attachments which belong to the routing instance, and the
-                // only vifs which belong to the routing instance belong to the attachment being deleted then the routing instance can be 
+                // For each vif configured under the attachment being deleted, check if the associated routing instance can be deleted. 
+                // If there are no attachments which share the routing instance, and the
+                // only vifs which share the routing instance are those which belong to the attachment being deleted then the routing instance can be 
                 // deleted.
                 if (!routingInstance.Attachments.Any() && routingInstance.Vifs.Intersect(attachment.Vifs).Count() == routingInstance.Vifs.Count())
                 {
@@ -196,6 +195,9 @@ namespace Mind.Services
                 }
             }
 
+            // Delete each contract bandwidth pool associated with a vif configured under the attachment being deleted.
+            // These can be deleted without any further validation - contract bandwidth pools cannot be shared between vifs configured 
+            // under different attachments.
             foreach (var contractBandwidthPool in attachment.Vifs.Select(x => x.ContractBandwidthPool))
             {
                 if (contractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(contractBandwidthPool);

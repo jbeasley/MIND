@@ -69,6 +69,16 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (BuilderIllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
@@ -115,6 +125,16 @@ namespace Mind.Api.Controllers
             }
 
             catch (BuilderBadArgumentsException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (BuilderIllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }

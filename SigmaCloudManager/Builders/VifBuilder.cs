@@ -130,6 +130,8 @@ namespace Mind.Builders
                 await CreateRoutingInstanceAsync();
             }
 
+            Validate();
+
             return _vif;
         }
 
@@ -173,6 +175,7 @@ namespace Mind.Builders
                     q =>
                            q.AttachmentRoleID == _vif.Attachment.AttachmentRoleID
                            && q.Name == vifRoleName,
+                           includeProperties: "AttachmentRole.PortPool.PortRole",
                            AsTrackable: true)
                            select result)
                            .SingleOrDefault();
@@ -195,7 +198,7 @@ namespace Mind.Builders
                                 select result)
                                .SingleOrDefault();
 
-            _vif.VlanTagRange = vlanTagRange ?? throw new BuilderUnableToCompleteException($"Unable to create a vif. The vlan tag range '{vlanTagRangeName}' was not found.");
+            _vif.VlanTagRange = vlanTagRange ?? throw new BuilderBadArgumentsException($"Unable to create a vif. The vlan tag range '{vlanTagRangeName}' was not found.");
 
             int? vlanTag = Enumerable.Range(vlanTagRange.VlanTagRangeStart, vlanTagRange.VlanTagRangeCount)
                                      .Except(_vif.Attachment.Vifs.Select(vif => vif.VlanTag))
@@ -208,7 +211,7 @@ namespace Mind.Builders
         protected internal virtual void SetRequestedVlanTag()
         {
             var requestedVlanTag = (int)_args[nameof(WithRequestedVlanTag)];
-            if (_vif.Attachment.Vifs.Where(q => q.VlanTag == requestedVlanTag).Any()) throw new BuilderBadArgumentsException("The requested vlan tag " +
+            if (_vif.Attachment.Vifs.Where(q => q.VlanTag == requestedVlanTag).Any()) throw new BuilderUnableToCompleteException("The requested vlan tag " +
                 "is already assigned. Try again with a different vlan tag.");
 
             _vif.VlanTag = requestedVlanTag;
@@ -218,10 +221,12 @@ namespace Mind.Builders
         {
             var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
             var aggContractBandwidthMbps = _vif.Attachment.Vifs
-                .Where(vif => vif.VifID != _vif.VifID)
-                .Select(
-                vif => vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
-                .Aggregate(0, (x, y) => x + y);
+                .Where(vif => 
+                    vif.VifID != _vif.VifID)
+                    .Select(
+                     vif => 
+                        vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                        .Aggregate(0, (x, y) => x + y);
 
             var attachmentBandwidthMbps = _vif.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
 
@@ -255,9 +260,13 @@ namespace Mind.Builders
         {
             var contractBandwidthPoolName = _args[nameof(WithExistingContractBandwidthPool)].ToString();
             var contractBandwidthPool = _vif.Attachment.Vifs
-                                                       .Select(x => x.ContractBandwidthPool)
-                                                       .Where(x => x.Name == contractBandwidthPoolName)
-                                                       .SingleOrDefault();
+                                                       .Select(
+                                                            x => 
+                                                               x.ContractBandwidthPool)
+                                                               .Where(
+                                                                x => 
+                                                                    x.Name == contractBandwidthPoolName)
+                                                                    .SingleOrDefault();
 
             if (contractBandwidthPool == null)
             {
@@ -283,8 +292,9 @@ namespace Mind.Builders
             if (_vif.VifRole.RoutingInstanceTypeID == null) throw new BuilderUnableToCompleteException("A routing instance type is required " +
                 "for the vif role but was not found.");
 
-            var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(q =>
-            q.RoutingInstanceTypeID == _vif.VifRole.RoutingInstanceTypeID.Value)
+            var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
+                                     q =>
+                                       q.RoutingInstanceTypeID == _vif.VifRole.RoutingInstanceTypeID.Value)
                                        select routingInstanceTypes)
                                        .Single();
 
@@ -317,19 +327,7 @@ namespace Mind.Builders
 
         protected internal virtual void CreateVlans()
         {
-            List<Ipv4AddressAndMask> ipv4AddressesAndMasks = null;
-
-            var isLayer3Role = _vif.VifRole.IsLayer3Role;
-            if (isLayer3Role)
-            {
-                if (_args.ContainsKey(nameof(WithIpv4))) ipv4AddressesAndMasks = (List<Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
-                if (ipv4AddressesAndMasks == null || ipv4AddressesAndMasks.ToList().Count < _vif.Attachment.Interfaces.Count)
-                {
-                    throw new BuilderBadArgumentsException("IPv4 addresses and subnet masks are required in order to create a layer 3 " +
-                                            $"enabled vif. {_vif.Attachment.Interfaces.Count} vlans are required to create the vif so " +
-                                            $"the same number of IPv4 addresses and subnet masks are required.");
-                }
-            }
+            var ipv4AddressesAndMasks = (List<Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
 
            (from iface in _vif.Attachment.Interfaces
             select iface)
@@ -337,14 +335,15 @@ namespace Mind.Builders
             .ForEach(
                x =>
                 {
-                    var ipv4AddressAndMask = ipv4AddressesAndMasks.First();
+                    var ipv4AddressAndMask = ipv4AddressesAndMasks.FirstOrDefault();
                     _vif.Vlans.Add(new Vlan
                     {
                         Interface = x,
-                        IpAddress = isLayer3Role ? ipv4AddressAndMask.IpAddress : null,
-                        SubnetMask = isLayer3Role ? ipv4AddressAndMask.SubnetMask : null                     
+                        IpAddress = ipv4AddressAndMask?.IpAddress,
+                        SubnetMask = ipv4AddressAndMask?.SubnetMask                   
                     });
-                    ipv4AddressesAndMasks.Remove(ipv4AddressAndMask);
+
+                    if (ipv4AddressAndMask != null) ipv4AddressesAndMasks.Remove(ipv4AddressAndMask);
                 });
         }
 
@@ -354,12 +353,88 @@ namespace Mind.Builders
             var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) ? (bool)_args[nameof(WithJumboMtu)] : false;
 
             var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(
-                x => 
-                    x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu)
+                    x => 
+                       x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu,
+                       AsTrackable: true)
                        select mtus)
                        .Single();
 
-            _vif.MtuID = mtu.MtuID;
+            _vif.Mtu = mtu;
+        }
+
+        protected internal virtual void Validate()
+        {
+            if (_vif.Attachment == null) throw new BuilderIllegalStateException("An attachment is required for the vif.");
+            if (!_vif.Attachment.IsTagged) throw new BuilderIllegalStateException("The attachment under which the vif is to be created must be " +
+                "enabled for tagging with the 'isTagged' property.");
+            if (_vif.Mtu == null) throw new BuilderIllegalStateException("An MTU is required for the vif.");
+            if (_vif.VifRole == null) throw new BuilderIllegalStateException("A vif role is required for the vif.");
+            if (_vif.Vlans.Count != _vif.Attachment.Interfaces.Count) throw new BuilderIllegalStateException($"{_vif.Attachment.Interfaces.Count} vlans are required " +
+                $"but only {_vif.Vlans.Count} were found. One vlan is required for each interface configured " +
+                "for the attachment.");
+
+            if (_vif.Attachment.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing && _vif.Tenant == null)
+            {
+                throw new BuilderIllegalStateException("A tenant association is required for the vif in accordance with the vif role of " +
+                    $"'{_vif.VifRole.Name}'.");
+            }
+            else if (_vif.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure && _vif.Tenant == null)
+            {
+                throw new BuilderIllegalStateException("A tenant association is required for the vif in accordance with the vif role of " +
+                    $"'{_vif.VifRole.AttachmentRole.Name}'.");
+            }
+            else if (_vif.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure && _vif.Tenant != null)
+            {
+                throw new BuilderIllegalStateException("A tenant association exists for the vif but is NOT required in accordance with the " +
+                    $"vif role of '{_vif.VifRole.Name}'.");
+            }
+
+            if (_vif.IsLayer3)
+            {
+                if (_vif.Vlans.Where(x => !string.IsNullOrEmpty(x.IpAddress) && !string.IsNullOrEmpty(x.SubnetMask)).Count() != _vif.Vlans.Count)
+                {
+                    throw new BuilderIllegalStateException("The vif is enabled for layer 3 but insufficient IPv4 addresses have been requested.");
+                }
+            }
+            else if (_vif.Vlans.Where(x => !string.IsNullOrEmpty(x.IpAddress) || !string.IsNullOrEmpty(x.SubnetMask)).Any())
+            {
+                throw new BuilderIllegalStateException("The vif is NOT enabled for layer 3 but IPv4 addresses have been requested.");
+            }
+
+            if (_vif.RoutingInstance == null && _vif.VifRole.RoutingInstanceTypeID.HasValue)
+                throw new BuilderIllegalStateException("Illegal routing instance state. A routing instance for the vif is required in accordance " +
+                    $"with the requested vif role of '{_vif.VifRole.Name}' but was not found.");
+
+            if (_vif.RoutingInstance != null && !_vif.VifRole.RoutingInstanceTypeID.HasValue)
+                throw new BuilderIllegalStateException("Illegal routing instance state. A routing instance for the vif has been assigned but is " +
+                    $"not required for a vif with vif role of '{_vif.VifRole.Name}'.");
+
+            if (_vif.RoutingInstance != null && _vif.VifRole.RoutingInstanceType != null)
+            {
+                if (_vif.RoutingInstance.RoutingInstanceType.RoutingInstanceTypeID != _vif.VifRole.RoutingInstanceTypeID)
+                {
+                    throw new BuilderIllegalStateException("Illegal routing instance state. The routing instance type for the vif is different to that " +
+                        $"required by the vif role. The routing instance type required is '{_vif.VifRole.RoutingInstanceType.Type.ToString()}'. " +
+                        $"The routing instance type assigned to the vif is '{_vif.RoutingInstance.RoutingInstanceType.Type.ToString()}'.");
+                }
+            }
+
+            if (_vif.VifRole.RequireContractBandwidth)
+            {
+                if (_vif.ContractBandwidthPool == null)
+                {
+                    throw new BuilderIllegalStateException("A contract bandwidth for the vif is required in accordance with the vif role " +
+                        $"of '{_vif.VifRole.Name}' but none is defined.");
+                }
+            }
+            else
+            {
+                if (_vif.ContractBandwidthPool != null)
+                {
+                    throw new BuilderIllegalStateException("A contract bandwidth for the vif is defined but is NOT required for the vif role " +
+                        $"of '{_vif.VifRole.Name}'.");
+                }
+            }
         }
     }
 }

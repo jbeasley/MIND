@@ -9,7 +9,7 @@ namespace Mind.Builders
     public interface IVrfRoutingInstanceBuilder : IRoutingInstanceBuilder
     {
         IVrfRoutingInstanceBuilder ForDevice(int deviceId);
-        IVrfRoutingInstanceBuilder WithTenant(int tenantId);
+        IVrfRoutingInstanceBuilder WithTenant(int? tenantId);
         IVrfRoutingInstanceBuilder WithRouteDistinguisherRange(RouteDistinguisherRangeTypeEnum? rdRangeType);
         IVrfRoutingInstanceBuilder WithRoutingInstanceType(RoutingInstanceTypeEnum routingInstanceTypeEnum);
     }

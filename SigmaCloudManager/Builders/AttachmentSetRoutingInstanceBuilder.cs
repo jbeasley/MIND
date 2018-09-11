@@ -21,7 +21,7 @@ namespace Mind.Builders
 
         public virtual IAttachmentSetRoutingInstanceBuilder ForAttachmentSet(int? attachmentSetId)
         {
-            if (attachmentSetId != null) _args.Add(nameof(ForAttachmentSet), attachmentSetId);
+            if (attachmentSetId.HasValue) _args.Add(nameof(ForAttachmentSet), attachmentSetId);
             return this;
         }
 
@@ -74,18 +74,21 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithLocalIpRoutingPreference))) SetLocalIpRoutingPreference();
             if (_args.ContainsKey(nameof(WithMulticastDesignatedRouterPreference))) SetMulticastDesignatedRouterPreference();
 
+            Validate();
             return _attachmentSetRoutingInstance;
         }
 
         protected internal virtual async Task SetAttachmentSetAsync()
         {
             var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
-            var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(q => q.AttachmentSetID == attachmentSetId, AsTrackable: true)
+            var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
+                            q => 
+                                 q.AttachmentSetID == attachmentSetId, 
+                                 AsTrackable: true)
                                  select result)
                                  .SingleOrDefault();
 
-            _attachmentSetRoutingInstance.AttachmentSet = attachmentSet ?? throw new BuilderBadArgumentsException($"The attachment set with ID " +
-               $"'{attachmentSetId}' was not found.");
+            _attachmentSetRoutingInstance.AttachmentSet = attachmentSet;
         }
 
         protected internal virtual async Task SetRoutingInstanceAsync()
@@ -94,29 +97,12 @@ namespace Mind.Builders
             var attachmentSet = _attachmentSetRoutingInstance.AttachmentSet;
 
             var routingInstance = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(q =>
-                                  q.Name == routingInstanceName 
-                                  && q.RoutingInstanceType.IsTenantFacingVrf, 
-                                  includeProperties:"RoutingInstanceType,Device.Location.SubRegion.Region")
-                                  select result)
+                                  q.Name == routingInstanceName
+                                  && q.RoutingInstanceType.IsTenantFacingVrf,
+                                  includeProperties: "RoutingInstanceType," +
+                                  "Device.Location.SubRegion.Region")
+                                   select result)
                                   .SingleOrDefault();
-
-            if (routingInstance == null) throw new BuilderBadArgumentsException($"The routing instance " +
-               $"'{routingInstanceName}' was not found or is invalid.");
-
-            if (attachmentSet.IsLayer3 != routingInstance.RoutingInstanceType.IsLayer3)
-                throw new BuilderBadArgumentsException($"Routing instance '{routingInstanceName}' cannot be added to attachment set '{attachmentSet.Name}'. "
-                + "The protocol layer of the attachment set and the routing instance do not match. "
-                + $"Attachment set 'IsLayer3' property is '{attachmentSet.IsLayer3}'. "
-                + $"Routing instance 'IsLayer3' property is '{routingInstance.RoutingInstanceType.IsLayer3}'.");
-           
-            // The routing instance must belong to the specified Tenant
-            if (routingInstance.TenantID != attachmentSet.TenantID) throw new BuilderBadArgumentsException($"Routing instance '{routingInstance.Name}' "
-                   + $" does not belong to the same tenant as the attachment set. The tenant for that attachment set is '{attachmentSet.Tenant.Name}'.");
-
-            // The routing instance must be associated with a device in the specified region
-            if (routingInstance.Device.Location.SubRegion.Region.RegionID != attachmentSet.RegionID)
-                throw new BuilderBadArgumentsException($"Routing instance '{routingInstance.Name}' is not associated with "
-                     + $"a device in region {attachmentSet.Region.Name}.");
 
             _attachmentSetRoutingInstance.RoutingInstance = routingInstance;
         }
@@ -134,6 +120,36 @@ namespace Mind.Builders
         protected internal virtual void SetMulticastDesignatedRouterPreference()
         {
             _attachmentSetRoutingInstance.MulticastDesignatedRouterPreference = (int)_args[nameof(WithMulticastDesignatedRouterPreference)];
+        }
+
+        /// <summary>
+        /// Validate the state of the attachment set routing instance
+        /// </summary>
+        protected internal virtual void Validate()
+        {
+            if (_attachmentSetRoutingInstance.AttachmentSet == null && _args.ContainsKey(nameof(ForAttachmentSet)) && 
+                    _args[nameof(ForAttachmentSet)].GetType() == typeof(AttachmentSet)) 
+                throw new BuilderIllegalStateException($"The attachment set with ID '{(int)_args[nameof(ForAttachmentSet)]}' was not found.");
+
+            if (_attachmentSetRoutingInstance.RoutingInstance == null) throw new BuilderBadArgumentsException($"The routing instance " +
+                $"'{_attachmentSetRoutingInstance.RoutingInstance.Name}' was not found or is invalid.");
+
+            if (_attachmentSetRoutingInstance.AttachmentSet.IsLayer3 != _attachmentSetRoutingInstance.RoutingInstance.RoutingInstanceType.IsLayer3)
+                throw new BuilderIllegalStateException($"Routing instance '{_attachmentSetRoutingInstance.RoutingInstance.Name}' cannot be added to attachment set " +
+                    $"'{_attachmentSetRoutingInstance.AttachmentSet.Name}'. The protocol layer of the attachment set and the routing instance do not match. " +
+                    $"Attachment set 'IsLayer3' property is '{_attachmentSetRoutingInstance.AttachmentSet.IsLayer3}'. Routing instance 'IsLayer3' " +
+                    $"property is '{_attachmentSetRoutingInstance.RoutingInstance.RoutingInstanceType.IsLayer3}'.");
+
+            // The routing instance must belong to the same tenant as the attachment set
+            if (_attachmentSetRoutingInstance.RoutingInstance.TenantID != _attachmentSetRoutingInstance.AttachmentSet.TenantID)
+                throw new BuilderIllegalStateException($"Routing instance '{_attachmentSetRoutingInstance.RoutingInstance.Name}' "
+                   + $" does not belong to the same tenant as the attachment set. The tenant for that attachment set is " +
+                   $"'{_attachmentSetRoutingInstance.AttachmentSet.Tenant.Name}'.");
+
+            // The routing instance must be associated with a device in the same region as the attachment set
+            if (_attachmentSetRoutingInstance.RoutingInstance.Device.Location.SubRegion.Region.RegionID != _attachmentSetRoutingInstance.AttachmentSet.RegionID)
+                throw new BuilderIllegalStateException($"Routing instance '{_attachmentSetRoutingInstance.RoutingInstance.Name}' is not associated with "
+                     + $"a device in region {_attachmentSetRoutingInstance.AttachmentSet.Region.Name}.");
         }
     }
 }

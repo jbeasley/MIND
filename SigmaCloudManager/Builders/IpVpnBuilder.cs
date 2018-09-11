@@ -17,7 +17,7 @@ namespace Mind.Builders
         {
         }
 
-        IIpVpnBuilder IIpVpnBuilder.ForTenant(int tenantId)
+        IIpVpnBuilder IIpVpnBuilder.ForTenant(int? tenantId)
         {
             base.ForTenant(tenantId);
             return this;

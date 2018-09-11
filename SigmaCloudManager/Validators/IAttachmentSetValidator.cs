@@ -9,7 +9,6 @@ namespace SCM.Validators
 {
     public interface IAttachmentSetValidator : IValidator
     {
-        Task ValidateChangesAsync(int attachmentSetId, AttachmentSetUpdate update);
         Task ValidateDeleteAsync(int attachmentSetId);
     }
 }

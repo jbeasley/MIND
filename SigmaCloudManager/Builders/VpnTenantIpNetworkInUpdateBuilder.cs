@@ -13,9 +13,9 @@ namespace Mind.Builders
         {
         }
 
-        public IVpnTenantIpNetworkInUpdateBuilder ForVpnTenantIpNetworkIn(VpnTenantIpNetworkIn vpnTenantIpNetworkIn)
+        public IVpnTenantIpNetworkInUpdateBuilder ForVpnTenantIpNetworkIn(int vpnTenantIpNetworkInId)
         {
-            if (vpnTenantIpNetworkIn != null) _args.Add(nameof(ForVpnTenantIpNetworkIn), vpnTenantIpNetworkIn);
+            _args.Add(nameof(ForVpnTenantIpNetworkIn), vpnTenantIpNetworkInId);
             return this;
         }
 
@@ -41,7 +41,7 @@ namespace Mind.Builders
         {
             if (_args.ContainsKey(nameof(ForVpnTenantIpNetworkIn)))
             {
-                _vpnTenantIpNetworkIn = (VpnTenantIpNetworkIn)_args[nameof(ForVpnTenantIpNetworkIn)];
+                await SetVpnTenantIpNetworkIn();
             }
             if (_args.ContainsKey(nameof(WithLocalIpRoutingPreference)))
             {
@@ -53,7 +53,28 @@ namespace Mind.Builders
             }
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await base.SetIpv4BgpPeerAsync();
 
+            base.Validate();
+
             return _vpnTenantIpNetworkIn;
+        }
+
+        private async Task SetVpnTenantIpNetworkIn()
+        {
+            var vpnTenantIpNetworkInId = (int)_args[nameof(ForVpnTenantIpNetworkIn)];
+            var vpnTenantIpNetworkIn = (from result in await _unitOfWork.VpnTenantIpNetworkInRepository.GetAsync(
+                                      q =>
+                                        q.VpnTenantIpNetworkInID == vpnTenantIpNetworkInId,
+                                        includeProperties: "AttachmentSet," +
+                                        "TenantIpNetwork," +
+                                        "BgpPeer",
+                                        AsTrackable: true)
+                                        select result)
+                                        .SingleOrDefault();
+
+            if (_vpnTenantIpNetworkIn == null) throw new BuilderUnableToCompleteException("The tenant IP network attachment set association with ID " +
+                $"'{vpnTenantIpNetworkInId}' was not found.");
+
+            _vpnTenantIpNetworkIn = vpnTenantIpNetworkIn;
         }
     }
 }

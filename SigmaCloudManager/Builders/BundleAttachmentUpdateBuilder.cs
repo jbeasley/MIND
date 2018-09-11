@@ -17,15 +17,15 @@ namespace Mind.Builders
         {
         }
 
-        public IBundleAttachmentUpdateBuilder ForAttachment(int attachmentId)
+        public IBundleAttachmentUpdateBuilder ForAttachment(int? attachmentId)
         {
-            _args.Add(nameof(ForAttachment), attachmentId);
+            if (attachmentId.HasValue) _args.Add(nameof(ForAttachment), attachmentId);
             return this;
         }
 
-        public IBundleAttachmentUpdateBuilder WithNewRoutingInstance(bool? newRoutingInstance = false)
+        public IBundleAttachmentUpdateBuilder WithNewRoutingInstance(bool? newRoutingInstance)
         {
-            base._args.Add(nameof(WithNewRoutingInstance), newRoutingInstance != null ? newRoutingInstance : false);
+            if (newRoutingInstance.HasValue) base._args.Add(nameof(WithNewRoutingInstance), newRoutingInstance);
             return this;
         }
 
@@ -65,17 +65,16 @@ namespace Mind.Builders
         /// <returns></returns>
         public virtual async Task<Attachment> UpdateAsync()
         {
-            await SetAttachmentAsync();
+            if (_args.ContainsKey(nameof(ForAttachment))) await SetAttachmentAsync();
             await SetMtuAsync();
 
-            if (_args.ContainsKey("contractBandwidthMbps") && _args["contractBandwidthMbps"] != null) await CreateContractBandwidthPoolAsync();
+            if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
 
-            if (base._args.ContainsKey(nameof(WithNewRoutingInstance)) &&
-                (bool)base._args[nameof(WithNewRoutingInstance)])
+            if (_args.ContainsKey(nameof(WithNewRoutingInstance)) && (bool)_args[nameof(WithNewRoutingInstance)])
             {
                 await base.CreateRoutingInstanceAsync();
             }
-            else if (base._args.ContainsKey(nameof(WithExistingRoutingInstance)) && base._args[nameof(WithExistingRoutingInstance)] != null)
+            else if (_args.ContainsKey(nameof(WithExistingRoutingInstance)))
             {
                 await AssociateExistingRoutingInstanceAsync();
             }
@@ -91,20 +90,23 @@ namespace Mind.Builders
         private async Task SetAttachmentAsync()
         {
             var attachmentId = (int)_args[nameof(ForAttachment)];
-            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
-               includeProperties: "Tenant," +
-               "Device," +
-               "RoutingInstance.Attachments," +
-               "RoutingInstance.Vifs," +
-               "ContractBandwidthPool," +
-               "AttachmentRole.PortPool.PortRole," +
-               "AttachmentBandwidth," +
-               "Interfaces.Ports," +
-               "Vifs", AsTrackable: true)
-                              select attachments)
-                             .Single();
+            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q => 
+                            q.AttachmentID == attachmentId,
+                            includeProperties: "Tenant," +
+                            "Device," +
+                            "RoutingInstance.Attachments," +
+                            "RoutingInstance.Vifs," +
+                            "ContractBandwidthPool," +
+                            "AttachmentRole.PortPool.PortRole," +
+                            "AttachmentBandwidth," +
+                            "Interfaces.Ports," +
+                            "Vifs", 
+                            AsTrackable: true)
+                            select attachments)
+                           .SingleOrDefault();
 
-            base._attachment = attachment;
+            base._attachment = attachment ?? throw new BuilderBadArgumentsException($"The attachment with ID '{attachmentId}'.");
         }
     }
 }

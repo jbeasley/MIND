@@ -13,9 +13,9 @@ namespace Mind.Builders
         {
         }
 
-        public IVpnTenantIpNetworkOutUpdateBuilder ForVpnTenantIpNetworkOut(VpnTenantIpNetworkOut VpnTenantIpNetworkOut)
+        public IVpnTenantIpNetworkOutUpdateBuilder ForVpnTenantIpNetworkOut(int VpnTenantIpNetworkOutId)
         {
-            if (VpnTenantIpNetworkOut != null) _args.Add(nameof(ForVpnTenantIpNetworkOut), VpnTenantIpNetworkOut);
+            _args.Add(nameof(ForVpnTenantIpNetworkOut), VpnTenantIpNetworkOutId);
             return this;
         }
 
@@ -35,7 +35,7 @@ namespace Mind.Builders
         {
             if (_args.ContainsKey(nameof(ForVpnTenantIpNetworkOut)))
             {
-                _vpnTenantIpNetworkOut = (VpnTenantIpNetworkOut)_args[nameof(ForVpnTenantIpNetworkOut)];
+                await SetVpnTenantIpNetworkOut();
             }
             if (_args.ContainsKey(nameof(WithAdvertisedIpRoutingPreference)))
             {
@@ -43,7 +43,27 @@ namespace Mind.Builders
             }
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await base.SetIpv4BgpPeerAsync();
 
+            base.Validate();
             return _vpnTenantIpNetworkOut;
+        }
+
+        private async Task SetVpnTenantIpNetworkOut()
+        {
+            var vpnTenantIpNetworkOutId = (int)_args[nameof(ForVpnTenantIpNetworkOut)];
+            var vpnTenantIpNetworkOut = (from result in await _unitOfWork.VpnTenantIpNetworkOutRepository.GetAsync(
+                                      q =>
+                                        q.VpnTenantIpNetworkOutID == vpnTenantIpNetworkOutId,
+                                        includeProperties: "AttachmentSet," +
+                                        "TenantIpNetwork," +
+                                        "BgpPeer",
+                                        AsTrackable: true)
+                                        select result)
+                                        .SingleOrDefault();
+
+            if (_vpnTenantIpNetworkOut == null) throw new BuilderUnableToCompleteException("The tenant IP network attachment set association with ID " +
+                $"'{vpnTenantIpNetworkOutId}' was not found.");
+
+            _vpnTenantIpNetworkOut = vpnTenantIpNetworkOut;
         }
     }
 }

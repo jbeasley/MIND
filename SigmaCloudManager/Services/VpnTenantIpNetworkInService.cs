@@ -91,6 +91,11 @@ namespace SCM.Services
             return await GetByIDAsync(vpnTenantIpNetworkIn.VpnTenantIpNetworkInID, deep: true, asTrackable: false);
         }
 
+        /// <summary>
+        /// TO-BE-REMOVED
+        /// </summary>
+        /// <param name="vpnTenantIpNetworkIn"></param>
+        /// <returns></returns>
         public async Task<VpnTenantIpNetworkIn> UpdateAsync(VpnTenantIpNetworkIn vpnTenantIpNetworkIn)
         {
             this.UnitOfWork.VpnTenantIpNetworkInRepository.Update(vpnTenantIpNetworkIn);
@@ -100,11 +105,9 @@ namespace SCM.Services
 
         public async Task<VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInRequest request)
         {
-            var vpnTenantIpNetworkIn = await GetByIDAsync(vpnTenantIpNetworkInId, deep: false, asTrackable: true);
-            await _updateDirector.UpdateAsync(vpnTenantIpNetworkIn, request);
-            this.UnitOfWork.VpnTenantIpNetworkInRepository.Update(vpnTenantIpNetworkIn);
+            await _updateDirector.UpdateAsync(vpnTenantIpNetworkInId, request);
             await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(vpnTenantIpNetworkIn.VpnTenantIpNetworkInID, deep: true, asTrackable: false);
+            return await GetByIDAsync(vpnTenantIpNetworkInId, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int vpnTenantNetworkInId)

@@ -27,7 +27,7 @@ namespace Mind.Builders
             return this;
         }
 
-        IBundleAttachmentBuilder IBundleAttachmentBuilder.ForTenant(int tenantId)
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.ForTenant(int? tenantId)
         {
             base.ForTenant(tenantId);
             return this;
@@ -39,9 +39,15 @@ namespace Mind.Builders
             return this;
         }
 
-        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithAttachmentRole(string portPoolName, string attachmentRoleName)
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithAttachmentRole(string attachmentRoleName)
         {
-            base.WithAttachmentRole(portPoolName, attachmentRoleName);
+            base.WithAttachmentRole(attachmentRoleName);
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithPortPool(string portPoolName)
+        {
+            base.WithPortPool(portPoolName);
             return this;
         }
 

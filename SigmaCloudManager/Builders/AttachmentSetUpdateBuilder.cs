@@ -17,9 +17,9 @@ namespace Mind.Builders
         {
         }
 
-        public IAttachmentSetUpdateBuilder ForAttachmentSet(AttachmentSet attachmentSet)
+        public IAttachmentSetUpdateBuilder ForAttachmentSet(int? attachmentSetId)
         {
-            _attachmentSet = attachmentSet;
+            if (attachmentSetId.HasValue) _args.Add(nameof(ForAttachmentSet), attachmentSetId);
             return this;
         }
 
@@ -43,11 +43,40 @@ namespace Mind.Builders
 
         public async Task<AttachmentSet> UpdateAsync()
         {
+            if (_args.ContainsKey(nameof(ForAttachmentSet))) await SetAttachmentSetAsync();
             if (_args.ContainsKey(nameof(WithMulticastVpnDomainType))) await base.SetMulticastVpnDomainTypeAsync();
             if (_args.ContainsKey(nameof(WithSubRegion))) await base.SetSubRegionAsync();
             if (_args.ContainsKey(nameof(WithAttachmentRedundancy))) await base.SetAttachmentRedundancyAsync();
 
+            base.Validate();
             return _attachmentSet;
+        }
+
+        private async Task SetAttachmentSetAsync()
+        {
+            var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
+            var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
+                        x =>
+                            x.AttachmentSetID == attachmentSetId,
+                            includeProperties: "MulticastVpnDomainType," +
+                            "AttachmentRedundancy," +
+                            "Region," +
+                            "SubRegion," +
+                            "AttachmentSetRoutingInstances," +
+                            "VpnAttachmentSets," +
+                            "VpnTenantCommunitiesIn," +
+                            "VpnTenantCommunitiesOut," +
+                            "VpnTenantIpNetworksIn," +
+                            "VpnTenantIpNetworksOut," +
+                            "VpnTenantCommunitiesRoutingInstance," +
+                            "VpnTenantIpNetworkStaticRoutesRoutingInstance," +
+                            "VpnTenantMulticastGroups",
+                            AsTrackable: true)
+                            select result)
+                            .SingleOrDefault();
+
+            base._attachmentSet = attachmentSet ?? throw new BuilderBadArgumentsException($"The attachment set with ID '{attachmentSetId}' was not found.");
+               
         }
     }
 }

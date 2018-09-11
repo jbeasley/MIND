@@ -9,8 +9,6 @@ namespace SCM.Validators
 {
     public interface IBgpPeerValidator : IValidator
     {
-        Task ValidateNewAsync(BgpPeer bgpPeer);
         Task ValidateDeleteAsync(int bgpPeerId);
-        Task ValidateChangesAsync(BgpPeer bgpPeer);
     }
 }

@@ -8,7 +8,7 @@ namespace Mind.Builders
 {
     public interface IAttachmentSetUpdateBuilder
     {
-        IAttachmentSetUpdateBuilder ForAttachmentSet(AttachmentSet attachmentSet);
+        IAttachmentSetUpdateBuilder ForAttachmentSet(int? attachmentSetId);
         IAttachmentSetUpdateBuilder WithAttachmentRedundancy(string attachmentRedundancy);
         IAttachmentSetUpdateBuilder WithMulticastVpnDomainType(string multicastVpnDomainTypeName);
         IAttachmentSetUpdateBuilder WithSubRegion(string subregion);

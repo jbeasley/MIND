@@ -9,7 +9,7 @@ namespace Mind.Builders
 {
     public interface IIpVpnBuilder
     {
-        IIpVpnBuilder ForTenant(int tenantId);
+        IIpVpnBuilder ForTenant(int? tenantId);
         IIpVpnBuilder WithName(string name);
         IIpVpnBuilder WithDescription(string description);
         IIpVpnBuilder WithRegion(string regionName);

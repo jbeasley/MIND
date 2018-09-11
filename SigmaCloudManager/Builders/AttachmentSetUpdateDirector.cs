@@ -16,9 +16,9 @@ namespace Mind.Builders
             _builder = builder;
         }
 
-        public async Task<SCM.Models.AttachmentSet> UpdateAsync(AttachmentSet attachmentSet, AttachmentSetUpdate update)
+        public async Task<SCM.Models.AttachmentSet> UpdateAsync(int attachmentSetId, AttachmentSetUpdate update)
         {
-            return await _builder.ForAttachmentSet(attachmentSet)
+            return await _builder.ForAttachmentSet(attachmentSetId)
                                  .WithAttachmentRedundancy(update.AttachmentRedundancy.ToString())
                                  .WithSubRegion(update.SubRegion)
                                  .WithMulticastVpnDomainType(update.MulticastVpnDomainType.ToString())

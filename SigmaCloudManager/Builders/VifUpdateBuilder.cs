@@ -158,9 +158,9 @@ namespace Mind.Builders
                     "Mtu",
                     AsTrackable: true)
                     select result)
-                    .Single();
+                    .SingleOrDefault();
 
-            base._vif = vif;
+            base._vif = vif ?? throw new BuilderBadArgumentsException($"Could not find the vif with ID '{vifId}'.");
         }
 
         private void SetIpv4()

@@ -150,8 +150,6 @@ namespace Mind.Builders
                               select result)
                               .Single();
 
-            if (!attachment.IsTagged) throw new BuilderBadArgumentsException("A vif cannot be created for the given attachment because the attachment is not " +
-                "enabled for tagging.");
             _vif.Attachment = attachment;
         }
 
@@ -163,9 +161,9 @@ namespace Mind.Builders
                           q.TenantID == tenantId,
                           AsTrackable: true)
                           select result)
-                          .Single();
+                          .SingleOrDefault();
 
-            _vif.Tenant = tenant;
+            _vif.Tenant = tenant ?? throw new BuilderBadArgumentsException($"The tenant with ID '{tenantId}' was not found.");
         }
 
         protected internal virtual async Task SetVifRoleAsync()
@@ -220,22 +218,6 @@ namespace Mind.Builders
         protected internal virtual async Task CreateContractBandwidthPoolAsync()
         {
             var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
-            var aggContractBandwidthMbps = _vif.Attachment.Vifs
-                .Where(vif => 
-                    vif.VifID != _vif.VifID)
-                    .Select(
-                     vif => 
-                        vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
-                        .Aggregate(0, (x, y) => x + y);
-
-            var attachmentBandwidthMbps = _vif.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
-
-            if (attachmentBandwidthMbps < (aggContractBandwidthMbps + contractBandwidthMbps))
-            {
-                throw new BuilderBadArgumentsException($"The requested contract bandwidth of {contractBandwidthMbps} Mbps is greater " +
-                    $"than the remaining available bandwidth of the attachment ({attachmentBandwidthMbps - aggContractBandwidthMbps} Mbps).");
-            }
-
             var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(
                                   q =>
                                      q.BandwidthMbps == contractBandwidthMbps, 
@@ -262,8 +244,8 @@ namespace Mind.Builders
             var contractBandwidthPool = _vif.Attachment.Vifs
                                                        .Select(
                                                             x => 
-                                                               x.ContractBandwidthPool)
-                                                               .Where(
+                                                                x.ContractBandwidthPool)
+                                                                .Where(
                                                                 x => 
                                                                     x.Name == contractBandwidthPoolName)
                                                                     .SingleOrDefault();
@@ -275,6 +257,7 @@ namespace Mind.Builders
                     $"another vif of same attachment as the vif to be updated.");
             }
 
+            _vif.ContractBandwidthPool = contractBandwidthPool;
             _vif.ContractBandwidthPoolID = contractBandwidthPool.ContractBandwidthPoolID;
         }
 
@@ -310,7 +293,7 @@ namespace Mind.Builders
             var routingInstanceName = _args[nameof(WithExistingRoutingInstance)].ToString();
 
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
-                                    x => 
+                                        x => 
                                            x.Name == routingInstanceName
                                            && x.TenantID == _vif.Tenant.TenantID
                                            && x.DeviceID == _vif.Attachment.DeviceID,
@@ -318,10 +301,7 @@ namespace Mind.Builders
                                            select routingInstances)
                                            .SingleOrDefault();
 
-            _vif.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
-                $"instance '{routingInstanceName}' belonging to tenant '{_vif.Tenant.Name}'. Check that the routing instance exists and that " +
-                $"it belongs to the same provider domain device as the vif to be updated.");
-
+            _vif.RoutingInstance = existingRoutingInstance;
             _vif.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }
 
@@ -357,7 +337,7 @@ namespace Mind.Builders
                        x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu,
                        AsTrackable: true)
                        select mtus)
-                       .Single();
+                       .SingleOrDefault();
 
             _vif.Mtu = mtu;
         }
@@ -425,6 +405,23 @@ namespace Mind.Builders
                 {
                     throw new BuilderIllegalStateException("A contract bandwidth for the vif is required in accordance with the vif role " +
                         $"of '{_vif.VifRole.Name}' but none is defined.");
+                }
+
+                var aggContractBandwidthMbps = _vif.Attachment.Vifs
+                                                              .Where(
+                                                               vif =>
+                                                                   vif.VifID != _vif.VifID)
+                                                                   .Select(
+                                                                   vif =>
+                                                                        vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                                                                        .Aggregate(0, (x, y) => x + y);
+
+                var attachmentBandwidthMbps = _vif.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
+                if (attachmentBandwidthMbps < aggContractBandwidthMbps)
+                {
+                    throw new BuilderBadArgumentsException($"The requested contract bandwidth of " +
+                        $"{_vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps} Mbps is greater " +
+                        $"than the remaining available bandwidth of the attachment ({attachmentBandwidthMbps - aggContractBandwidthMbps} Mbps).");
                 }
             }
             else

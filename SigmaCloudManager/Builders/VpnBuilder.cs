@@ -28,21 +28,21 @@ namespace Mind.Builders
             };
         }
 
-        public virtual IVpnBuilder ForTenant(int tenantId)
+        public virtual IVpnBuilder ForTenant(int? tenantId)
         {
-            _args.Add(nameof(ForTenant), tenantId);
+            if (tenantId.HasValue) _args.Add(nameof(ForTenant), tenantId);
             return this;
         }
 
         public virtual IVpnBuilder WithName(string name)
         {
-            _args.Add(nameof(WithName), name);
+            if (!string.IsNullOrEmpty(name)) _args.Add(nameof(WithName), name);
             return this;
         }
 
         public virtual IVpnBuilder WithDescription(string description)
         {
-            _args.Add(nameof(WithDescription), description);
+            if (!string.IsNullOrEmpty(description)) _args.Add(nameof(WithDescription), description);
             return this;
         }
 
@@ -52,33 +52,33 @@ namespace Mind.Builders
             return this;
         }
 
-        public IVpnBuilder WithTopologyType(string topologyName)
+        public virtual IVpnBuilder WithTopologyType(string topologyName)
         {
-            _args.Add(nameof(WithTopologyType), topologyName);
+            if (!string.IsNullOrEmpty(topologyName)) _args.Add(nameof(WithTopologyType), topologyName);
             return this;
         }
 
-        public IVpnBuilder WithPlane(string planeName)
+        public virtual IVpnBuilder WithPlane(string planeName)
         {
             if (!string.IsNullOrEmpty(planeName)) _args.Add(nameof(WithPlane), planeName);
             return this;
         }
 
-        public IVpnBuilder WithTenancyType(string tenancyTypeName)
+        public virtual IVpnBuilder WithTenancyType(string tenancyTypeName)
         {
-             _args.Add(nameof(WithTenancyType), tenancyTypeName);
+            if (!string.IsNullOrEmpty(tenancyTypeName)) _args.Add(nameof(WithTenancyType), tenancyTypeName);
             return this;
         }
 
         public IVpnBuilder AsNovaVpn(bool? isNovaVpn)
         {
-            _args.Add(nameof(AsNovaVpn), isNovaVpn);
+            if (isNovaVpn.HasValue) _args.Add(nameof(AsNovaVpn), isNovaVpn);
             return this;
         }
 
         public IVpnBuilder WithAddressFamily(string addressFamilyName)
         {
-            _args.Add(nameof(WithAddressFamily), addressFamilyName);
+            if (!string.IsNullOrEmpty(addressFamilyName)) _args.Add(nameof(WithAddressFamily), addressFamilyName);
             return this;
         }
 
@@ -88,13 +88,13 @@ namespace Mind.Builders
         /// <returns></returns>
         public virtual async Task<Vpn> BuildAsync()
         {
-            SetName();
-            SetDescription();
-            SetNovaVpn();
-            await SetTenantAsync();
-            await SetTenancyTypeAsync();
-            await SetTopologyTypeAsync();
-            await SetAddressFamilyAsync();
+            if (_args.ContainsKey(nameof(WithName))) SetName();
+            if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
+            if (_args.ContainsKey(nameof(AsNovaVpn))) SetNovaVpn();
+            if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
+            if (_args.ContainsKey(nameof(WithTenancyType))) await SetTenancyTypeAsync();
+            if (_args.ContainsKey(nameof(WithTopologyType))) await SetTopologyTypeAsync();
+            if (_args.ContainsKey(nameof(WithAddressFamily))) await SetAddressFamilyAsync();
             if (_args.ContainsKey(nameof(WithPlane))) await SetPlaneAsync();
             if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
 
@@ -141,9 +141,9 @@ namespace Mind.Builders
                           q.TenantID == tenantId,
                           AsTrackable: true)
                           select result)
-                          .Single();
+                          .SingleOrDefault();
 
-            _vpn.Tenant = tenant;
+            _vpn.Tenant = tenant ?? throw new BuilderBadArgumentsException($"The tenant with ID '{tenantId}' could not be found.");
         }
 
         protected internal virtual async Task SetTenancyTypeAsync()

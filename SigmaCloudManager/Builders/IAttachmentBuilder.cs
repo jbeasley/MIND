@@ -9,9 +9,10 @@ namespace Mind.Builders
 {
     public interface IAttachmentBuilder<TAttachmentBuilder>
     {
-        IAttachmentBuilder<TAttachmentBuilder> ForTenant(int tenantId);
+        IAttachmentBuilder<TAttachmentBuilder> ForTenant(int? tenantId);
         IAttachmentBuilder<TAttachmentBuilder> WithIpv4(List<Ipv4AddressAndMask> ipv4Addresses);
-        IAttachmentBuilder<TAttachmentBuilder> WithAttachmentRole(string portPoolName, string attachmentRoleName);
+        IAttachmentBuilder<TAttachmentBuilder> WithAttachmentRole(string attachmentRoleName);
+        IAttachmentBuilder<TAttachmentBuilder> WithPortPool(string portPoolName);
         IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps);
         IAttachmentBuilder<TAttachmentBuilder> WithLocation(string locationName);
         IAttachmentBuilder<TAttachmentBuilder> WithPlane(string planeName = "");

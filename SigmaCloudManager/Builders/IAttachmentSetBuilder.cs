@@ -10,7 +10,7 @@ namespace Mind.Builders
 {
     public interface IAttachmentSetBuilder
     {
-        IAttachmentSetBuilder ForTenant(int tenantId);
+        IAttachmentSetBuilder ForTenant(int? tenantId);
         IAttachmentSetBuilder WithAttachmentRedundancy(string attachmentRedundancy);
         IAttachmentSetBuilder WithLayer3(bool? isLayer3);
         IAttachmentSetBuilder WithMulticastVpnDomainType(string multicastVpnDomainTypeName);

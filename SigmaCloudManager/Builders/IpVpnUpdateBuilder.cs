@@ -13,51 +13,51 @@ namespace Mind.Builders
         {
         }
 
-        public IIpVpnUpdateBuilder ForVpn(int vpnId)
+        public IIpVpnUpdateBuilder ForVpn(int? vpnId)
         {
-            _args.Add(nameof(ForVpn), vpnId);
+            if (vpnId.HasValue) _args.Add(nameof(ForVpn), vpnId);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithExtranet(bool? isExtranet)
         {
-            if (isExtranet.HasValue) base.WithExtranet(isExtranet);
+            base.WithExtranet(isExtranet);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithMulticastVpnDirectionType(string multicastVpnDirectionType)
         {
-            if (!string.IsNullOrEmpty(multicastVpnDirectionType)) base.WithMulticastVpnDirectionType(multicastVpnDirectionType);
+            base.WithMulticastVpnDirectionType(multicastVpnDirectionType);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithDescription(string description)
         {
-            if (!string.IsNullOrEmpty(description)) base.WithDescription(description);
+            base.WithDescription(description);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithName(string name)
         {
-            if (!string.IsNullOrEmpty(name)) base.WithName(name);
+            base.WithName(name);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithRegion(string regionName)
         {
-            if (!string.IsNullOrEmpty(regionName)) base.WithRegion(regionName);
+            base.WithRegion(regionName);
             return this;
         }
 
         IIpVpnUpdateBuilder IIpVpnUpdateBuilder.WithTenancyType(string tenancyName)
         {
-            if (!string.IsNullOrEmpty(tenancyName)) base.WithTenancyType(tenancyName);
+            base.WithTenancyType(tenancyName);
             return this;
         }
 
         public async Task<Vpn> UpdateAsync()
         {
-            await SetVpnAsync();
+            if (_args.ContainsKey(nameof(ForVpn))) await SetVpnAsync();
             if (_args.ContainsKey(nameof(WithName))) base.SetName();
             if (_args.ContainsKey(nameof(WithDescription))) base.SetDescription();
             if (_args.ContainsKey(nameof(WithTenancyType))) await base.SetTenancyTypeAsync();
@@ -89,9 +89,9 @@ namespace Mind.Builders
                        "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Device.Location.SubRegion.Region",
                        AsTrackable: true)
                        select result)
-                       .Single();
+                       .SingleOrDefault();
 
-            base._vpn = vpn;
+            base._vpn = vpn ?? throw new BuilderBadArgumentsException($"Unable to find the vpn with ID '{vpnId}'.");
         }
     }
 }

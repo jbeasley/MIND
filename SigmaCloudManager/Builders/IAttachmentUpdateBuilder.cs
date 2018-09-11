@@ -14,7 +14,7 @@ namespace Mind.Builders
         IAttachmentUpdateBuilder<TAttachmentBuilder> WithNewRoutingInstance(bool? newRoutingInstance = false);
         IAttachmentUpdateBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false);
         IAttachmentUpdateBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp = false);
-        IAttachmentUpdateBuilder<TAttachmentBuilder> ForAttachment(int attachmentId);
+        IAttachmentUpdateBuilder<TAttachmentBuilder> ForAttachment(int? attachmentId);
         Task<Attachment> UpdateAsync();
     }
 }

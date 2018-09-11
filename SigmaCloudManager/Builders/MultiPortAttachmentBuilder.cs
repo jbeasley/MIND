@@ -80,7 +80,8 @@ namespace Mind.Builders
                                 q => 
                                     q.DeviceID == _attachment.DeviceID && q.IsMultiPort)
                                     select attachments)
-                                    .Select(q => q.ID).Where(q => q != null)
+                                    .Select(q => q.ID)
+                                    .Where(q => q != null)
                                     .ToList();
 
             int? id = Enumerable.Range(1, 65535).Except(usedMultiPortIds.Select(q => q.Value)).FirstOrDefault();

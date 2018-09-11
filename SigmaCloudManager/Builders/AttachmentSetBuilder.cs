@@ -16,19 +16,27 @@ namespace Mind.Builders
         protected internal AttachmentSet _attachmentSet;
         private readonly IAttachmentSetRoutingInstanceBuilder _attachmentSetRoutingInstanceBuilder;
 
-        public AttachmentSetBuilder(IUnitOfWork unitOfWork, 
+        public AttachmentSetBuilder(IUnitOfWork unitOfWork,
             IAttachmentSetRoutingInstanceBuilder attachmentSetRoutingInstanceBuilder) : base(unitOfWork)
         {
             _attachmentSetRoutingInstanceBuilder = attachmentSetRoutingInstanceBuilder;
             _attachmentSet = new AttachmentSet
             {
-                Name = Guid.NewGuid().ToString("N")
+                Name = Guid.NewGuid().ToString("N"),
+                VpnAttachmentSets = new List<VpnAttachmentSet>(),
+                VpnTenantCommunitiesIn = new List<VpnTenantCommunityIn>(),
+                VpnTenantCommunitiesOut = new List<VpnTenantCommunityOut>(),
+                VpnTenantIpNetworksIn = new List<VpnTenantIpNetworkIn>(),
+                VpnTenantIpNetworksOut = new List<VpnTenantIpNetworkOut>(),
+                VpnTenantCommunitiesRoutingInstance = new List<VpnTenantCommunityRoutingInstance>(),
+                VpnTenantIpNetworkStaticRoutesRoutingInstance = new List<VpnTenantIpNetworkStaticRouteRoutingInstance>(),
+                VpnTenantMulticastGroups = new List<VpnTenantMulticastGroup>()
             };
         }
 
-        public virtual IAttachmentSetBuilder ForTenant(int tenantId)
+        public virtual IAttachmentSetBuilder ForTenant(int? tenantId)
         {
-            _args.Add(nameof(ForTenant),tenantId);
+            if (tenantId.HasValue) _args.Add(nameof(ForTenant), tenantId);
             return this;
         }
 
@@ -98,13 +106,13 @@ namespace Mind.Builders
         {
             var multicastVpnDomainTypeName = _args[nameof(WithMulticastVpnDomainType)].ToString();
             var multicastVpnDomainType = (from multicastVpnDomainTypes in await _unitOfWork.MulticastVpnDomainTypeRepository.GetAsync(
-                        q => 
+                        q =>
                             q.Name == multicastVpnDomainTypeName,
                             AsTrackable: true)
-                            select multicastVpnDomainTypes)
+                                          select multicastVpnDomainTypes)
                             .SingleOrDefault();
 
-            _attachmentSet.MulticastVpnDomainType = multicastVpnDomainType ?? 
+            _attachmentSet.MulticastVpnDomainType = multicastVpnDomainType ??
                 throw new BuilderBadArgumentsException($"The multicast vpn domain type argument {multicastVpnDomainType} is not valid.");
         }
 
@@ -112,7 +120,7 @@ namespace Mind.Builders
         {
             var regionName = _args[nameof(WithRegion)].ToString();
             var region = (from regions in await _unitOfWork.RegionRepository.GetAsync(q => q.Name == regionName)
-                         select regions)
+                          select regions)
                          .SingleOrDefault();
 
             _attachmentSet.Region = region ?? throw new BuilderBadArgumentsException($"The region argument {regionName} is not a valid region.");
@@ -122,7 +130,7 @@ namespace Mind.Builders
         {
             var subregionName = _args[nameof(WithSubRegion)].ToString();
             var subregion = (from subRegions in await _unitOfWork.SubRegionRepository.GetAsync(
-                          q => 
+                          q =>
                              q.Name == subregionName && q.RegionID == _attachmentSet.Region.RegionID,
                              AsTrackable: true)
                              select subRegions)
@@ -149,7 +157,7 @@ namespace Mind.Builders
         {
             var attachmentRedundancyName = _args[nameof(WithAttachmentRedundancy)].ToString();
             var attachmentRedundancy = (from attachmentRedundancies in await _unitOfWork.AttachmentRedundancyRepository.GetAsync(
-                                     q => 
+                                     q =>
                                         q.Name == attachmentRedundancyName,
                                         AsTrackable: true)
                                         select attachmentRedundancies)
@@ -163,7 +171,7 @@ namespace Mind.Builders
         /// </summary>
         protected virtual internal void Validate()
         {
-            if (_attachmentSet.AttachmentRedundancy == null)  throw new BuilderBadArgumentsException($"The attachment redundancy of the attachment set " +
+            if (_attachmentSet.AttachmentRedundancy == null) throw new BuilderBadArgumentsException($"The attachment redundancy of the attachment set " +
                 $"is not valid.");
 
             if (_attachmentSet.AttachmentSetRoutingInstances.Any())
@@ -177,13 +185,140 @@ namespace Mind.Builders
                 {
                     if (_attachmentSet.AttachmentSetRoutingInstances.Count != 2)
                         throw new BuilderIllegalStateException($"Attachment set '{_attachmentSet.Name}' requires 2 routing instance associations.");
+
+                    var firstSilverLocation = _attachmentSet.AttachmentSetRoutingInstances.First().RoutingInstance.Device.Location;
+                    var secondSilverLocation = _attachmentSet.AttachmentSetRoutingInstances.ElementAt(1).RoutingInstance.Device.Location;
+                    if (firstSilverLocation.LocationID != secondSilverLocation.LocationID)
+                    {
+                        throw new BuilderIllegalStateException($"The location of each routing instance in attachment set '{_attachmentSet.Name}' " +
+                            $"must be the same because the attachment set is configured for silver-level redundancy.");
+                    }
                 }
                 else if (_attachmentSet.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Gold)
                 {
                     if (_attachmentSet.AttachmentSetRoutingInstances.Count != 2)
                         throw new BuilderIllegalStateException($"Attachment set '{_attachmentSet.Name}' requires 2 routing instance associations.");
+
+                    if (_attachmentSet.SubRegion == null) throw new BuilderIllegalStateException("A subregion must be defined for attachment set " +
+                        $"'{_attachmentSet.Name}' with gold-level redundancy");
+
+                    var firstGoldLocation = _attachmentSet.AttachmentSetRoutingInstances.First().RoutingInstance.Device.Location;
+                    var secondGoldLocation = _attachmentSet.AttachmentSetRoutingInstances.ElementAt(1).RoutingInstance.Device.Location;
+                    if (firstGoldLocation.SubRegionID != secondGoldLocation.SubRegionID)
+                    {
+                        throw new BuilderIllegalStateException($"The subregion of each routing instance in attachment set '{_attachmentSet.Name}' " +
+                            $"must be the same because the attachment set is configured for gold-level redundancy.");
+                    }
+
+                    if (firstGoldLocation.SubRegionID != _attachmentSet.SubRegion.SubRegionID)
+                        throw new BuilderIllegalStateException($"Routing instance " +
+                            $"'{_attachmentSet.AttachmentSetRoutingInstances.First().RoutingInstance.Name}' does not belong to the same subregion " +
+                            $"as the attachment set.");
+
+                    if (secondGoldLocation.SubRegionID != _attachmentSet.SubRegion.SubRegionID)
+                        throw new BuilderIllegalStateException($"Routing instance " +
+                            $"'{_attachmentSet.AttachmentSetRoutingInstances.ElementAt(1).RoutingInstance.Name}' does not belong to the same subregion " +
+                            $"as the attachment set.");
+
+                    if (firstGoldLocation.LocationID == secondGoldLocation.LocationID)
+                    {
+                        throw new BuilderIllegalStateException($"The location of each routing instance in attachment set '{_attachmentSet.Name}' " +
+                            $"must be different because the attachment set is configured for gold-level redundancy.");
+                    }
                 }
             }
+
+            (from vpnAttachmentSets in _attachmentSet.VpnAttachmentSets
+             select vpnAttachmentSets)
+             .ToList()
+             .ForEach(
+                vpnAttachmentSet =>
+                {
+                    var vpn = vpnAttachmentSet.Vpn;
+                    if (vpn.IsMulticastVpn)
+                    {
+                        if (_attachmentSet.MulticastVpnDomainType == null)
+                        {
+                            throw new BuilderIllegalStateException("A multicast vpn domain type option for the attachment set is required because the " +
+                               $"attachment Set is bound to multicast vpn '{vpn.Name}'.");
+                        }
+                        else
+                        {
+                            if (vpn.VpnTopologyType.TopologyType == SCM.Models.TopologyTypeEnum.HubandSpoke)
+                            {
+                                if (vpn.MulticastVpnDirectionType.MvpnDirectionType == MvpnDirectionTypeEnum.Unidirectional)
+                                {
+                                    // Unidirectional hub-and-spoke vpn multicast domain checks follow...
+
+                                    if (vpnAttachmentSet.IsHub.GetValueOrDefault())
+                                    {
+                                        // The attachment set is a HUB for the vpn - the attachment set must be 'sender only'
+
+                                        if (_attachmentSet.MulticastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderOnly)
+                                        {
+                                            throw new BuilderIllegalStateException($"The multicast vpn domain type of '{_attachmentSet.MulticastVpnDomainType.Name}' is not "
+                                            + $"valid because attachment set '{_attachmentSet.Name}' is designated as a HUB for hub-and-spoke multicast vpn "
+                                            + $"'{vpn.Name}'. The multicast direction type setting of the vpn is '{vpn.MulticastVpnDirectionType.Name}' and therefore "
+                                            + "the multicast vpn domain type of the Attachment set must be 'Sender-Only'.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        // The attachment set is a SPOKE for the vpn - the attachment set must be 'receiver only'
+
+                                        if (_attachmentSet.MulticastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.ReceiverOnly)
+                                        {
+                                            throw new BuilderIllegalStateException($"The multicast vpn domain type of '{_attachmentSet.MulticastVpnDomainType.Name}' is not "
+                                            + $"valid because attachment set '{_attachmentSet.Name}' is designated as a SPOKE for hub-and-spoke multicast vpn "
+                                            + $"'{vpn.Name}'. The multicast direction type setting of the vpn is '{vpn.MulticastVpnDirectionType.Name}' and therefore "
+                                            + "the multicast vpn domain type of the attachment set must be 'Receiver-Only'.");
+                                        }
+                                    }
+                                }
+
+                                else
+                                {
+                                    // Bidirectioal hub-and-spoke vpn multicast domain checks follow...
+
+                                    if (vpnAttachmentSet.IsHub.GetValueOrDefault())
+                                    {
+                                        // The attachment set is a HUB for the vpn - the attachment set must be 'sender only' or 'sender-and-reciever'
+
+                                        if (_attachmentSet.MulticastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderOnly
+                                            && _attachmentSet.MulticastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderAndReceiver)
+                                        {
+                                            throw new BuilderIllegalStateException($"The multicast vpn domain type of '{_attachmentSet.MulticastVpnDomainType.Name}' is not "
+                                            + $"valid because attachment set '{_attachmentSet.Name}' is designated as a HUB for hub-and-spoke multicast vpn "
+                                            + $"'{vpn.Name}'. The multicast direction type setting of the vpn is '{vpn.MulticastVpnDirectionType.Name}' and therefore "
+                                            + "the multicast vpn domain type of the attachment set must be either 'Sender-and-Receiver' or 'Sender-Only'.");
+                                        }
+                                    }
+                                    else
+                                    {
+                                        if (_attachmentSet.MulticastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.ReceiverOnly
+                                            && _attachmentSet.MulticastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderAndReceiver)
+                                        {
+                                            throw new BuilderIllegalStateException($"The multicast vpn domain type selection of '{_attachmentSet.MulticastVpnDomainType.Name}' is not "
+                                            + $"valid because attachment set '{_attachmentSet.Name}' is designated as a SPOKE for hub-and-spoke multicast vpn "
+                                            + $"'{vpn.Name}'. The multicast direction type setting of the vpn is '{vpn.MulticastVpnDirectionType.Name}' and therefore "
+                                            + "the multicast vpn domain type of the attachment set must be either 'Sender-and-Receiver' or 'Receiver-Only'.");
+                                        }
+                                    }
+                                }
+                            }
+                        }
+
+                        if (_attachmentSet.MulticastVpnDomainType.MvpnDomainType == MvpnDomainTypeEnum.ReceiverOnly)
+                        {
+                            if (_attachmentSet.VpnTenantMulticastGroups.Any())
+                            {
+                                throw new BuilderIllegalStateException("The multicast domain type cannot be 'Receiver-Only' for attachment set "
+                                    + $"'{_attachmentSet.Name}' because multicast group ranges are associated with the attachment set. "
+                                    + "Remove the multicast group ranges from the attachment set first.");
+                            }
+                        }
+                    }
+                });
         }
     }
 }

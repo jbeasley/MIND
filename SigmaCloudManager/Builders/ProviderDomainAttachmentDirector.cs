@@ -21,7 +21,8 @@ namespace Mind.Builders
         {
             var builder = _builderFactory(request);
             return await builder.ForTenant(tenantId)
-                                .WithAttachmentRole(request.PortPoolName, request.AttachmentRoleName)
+                                .WithAttachmentRole(request.AttachmentRoleName)
+                                .WithPortPool(request.PortPoolName)
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
                                 .WithLocation(request.LocationName)
                                 .WithPlane(request.PlaneName.ToString())

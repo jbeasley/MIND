@@ -16,9 +16,9 @@ namespace Mind.Builders
             _builder = builder;
         }
 
-        public async Task<SCM.Models.VpnTenantIpNetworkOut> UpdateAsync(VpnTenantIpNetworkOut VpnTenantIpNetworkOut, VpnTenantIpNetworkOutRequest request)
+        public async Task<SCM.Models.VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutRequest request)
         {
-            return await _builder.ForVpnTenantIpNetworkOut(VpnTenantIpNetworkOut)
+            return await _builder.ForVpnTenantIpNetworkOut(vpnTenantIpNetworkOutId)
                                  .WithAdvertisedIpRoutingPreference(request.AdvertisedIpRoutingPreference)
                                  .WithIpv4PeerAddress(request.Ipv4PeerAddress)
                                  .UpdateAsync();

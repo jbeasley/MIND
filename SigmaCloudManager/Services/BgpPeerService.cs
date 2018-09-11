@@ -6,6 +6,8 @@ using SCM.Models;
 using SCM.Data;
 using SCM.Validators;
 using Mind.Services;
+using Mind.Builders;
+using Mind.Models.RequestModels;
 
 namespace SCM.Services
 {
@@ -17,10 +19,12 @@ namespace SCM.Services
                   + "VpnTenantCommunitiesOut.TenantCommunity,"
                   + "VpnTenantIpNetworksOut.TenantIpNetwork";
         private readonly IBgpPeerValidator _validator;
+        private readonly IBgpPeerDirector _director;
 
-        public BgpPeerService(IUnitOfWork unitOfWork, IBgpPeerValidator validator) : base(unitOfWork, validator)
+        public BgpPeerService(IUnitOfWork unitOfWork, IBgpPeerDirector director, IBgpPeerValidator validator) : base(unitOfWork, validator)
         {
             _validator = validator;
+            _director = director;
         }
 
         public async Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool? deep = false, bool asTrackable = false)
@@ -40,19 +44,28 @@ namespace SCM.Services
                     .SingleOrDefault();
         }
 
+        /// <summary>
+        /// TO-BE-REMOVED
+        /// </summary>
+        /// <param name="bgpPeer"></param>
+        /// <returns></returns>
         public async Task<BgpPeer> AddAsync(BgpPeer bgpPeer)
         {
-            await _validator.ValidateNewAsync(bgpPeer);
-            if (!_validator.IsValid) throw new ServiceValidationException();
             this.UnitOfWork.BgpPeerRepository.Insert(bgpPeer);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
         }
- 
+
+        public async Task<BgpPeer> AddAsync(int routingInstanceId, BgpPeerRequest request)
+        {
+            var bgpPeer = await _director.BuildAsync(routingInstanceId, request);
+            this.UnitOfWork.BgpPeerRepository.Insert(bgpPeer);
+            await this.UnitOfWork.SaveAsync();
+            return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
+        }
+
         public async Task<BgpPeer> UpdateAsync(BgpPeer bgpPeer)
         {
-            await _validator.ValidateChangesAsync(bgpPeer);
-            if (!_validator.IsValid) throw new ServiceValidationException();
             this.UnitOfWork.BgpPeerRepository.Update(bgpPeer);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);

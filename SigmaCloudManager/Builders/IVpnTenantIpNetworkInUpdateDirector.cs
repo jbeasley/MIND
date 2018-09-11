@@ -10,6 +10,6 @@ namespace Mind.Builders
 {
     public interface IVpnTenantIpNetworkInUpdateDirector
     {
-        Task<VpnTenantIpNetworkIn> UpdateAsync(VpnTenantIpNetworkIn vpnTenantIpNetworkIn, VpnTenantIpNetworkInRequest request);
+        Task<VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInRequest request);
     }
 }

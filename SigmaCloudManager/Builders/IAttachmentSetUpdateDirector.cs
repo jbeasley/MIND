@@ -10,6 +10,6 @@ namespace Mind.Builders
 {
     public interface IAttachmentSetUpdateDirector
     {
-        Task<AttachmentSet> UpdateAsync(AttachmentSet attachmentSet, AttachmentSetUpdate update);
+        Task<AttachmentSet> UpdateAsync(int attachmentSetId, AttachmentSetUpdate update);
     }
 }

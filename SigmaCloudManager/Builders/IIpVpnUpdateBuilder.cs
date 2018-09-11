@@ -9,7 +9,7 @@ namespace Mind.Builders
 {
     public interface IIpVpnUpdateBuilder
     {
-        IIpVpnUpdateBuilder ForVpn(int vpnId);
+        IIpVpnUpdateBuilder ForVpn(int? vpnId);
         IIpVpnUpdateBuilder WithName(string name);
         IIpVpnUpdateBuilder WithDescription(string description);
         IIpVpnUpdateBuilder WithRegion(string regionName);

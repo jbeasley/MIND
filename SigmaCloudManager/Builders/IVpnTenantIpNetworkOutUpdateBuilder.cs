@@ -10,7 +10,7 @@ namespace Mind.Builders
 {
     public interface IVpnTenantIpNetworkOutUpdateBuilder
     {
-        IVpnTenantIpNetworkOutUpdateBuilder ForVpnTenantIpNetworkOut(VpnTenantIpNetworkOut VpnTenantIpNetworkOut);
+        IVpnTenantIpNetworkOutUpdateBuilder ForVpnTenantIpNetworkOut(int VpnTenantIpNetworkOutId);
         IVpnTenantIpNetworkOutUpdateBuilder WithAdvertisedIpRoutingPreference(int? localIpRoutingPreference);
         IVpnTenantIpNetworkOutUpdateBuilder WithIpv4PeerAddress(string peerIpv4Address);
         Task<VpnTenantIpNetworkOut> UpdateAsync();

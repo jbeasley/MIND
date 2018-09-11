@@ -16,9 +16,9 @@ namespace Mind.Builders
             _builder = builder;
         }
 
-        public async Task<SCM.Models.VpnTenantIpNetworkIn> UpdateAsync(VpnTenantIpNetworkIn vpnTenantIpNetworkIn, VpnTenantIpNetworkInRequest request)
+        public async Task<SCM.Models.VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInRequest request)
         {
-            return await _builder.ForVpnTenantIpNetworkIn(vpnTenantIpNetworkIn)
+            return await _builder.ForVpnTenantIpNetworkIn(vpnTenantIpNetworkInId)
                                  .WithLocalIpRoutingPreference(request.LocalIpRoutingPreference)
                                  .WithIpv4PeerAddress(request.Ipv4PeerAddress)
                                  .AddToAllBgpPeersInAttachmentSet(request.AddToAllBgpPeersInAttachmentSet)

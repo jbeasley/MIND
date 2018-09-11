@@ -64,6 +64,11 @@ namespace SCM.Services
                    .SingleOrDefault();
         }
 
+        /// <summary>
+        /// TO-BE-REMOVED
+        /// </summary>
+        /// <param name="vpnTenantIpNetworkOut"></param>
+        /// <returns></returns>
         public async Task<VpnTenantIpNetworkOut> AddAsync(VpnTenantIpNetworkOut vpnTenantIpNetworkOut)
         {
             this.UnitOfWork.VpnTenantIpNetworkOutRepository.Insert(vpnTenantIpNetworkOut);
@@ -79,6 +84,11 @@ namespace SCM.Services
             return await GetByIDAsync(vpnTenantIpNetworkOut.VpnTenantIpNetworkOutID, deep: true, asTrackable: false);
         }
 
+        /// <summary>
+        /// TO-BE-REMOVED
+        /// </summary>
+        /// <param name="vpnTenantIpNetworkOut"></param>
+        /// <returns></returns>
         public async Task<VpnTenantIpNetworkOut> UpdateAsync(VpnTenantIpNetworkOut vpnTenantIpNetworkOut)
         {
             this.UnitOfWork.VpnTenantIpNetworkOutRepository.Update(vpnTenantIpNetworkOut);
@@ -88,11 +98,9 @@ namespace SCM.Services
 
         public async Task<VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutRequest request)
         {
-            var vpnTenantIpNetworkOut = await GetByIDAsync(vpnTenantIpNetworkOutId, deep: false, asTrackable: true);
-            await _updateDirector.UpdateAsync(vpnTenantIpNetworkOut, request);
-            this.UnitOfWork.VpnTenantIpNetworkOutRepository.Update(vpnTenantIpNetworkOut);
+            await _updateDirector.UpdateAsync(vpnTenantIpNetworkOutId, request);
             await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(vpnTenantIpNetworkOut.VpnTenantIpNetworkOutID, deep: true, asTrackable: false);
+            return await GetByIDAsync(vpnTenantIpNetworkOutId, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int vpnTenantIpNetworkOutId)

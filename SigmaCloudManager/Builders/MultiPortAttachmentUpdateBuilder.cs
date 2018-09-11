@@ -18,9 +18,9 @@ namespace Mind.Builders
         {
         }
 
-        public IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder> ForAttachment(int attachmentId)
+        public IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder> ForAttachment(int? attachmentId)
         {
-            _args.Add(nameof(ForAttachment), attachmentId);
+            if (attachmentId.HasValue) _args.Add(nameof(ForAttachment), attachmentId);
             return this;
         }
 
@@ -56,16 +56,16 @@ namespace Mind.Builders
 
         async Task<Attachment> IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>.UpdateAsync()
         {
-            await SetAttachmentAsync();
-            await SetMtuAsync();
-            if (_args.ContainsKey("contractBandwidthMbps")) await CreateContractBandwidthPoolAsync();
+            if (_args.ContainsKey(nameof(ForAttachment))) await SetAttachmentAsync();
+            if (_args.ContainsKey(nameof(WithJumboMtu))) await SetMtuAsync();
+            if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
 
             if (base._args.ContainsKey(nameof(WithNewRoutingInstance)) &&
                 (bool)base._args[nameof(WithNewRoutingInstance)])
             {
                 await base.CreateRoutingInstanceAsync();
             }
-            else if (base._args.ContainsKey(nameof(WithExistingRoutingInstance)) && base._args[nameof(WithExistingRoutingInstance)] != null)
+            else if (base._args.ContainsKey(nameof(WithExistingRoutingInstance)))
             {
                 await AssociateExistingRoutingInstanceAsync();
             }
@@ -78,20 +78,23 @@ namespace Mind.Builders
         private async Task SetAttachmentAsync()
         {
             var attachmentId = (int)_args[nameof(ForAttachment)];
-            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
-               includeProperties: "Tenant," +
-               "Device," +
-               "RoutingInstance.Attachments," +
-               "RoutingInstance.Vifs," +
-               "ContractBandwidthPool," +
-               "AttachmentRole.PortPool.PortRole," +
-               "AttachmentBandwidth," +
-               "Interfaces.Ports," +
-               "Vifs", AsTrackable: true)
-                              select attachments)
-                             .Single();
+            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q => 
+                            q.AttachmentID == attachmentId,
+                            includeProperties: "Tenant," +
+                            "Device," +
+                            "RoutingInstance.Attachments," +
+                            "RoutingInstance.Vifs," +
+                            "ContractBandwidthPool," +
+                            "AttachmentRole.PortPool.PortRole," +
+                            "AttachmentBandwidth," +
+                            "Interfaces.Ports," +
+                            "Vifs", 
+                            AsTrackable: true)
+                            select attachments)
+                           .SingleOrDefault();
 
-            base._attachment = attachment;
+            base._attachment = attachment ?? throw new BuilderBadArgumentsException($"Could not find the attachment with ID '{attachmentId}'.");
         }
     }
 }

@@ -33,32 +33,33 @@ namespace Mind.Builders
             _routingInstanceDirectorFactory = routingInstanceDirectorFactory;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> ForTenant(int tenantId)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> ForTenant(int? tenantId)
         {
-             _args.Add(nameof(ForTenant), tenantId);
+            if (tenantId.HasValue) _args.Add(nameof(ForTenant), tenantId);
             return this;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps)
         {
-            _args.Add(nameof(WithAttachmentBandwidth), attachmentBandwidthGbps);
+            if (attachmentBandwidthGbps.HasValue) _args.Add(nameof(WithAttachmentBandwidth), attachmentBandwidthGbps);
             return this;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> WithAttachmentRole(string portPoolName, string attachmentRoleName)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithPortPool(string portPoolName)
         {
-            _args.Add(nameof(portPoolName), portPoolName);
-            _args.Add(nameof(attachmentRoleName), attachmentRoleName);
+            if (!string.IsNullOrEmpty(portPoolName)) _args.Add(nameof(portPoolName), portPoolName);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithAttachmentRole(string attachmentRoleName)
+        {
+            if (!string.IsNullOrEmpty(attachmentRoleName)) _args.Add(nameof(attachmentRoleName), attachmentRoleName);
             return this;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps)
         {
-            if (contractBandwidthMbps != null)
-            {
-                _args.Add(nameof(contractBandwidthMbps), contractBandwidthMbps);
-            }
-
+            if (contractBandwidthMbps.HasValue) _args.Add(nameof(contractBandwidthMbps), contractBandwidthMbps);
             return this;
         }
 
@@ -70,31 +71,31 @@ namespace Mind.Builders
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithLocation(string locationName)
         {
-            _args.Add(nameof(WithLocation), locationName);
+            if (!string.IsNullOrEmpty(locationName)) _args.Add(nameof(WithLocation), locationName);
             return this;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> WithPlane(string planeName = "")
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithPlane(string planeName)
         {
-            _args.Add(nameof(WithPlane), planeName);
+            if (!string.IsNullOrEmpty(planeName)) _args.Add(nameof(WithPlane), planeName);
             return this;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu)
         {
-            _args.Add(nameof(WithJumboMtu), useJumboMtu != null ? useJumboMtu : false);
+            if (useJumboMtu.HasValue) _args.Add(nameof(WithJumboMtu), useJumboMtu);
             return this;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithExistingRoutingInstance(string existingRoutingInstanceName)
         {
-            _args.Add(nameof(WithExistingRoutingInstance), existingRoutingInstanceName);
+            if (!string.IsNullOrEmpty(existingRoutingInstanceName)) _args.Add(nameof(WithExistingRoutingInstance), existingRoutingInstanceName);
             return this;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp)
         {
-            _args.Add(nameof(WithTrustReceivedCosAndDscp), trustReceivedCosAndDscp != null ? trustReceivedCosAndDscp : false);
+            if (trustReceivedCosAndDscp.HasValue) _args.Add(nameof(WithTrustReceivedCosAndDscp), trustReceivedCosAndDscp);
             return this;
         }
 
@@ -104,11 +105,9 @@ namespace Mind.Builders
         /// <returns></returns>
         public virtual async Task<Attachment> BuildAsync()
         {
-            await Task.WhenAll(new List<Task>()
-            {
-                CreateAttachmentBandwidthAsync(),
-                CreateAttachmentRoleAsync()
-            });
+
+            if (_args.ContainsKey(nameof(WithAttachmentBandwidth))) await CreateAttachmentBandwidthAsync();
+            if (_args.ContainsKey(nameof(WithAttachmentRole)) && _args.ContainsKey(nameof(WithPortPool))) await CreateAttachmentRoleAsync();
             if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
             SetNumberOfPortsRequired();
             SetPortBandwidthRequired();
@@ -116,13 +115,13 @@ namespace Mind.Builders
             CreateInterfaces();
             await SetMtuAsync();
 
-            if (_args.ContainsKey("contractBandwidthMbps"))
+            if (_args.ContainsKey(nameof(WithContractBandwidth)))
             {
                 await CreateContractBandwidthPoolAsync();
                 SetTrustReceivedCosAndDscp();
             }
 
-            if (_args.ContainsKey(nameof(WithExistingRoutingInstance)) && _args[nameof(WithExistingRoutingInstance)] != null)
+            if (_args.ContainsKey(nameof(WithExistingRoutingInstance)))
             {
                 await AssociateExistingRoutingInstanceAsync();
             }
@@ -197,8 +196,8 @@ namespace Mind.Builders
         /// <returns></returns>
         protected internal virtual async Task CreateAttachmentRoleAsync()
         {
-            var attachmentRoleName = _args["attachmentRoleName"].ToString();
-            var portPoolName = _args["portPoolName"].ToString();
+            var attachmentRoleName = _args[nameof(WithAttachmentRole)].ToString();
+            var portPoolName = _args[nameof(WithPortPool)].ToString();
             var attachmentRole = (from attachmentRoles in await _unitOfWork.AttachmentRoleRepository.GetAsync(
                             q =>
                                 q.PortPool.Name == portPoolName && q.Name == attachmentRoleName, 
@@ -238,13 +237,13 @@ namespace Mind.Builders
 
         protected internal virtual async Task CreateContractBandwidthPoolAsync()
         {
-            var contractBandwidthMbps = (int)_args["contractBandwidthMbps"];
+            var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
             var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(q =>
                                      q.BandwidthMbps == contractBandwidthMbps)
                                      select contractBandwidths)
                                     .SingleOrDefault();
 
-            if (contractBandwidth == null)  throw new BuilderBadArgumentsException($"The requested contract bandwidth of {_args["contractBandwidthMbps"]} " +
+            if (contractBandwidth == null)  throw new BuilderBadArgumentsException($"The requested contract bandwidth of {contractBandwidthMbps} " +
                 $"Mbps is not valid.");
 
             var contractBandwidthPool = new ContractBandwidthPool
@@ -253,8 +252,6 @@ namespace Mind.Builders
                 TenantID = _attachment.Tenant.TenantID,
                 Name = Guid.NewGuid().ToString("N")
             };
-
-            _attachment.ContractBandwidthPool = contractBandwidthPool;
         }
 
         protected internal virtual void SetTrustReceivedCosAndDscp()
@@ -299,7 +296,6 @@ namespace Mind.Builders
 
             _attachment.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
                 $"instance '{routingInstanceName}' belonging to tenant '{_attachment.Tenant.Name}'.");
-            _attachment.RoutingInstance = existingRoutingInstance;
         }
 
         protected internal virtual async Task SetMtuAsync()

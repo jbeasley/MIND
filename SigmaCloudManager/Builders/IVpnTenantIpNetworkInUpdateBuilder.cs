@@ -10,7 +10,7 @@ namespace Mind.Builders
 {
     public interface IVpnTenantIpNetworkInUpdateBuilder
     {
-        IVpnTenantIpNetworkInUpdateBuilder ForVpnTenantIpNetworkIn(VpnTenantIpNetworkIn vpnTenantIpNetworkIn);
+        IVpnTenantIpNetworkInUpdateBuilder ForVpnTenantIpNetworkIn(int vpnTenantIpNetworkInId);
         IVpnTenantIpNetworkInUpdateBuilder WithLocalIpRoutingPreference(int? localIpRoutingPreference);
         IVpnTenantIpNetworkInUpdateBuilder AddToAllBgpPeersInAttachmentSet(bool? addToAllBgpPeersInAttachmentSet);
         IVpnTenantIpNetworkInUpdateBuilder WithIpv4PeerAddress(string peerIpv4Address);

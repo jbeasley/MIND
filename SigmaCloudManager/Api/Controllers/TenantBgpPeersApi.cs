@@ -29,6 +29,7 @@ using Mind.Services;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using Mind.Builders;
 
 namespace Mind.Api.Controllers
 {
@@ -73,9 +74,19 @@ namespace Mind.Api.Controllers
                 return CreatedAtRoute("GetRoutingInstanceBgpPeer", new { bgpPeerId = bgpPeer.BgpPeerID }, bgpPeerApiModel);
             }
 
-            catch (ServiceValidationException)
+            catch (BuilderBadArgumentsException ex)
             {
-                return new ValidationFailedResult(this.ModelState);
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (BuilderIllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
             }
 
             catch (DbUpdateException)
@@ -122,9 +133,19 @@ namespace Mind.Api.Controllers
                 return Ok(bgpPeerApiModel);
             }
 
-            catch (ServiceValidationException)
+            catch (BuilderBadArgumentsException ex)
             {
-                return new ValidationFailedResult(this.ModelState);
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (BuilderIllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
             }
 
             catch (DbUpdateException)

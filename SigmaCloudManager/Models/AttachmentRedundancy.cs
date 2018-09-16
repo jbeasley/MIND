@@ -16,7 +16,7 @@ namespace SCM.Models
 
     public class AttachmentRedundancy
     {
-        public int AttachmentRedundancyID { get; set; }
+        public int AttachmentRedundancyID { get; private set; }
         [MaxLength(50)]
         [Required]
         public string Name { get; set; }

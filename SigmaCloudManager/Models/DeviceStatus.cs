@@ -16,7 +16,7 @@ namespace SCM.Models
 
     public class DeviceStatus
     {
-        public int DeviceStatusID { get; set; }
+        public int DeviceStatusID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

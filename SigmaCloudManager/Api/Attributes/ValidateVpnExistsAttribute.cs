@@ -38,13 +38,16 @@ namespace Mind.Api.Attributes
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {             
                 var vpnId = context.ActionArguments["vpnId"] as int?;
-                var tenantId = context.ActionArguments["tenantId"] as int?;
-                if ((from result in await _unitOfWork.VpnRepository.GetAsync(
-                    q => 
-                        q.VpnID == vpnId && q.TenantID == tenantId,
+                var tenantId = context.ActionArguments.ContainsKey("tenantId") ? (int?)context.ActionArguments["tenantId"] : null;
+                var query = (from result in await _unitOfWork.VpnRepository.GetAsync(
+                    q =>
+                        q.VpnID == vpnId,
                         AsTrackable: false)
-                        select result)
-                       .SingleOrDefault() == null)
+                             select result);
+
+                if (tenantId.HasValue) query = query.Where(x => x.TenantID == tenantId);
+                var vpn = query.SingleOrDefault();
+                if (vpn == null)
                 {
                     context.ModelState.AddModelError(string.Empty, "Could not find the vpn.");
                     context.Result = new ResourceNotFoundResult(context.ModelState);

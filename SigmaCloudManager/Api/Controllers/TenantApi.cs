@@ -86,16 +86,16 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <param name="body">Updated tenant object</param>
         /// <param name="tenantId">The ID of the tenant</param>
-        /// <response code="200">Successful operation</response>
+        /// <response code="204">Successful operation</response>
         /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
-        [HttpPut]
+        [HttpPatch]
         [Route("v{version:apiVersion}/tenants/{tenantId}")]
         [ValidateModelState]
         [ValidateTenantNotExists]
         [SwaggerOperation("UpdateTenant")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Tenant), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
@@ -107,8 +107,9 @@ namespace Mind.Api.Controllers
                 if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
                 Mapper.Map(body, item);
                 var updatedTenant = await _tenantService.UpdateAsync(item);
+                updatedTenant.SetModifiedHttpHeaders(Response);
 
-                return Ok(Mapper.Map<Tenant>(updatedTenant));
+                return StatusCode(StatusCodes.Status204NoContent);
             }
 
             catch (DbUpdateException)

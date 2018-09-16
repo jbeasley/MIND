@@ -1,10 +1,8 @@
 @model IEnumerable<SCM.Models.ViewModels.ExtranetVpnTenantNetworkInViewModel>
-@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
-@using Microsoft.Extensions.Options;
-@using SCM;
+
 
 @{
-    ViewData["Title"] = "Tenant Networks";
+    ViewData["Title"] = "Tenant IP Networks";
 }
 
 <ol class="breadcrumb">
@@ -14,17 +12,11 @@
     <li class="breadcrumb-item active">Extranet VPN Tenant Networks - [@ViewBag.ExtranetVpnMember.ExtranetVpn.Name]</li>
 </ol>
 
-@if (ApplicationConfiguration.Value.EnableNetworkSync)
-{
-
-    // Show Network messages if Network Sync functionality is enabled
-    await Html.RenderPartialAsync("_NetworkMessagingPartial");
-}
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
 
-<h2>Tenant Networks FROM Member VPN '@ViewBag.ExtranetVpnMember.MemberVpn.Name' TO Extranet VPN '@ViewBag.ExtranetVpnMember.ExtranetVpn.Name'</h2>
+<h2>Tenant IP Networks FROM Member VPN '@ViewBag.ExtranetVpnMember.MemberVpn.Name' TO Extranet VPN '@ViewBag.ExtranetVpnMember.ExtranetVpn.Name'</h2>
 
 <p>
     <a asp-action="Create" asp-route-id="@ViewBag.ExtranetVpnMember.ExtranetVpnMemberID">Add New</a>
@@ -33,7 +25,7 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.VpnTenantNetworkIn.TenantNetwork)
+                @Html.DisplayNameFor(model => model.VpnTenantIpNetworkIn.TenantIpNetwork)
             </th>
             <th></th>
         </tr>
@@ -43,7 +35,7 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.VpnTenantNetworkIn.TenantNetwork.CidrName)
+                    @Html.DisplayFor(modelItem => item.VpnTenantIpNetworkIn.TenantIpNetwork.CidrName)
                 </td>
                 <td>
                     @Html.ActionLink("Details", "Details", new { id = item.ExtranetVpnTenantNetworkInID }) |

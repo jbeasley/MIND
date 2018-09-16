@@ -82,7 +82,7 @@ namespace Mind.Builders
             if (base._args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) base.SetTrustReceivedCosAndDscp();
             base.SetBundleLinks();
 
-            Validate();
+            _attachment.Validate();
 
             return _attachment;
         }
@@ -91,17 +91,9 @@ namespace Mind.Builders
         {
             var attachmentId = (int)_args[nameof(ForAttachment)];
             var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(
-                        q => 
+                        q =>
                             q.AttachmentID == attachmentId,
-                            includeProperties: "Tenant," +
-                            "Device," +
-                            "RoutingInstance.Attachments," +
-                            "RoutingInstance.Vifs," +
-                            "ContractBandwidthPool," +
-                            "AttachmentRole.PortPool.PortRole," +
-                            "AttachmentBandwidth," +
-                            "Interfaces.Ports," +
-                            "Vifs", 
+                            query: q => q.IncludeValidationProperties(),
                             AsTrackable: true)
                             select attachments)
                            .SingleOrDefault();

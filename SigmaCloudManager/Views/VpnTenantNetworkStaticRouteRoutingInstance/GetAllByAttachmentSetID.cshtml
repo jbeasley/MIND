@@ -1,8 +1,4 @@
-@model IEnumerable<SCM.Models.ViewModels.VpnTenantNetworkStaticRouteRoutingInstanceViewModel>
-@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
-@using Microsoft.Extensions.Options;
-@using SCM;
-
+@model IEnumerable<SCM.Models.ViewModels.VpnTenantIpNetworkStaticRouteRoutingInstanceViewModel>
 @{
     ViewData["Title"] = "Tenant Network Static Routes";
 }
@@ -14,12 +10,6 @@
     <li class="breadcrumb-item active">Tenant Network Static Routes - [@ViewBag.AttachmentSet.Name]</li>
 </ol>
 
-@if (ApplicationConfiguration.Value.EnableNetworkSync)
-{
-
-    // Show Network messages if Network Sync functionality is enabled
-    await Html.RenderPartialAsync("_NetworkMessagingPartial");
-}
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
@@ -33,10 +23,10 @@
     <thead>
         <tr>
             <th>
-                @Html.DisplayNameFor(model => model.TenantNetwork)
+                @Html.DisplayNameFor(model => model.TenantIpNetwork)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.NextHopAddress)
+                @Html.DisplayNameFor(model => model.Ipv4NextHopAddress)
             </th>
             <th></th>
         </tr>
@@ -46,15 +36,15 @@
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.TenantNetwork.CidrName)
+                    @Html.DisplayFor(modelItem => item.TenantIpNetwork.CidrName)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.NextHopAddress)
+                    @Html.DisplayFor(modelItem => item.Ipv4NextHopAddress)
                 </td>
                 <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.VpnTenantNetworkStaticRouteRoutingInstanceID }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.VpnTenantNetworkStaticRouteRoutingInstanceID }) |
-                    @Html.ActionLink("Remove", "Delete", new { id = item.VpnTenantNetworkStaticRouteRoutingInstanceID })
+                    @Html.ActionLink("Edit", "Edit", new { id = item.VpnTenantIpNetworkStaticRouteRoutingInstanceID }) |
+                    @Html.ActionLink("Details", "Details", new { id = item.VpnTenantIpNetworkStaticRouteRoutingInstanceID }) |
+                    @Html.ActionLink("Remove", "Delete", new { id = item.VpnTenantIpNetworkStaticRouteRoutingInstanceID })
                 </td>
             </tr>
         }

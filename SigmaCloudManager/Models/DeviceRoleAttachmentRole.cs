@@ -9,7 +9,7 @@ namespace SCM.Models
 
     public class DeviceRoleAttachmentRole
     {
-        public int DeviceRoleAttachmentRoleID { get; set; }
+        public int DeviceRoleAttachmentRoleID { get; private set; }
         public int DeviceRoleID { get; set; }
         public int AttachmentRoleID { get; set; }
         [Timestamp]

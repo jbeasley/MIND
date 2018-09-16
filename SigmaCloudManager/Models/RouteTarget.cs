@@ -7,7 +7,7 @@ namespace SCM.Models
 {
     public class RouteTarget
     {
-        public int RouteTargetID { get; set; }
+        public int RouteTargetID { get; private set; }
         [Required]
         public int AssignedNumberSubField { get; set; }
         public bool IsHubExport { get; set; }

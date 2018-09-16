@@ -1,8 +1,8 @@
-@model IEnumerable<SCM.Models.ViewModels.TenantNetworkViewModel>
+@model IEnumerable<SCM.Models.ViewModels.TenantIpNetworkViewModel>
 
-<option value="">-- Select Tenant Network --</option>
+<option value="">-- Select Tenant IP Network --</option>
 
 @foreach (var item in Model)
 {
-    <option value="@item.TenantNetworkID">@item.CidrName</option>
+    <option value="@item.TenantIpNetworkID">@item.CidrName</option>
 }

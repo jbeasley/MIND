@@ -93,7 +93,7 @@ namespace Mind.Builders
             _attachment.IsBundle = true;
             SetBundleLinks();
             await CreateBundleIdAsync();
-            Validate();
+            _attachment.Validate();
 
             return _attachment;
         }
@@ -118,36 +118,14 @@ namespace Mind.Builders
             _attachment.BundleMaxLinks = maxLinks;
         }
 
-        protected override internal void Validate()
-        {
-            base.Validate();
-            if (!_attachment.AttachmentRole.SupportedByBundle) throw new BuilderIllegalStateException($"The requested attachment role " +
-            $"'{_attachment.AttachmentRole.Name}' is not supported with a bundle attachment.");
-
-            if (!_attachment.AttachmentBandwidth.SupportedByBundle) throw new BuilderIllegalStateException($"The requested attachment " +
-            $"bandwidth '{_attachment.AttachmentBandwidth.BandwidthGbps} Gbps' is not supported with a bundle attachment.");
-
-            var numPorts = _attachment.Interfaces.SelectMany(x => x.Ports).Count();
-            if (_attachment.BundleMinLinks > numPorts) throw new BuilderIllegalStateException($"The min links parameter for the bundle " +
-                $"({_attachment.BundleMinLinks}) must be " +
-                $"less than or equal to the total number of ports required for the bundle ({numPorts}).");
-
-            if (_attachment.BundleMaxLinks > numPorts) throw new BuilderIllegalStateException($"The max links parameter for the bundle " +
-                $"({_attachment.BundleMaxLinks}) must be " +
-                $"less than or equal to the total number of ports required for the bundle ({numPorts}).");
-
-            if (_attachment.BundleMinLinks > _attachment.BundleMaxLinks) throw new BuilderIllegalStateException($"The min links parameter for the bundle " +
-                $"({_attachment.BundleMinLinks}) must be less then " +
-                $"or equal to the max links parameter for the bundle ({_attachment.BundleMaxLinks})");
-        }
-
         private async Task CreateBundleIdAsync()
         {
             var usedBundleIds = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(
                             q => 
                                 q.DeviceID == _attachment.DeviceID && q.IsBundle)
                                 select attachments)
-                                .Select(q => q.ID).Where(q => q != null)
+                                .Select(q => q.ID)
+                                .Where(q => q != null)
                                 .ToList();
 
             int? id = Enumerable.Range(1, 65535).Except(usedBundleIds.Select(q => q.Value)).FirstOrDefault();

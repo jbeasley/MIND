@@ -90,7 +90,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }
@@ -201,17 +201,17 @@ namespace Mind.Api.Controllers
         /// <param name="tenantId">The ID of the tenant</param>
         /// <param name="attachmentId">ID of the attachment</param>
         /// <param name="body">attachment update object that updates an existing attachment</param>
-        /// <response code="200">Successful operation</response>
+        /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
-        [HttpPut]
+        [HttpPatch]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments/{attachmentId}")]
         [ValidateModelState]
         [ValidateProviderDomainAttachmentExists]
         [SwaggerOperation("UpdateProviderDomainAttachment")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
@@ -230,8 +230,8 @@ namespace Mind.Api.Controllers
                 var update = Mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentUpdate>(body);
                 var attachment = await _attachmentService.UpdateAsync(attachmentId.Value, update);
                 attachment.SetModifiedHttpHeaders(Response);
-                var attachmentApiModel = Mapper.Map<Mind.Api.Models.Attachment>(attachment);
-                return Ok(attachmentApiModel);
+
+                return StatusCode(StatusCodes.Status204NoContent);
             }
 
             catch (BuilderBadArgumentsException ex)
@@ -244,7 +244,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }

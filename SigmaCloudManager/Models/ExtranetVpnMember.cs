@@ -8,7 +8,7 @@ namespace SCM.Models
 
     public class ExtranetVpnMember
     {
-        public int ExtranetVpnMemberID { get; set; }
+        public int ExtranetVpnMemberID { get; private set; }
         public int? ExtranetVpnID { get; set; }
         public int MemberVpnID { get; set; }
         public virtual Vpn ExtranetVpn { get; set; }

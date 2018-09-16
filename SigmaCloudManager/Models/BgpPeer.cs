@@ -4,17 +4,43 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
+using Microsoft.EntityFrameworkCore;
 using Mind.Models;
 
 namespace SCM.Models
 {
+    public static class BgpPeerQueryableExtensions
+    {
+        public static IQueryable<BgpPeer> IncludeValidationProperties(this IQueryable<BgpPeer> query)
+        {
+            return query.Include(x => x.RoutingInstance)
+                        .ThenInclude(x => x.Vifs)
+                        .Include(x => x.RoutingInstance)
+                        .ThenInclude(x => x.Attachments)
+                        .Include(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork);
+        }
+    }
+
     public class BgpPeer : IModifiableResource
     {
-        public int BgpPeerID { get; set; }
+        public int BgpPeerID { get; private set; }
         [MaxLength(15)]
         public string Ipv4PeerAddress { get; set; }
-        [Required]
-        [Range(1,65535)]
         public int Peer2ByteAutonomousSystem { get; set; }
         public int? MaximumRoutes { get; set; }
         public bool IsBfdEnabled { get; set; }
@@ -38,5 +64,51 @@ namespace SCM.Models
         public virtual ICollection<VpnTenantCommunityOut> VpnTenantCommunitiesOut { get; set; }
         public virtual ICollection<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
+
+        /// <summary>
+        /// Validate the state of the bgp peer
+        /// </summary>
+        public virtual void Validate()
+        {
+            if (this.RoutingInstance == null) throw new IllegalStateException("A routing instance for the BGP peer is required.");
+            if (this.Peer2ByteAutonomousSystem < 1 || this.Peer2ByteAutonomousSystem > 65535)
+                throw new IllegalStateException("The 2 byte autonomous system number requested is not valid. The number must be between " +
+                    "1 and 65535.");
+
+            if (!IPAddress.TryParse(this.Ipv4PeerAddress, out IPAddress peerIpv4Address))
+                throw new IllegalStateException("The peer address is not a valid IPv4 address");
+
+            // For non-multihop peers, the peer IP address must be reachable from at least one vif or attachment which
+            // belongs to the routing instance
+            if (!this.IsMultiHop)
+            {
+                var vif = this.RoutingInstance.Vifs.SelectMany(
+                    x =>
+                    x.Vlans)
+                     .ToList()
+                     .FirstOrDefault(
+                        x =>
+                        {
+                            var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
+                            return network.Contains(peerIpv4Address);
+                        });
+
+                var attachment = this.RoutingInstance.Attachments.SelectMany(
+                    x =>
+                    x.Interfaces)
+                     .ToList()
+                     .FirstOrDefault(
+                        x =>
+                        {
+                            var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
+                            return network.Contains(peerIpv4Address);
+                        });
+
+                if (vif == null && attachment == null)
+                    throw new IllegalStateException($"The peer address '{this.Ipv4PeerAddress}' is not contained by any network which is " +
+                        $"directly reachable from routing instance '{this.RoutingInstance.Name}'. Check that the IP address for at least one vif or " +
+                        $"attachment belonging to the routing instance is in the same IPv4 network as the bgp peer.");
+            }
+        }
     }
 }

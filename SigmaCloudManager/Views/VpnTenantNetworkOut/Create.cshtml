@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.VpnTenantNetworkOutViewModel
+@model SCM.Models.ViewModels.VpnTenantIpNetworkOutViewModel
 
 @{
     ViewData["Title"] = "Add Tenant Network";
@@ -29,12 +29,12 @@
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="TenantNetwork" class="col-md-2 control-label"></label>
+            <label asp-for="TenantIpNetwork" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <select asp-for="TenantNetworkID" class="form-control" asp-items="ViewBag.TenantNetworkID">
+                <select asp-for="TenantIpNetworkID" class="form-control" asp-items="ViewBag.TenantIpNetworkID">
                     <option value="">-- Select Tenant Network --</option>
                 </select>
-                <span asp-validation-for="TenantNetworkID" class="text-danger"></span>
+                <span asp-validation-for="TenantIpNetworkID" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
@@ -98,12 +98,12 @@
                 $advertisedIpRoutingPreference = $('#AdvertisedIpRoutingPreference'),
                 advertisedIpRoutingPreference = $advertisedIpRoutingPreference[0];
 
-            if (tenantNetwork.value == null || tenantNetwork.value == "") {
+            if (tenantNetwork.value === null || tenantNetwork.value === "") {
 
                 tenantNetwork.disabled = true;
             }
 
-            if (bgpPeer.value == null || bgpPeer.value == "") {
+            if (bgpPeer.value === null || bgpPeer.value === "") {
 
                 bgpPeer.disabled = true;
             }
@@ -124,7 +124,7 @@
 
             function PopulateTenantNetworksDropDownList(tenantID) {
 
-                if (tenantID != null && tenantID.length > 0) {
+                if (tenantID !== null && tenantID.length > 0) {
 
                     PopulateHtmlFromUrl($tenantNetwork, "/VpnTenantNetworkOut/TenantNetworks", { tenantID: tenantID });
                 }
@@ -132,7 +132,7 @@
 
             function PopulateBgpPeersDropDownList(vrfID) {
 
-                if (vrfID != null && vrfID.length > 0) {
+                if (vrfID !== null && vrfID.length > 0) {
 
                     PopulateHtmlFromUrl($bgpPeer, "/VpnTenantNetworkOut/BgpPeers", { vrfID: vrfID });
                 }

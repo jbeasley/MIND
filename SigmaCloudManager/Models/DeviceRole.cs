@@ -9,7 +9,7 @@ namespace SCM.Models
 
     public class DeviceRole
     {
-        public int DeviceRoleID { get; set; }
+        public int DeviceRoleID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

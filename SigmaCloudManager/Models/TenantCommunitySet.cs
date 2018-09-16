@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class TenantCommunitySet
     {
-        public int TenantCommunitySetID { get; set; }
+        public int TenantCommunitySetID { get; private set; }
         [Required]
         public int TenantID { get; set; }
         [MaxLength(50)]

@@ -8,7 +8,7 @@ namespace SCM.Models
 {
     public class Mtu
     {
-        public int MtuID { get; set; }
+        public int MtuID { get; private set; }
         public int MtuValue { get; set; }
         public bool ValueIncludesLayer2Overhead { get; set; }
         public bool IsJumbo { get; set; }

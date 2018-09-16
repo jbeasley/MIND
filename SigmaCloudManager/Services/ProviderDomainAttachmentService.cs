@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -128,33 +129,46 @@ namespace Mind.Services
         /// <param name="attachmentId"></param>
         public async Task DeleteAsync(int attachmentId)
         {
-            await _validator.ValidateDeleteAsync(attachmentId);
-            if (!_validator.IsValid)
-            {
-                throw new ServiceValidationException();
-            }
-
-            var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == attachmentId,
-                includeProperties:
-                "ContractBandwidthPool.Attachments," +
-                "ContractBandwidthPool.Vifs," +
-                "Interfaces.Ports.PortStatus," +
-                "Vifs.Vlans," +
-                "Vifs.RoutingInstance.RoutingInstanceType," +
-                "Vifs.RoutingInstance.Attachments," +
-                "Vifs.RoutingInstance.Vifs," +
-                "Vifs.ContractBandwidthPool.Vifs," +
-                "Vifs.ContractBandwidthPool.Attachments," +
-                "RoutingInstance.RoutingInstanceType," +
-                "RoutingInstance.Vifs," +
-                "RoutingInstance.Attachments," +
-                "RoutingInstance.BgpPeers",
-                AsTrackable: true)
+            var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
+                            q => 
+                             q.AttachmentID == attachmentId,
+                             query: q => 
+                                    q.Include(x => x.ContractBandwidthPool.Attachments)
+                                     .Include(x => x.ContractBandwidthPool.Vifs)
+                                     .Include(x => x.Interfaces)
+                                     .ThenInclude(x => x.Ports)
+                                     .ThenInclude(x => x.PortStatus)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.Vlans)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.RoutingInstance.RoutingInstanceType)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.RoutingInstance.Attachments)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.RoutingInstance.Vifs)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.ContractBandwidthPool.Vifs)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.ContractBandwidthPool.Attachments)
+                                     .Include(x => x.RoutingInstance.RoutingInstanceType)
+                                     .Include(x => x.RoutingInstance.Vifs)
+                                     .Include(x => x.RoutingInstance.Attachments)
+                                     .Include(x => x.RoutingInstance.BgpPeers),
+                              AsTrackable: true)
                               select attachments)
                               .Single();
 
-            var ports = attachment.Interfaces.SelectMany(q => q.Ports).ToList();
-            var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(q => q.PortStatusType == PortStatusTypeEnum.Free)
+            // Validate the attachment can be deleted
+            attachment.ValidateDelete();
+
+            var ports = attachment.Interfaces.SelectMany(
+                                                q => 
+                                                q.Ports)
+                                                .ToList();
+
+            var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(
+                                q => 
+                                    q.PortStatusType == PortStatusTypeEnum.Free)
                                     select portStatuses)
                                     .Single().PortStatusID;
 
@@ -182,8 +196,12 @@ namespace Mind.Services
                 }
             }
 
-            foreach (var routingInstance in attachment.Vifs.Select(x => x.RoutingInstance)
-                                                           .Where(x => x != null && x.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf))
+            foreach (var routingInstance in attachment.Vifs.Select(
+                                                                x => 
+                                                                x.RoutingInstance)
+                                                                .Where(
+                                                                    x => 
+                                                                    x != null && x.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf))
             {
                 // For each vif configured under the attachment being deleted, check if the associated routing instance can be deleted. 
                 // If there are no attachments which share the routing instance, and the
@@ -198,7 +216,9 @@ namespace Mind.Services
             // Delete each contract bandwidth pool associated with a vif configured under the attachment being deleted.
             // These can be deleted without any further validation - contract bandwidth pools cannot be shared between vifs configured 
             // under different attachments.
-            foreach (var contractBandwidthPool in attachment.Vifs.Select(x => x.ContractBandwidthPool))
+            foreach (var contractBandwidthPool in attachment.Vifs.Select(
+                                                                    x => 
+                                                                    x.ContractBandwidthPool))
             {
                 if (contractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(contractBandwidthPool);
             }

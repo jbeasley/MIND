@@ -57,27 +57,5 @@ namespace SCM.Validators
             .ForEach(x => ValidationDictionary.AddError(string.Empty, $"Tenant IP network '{x.TenantIpNetwork.CidrName}' "
             + $"cannot be deleted because it is used in the static routing policy of attachment set '{x.AttachmentSet.Name}'."));
         }
-
-        /// <summary>
-        /// Validate changes to a tenant IP network.
-        /// </summary>
-        /// <param name="tenantIpNetwork"></param>
-        public async Task ValidateChangesAsync(TenantIpNetwork tenantIpNetwork)
-        {
-            if (!tenantIpNetwork.AllowExtranet)
-            {
-                (from vpnTenantNetworksIn in await _unitOfWork.VpnTenantIpNetworkInRepository.GetAsync(q => 
-                    q.TenantIpNetwork.TenantIpNetworkID == tenantIpNetwork.TenantIpNetworkID,
-                    includeProperties:"AttachmentSet.VpnAttachmentSets.Vpn.ExtranetVpns.MemberVpn",
-                    AsTrackable: false)
-                    from vpnAttachmentSets in vpnTenantNetworksIn.AttachmentSet.VpnAttachmentSets
-                    from result in vpnAttachmentSets.Vpn.ExtranetVpns
-                    select result)
-                    .ToList()
-                    .ForEach(x => ValidationDictionary.AddError(string.Empty, "The 'Allow Extranet' attribute must be enabled for tenant network "
-                        + $"'{tenantIpNetwork.CidrName}' because the network is bound to VPN '{x.MemberVpn.Name}' "
-                        + $"which belongs to extranet VPN '{x.ExtranetVpn.Name}'."));
-            }
-        }
     }
 }

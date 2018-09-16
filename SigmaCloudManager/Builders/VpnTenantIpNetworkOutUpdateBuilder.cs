@@ -33,17 +33,14 @@ namespace Mind.Builders
 
         public async Task<VpnTenantIpNetworkOut> UpdateAsync()
         {
-            if (_args.ContainsKey(nameof(ForVpnTenantIpNetworkOut)))
-            {
-                await SetVpnTenantIpNetworkOut();
-            }
+            if (_args.ContainsKey(nameof(ForVpnTenantIpNetworkOut))) await SetVpnTenantIpNetworkOut();        
             if (_args.ContainsKey(nameof(WithAdvertisedIpRoutingPreference)))
-            {
                 _vpnTenantIpNetworkOut.AdvertisedIpRoutingPreference = (int)_args[nameof(WithAdvertisedIpRoutingPreference)];
-            }
+            
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await base.SetIpv4BgpPeerAsync();
 
-            base.Validate();
+            _vpnTenantIpNetworkOut.Validate();
+
             return _vpnTenantIpNetworkOut;
         }
 
@@ -53,9 +50,7 @@ namespace Mind.Builders
             var vpnTenantIpNetworkOut = (from result in await _unitOfWork.VpnTenantIpNetworkOutRepository.GetAsync(
                                       q =>
                                         q.VpnTenantIpNetworkOutID == vpnTenantIpNetworkOutId,
-                                        includeProperties: "AttachmentSet," +
-                                        "TenantIpNetwork," +
-                                        "BgpPeer",
+                                        query: x => x.IncludeValidationProperties(),
                                         AsTrackable: true)
                                         select result)
                                         .SingleOrDefault();

@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class VpnTenantCommunityIn
     {
-        public int VpnTenantCommunityInID { get; set; }
+        public int VpnTenantCommunityInID { get; private set; }
         public int TenantCommunityID { get; set; }
         public int AttachmentSetID { get; set; }
         public bool AddToAllBgpPeersInAttachmentSet { get; set; }

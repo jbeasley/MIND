@@ -12,7 +12,7 @@ namespace SCM.Models
 
     public class VpnTenancyType
     {
-        public int VpnTenancyTypeID { get; set; }
+        public int VpnTenancyTypeID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

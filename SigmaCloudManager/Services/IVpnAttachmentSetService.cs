@@ -3,19 +3,22 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SCM.Models;
-using SCM.Data;
+using Mind.Models.RequestModels;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
-    public interface IVpnAttachmentSetService
+    public interface IVpnAttachmentSetService : IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
-
         Task<IEnumerable<VpnAttachmentSet>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<IEnumerable<VpnAttachmentSet>> GetAllByVpnIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<VpnAttachmentSet> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
-        Task<int> AddAsync(VpnAttachmentSet attachmentSetVpn);
-        Task<int> UpdateAsync(VpnAttachmentSet attachmentSetVpn);
-        Task<int> DeleteAsync(VpnAttachmentSet attachmentSetVpn);
+        Task<VpnAttachmentSet> GetByVpnIDAndAttachmentSetIDAsync(int vpnId, int attachmentSetId, bool? deep = false, bool asTrackable = false);
+        Task<VpnAttachmentSet> AddAsync(VpnAttachmentSet attachmentSetVpn);
+        Task<VpnAttachmentSet> AddAsync(int vpnId, VpnAttachmentSetRequest request);
+        Task<VpnAttachmentSet> UpdateAsync(VpnAttachmentSet attachmentSetVpn);
+        Task<VpnAttachmentSet> UpdateAsync(int vpnId, int attachmentSetId, VpnAttachmentSetUpdate update);
+        Task DeleteAsync(int vpnAttachmentSetId);
+        Task DeleteAsync(int vpnId, int attachmentSetId);
     }
 }

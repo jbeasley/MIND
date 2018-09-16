@@ -240,7 +240,6 @@ namespace Mind
             services.AddScoped<ILocationValidator, LocationValidator>();
             services.AddScoped<IVlanValidator, VlanValidator>();
 
-
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());
         }
@@ -283,6 +282,12 @@ namespace Mind
                 .Keyed<IRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
             builder.RegisterType<IpVpnDirector>().As<IVpnDirector>().Keyed<IVpnDirector>("IpVpnDirector");
             builder.RegisterType<IpVpnUpdateDirector>().As<IVpnUpdateDirector>().Keyed<IVpnUpdateDirector>("IpVpnUpdateDirector");
+            builder.RegisterType<BgpPeerDirector>().As<IBgpPeerDirector>();
+            builder.RegisterType<BgpPeerUpdateDirector>().As<IBgpPeerUpdateDirector>();
+            builder.RegisterType<TenantIpNetworkDirector>().As<ITenantIpNetworkDirector>();
+            builder.RegisterType<TenantIpNetworkUpdateDirector>().As<ITenantIpNetworkUpdateDirector>();
+            builder.RegisterType<VpnAttachmentSetDirector>().As<IVpnAttachmentSetDirector>();
+            builder.RegisterType<VpnAttachmentSetUpdateDirector>().As<IVpnAttachmentSetUpdateDirector>();
 
             // Director Factories
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
@@ -389,7 +394,13 @@ namespace Mind
             builder.RegisterType<VifBuilder>().As<IVifBuilder>();
             builder.RegisterType<VifUpdateBuilder>().As<IVifUpdateBuilder>();
             builder.RegisterType<IpVpnBuilder>().As<IIpVpnBuilder>();
-            builder.RegisterType<IpVpnUpdateBuilder>().As<IIpVpnUpdateBuilder>();       
+            builder.RegisterType<IpVpnUpdateBuilder>().As<IIpVpnUpdateBuilder>();
+            builder.RegisterType<BgpPeerBuilder>().As<IBgpPeerBuilder>();
+            builder.RegisterType<BgpPeerUpdateBuilder>().As<IBgpPeerUpdateBuilder>();
+            builder.RegisterType<TenantIpNetworkBuilder>().As<ITenantIpNetworkBuilder>();
+            builder.RegisterType<TenantIpNetworkUpdateBuilder>().As<ITenantIpNetworkUpdateBuilder>();
+            builder.RegisterType<VpnAttachmentSetBuilder>().As<IVpnAttachmentSetBuilder>();
+            builder.RegisterType<VpnAttachmentSetUpdateBuilder>().As<IVpnAttachmentSetUpdateBuilder>();
         }
  
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

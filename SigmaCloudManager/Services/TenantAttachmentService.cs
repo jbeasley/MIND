@@ -28,6 +28,12 @@ namespace SCM.Services
         /// Return all Attachments for a given Tenant
         /// </summary>
         /// <param name="tenantID"></param>
+        /// <param name="created"></param>
+        /// <param name="includeProperties"></param>
+        /// <param name="requiresSync"></param>
+        /// <param name="roleRequireSyncToNetwork"></param>
+        /// <param name="showCreatedAlert"></param>
+        /// <param name="showRequiresSyncAlert"></param>
         /// <returns></returns>
         public async Task<IEnumerable<Attachment>> GetAllByTenantIDAsync(int tenantID, bool? roleRequireSyncToNetwork = null,
             bool? requiresSync = null, bool? created = null, bool? showRequiresSyncAlert = null, bool? showCreatedAlert = null, 
@@ -38,38 +44,15 @@ namespace SCM.Services
             && (q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing ||
             q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure),
                 includeProperties: p,
-                AsTrackable: false)
+                AsTrackable: true)
                         select attachments;
 
-            if (roleRequireSyncToNetwork != null)
-            {
-                query = query.Where(x => x.AttachmentRole.RequireSyncToNetwork);
-            }
-
-            if (requiresSync != null)
-            {
-                query = query.Where(x => x.RequiresSync);
-            }
-
-            if (created != null)
-            {
-                query = query.Where(x => x.Created);
-            }
-
-            if (showRequiresSyncAlert != null)
-            {
-                query = query.Where(x => x.ShowRequiresSyncAlert);
-            }
-
-            if (showCreatedAlert != null)
-            {
-                query = query.Where(x => x.ShowCreatedAlert);
-            }
-
-            if (created != null)
-            {
-                query = query.Where(x => x.Created);
-            }
+            if (roleRequireSyncToNetwork != null) query = query.Where(x => x.AttachmentRole.RequireSyncToNetwork);
+            if (requiresSync != null) query = query.Where(x => x.RequiresSync);
+            if (created != null) query = query.Where(x => x.Created);
+            if (showRequiresSyncAlert != null) query = query.Where(x => x.ShowRequiresSyncAlert);
+            if (showCreatedAlert != null) query = query.Where(x => x.ShowCreatedAlert);
+            if (created != null) query = query.Where(x => x.Created);
 
             return query.ToList();
         }

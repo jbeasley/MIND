@@ -30,16 +30,18 @@ namespace SCM.Services
             _validator = validator;
         }
 
-        private readonly string _properties = "Tenant,"
-                + "SubRegion,"
-                + "Region,"
-                + "AttachmentRedundancy,"
-                + "AttachmentSetRoutingInstances.RoutingInstance.Device.Plane,"
-                + "AttachmentSetRoutingInstances.RoutingInstance.Tenant,"
-                + "AttachmentSetRoutingInstances.RoutingInstance.Attachments.Interfaces.Ports,"
-                + "AttachmentSetRoutingInstances.RoutingInstance.Vifs.Attachment.Interfaces.Ports,"
-                + "MulticastVpnDomainType,"
-                + "VpnTenantMulticastGroups.TenantMulticastGroup";
+        private readonly string _properties = "Tenant," +
+                "SubRegion," +
+                "Region," +
+                "AttachmentRedundancy," +
+                "AttachmentSetRoutingInstances.RoutingInstance.Device.Plane," +
+                "AttachmentSetRoutingInstances.RoutingInstance.Tenant," +
+                "AttachmentSetRoutingInstances.RoutingInstance.Attachments.Interfaces.Ports," +
+                "AttachmentSetRoutingInstances.RoutingInstance.Vifs.Attachment.Interfaces.Ports," +
+                "MulticastVpnDomainType," +
+                "VpnTenantIpNetworksIn," +
+                "VpnTenantIpNetworksOut," +
+                "VpnTenantMulticastGroups.TenantMulticastGroup";
 
         public async Task<IEnumerable<AttachmentSet>> GetAllByTenantIDAsync(int tenantId, bool? deep = false, bool asTrackable = false)
         {

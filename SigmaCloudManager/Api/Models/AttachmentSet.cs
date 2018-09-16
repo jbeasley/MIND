@@ -68,6 +68,14 @@ namespace Mind.Api.Models
         public string AttachmentRedundancy { get; set; }
 
         /// <summary>
+        /// Denotes the multicast vpn domain type of the attachment set
+        /// </summary>
+        /// <value>String value denoting the multicast vpn domain type</value>
+        /// <example>Sender-Only</example>
+        [DataMember(Name = "multicastVpnDomainType")]
+        public string MulticastVpnDomainType { get; set; }
+
+        /// <summary>
         /// Denotees whether the attachment set is enabled for layer 3
         /// </summary>
         /// <value>Boolean value denoting if the attachment set is enabled for layer 3</value>
@@ -83,6 +91,19 @@ namespace Mind.Api.Models
         public List<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; set; }
 
         /// <summary>
+        /// A list of tenant IP network associations with the inbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of vpn tenant IP network in objects</value>
+        [DataMember(Name = "vpnTenantIpNetworksIn")]
+        public List<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
+
+        /// <summary>
+        /// A lit of tenant IP network associations with the outbound policy of the attachment set
+        /// </summary>
+        [DataMember(Name = "vpnTenantIpNetworksOut")]
+        public List<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -95,6 +116,8 @@ namespace Mind.Api.Models
             sb.Append("  SubRegion: ").Append(SubRegion).Append("\n");
             sb.Append("  AttachmentRedundancy: ").Append(AttachmentRedundancy).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
+            sb.Append("  VpnTenantIpNetworksIn: ").Append(VpnTenantIpNetworksIn).Append("\n");
+            sb.Append("  VpnTenantIpNetworksOut: ").Append(VpnTenantIpNetworksOut).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -130,31 +153,41 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
-                ) && 
+                ) &&
                 (
                     Region == other.Region ||
                     Region != null &&
                     Region.Equals(other.Region)
-                ) && 
+                ) &&
                 (
                     SubRegion == other.SubRegion ||
                     SubRegion != null &&
                     SubRegion.Equals(other.SubRegion)
-                ) && 
+                ) &&
                 (
                     AttachmentRedundancy == other.AttachmentRedundancy ||
                     AttachmentRedundancy != null &&
                     AttachmentRedundancy.Equals(other.AttachmentRedundancy)
-                ) && 
+                ) &&
                 (
                     IsLayer3 == other.IsLayer3 ||
                     IsLayer3 != null &&
                     IsLayer3.Equals(other.IsLayer3)
+                ) &&
+                (
+                    VpnTenantIpNetworksIn == other.VpnTenantIpNetworksIn ||
+                    VpnTenantIpNetworksIn != null &&
+                    VpnTenantIpNetworksIn.Equals(other.VpnTenantIpNetworksIn)
+                ) &&
+                (
+                    VpnTenantIpNetworksOut == other.VpnTenantIpNetworksOut ||
+                    VpnTenantIpNetworksOut != null &&
+                    VpnTenantIpNetworksOut.Equals(other.VpnTenantIpNetworksOut)
                 );
         }
 
@@ -178,6 +211,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AttachmentRedundancy.GetHashCode();
                     if (IsLayer3 != null)
                     hashCode = hashCode * 59 + IsLayer3.GetHashCode();
+                    if (VpnTenantIpNetworksIn != null)
+                    hashCode = hashCode * 59 + VpnTenantIpNetworksIn.GetHashCode();
+                    if (VpnTenantIpNetworksOut != null)
+                    hashCode = hashCode * 59 + VpnTenantIpNetworksOut.GetHashCode();
                 return hashCode;
             }
         }

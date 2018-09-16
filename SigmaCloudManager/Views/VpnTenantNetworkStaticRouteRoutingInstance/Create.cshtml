@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.VpnTenantNetworkStaticRouteRoutingInstanceViewModel
+@model SCM.Models.ViewModels.VpnTenantIpNetworkStaticRouteRoutingInstanceViewModel
 
 @{
     ViewData["Title"] = "Add Tenant Network Static Route";
@@ -20,20 +20,20 @@
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
         <input type="hidden" asp-for="AttachmentSetID" value="@ViewBag.AttachmentSet.AttachmentSetID" />
         <div class="form-group">
-            <label asp-for="TenantNetwork" class="col-md-2 control-label"></label>
+            <label asp-for="TenantIpNetwork" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <select asp-for="TenantNetworkID" class="form-control" asp-items="ViewBag.TenantNetworkID">
+                <select asp-for="TenantIpNetworkID" class="form-control" asp-items="ViewBag.TenantIpNetworkID">
                     <option value="">-- Select Tenant Network --</option>
                 </select>
-                <span asp-validation-for="TenantNetworkID" class="text-danger"></span>
+                <span asp-validation-for="TenantIpNetworkID" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="NextHopAddress" class="col-md-2 control-label"></label>
+            <label asp-for="Ipv4NextHopAddress" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <input asp-for="NextHopAddress" class="form-control" data-toggle="tooltip" data-placement="right" 
+                <input asp-for="Ipv4NextHopAddress" class="form-control" data-toggle="tooltip" data-placement="right" 
                        title="Enter a next-hop IP address for a static route" />
-                <span asp-validation-for="NextHopAddress" class="text-danger"></span>
+                <span asp-validation-for="Ipv4NextHopAddress" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">

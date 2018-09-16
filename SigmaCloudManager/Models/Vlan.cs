@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class Vlan
     {
-        public int VlanID { get; set; }
+        public int VlanID { get; private set; }
         [MaxLength(15)]
         public string IpAddress { get; set; }
         [MaxLength(15)]

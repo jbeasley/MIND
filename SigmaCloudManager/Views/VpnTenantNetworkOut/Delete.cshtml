@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.VpnTenantNetworkOutViewModel
+@model SCM.Models.ViewModels.VpnTenantIpNetworkOutViewModel
 
 @{
     ViewData["Title"] = "Delete";
@@ -9,25 +9,25 @@
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
     <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
     <li class="breadcrumb-item"><a href="/VpnTenantNetworkOut/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant Networks Outbound Policy - [@Model.AttachmentSet.Name]</a></li>
-    <li class="breadcrumb-item active">Delete - [@Model.TenantNetwork.CidrName]</li>
+    <li class="breadcrumb-item active">Delete - [@Model.TenantIpNetwork.CidrName]</li>
 </ol>
 
-<h2>Remove Network '@Model.TenantNetwork.CidrName' from Outbound Policy</h2>
+<h2>Remove Network '@Model.TenantIpNetwork.CidrName' from Outbound Policy</h2>
 <h3>Are you sure you want to remove this Network?</h3>
 <div>
     <hr />
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.TenantNetwork)
+            @Html.DisplayNameFor(model => model.TenantIpNetwork)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.TenantNetwork.CidrName)
+            @Html.DisplayFor(model => model.TenantIpNetwork.CidrName)
         </dd>
     </dl>
 
     <form asp-action="Delete">
-        <input type="hidden" asp-for="VpnTenantNetworkOutID" />
+        <input type="hidden" asp-for="VpnTenantIpNetworkOutID" />
         <input type="hidden" asp-for="AttachmentSetID" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">

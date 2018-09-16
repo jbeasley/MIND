@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class ContractBandwidthPool
     {
-        public int ContractBandwidthPoolID { get; set; }
+        public int ContractBandwidthPoolID { get; private set; }
         [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
         public int ContractBandwidthID { get; set; }

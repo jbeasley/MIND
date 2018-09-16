@@ -37,11 +37,11 @@ namespace Mind.Api.Controllers
     /// 
     /// </summary>
     [ApiVersion("1.0")]
-    public class TenantBgpPeersApiController : BaseApiController
+    public class TenantBgpPeerApiController : BaseApiController
     {
         private readonly IBgpPeerService _bgpPeerService;
 
-        public TenantBgpPeersApiController(IMapper mapper, IBgpPeerService bgpPeerService) : base(bgpPeerService, mapper)
+        public TenantBgpPeerApiController(IMapper mapper, IBgpPeerService bgpPeerService) : base(bgpPeerService, mapper)
         {
             _bgpPeerService = bgpPeerService;
         }
@@ -67,9 +67,8 @@ namespace Mind.Api.Controllers
         {
             try
             {
-                var request = Mapper.Map<SCM.Models.BgpPeer>(body);
-                request.RoutingInstanceID = routingInstanceId.Value;
-                var bgpPeer = await _bgpPeerService.AddAsync(request);
+                var request = Mapper.Map<Mind.Models.RequestModels.BgpPeerRequest>(body);
+                var bgpPeer = await _bgpPeerService.AddAsync(routingInstanceId.Value, request);
                 var bgpPeerApiModel = Mapper.Map<Mind.Api.Models.BgpPeer>(bgpPeer);
                 return CreatedAtRoute("GetRoutingInstanceBgpPeer", new { bgpPeerId = bgpPeer.BgpPeerID }, bgpPeerApiModel);
             }
@@ -84,7 +83,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }
@@ -102,17 +101,17 @@ namespace Mind.Api.Controllers
         /// <param name="routingInstanceId">ID of the tenant</param>
         /// <param name="bgpPeerId">ID of the bgp peer to update</param>
         /// <param name="body">BGP peer request object that applies updates to an existing bgp peer</param>
-        /// <response code="200">Successful operation</response>
+        /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
-        [HttpPut]
+        [HttpPatch]
         [Route("/v{version:apiVersion}/routing-instances/{routingInstanceId}/bgp-peers/{bgpPeerId}")]
         [ValidateModelState]
         [ValidateBgpPeerExists]
         [SwaggerOperation("UpdateBgpPeer")]
-        [SwaggerResponse(statusCode: 200, type: typeof(BgpPeer), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
@@ -125,12 +124,11 @@ namespace Mind.Api.Controllers
                 var item = await _bgpPeerService.GetByIDAsync(bgpPeerId.Value);
                 if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
 
-                Mapper.Map(body, item);
-                var bgpPeer = await _bgpPeerService.UpdateAsync(item);
+                var request = Mapper.Map<Mind.Models.RequestModels.BgpPeerRequest>(body);
+                var bgpPeer = await _bgpPeerService.UpdateAsync(bgpPeerId.Value, request);
                 bgpPeer.SetModifiedHttpHeaders(Response);
-                var bgpPeerApiModel = Mapper.Map<Mind.Api.Models.BgpPeer>(bgpPeer);
 
-                return Ok(bgpPeerApiModel);
+                return StatusCode(StatusCodes.Status204NoContent);
             }
 
             catch (BuilderBadArgumentsException ex)
@@ -143,7 +141,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }

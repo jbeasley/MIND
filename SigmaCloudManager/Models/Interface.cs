@@ -8,7 +8,7 @@ namespace SCM.Models
 {
     public class Interface { 
 
-        public int InterfaceID { get; set; }
+        public int InterfaceID { get; private set; }
         public int? DeviceID { get; set; }
         public int AttachmentID { get; set; }
         [MaxLength(15)]

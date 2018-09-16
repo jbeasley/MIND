@@ -4,8 +4,11 @@ using System.Linq;
 using SCM.Data;
 using SCM.Models;
 using System.Threading.Tasks;
+using Mind.Builders;
+using Mind.Models.RequestModels;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
     public class VpnAttachmentSetService : BaseService, IVpnAttachmentSetService
     {
@@ -20,8 +23,13 @@ namespace SCM.Services
        + "AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Vifs.Attachment.Interfaces.Ports,"
        + "AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Attachments.Interfaces.Ports";
 
-        public VpnAttachmentSetService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly IVpnAttachmentSetDirector _director;
+        private readonly IVpnAttachmentSetUpdateDirector _updateDirector;
+
+        public VpnAttachmentSetService(IUnitOfWork unitOfWork, IVpnAttachmentSetDirector director, IVpnAttachmentSetUpdateDirector updateDirector) : base(unitOfWork)
         {
+            _director = director;
+            _updateDirector = updateDirector;
         }
 
         /// <summary>
@@ -36,6 +44,25 @@ namespace SCM.Services
             return (from result in await UnitOfWork.VpnAttachmentSetRepository.GetAsync(
                 q => 
                     q.VpnAttachmentSetID == id,
+                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    AsTrackable: asTrackable)
+                    select result)
+                    .SingleOrDefault();
+        }
+
+        /// <summary>
+        /// Return an attachment set association with a vpn from the attachment set ID and vpn ID
+        /// </summary>
+        /// <param name="vpnId"></param>
+        /// <param name="attachmentSetId"></param>
+        /// <param name="deep"></param>
+        /// <param name="asTrackable"></param>
+        /// <returns></returns>
+        public async Task<VpnAttachmentSet> GetByVpnIDAndAttachmentSetIDAsync(int vpnId, int attachmentSetId, bool? deep = false, bool asTrackable = false)
+        {
+            return (from result in await UnitOfWork.VpnAttachmentSetRepository.GetAsync(
+                q =>
+                    q.VpnID == vpnId && q.AttachmentSetID == attachmentSetId,
                     includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
                     AsTrackable: asTrackable)
                     select result)
@@ -79,36 +106,89 @@ namespace SCM.Services
         }
 
         /// <summary>
-        /// Add an attachment set to a vpn.
+        /// TO-BE-REMOVED
         /// </summary>
         /// <param name="vpnAttachmentSet"></param>
         /// <returns></returns>
-        public async Task<int> AddAsync(VpnAttachmentSet vpnAttachmentSet)
+        public async Task<VpnAttachmentSet> AddAsync(VpnAttachmentSet vpnAttachmentSet)
         {
             this.UnitOfWork.VpnAttachmentSetRepository.Insert(vpnAttachmentSet);
-            return await this.UnitOfWork.SaveAsync();
+            await this.UnitOfWork.SaveAsync();
+
+            return await GetByIDAsync(vpnAttachmentSet.VpnAttachmentSetID, deep: true, asTrackable: false);
+        }
+
+        /// <summary>
+        /// Create a new association between an attachment set and a vpn
+        /// </summary>
+        /// <param name="vpnId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<VpnAttachmentSet> AddAsync(int vpnId, VpnAttachmentSetRequest request)
+        {
+            var vpnAttachmentSet = await _director.BuildAsync(vpnId, request);
+            UnitOfWork.VpnAttachmentSetRepository.Insert(vpnAttachmentSet);
+            await UnitOfWork.SaveAsync();
+
+            return await GetByIDAsync(vpnAttachmentSet.VpnAttachmentSetID, deep: true, asTrackable: false);
+        }
+
+        /// <summary>
+        /// TO-BE-REMOVED
+        /// </summary>
+        /// <param name="vpnAttachmentSet"></param>
+        /// <returns></returns>
+        public async Task<VpnAttachmentSet> UpdateAsync(VpnAttachmentSet vpnAttachmentSet)
+        {
+            this.UnitOfWork.VpnAttachmentSetRepository.Update(vpnAttachmentSet);
+            await this.UnitOfWork.SaveAsync();
+
+            return await GetByIDAsync(vpnAttachmentSet.VpnAttachmentSetID, deep: true, asTrackable: false);
         }
 
         /// <summary>
         /// Update an attachment set association with a vpn
         /// </summary>
-        /// <param name="vpnAttachmentSet"></param>
+        /// <param name="vpnId"></param>
+        /// <param name="attachmentSetId"></param>
+        /// <param name="update"></param>
         /// <returns></returns>
-        public async Task<int> UpdateAsync(VpnAttachmentSet vpnAttachmentSet)
+        public async Task<VpnAttachmentSet> UpdateAsync(int vpnId, int attachmentSetId, VpnAttachmentSetUpdate update)
         {
-            this.UnitOfWork.VpnAttachmentSetRepository.Update(vpnAttachmentSet);
-            return await this.UnitOfWork.SaveAsync();
+            var vpnAttachmentSet = await _updateDirector.UpdateAsync(vpnId, attachmentSetId, update);
+            await this.UnitOfWork.SaveAsync();
+
+            return await GetByIDAsync(vpnAttachmentSet.VpnAttachmentSetID, deep: true, asTrackable: false);
         }
 
         /// <summary>
         /// Remove an attachment set from a vpn
         /// </summary>
-        /// <param name="vpnAttachmentSet"></param>
+        /// <param name="vpnAttachmentSetId"></param>
         /// <returns></returns>
-        public async Task<int> DeleteAsync(VpnAttachmentSet vpnAttachmentSet)
+        public async Task DeleteAsync(int vpnAttachmentSetId)
         {
+            await this.UnitOfWork.VpnAttachmentSetRepository.DeleteAsync(vpnAttachmentSetId);
+            await this.UnitOfWork.SaveAsync();
+        }
+
+        /// <summary>
+        /// Remove an attachment set from a vpn
+        /// </summary>
+        /// <param name="vpnId"></param>
+        /// <param name="attachmentSetId"></param>
+        /// <returns></returns>
+        public async Task DeleteAsync(int vpnId, int attachmentSetId)
+        {
+            var vpnAttachmentSet = (from result in await UnitOfWork.VpnAttachmentSetRepository.GetAsync(
+                                q =>
+                                    q.VpnID == vpnId && q.AttachmentSetID == attachmentSetId,
+                                    AsTrackable: true)
+                                    select result)
+                                    .Single();
+
             this.UnitOfWork.VpnAttachmentSetRepository.Delete(vpnAttachmentSet);
-            return await this.UnitOfWork.SaveAsync();
+            await this.UnitOfWork.SaveAsync();
         }
     }
 }

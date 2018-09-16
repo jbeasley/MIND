@@ -7,7 +7,7 @@ namespace SCM.Models
 {
     public class VifRole
     {
-        public int VifRoleID { get; set; }
+        public int VifRoleID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

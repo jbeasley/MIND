@@ -7,7 +7,7 @@ namespace SCM.Models
 {
     public class AttachmentRole
     {
-        public int AttachmentRoleID { get; set; }
+        public int AttachmentRoleID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

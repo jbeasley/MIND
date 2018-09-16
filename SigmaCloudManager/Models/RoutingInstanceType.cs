@@ -15,7 +15,7 @@ namespace SCM.Models
 
     public class RoutingInstanceType
     {
-        public int RoutingInstanceTypeID { get; set; }
+        public int RoutingInstanceTypeID { get; private set; }
         [Required(AllowEmptyStrings = false)]
         public RoutingInstanceTypeEnum Type { get; set; }
         public string Description { get; set; }

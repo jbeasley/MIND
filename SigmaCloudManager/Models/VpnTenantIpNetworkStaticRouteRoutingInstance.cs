@@ -10,7 +10,7 @@ namespace SCM.Models
 {
     public class VpnTenantIpNetworkStaticRouteRoutingInstance : IModifiableResource
     {
-        public int VpnTenantIpNetworkStaticRouteRoutingInstanceID { get; set; }
+        public int VpnTenantIpNetworkStaticRouteRoutingInstanceID { get; private set; }
         public int TenantIpNetworkID { get; set; }
         public int AttachmentSetID { get; set; }
         public bool AddToAllRoutingInstancesInAttachmentSet { get; set; }

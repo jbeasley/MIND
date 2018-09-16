@@ -7,7 +7,7 @@ namespace SCM.Models
 {
     public class PortSfp
     {
-        public int PortSfpID { get; set; }
+        public int PortSfpID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

@@ -6,9 +6,9 @@ using System.Threading.Tasks;
 namespace Mind.Models.RequestModels
 {
     /// <summary>
-    /// The geographic region within which the attachment set operates
+    /// Enum for geographic regions
     /// </summary>
-    /// <value>The geographic region within which the attachment set operates</value>
+    /// <value>An enumerated list of region options</value>
     public enum RegionEnum
     {
         /// <summary>
@@ -33,7 +33,7 @@ namespace Mind.Models.RequestModels
     }
 
     /// <summary>
-    /// Determines the type of attachment redundancy supported by the attachment set
+    /// Enum for attachment redundancy options supported by an attachment set
     /// </summary>
     /// <value>An enumerated list of attachment redundancy options</value>
     public enum AttachmentRedundancyEnum
@@ -60,7 +60,7 @@ namespace Mind.Models.RequestModels
     }
 
     /// <summary>
-    /// Determines the type of multicast domain supported by the attachment set
+    /// Enum for multicast domain supported by an attachment set
     /// </summary>
     /// <value>An enumerated list of multicast domain options</value>
     public enum MulticastVpnDomainTypeEnum
@@ -82,9 +82,9 @@ namespace Mind.Models.RequestModels
     }
 
     /// <summary>
-    /// Optional name of the provider network plane within which the attachment will be provisioned
+    /// Enum for network plane options
     /// </summary>
-    /// <value>Optional name of the provider network plane within which the attachment will be provisioned</value>
+    /// <value>Enumerated list of network planes</value>
     public enum PlaneEnum
     {
         /// <summary>
@@ -101,6 +101,7 @@ namespace Mind.Models.RequestModels
     /// <summary>
     /// Enum for the tenancy type options of a vpn.
     /// </summary>
+    /// <value>Enumerated list of tenancy type options</value>
     public enum TenancyTypeEnum
     {
         /// <summary>
@@ -117,6 +118,7 @@ namespace Mind.Models.RequestModels
     /// <summary>
     /// Enum for the topology type options of a vpn.
     /// </summary>
+    /// <value>Enumerated list of topology type option</value>
     public enum TopologyTypeEnum
     {
         /// <summary>
@@ -133,6 +135,7 @@ namespace Mind.Models.RequestModels
     /// <summary>
     /// Enum for the address family options of a vpn. Currently only IPv4 is available. 
     /// </summary>
+    /// <value>Enumerated list of address-family options</value>
     public enum AddressFamilyEnum
     {
         /// <summary>
@@ -144,6 +147,7 @@ namespace Mind.Models.RequestModels
     /// <summary>
     /// Enum for the multicast vpn service type options of a vpn.
     /// </summary>
+    /// <value>Enumerated list of multicast vpn service type options</value>
     public enum MulticastVpnServiceTypeEnum
     {
         /// <summary>
@@ -155,6 +159,7 @@ namespace Mind.Models.RequestModels
     /// <summary>
     /// Enum for the multicast vpn direction type options of a vpn.
     /// </summary>
+    /// <value>Enumerated list of multicast vpn direction type options</value>
     public enum MulticastVpnDirectionTypeEnum
     {
         /// <summary>
@@ -169,8 +174,9 @@ namespace Mind.Models.RequestModels
     }
 
     /// <summary>
-    /// Enum for route target range names
+    /// Enum for vpn route target range names
     /// </summary>
+    /// <value>Enumerated list of route target range options</value>
     public enum RouteTargetRangeEnum
     {
         /// <summary>
@@ -184,4 +190,25 @@ namespace Mind.Models.RequestModels
         Sigma = 2
     }
 
+    /// <summary>
+    /// Enumeration of tenant IP routing behaviour options
+    /// </summary>
+    /// <value>Enumerated list of tenant ip routing behaviour options</value>
+    public enum TenantIpRoutingBehaviourEnum
+    {
+        /// <summary>
+        /// Enum for Any-Plane
+        /// </summary>
+        AnyPlane = 1,
+
+        /// <summary>
+        /// Enum for Red-Plane
+        /// </summary>
+        RedPlane = 2,
+
+        /// <summary>
+        /// Enum for Blue-Plane
+        /// </summary>
+        BluePlane = 3
+    }
 }

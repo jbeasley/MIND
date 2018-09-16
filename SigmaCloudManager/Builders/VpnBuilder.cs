@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Services;
 using SCM.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mind.Builders
 {
@@ -166,7 +167,8 @@ namespace Mind.Builders
             var topologyType = (from result in await _unitOfWork.VpnTopologyTypeRepository.GetAsync(
                             q =>
                                 q.Name == topologyTypeName,
-                                includeProperties:"VpnProtocolType",
+                                query: q => 
+                                       q.Include(x => x.VpnProtocolType),
                                 AsTrackable: true)
                                 select result)
                                .SingleOrDefault();
@@ -206,19 +208,6 @@ namespace Mind.Builders
         protected internal virtual void SetNovaVpn()
         {
             _vpn.IsNovaVpn = (bool)_args[nameof(AsNovaVpn)];
-        }
-
-        /// <summary>
-        /// Validate the state of the vpn
-        /// </summary>
-        protected internal virtual void Validate()
-        {
-            if (string.IsNullOrEmpty(_vpn.Name)) throw new BuilderIllegalStateException("A name is required for the vpn.");
-            if (string.IsNullOrEmpty(_vpn.Description)) throw new BuilderIllegalStateException("A description is required for the vpn.");
-            if (_vpn.Tenant == null) throw new BuilderIllegalStateException("A tenant owner for the vpn is required.");
-            if (_vpn.AddressFamily == null) throw new BuilderIllegalStateException("An address-family is required for the vpn.");
-            if (_vpn.VpnTenancyType == null) throw new BuilderIllegalStateException("A tenancy type is required for the vpn.");
-            if (_vpn.VpnTopologyType == null) throw new BuilderIllegalStateException("A topology type is required for the vpn.");
         }
     }
 }

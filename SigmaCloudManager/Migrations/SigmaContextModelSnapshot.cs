@@ -1397,6 +1397,8 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<bool>("AllowExtranet");
 
+                    b.Property<int>("IpRoutingBehaviour");
+
                     b.Property<int>("Ipv4Length");
 
                     b.Property<int?>("Ipv4LessThanOrEqualToLength");

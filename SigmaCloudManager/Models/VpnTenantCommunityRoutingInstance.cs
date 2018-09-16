@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class VpnTenantCommunityRoutingInstance
     {
-        public int VpnTenantCommunityRoutingInstanceID { get; set; }
+        public int VpnTenantCommunityRoutingInstanceID { get; private set; }
         public int? TenantCommunityID { get; set; }
         public int? TenantCommunitySetID { get; set; }
         public int AttachmentSetID { get; set; }

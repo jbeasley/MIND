@@ -36,7 +36,7 @@ namespace Mind.Api.Attributes
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {             
                 var tenantId = context.ActionArguments["tenantId"] as int?;          
-                if ((await _tenantService.GetByIDAsync(tenantId.Value)) == null)
+                if ((await _tenantService.GetByIDAsync(tenantId.Value, asTrackable: false)) == null)
                 {
                     context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
                     context.Result = new ResourceNotFoundResult(context.ModelState);

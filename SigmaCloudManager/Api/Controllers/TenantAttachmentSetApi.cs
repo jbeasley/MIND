@@ -39,18 +39,15 @@ namespace Mind.Api.Controllers
     public class TenantAttachmentSetApiController : BaseApiController
     {
         private readonly IAttachmentSetService _attachmentSetService;
-        private readonly IAttachmentSetRoutingInstanceService _attachmentSetRoutingInstanceService;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="attachmentSetService"></param>
         /// <param name="mapper"></param>
-        public TenantAttachmentSetApiController(IAttachmentSetService attachmentSetService, 
-            IAttachmentSetRoutingInstanceService attachmentSetRoutingInstanceService, IMapper mapper) : base(attachmentSetService, mapper)
+        public TenantAttachmentSetApiController(IAttachmentSetService attachmentSetService, IMapper mapper) : base(attachmentSetService, mapper)
         {
             _attachmentSetService = attachmentSetService;
-            _attachmentSetRoutingInstanceService = attachmentSetRoutingInstanceService;
         }
 
         /// <summary>
@@ -68,7 +65,7 @@ namespace Mind.Api.Controllers
         [ValidateModelState]
         [ValidateTenantExists]
         [SwaggerOperation("CreateAttachmentSet")]
-        [SwaggerResponse(statusCode: 201, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 201, type: typeof(AttachmentSet), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
@@ -92,6 +89,11 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
+            catch (IllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
@@ -105,16 +107,16 @@ namespace Mind.Api.Controllers
         ///<param name="tenantId"></param>
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <param name="body">attachment set update object that updates an existing attachment set</param>
-        /// <response code="200">Successful operation</response>
+        /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
-        [HttpPut]
+        [HttpPatch]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/attachment-sets/{attachmentSetId}")]
         [ValidateModelState]
         [ValidateAttachmentSetExists]
         [SwaggerOperation("UpdateAttachmentSet")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
@@ -124,15 +126,13 @@ namespace Mind.Api.Controllers
             try
             {
                 var item = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value);
-                if (item.HasPreconditionFailed(Request))
-                {
-                    return new PreconditionFailedResult();
-                }
-
+                if (item.HasPreconditionFailed(Request))  return new PreconditionFailedResult();
+                
                 var update = Mapper.Map<Mind.Models.RequestModels.AttachmentSetUpdate>(body);
                 var attachmentSet = await _attachmentSetService.UpdateAsync(attachmentSetId.Value, update);
-                var attachmentSetApiModel = Mapper.Map<Mind.Api.Models.AttachmentSet>(attachmentSet);
-                return Ok(attachmentSetApiModel);
+                attachmentSet.SetModifiedHttpHeaders(Response);
+
+                return StatusCode(StatusCodes.Status204NoContent);
             }
 
             catch (BuilderBadArgumentsException ex)
@@ -145,9 +145,9 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (ServiceValidationException)
+            catch (IllegalStateException ex)
             {
-                return new ValidationFailedResult(this.ModelState);
+                return new ValidationFailedResult(ex.Message);
             }
 
             catch (DbUpdateException)

@@ -8,7 +8,7 @@ namespace SCM.Models
 {
     public class Plane
     {
-        public int PlaneID { get; set; }
+        public int PlaneID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; } 

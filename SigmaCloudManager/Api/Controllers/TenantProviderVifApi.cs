@@ -85,7 +85,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }
@@ -199,12 +199,12 @@ namespace Mind.Api.Controllers
         /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
-        [HttpPut]
+        [HttpPatch]
         [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}")]
         [ValidateModelState]
         [ValidateProviderDomainVifExists]
         [SwaggerOperation("UpdateProviderDomainVif")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
@@ -215,16 +215,13 @@ namespace Mind.Api.Controllers
             try
             {
                 var item = await _vifService.GetByIDAsync(vifId.Value, asTrackable: false);
-                if (item.HasPreconditionFailed(Request))
-                {
-                    return new PreconditionFailedResult();
-                }
+                if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
 
                 var update = Mapper.Map<Mind.Models.RequestModels.ProviderDomainVifUpdate>(body);
                 var vif = await _vifService.UpdateAsync(vifId.Value, update);
                 vif.SetModifiedHttpHeaders(Response);
-                var vifApiModel = Mapper.Map<Mind.Api.Models.Vif>(vif);
-                return Ok(vifApiModel);
+
+                return StatusCode(StatusCodes.Status204NoContent);
             }
 
             catch (BuilderBadArgumentsException ex)
@@ -237,7 +234,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }

@@ -1,4 +1,5 @@
-﻿using SCM.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SCM.Data;
 using SCM.Models;
 using System;
 using System.Collections.Generic;
@@ -91,7 +92,9 @@ namespace Mind.Builders
             var bgpPeer = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                           q =>
                           q.AttachmentSetID == _vpnTenantIpNetworkOut.AttachmentSetID,
-                          includeProperties: "AttachmentSetRoutingInstances.RoutingInstance.BgpPeers",
+                          query: q => 
+                                 q.Include(x => x.AttachmentSetRoutingInstances)
+                                  .ThenInclude(x => x.RoutingInstance.BgpPeers),
                           AsTrackable: false)
                            from attachmentSetRoutingInstance in result.AttachmentSetRoutingInstances
                            from bgpPeers in attachmentSetRoutingInstance.RoutingInstance.BgpPeers
@@ -101,26 +104,6 @@ namespace Mind.Builders
             _vpnTenantIpNetworkOut.BgpPeer = bgpPeer ?? throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
                 $"the given arguments. The BGP peer address '{ipv4PeerAddress}' does not exist within any routing instance which belongs to " +
                 $"the attachment set.");
-        }
-
-        /// <summary>
-        /// Validate the state of the vpn tenant IP network.
-        /// </summary>
-        protected virtual internal void Validate()
-        {
-            if (_vpnTenantIpNetworkOut.AttachmentSet == null) throw new BuilderIllegalStateException("An attachment set association with the " +
-                "tenant IP network is required but was not found.");
-
-            if (_vpnTenantIpNetworkOut.TenantIpNetwork == null)
-                throw new BuilderIllegalStateException("Unable to create a new tenant IP network association with the " +
-                $"attachment set using the given arguments. The tenant IP network CIDR block '{_args[nameof(WithTenantIpNetworkCidrName)].ToString()}' " +
-                $"could not be found.");
-
-            if (_vpnTenantIpNetworkOut.BgpPeer == null)
-            {
-                throw new BuilderIllegalStateException($"A BGP peer association with the tenant IP network '{_vpnTenantIpNetworkOut.TenantIpNetwork.CidrName}' " +
-                    "was not found.");
-            }
         }
     }
 }

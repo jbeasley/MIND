@@ -12,7 +12,7 @@ namespace SCM.Models
 
     public class MulticastVpnDirectionType
     {
-        public int MulticastVpnDirectionTypeID { get; set; }
+        public int MulticastVpnDirectionTypeID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

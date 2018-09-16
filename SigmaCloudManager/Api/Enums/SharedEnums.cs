@@ -7,8 +7,9 @@ using System.Threading.Tasks;
 namespace Mind.Api
 {
     /// <summary>
-    /// Enum for the plane options of a vpn
+    /// Enum for the network plane options
     /// </summary>
+    /// <plane>Enumerated list of network plane options</plane>
     public enum PlaneEnum
     {
         /// <summary>
@@ -25,8 +26,9 @@ namespace Mind.Api
     }
 
     /// <summary>
-    /// Enum for the geographical region options of a vpn
+    /// Enum for the geographical region option
     /// </summary>
+    /// <value>Enumerated list of region options</value>
     public enum RegionEnum
     {
         /// <summary>
@@ -57,6 +59,7 @@ namespace Mind.Api
     /// <summary>
     /// Enumeration of attachment redundancy level options
     /// </summary>
+    /// <value>Enumerated list of attachment redundancy options</value>
     public enum AttachmentRedundancyEnum
     {
         /// <summary>
@@ -87,6 +90,7 @@ namespace Mind.Api
     /// <summary>
     /// Enum for the tenancy type options of a vpn.
     /// </summary>
+    /// <value>Enumerated list of tenancy type options</value>
     public enum TenancyTypeEnum
     {
         /// <summary>
@@ -105,6 +109,7 @@ namespace Mind.Api
     /// <summary>
     /// Enum for the topology type options of a vpn.
     /// </summary>
+    /// <value>Enumerated list of topology type options</value>
     public enum TopologyTypeEnum
     {
         /// <summary>
@@ -123,6 +128,7 @@ namespace Mind.Api
     /// <summary>
     /// Enum for the address family options of a vpn. Currently only IPv4 is available. 
     /// </summary>
+    /// <value>Enumerated list of address-family options</value>
     public enum AddressFamilyEnum
     {
         /// <summary>
@@ -147,6 +153,7 @@ namespace Mind.Api
     /// <summary>
     /// Enum for route target range names
     /// </summary>
+    /// <value>Enumerated list of route target range options</value>
     public enum RouteTargetRangeEnum
     {
         /// <summary>
@@ -165,6 +172,7 @@ namespace Mind.Api
     /// <summary>
     /// Enum for the multicast vpn direction type options of a vpn.
     /// </summary>
+    /// <value>Enumerated list of multicast vpn direction type options</value>
     public enum MulticastVpnDirectionTypeEnum
     {
         /// <summary>
@@ -183,6 +191,7 @@ namespace Mind.Api
     /// <summary>
     /// Enumeration of multicast domain types supported by the attachment set
     /// </summary>
+    /// <value>Enumerated list of multicast vpn domain type options</value>
     public enum MulticastVpnDomainTypeEnum
     {
         /// <summary>
@@ -202,5 +211,30 @@ namespace Mind.Api
         /// </summary>
         [EnumMember(Value = "Sender-and-Receiver")]
         SenderAndReceiver = 3
+    }
+
+    /// <summary>
+    /// Enumeration of tenant IP routing behaviour options
+    /// </summary>
+    /// <value>Enumerated list of tenant ip routing behaviour options</value>
+    public enum TenantIpRoutingBehaviourEnum
+    {
+        /// <summary>
+        /// Enum for Any-Plane
+        /// </summary>
+        [EnumMember(Value = "Any-Plane")]
+        AnyPlane = 1,
+
+        /// <summary>
+        /// Enum for Red-Plane
+        /// </summary>
+        [EnumMember(Value = "Red-Plane")]
+        RedPlane = 2,
+
+        /// <summary>
+        /// Enum for Blue-Plane
+        /// </summary>
+        [EnumMember(Value = "Blue-Plane")]
+        BluePlane = 3
     }
 }

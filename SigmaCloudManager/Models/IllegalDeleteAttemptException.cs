@@ -3,15 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace Mind.Builders
+namespace Mind.Models
 {
-    public class BuilderIllegalStateException : Exception
+    public class IllegalDeleteAttemptException : Exception
     {
-        public BuilderIllegalStateException(string message) : base(message)
+        public IllegalDeleteAttemptException(string message) : base(message)
         {
         }
 
-        public BuilderIllegalStateException(string message,
+        public IllegalDeleteAttemptException(string message,
                             Exception innerException) : base(message, innerException)
         {
         }

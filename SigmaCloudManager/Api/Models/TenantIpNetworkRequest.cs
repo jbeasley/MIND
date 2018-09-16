@@ -58,6 +58,14 @@ namespace Mind.Api.Models
         public int? Ipv4LessThanOrEqualToLength { get; set; }
 
         /// <summary>
+        /// The required IP routing behavior for traffic forwarding towards the tenant IP network
+        /// </summary>
+        /// <value>Enum member value denoting the required tenant ip routing behavior</value>
+        [DataMember(Name = "tenantIpRoutingBehaviour")]
+        [Required]
+        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; } = TenantIpRoutingBehaviourEnum.AnyPlane;
+
+        /// <summary>
         /// Determines whether the tenant network is allowed into any IP Extranet VPNs
         /// </summary>
         /// <value>Boolean value which when true indicates that the tenant network is enabled for extranet</value>

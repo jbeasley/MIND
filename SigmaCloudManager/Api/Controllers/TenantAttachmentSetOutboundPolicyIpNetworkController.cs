@@ -74,7 +74,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }
@@ -93,17 +93,17 @@ namespace Mind.Api.Controllers
         /// <param name="vpnTenantIpNetworkOutId">ID of the vpn tenant IP network to update</param>
         /// <param name="body">IP network request object that applies updates to an existing IP network associated 
         /// with the outbound policy of the attachment set</param>
-        /// <response code="200">Successful operation</response>
+        /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
-        [HttpPut]
+        [HttpPatch]
         [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/outbound-policy/ip-networks/{vpnTenantIpNetworkOutId}")]
         [ValidateModelState]
         [ValidateVpnTenantIpNetworkOutExists]
         [SwaggerOperation("UpdateAttachmentSetOutboundPolicyTenantIpNetwork")]
-        [SwaggerResponse(statusCode: 200, type: typeof(VpnTenantIpNetworkOut), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
@@ -119,9 +119,8 @@ namespace Mind.Api.Controllers
                 var request = Mapper.Map<Mind.Models.RequestModels.VpnTenantIpNetworkOutRequest>(body);
                 var vpnTenantIpNetworkOut = await _vpnTenantIpNetworkOutService.UpdateAsync(item.VpnTenantIpNetworkOutID, request);
                 vpnTenantIpNetworkOut.SetModifiedHttpHeaders(Response);
-                var vpnTenantIpNetworkOutApiModel = Mapper.Map<Mind.Api.Models.VpnTenantIpNetworkOut>(vpnTenantIpNetworkOut);
-
-                return Ok(vpnTenantIpNetworkOutApiModel);
+                
+                return StatusCode(StatusCodes.Status204NoContent);
             }
 
             catch (BuilderBadArgumentsException ex)
@@ -134,7 +133,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }

@@ -16,7 +16,7 @@ namespace SCM.Models
 
     public class PortStatus
     {
-        public int PortStatusID { get; set; }
+        public int PortStatusID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class Tenant : IModifiableResource
     {
-        public int TenantID { get; set; }
+        public int TenantID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

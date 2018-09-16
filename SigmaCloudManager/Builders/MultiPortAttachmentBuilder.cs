@@ -24,7 +24,7 @@ namespace Mind.Builders
             await base.BuildAsync();
             await CreateMultiPortIdAsync();
             _attachment.IsMultiPort = true;
-            Validate();
+            _attachment.Validate();
 
             return _attachment;
         }
@@ -61,17 +61,6 @@ namespace Mind.Builders
                 if (ipv4AddressAndMask != null) ipv4Addresses.Remove(ipv4AddressAndMask);
                 _attachment.Interfaces.Add(iface);
             }
-        }
-
-        protected internal override void Validate()
-        {
-            base.Validate();
-
-            if (!_attachment.AttachmentRole.SupportedByMultiPort) throw new BuilderIllegalStateException($"The requested attachment role " +
-                $"'{_attachment.AttachmentRole.Name}' is not supported with a multiport attachment.");
-
-            if (!_attachment.AttachmentBandwidth.SupportedByMultiPort) throw new BuilderIllegalStateException($"The requested attachment " +
-                $"bandwidth '{_attachment.AttachmentBandwidth.BandwidthGbps} Gbps' is not supported with a multiport attachment.");
         }
 
         private async Task CreateMultiPortIdAsync()

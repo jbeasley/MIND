@@ -7,7 +7,7 @@ namespace SCM.Models
 {
     public class TenantMulticastGroup
     {
-        public int TenantMulticastGroupID { get; set; }
+        public int TenantMulticastGroupID { get; private set; }
         [MaxLength(15)]
         public string SourceAddress { get; set; }
         [MaxLength(15)]

@@ -65,7 +65,7 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithExtranet))) base.SetExtranet();
             if (_args.ContainsKey(nameof(WithMulticastVpnDirectionType))) await base.SetMulticastVpnDirectionTypeAsync();
 
-            base.Validate();
+            _vpn.Validate();
             return base._vpn;
         }
 
@@ -75,18 +75,10 @@ namespace Mind.Builders
             var vpn = (from result in await _unitOfWork.VpnRepository.GetAsync(
                     q =>
                        q.VpnID == vpnId,
-                       includeProperties:"AddressFamily," +
-                       "ExtranetVpnMembers.MemberVpn.Region," +
-                       "ExtranetVpns.ExtranetVpn.Region," +
-                       "VpnTenancyType," +
-                       "VpnTopologyType.VpnProtocolType," +
-                       "Tenant," +
-                       "Plane," +
-                       "Region," +
-                       "MulticastVpnServiceType," +
-                       "MulticastVpnDirectionType," +
-                       "RouteTargets.RouteTargetRange," +
-                       "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Device.Location.SubRegion.Region",
+                       query: 
+                       q => 
+                          q.IncludeBaseValidationProperties()
+                           .IncludeIpVpnValidationProperties(),
                        AsTrackable: true)
                        select result)
                        .SingleOrDefault();

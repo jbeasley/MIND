@@ -21,7 +21,7 @@ namespace Mind.Builders
         public async override Task<Attachment> BuildAsync()
         {
             await base.BuildAsync();
-            base.Validate();
+            base._attachment.Validate();
             return base._attachment;
         }
 

@@ -6,7 +6,7 @@ namespace SCM.Models
 {
     public class MulticastVpnRp
     {
-        public int MulticastVpnRpID { get; set; }
+        public int MulticastVpnRpID { get; private set; }
         [Required]
         [MaxLength(15)]
         public string IpAddress { get; set; }

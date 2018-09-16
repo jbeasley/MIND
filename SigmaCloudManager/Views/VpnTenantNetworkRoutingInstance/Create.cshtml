@@ -1,14 +1,14 @@
-@model SCM.Models.ViewModels.VpnTenantNetworkRoutingInstanceViewModel
+@model SCM.Models.ViewModels.VpnTenantIpNetworkRoutingInstanceViewModel
 
 @{
-    ViewData["Title"] = "Add Tenant Network";
+    ViewData["Title"] = "Add Tenant IP Network";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
     <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@ViewBag.AttachmentSet.TenantID">Attachment Sets- [@ViewBag.AttachmentSet.Tenant.Name]</a></li>
-    <li class="breadcrumb-item"><a href="/VpnTenantNetworkRoutingInstance/GetAllByAttachmentSetID/@ViewBag.AttachmentSet.AttachmentSetID">Tenant Networks VRF Policy - [@ViewBag.AttachmentSet.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/VpnTenantIpNetworkRoutingInstance/GetAllByAttachmentSetID/@ViewBag.AttachmentSet.AttachmentSetID">Tenant Networks VRF Policy - [@ViewBag.AttachmentSet.Name]</a></li>
     <li class="breadcrumb-item active">Add Tenant Network</li>
 </ol>
 
@@ -29,12 +29,12 @@
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="TenantNetwork" class="col-md-2 control-label"></label>
+            <label asp-for="TenantIpNetwork" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <select asp-for="TenantNetworkID" class="form-control" asp-items="ViewBag.TenantNetworkID">
+                <select asp-for="TenantIpNetworkID" class="form-control" asp-items="ViewBag.TenantIpNetworkID">
                     <option value="">-- Select Tenant Network --</option>
                 </select>
-                <span asp-validation-for="TenantNetworkID" class="text-danger"></span>
+                <span asp-validation-for="TenantIpNetworkID" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
@@ -83,7 +83,7 @@
                 $tenantNetwork = $('#TenantNetworkID'),
                 tenantNetwork = $tenantNetwork[0];
 
-            if (tenantNetwork.value == null || tenantNetwork.value == "") {
+            if (tenantNetwork.value === null || tenantNetwork.value === "") {
 
                 tenantNetwork.disabled = true;
             }
@@ -97,7 +97,7 @@
 
             function PopulateTenantNetworksDropDownList(tenantID) {
 
-                if (tenantID != null && tenantID.length > 0) {
+                if (tenantID !== null && tenantID.length > 0) {
 
                     PopulateHtmlFromUrl($tenantNetwork, "/VpnTenantNetworkRoutingInstance/TenantNetworks", { tenantID: tenantID });
                 }

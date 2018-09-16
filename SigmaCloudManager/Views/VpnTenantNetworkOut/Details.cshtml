@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.VpnTenantNetworkOutViewModel
+@model SCM.Models.ViewModels.VpnTenantIpNetworkOutViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -9,7 +9,7 @@
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
     <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
     <li class="breadcrumb-item"><a href="/VpnTenantNetworkOut/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant Networks Outbound Policy - [@Model.AttachmentSet.Name]</a></li>
-    <li class="breadcrumb-item active">Details - [@Model.TenantNetwork.CidrName]</li>
+    <li class="breadcrumb-item active">Details - [@Model.TenantIpNetwork.CidrName]</li>
 </ol>
 
 <h2>Details</h2>
@@ -18,16 +18,16 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.TenantNetwork.Tenant)
+            @Html.DisplayNameFor(model => model.TenantIpNetwork.Tenant)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.TenantNetwork.Tenant.Name)
+            @Html.DisplayFor(model => model.TenantIpNetwork.Tenant.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.TenantNetwork)
+            @Html.DisplayNameFor(model => model.TenantIpNetwork)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.TenantNetwork.CidrName)
+            @Html.DisplayFor(model => model.TenantIpNetwork.CidrName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.BgpPeer.RoutingInstance)

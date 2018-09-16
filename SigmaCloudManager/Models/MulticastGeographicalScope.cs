@@ -6,7 +6,7 @@ namespace SCM.Models
 {
     public class MulticastGeographicalScope
     {
-        public int MulticastGeographicalScopeID { get; set; }
+        public int MulticastGeographicalScopeID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

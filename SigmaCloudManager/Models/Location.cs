@@ -8,7 +8,7 @@ namespace SCM.Models
 {
     public class Location
     {
-        public int LocationID { get; set; }
+        public int LocationID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string SiteName { get; set; }

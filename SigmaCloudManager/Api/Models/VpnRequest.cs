@@ -153,39 +153,6 @@ namespace Mind.Api.Models
                         "Remove either the route target range or the list of requested route targets from the request.");
                 }
             }
-
-            if (IsExtranet.HasValue && IsExtranet.Value)
-            {
-                if (TenancyType.Value != TenancyTypeEnum.Multi)
-                {
-                    yield return new ValidationResult("The tenancy type must be 'multi' for an extranet vpn.");
-                }
-            }
-            if (IsMulticastVpn.HasValue && IsMulticastVpn.Value)
-            {
-                if (!Plane.HasValue)
-                {
-                    yield return new ValidationResult("A plane option must be specified for a multicast vpn.");
-                }
-
-                if (IsExtranet.HasValue && IsExtranet.Value)
-                {
-                    yield return new ValidationResult("Extranet is not currently available for multicast vpn.");
-                }
-
-                if (!MulticastVpnServiceType.HasValue)
-                {
-                    yield return new ValidationResult("A multicast vpn service type option must be specified for multicast vpn.");
-                }
-
-                if (TopologyType == TopologyTypeEnum.HubAndSpoke)
-                {
-                    if (!MulticastVpnDirectionType.HasValue)
-                    {
-                        yield return new ValidationResult("A multicast vpn direction type option must be specified for a hub-and-spoke vpn.");
-                    }
-                }
-            }
         }
 
         /// <summary>

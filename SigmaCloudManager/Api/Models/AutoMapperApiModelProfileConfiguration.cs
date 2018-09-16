@@ -50,8 +50,8 @@ namespace Mind.Api.Models
             CreateMap<SCM.Models.AttachmentSet, Mind.Api.Models.AttachmentSet>()
                 .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentRedundancy.Name))
                 .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
-                .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name));
-            CreateMap<SCM.Models.Tenant, Mind.Api.Models.Tenant>();
+                .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name))
+                .ForMember(dst => dst.MulticastVpnDomainType, conf => conf.MapFrom(src => src.MulticastVpnDomainType.Name));
             CreateMap<SCM.Models.VpnTenantIpNetworkIn, Mind.Api.Models.VpnTenantIpNetworkIn>()
                 .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
                 .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
@@ -70,6 +70,9 @@ namespace Mind.Api.Models
             CreateMap<SCM.Models.RouteTarget, Mind.Api.Models.RouteTarget>()
                  .ForMember(dst => dst.RangeName, conf => conf.MapFrom(src => src.RouteTargetRange.Name))
                  .ForMember(dst => dst.AdministratorSubField, conf => conf.MapFrom(src => src.RouteTargetRange.AdministratorSubField));
+            CreateMap<SCM.Models.VpnAttachmentSet, Mind.Api.Models.VpnAttachmentSet>()
+                  .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name))
+                  .ForMember(dst => dst.VpnName, conf => conf.MapFrom(src => src.Vpn.Name));
 
             // API model to entity model mappings
 

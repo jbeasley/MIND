@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.VpnTenantNetworkStaticRouteRoutingInstanceViewModel
+@model SCM.Models.ViewModels.VpnTenantIpNetworkStaticRouteRoutingInstanceViewModel
 
 @{
     ViewData["Title"] = "Details";
@@ -9,7 +9,7 @@
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
     <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.AttachmentSet.TenantID">Attachment Sets- [@Model.AttachmentSet.Tenant.Name]</a></li>
     <li class="breadcrumb-item"><a href="/VpnTenantNetworkIn/GetAllByAttachmentSetID/@Model.AttachmentSet.AttachmentSetID">Tenant Network Static Routes - [@Model.AttachmentSet.Name]</a></li>
-    <li class="breadcrumb-item active">Details - [@Model.TenantNetwork.CidrName]</li>
+    <li class="breadcrumb-item active">Details - [@Model.TenantIpNetwork.CidrName]</li>
 </ol>
 
 <h2>Details</h2>
@@ -24,10 +24,10 @@
             @Html.DisplayFor(model => model.AttachmentSet.Tenant.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.TenantNetwork)
+            @Html.DisplayNameFor(model => model.TenantIpNetwork)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.TenantNetwork.CidrName)
+            @Html.DisplayFor(model => model.TenantIpNetwork.CidrName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.RoutingInstance)
@@ -36,10 +36,10 @@
             @Html.DisplayFor(model => model.RoutingInstance.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.NextHopAddress)
+            @Html.DisplayNameFor(model => model.Ipv4NextHopAddress)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.NextHopAddress)
+            @Html.DisplayFor(model => model.Ipv4NextHopAddress)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.IsBfdEnabled)

@@ -19,8 +19,11 @@ namespace Mind.Services
             "Devices," +
             "Attachments.Interfaces.Ports," +
             "Attachments.Device," +
+            "Attachments.ContractBandwidthPool," +
+            "Vifs.ContractBandwidthPool," +
             "Vifs.Attachment.Interfaces.Ports," +
-            "Vifs.Attachment.Device";
+            "Vifs.Attachment.Device," +
+            "Vifs.Attachment.ContractBandwidthPool";
 
         public TenantService(IUnitOfWork unitOfWork, ITenantValidator validator) : base(unitOfWork, validator)
         {

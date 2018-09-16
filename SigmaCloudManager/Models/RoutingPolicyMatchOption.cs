@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class RoutingPolicyMatchOption
     {
-        public int RoutingPolicyMatchOptionID { get; set; }
+        public int RoutingPolicyMatchOptionID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

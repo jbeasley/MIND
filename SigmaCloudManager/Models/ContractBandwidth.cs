@@ -6,7 +6,7 @@ namespace SCM.Models
 {
     public class ContractBandwidth
     {
-        public int ContractBandwidthID { get; set; }
+        public int ContractBandwidthID { get; private set; }
         public int BandwidthMbps { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }

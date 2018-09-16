@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class VpnTenantMulticastGroup
     {
-        public int VpnTenantMulticastGroupID { get; set; }
+        public int VpnTenantMulticastGroupID { get; private set; }
         public int TenantMulticastGroupID { get; set; }
         public int? MulticastVpnRpID { get; set; }
         public int AttachmentSetID { get; set; }

@@ -6,7 +6,7 @@ namespace SCM.Models
 {
     public class AttachmentBandwidth
     {
-        public int AttachmentBandwidthID { get; set; }
+        public int AttachmentBandwidthID { get; private set; }
         public int BandwidthGbps { get; set; }
         public bool MustBeBundleOrMultiPort { get; set; }
         public bool SupportedByBundle { get; set; }

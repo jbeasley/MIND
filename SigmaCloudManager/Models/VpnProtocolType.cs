@@ -12,7 +12,7 @@ namespace SCM.Models
 
     public class VpnProtocolType
     {
-        public int VpnProtocolTypeID { get; set; }
+        public int VpnProtocolTypeID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

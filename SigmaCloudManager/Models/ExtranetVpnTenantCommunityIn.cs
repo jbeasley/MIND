@@ -8,7 +8,7 @@ namespace SCM.Models
 {
     public class ExtranetVpnTenantCommunityIn
     {
-        public int ExtranetVpnTenantCommunityInID { get; set; }
+        public int ExtranetVpnTenantCommunityInID { get; private set; }
         public int VpnTenantCommunityInID { get; set; }
         public int ExtranetVpnMemberID { get; set; }
         [Timestamp]

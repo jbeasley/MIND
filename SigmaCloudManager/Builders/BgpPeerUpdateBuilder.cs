@@ -66,7 +66,7 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithPeer2ByteAutonomousSystem))) _bgpPeer.Peer2ByteAutonomousSystem = (int)_args[nameof(WithPeer2ByteAutonomousSystem)];
             if (_args.ContainsKey(nameof(WithPeerPassword))) _bgpPeer.PeerPassword = _args[nameof(WithPeerPassword)].ToString();
 
-            Validate();
+            _bgpPeer.Validate();
             return _bgpPeer;
         }
 
@@ -77,24 +77,11 @@ namespace Mind.Builders
                               x =>
                                 x.BgpPeerID == bgpPeerId,
                                 AsTrackable: true,
-                                includeProperties: "RoutingInstance," +
-                                "VpnTenantCommunitiesIn.AttachmentSet," +
-                                "VpnTenantCommunitiesOut.AttachmentSet," +
-                                "VpnTenantIpNetworksIn.AttachmentSet," +
-                                "VpnTenantIpNetworksOut.AttachmentSet," +
-                                "VpnTenantCommunitiesIn.TenantCommunity," +
-                                "VpnTenantCommunitiesOut.TenantCommunity," +
-                                "VpnTenantIpNetworksIn.TenantIpNetwork," +
-                                "VpnTenantIpNetworksOut.TenantIpNetwork")
+                                query: q => q.IncludeValidationProperties())
                                 select result)
                                 .SingleOrDefault();
 
             base._bgpPeer = bgpPeer ?? throw new BuilderUnableToCompleteException($"Could not find the BGP peer with ID '{bgpPeerId}'.");
-        }
-
-        protected override internal void Validate()
-        {
-            base.Validate();
         }
     }
 }

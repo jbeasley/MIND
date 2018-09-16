@@ -29,6 +29,7 @@ using AutoMapper;
 
 using Mind.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using Mind.Builders;
 
 namespace Mind.Api.Controllers
 { 
@@ -68,19 +69,28 @@ namespace Mind.Api.Controllers
         {
             try
             {
-                var request = Mapper.Map<SCM.Models.TenantIpNetwork>(body);
-                request.TenantID = tenantId.Value;
-                var tenantIpNetwork = await _tenantIpNetworkService.AddAsync(request);
+                var request = Mapper.Map<Mind.Models.RequestModels.TenantIpNetworkRequest>(body);
+                var tenantIpNetwork = await _tenantIpNetworkService.AddAsync(tenantId.Value, request);
                 var tenantIpNetworkApiModel = Mapper.Map<Mind.Api.Models.TenantIpNetwork>(tenantIpNetwork);
                 return CreatedAtRoute("GetTenantIpNetwork", new { tenantIpNetworkId = tenantIpNetwork.TenantIpNetworkID }, tenantIpNetworkApiModel);
             }
 
-            catch (ServiceValidationException)
+            catch (BuilderBadArgumentsException ex)
             {
-                return new ValidationFailedResult(this.ModelState);
+                return new ValidationFailedResult(ex.Message);
             }
 
-            catch (DbUpdateException)
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (IllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (DbUpdateException ex)
             {
                 return new DatabaseUpdateFailedResult();
             }
@@ -98,12 +108,12 @@ namespace Mind.Api.Controllers
         /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
-        [HttpPut]
+        [HttpPatch]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/ip-networks/{tenantIpNetworkId}")]
         [ValidateModelState]
         [ValidateTenantIpNetworkExists]
         [SwaggerOperation("UpdateTenantIpNetwork")]
-        [SwaggerResponse(statusCode: 200, type: typeof(TenantIpNetwork), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
@@ -116,19 +126,27 @@ namespace Mind.Api.Controllers
                 var item = await _tenantIpNetworkService.GetByIDAsync(tenantIpNetworkId.Value);
                 if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
                 
-                Mapper.Map(body, item);
-                var tenantIpNetwork = await _tenantIpNetworkService.UpdateAsync(item);
+                var update = Mapper.Map<Mind.Models.RequestModels.TenantIpNetworkRequest>(body);
+                var tenantIpNetwork = await _tenantIpNetworkService.UpdateAsync(tenantIpNetworkId.Value, update);
                 tenantIpNetwork.SetModifiedHttpHeaders(Response);
-                var tenantIpNetworkApiModel = Mapper.Map<Mind.Api.Models.TenantIpNetwork>(tenantIpNetwork);
 
-                return Ok(tenantIpNetworkApiModel);
+                return StatusCode(StatusCodes.Status204NoContent);
             }
 
-            catch (ServiceValidationException)
+            catch (BuilderBadArgumentsException ex)
             {
-                return new ValidationFailedResult(this.ModelState);
+                return new ValidationFailedResult(ex.Message);
             }
 
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (IllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();

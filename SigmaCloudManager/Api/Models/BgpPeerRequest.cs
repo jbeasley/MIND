@@ -88,7 +88,7 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class BgpPeer {\n");
+            sb.Append("class BgpPeerRequest {\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
             sb.Append("  Peer2ByteAutonomousSystem: ").Append(Peer2ByteAutonomousSystem).Append("\n");
             sb.Append("  PeerPassword: ").Append(PeerPassword).Append("\n");
@@ -121,7 +121,7 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Returns true if BgpPeer instances are equal
+        /// Returns true if BgpPeerRequest instances are equal
         /// </summary>
         /// <param name="other">Instance of BgpPeer to be compared</param>
         /// <returns>Boolean</returns>

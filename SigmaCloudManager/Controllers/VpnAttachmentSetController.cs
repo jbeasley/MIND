@@ -285,7 +285,7 @@ namespace SCM.Controllers
                     });
                 }
 
-                await VpnAttachmentSetService.DeleteAsync(Mapper.Map<VpnAttachmentSet>(vpnAttachmentSet));
+                await VpnAttachmentSetService.DeleteAsync(vpnAttachmentSetModel.VpnAttachmentSetID);
                 
                 return RedirectToAction("GetAllByVpnID", new
                 {

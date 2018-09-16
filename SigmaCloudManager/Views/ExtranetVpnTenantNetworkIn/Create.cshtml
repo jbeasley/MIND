@@ -1,7 +1,7 @@
 @model SCM.Models.ViewModels.ExtranetVpnTenantNetworkInViewModel
 
 @{
-    ViewData["Title"] = "Add Tenant Network";
+    ViewData["Title"] = "Add Tenant IP Network";
 }
 
 <ol class="breadcrumb">
@@ -32,16 +32,16 @@
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="VpnTenantNetworkIn" class="col-md-2 control-label"></label>
+            <label asp-for="VpnTenantIpNetworkIn" class="col-md-2 control-label"></label>
             <div class="col-md-10">
-                <select asp-for="VpnTenantNetworkInID" class="form-control" asp-items="ViewBag.VpnTenantNetworkInID" 
+                <select asp-for="VpnTenantIpNetworkInID" class="form-control" asp-items="ViewBag.VpnTenantIpNetworkInID" 
                         data-toggle="tooltip" data-placement="right" title="Select a Tenant Network. The only Tenant Networks listed are 
                         those which are configured for import into the member VPN AND which are also enabled for Extranet. 
                         The selected network will also be imported into the 
                         Extranet VPN.">        
                     <option value="">-- Select Tenant Network --</option>
                 </select>
-                <span asp-validation-for="VpnTenantNetworkInID" class="text-danger"></span>
+                <span asp-validation-for="VpnTenantIpNetworkInID" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
@@ -76,7 +76,7 @@
                 $memberVpn = $('#MemberVpnID'),
                 memberVpn = $memberVpn[0];
 
-            if (vpnTenantNetwork.value == null || vpnTenantNetwork.value == "") {
+            if (vpnTenantNetwork.value === null || vpnTenantNetwork.value === "") {
 
                 vpnTenantNetwork.disabled = true;
             }
@@ -90,7 +90,7 @@
 
             function PopulateVpnTenantNetworksDropDownList(tenantID) {
 
-                if (tenantID != null && tenantID.length > 0) {
+                if (tenantID !== null && tenantID.length > 0) {
 
                     PopulateHtmlFromUrl($vpnTenantNetwork, "/ExtranetVpnTenantNetworkIn/VpnTenantNetworks", {vpnID: memberVpn.value, tenantID: tenantID });
                 }

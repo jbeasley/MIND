@@ -9,26 +9,26 @@
     <li class="breadcrumb-item"><a href="/Vpn/GetAll">VPNs</a></li>
     <li class="breadcrumb-item"><a href="/ExtranetVpnMember/GetAllByMemberVpnID/@Model.ExtranetVpnMember.MemberVpn.VpnID">Extranet VPN Memberships - [@Model.ExtranetVpnMember.MemberVpn.Name]</a></li>
     <li class="breadcrumb-item"><a href="/ExtranetVpnTenantNetworkIn/GetAllByExtranetVpnMemberID/@Model.ExtranetVpnMember.ExtranetVpnMemberID">Extranet VPN Tenant Networks - [@Model.ExtranetVpnMember.ExtranetVpn.Name]</a></li>
-    <li class="breadcrumb-item active">Delete - [@Model.VpnTenantNetworkIn.TenantNetwork.CidrName]</li>
+    <li class="breadcrumb-item active">Delete - [@Model.VpnTenantIpNetworkIn.TenantIpNetwork.CidrName]</li>
 </ol>
 
-<h2>Remove Network '@Model.VpnTenantNetworkIn.TenantNetwork.CidrName' from Extranet VPN '@Model.ExtranetVpnMember.ExtranetVpn.Name'</h2>
+<h2>Remove Network '@Model.VpnTenantIpNetworkIn.TenantIpNetwork.CidrName' from Extranet VPN '@Model.ExtranetVpnMember.ExtranetVpn.Name'</h2>
 <h3>Are you sure you want to remove this Network?</h3>
 <div>
     <hr />
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.VpnTenantNetworkIn.TenantNetwork)
+            @Html.DisplayNameFor(model => model.VpnTenantIpNetworkIn.TenantIpNetwork)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.VpnTenantNetworkIn.TenantNetwork.CidrName)
+            @Html.DisplayFor(model => model.VpnTenantIpNetworkIn.TenantIpNetwork.CidrName)
         </dd>
     </dl>
 
     <form asp-action="Delete">
         <input type="hidden" asp-for="ExtranetVpnTenantNetworkInID" />
-        <input type="hidden" asp-for="VpnTenantNetworkInID" />
+        <input type="hidden" asp-for="VpnTenantIpNetworkInID" />
         <input type="hidden" asp-for="ExtranetVpnMemberID" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">

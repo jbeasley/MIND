@@ -15,7 +15,7 @@ namespace SCM.Models
 
     public class PortRole
     {
-        public int PortRoleID { get; set; }
+        public int PortRoleID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

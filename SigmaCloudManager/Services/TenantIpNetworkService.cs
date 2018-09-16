@@ -7,20 +7,28 @@ using SCM.Data;
 using SCM.Validators;
 using SCM.Services;
 using System.Net;
+using Mind.Builders;
+using Mind.Models.RequestModels;
 
 namespace Mind.Services
 {
     public class TenantIpNetworkService : BaseService, ITenantIpNetworkService
     {
-        private readonly string _properties = "Tenant,"
-                + "VpnTenantIpNetworksIn.AttachmentSet,"
-                + "VpnTenantIpNetworksOut.AttachmentSet";
+        private readonly string _properties = "Tenant," +
+                    "VpnTenantIpNetworksIn.AttachmentSet," +
+                    "VpnTenantIpNetworksOut.AttachmentSet," +
+                    "VpnTenantIpNetworksRoutingInstance";
 
         private readonly ITenantIpNetworkValidator _validator;
+        private readonly ITenantIpNetworkDirector _director;
+        private readonly ITenantIpNetworkUpdateDirector _updateDirector;
 
-        public TenantIpNetworkService(IUnitOfWork unitOfWork, ITenantIpNetworkValidator validator) : base(unitOfWork, validator)
+        public TenantIpNetworkService(IUnitOfWork unitOfWork, ITenantIpNetworkDirector director, 
+            ITenantIpNetworkUpdateDirector updateDirector, ITenantIpNetworkValidator validator) : base(unitOfWork, validator)
         {
             _validator = validator;
+            _director = director;
+            _updateDirector = updateDirector;
         }
 
         public async Task<IEnumerable<TenantIpNetwork>> GetAllByTenantIDAsync(int id, string searchString = "", bool? deep = false, bool asTrackable = false)
@@ -42,14 +50,23 @@ namespace Mind.Services
                    select result)
                    .SingleOrDefault();
         }
+
+        /// <summary>
+        /// TO-BE-REMOVED
+        /// </summary>
+        /// <param name="tenantIpNetwork"></param>
+        /// <returns></returns>
         public async Task<TenantIpNetwork> AddAsync(TenantIpNetwork tenantIpNetwork)
         {
-            // Normalise the IP Prefix according to the Cidr length.
-            // e.g. - 10.1.1.0/16 becomes 10.1.0.0/16
+            this.UnitOfWork.TenantIpNetworkRepository.Insert(tenantIpNetwork);
+            await this.UnitOfWork.SaveAsync();
 
-            var network = IPNetwork.Parse($"{tenantIpNetwork.Ipv4Prefix}/{tenantIpNetwork.Ipv4Length}");
-            tenantIpNetwork.Ipv4Prefix = network.Network.ToString();
+            return await GetByIDAsync(tenantIpNetwork.TenantIpNetworkID, deep: true);
+        }
 
+        public async Task<TenantIpNetwork> AddAsync(int tenantId, TenantIpNetworkRequest request)
+        {
+            var tenantIpNetwork = await _director.BuildAsync(tenantId, request);
             this.UnitOfWork.TenantIpNetworkRepository.Insert(tenantIpNetwork);
             await this.UnitOfWork.SaveAsync();
 
@@ -65,21 +82,25 @@ namespace Mind.Services
             await this.UnitOfWork.SaveAsync();
         }
 
+        /// <summary>
+        /// TO-BE-REMOVED
+        /// </summary>
+        /// <param name="tenantIpNetwork"></param>
+        /// <returns></returns>
         public async Task<TenantIpNetwork> UpdateAsync(TenantIpNetwork tenantIpNetwork)
         {
-            // Normalise the IP Prefix according to the Cidr length.
-            // e.g. - 10.1.1.0/16 becomes 10.1.0.0/16
-
-            var network = IPNetwork.Parse($"{tenantIpNetwork.Ipv4Prefix}/{tenantIpNetwork.Ipv4Length}");
-            tenantIpNetwork.Ipv4Prefix = network.Network.ToString();
-
-            await _validator.ValidateChangesAsync(tenantIpNetwork);
-            if (!_validator.IsValid) throw new ServiceValidationException();
-
             this.UnitOfWork.TenantIpNetworkRepository.Update(tenantIpNetwork);
             await this.UnitOfWork.SaveAsync();
 
             return await GetByIDAsync(tenantIpNetwork.TenantIpNetworkID, deep: true);
+        }
+
+        public async Task<TenantIpNetwork> UpdateAsync(int tenantIpNetworkId, TenantIpNetworkRequest update)
+        {
+            await _updateDirector.UpdateAsync(tenantIpNetworkId, update);
+            await this.UnitOfWork.SaveAsync();
+
+            return await GetByIDAsync(tenantIpNetworkId, deep: true);
         }
     }
 }

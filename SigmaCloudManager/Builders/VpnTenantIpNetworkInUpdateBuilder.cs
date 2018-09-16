@@ -39,21 +39,16 @@ namespace Mind.Builders
 
         public async Task<VpnTenantIpNetworkIn> UpdateAsync()
         {
-            if (_args.ContainsKey(nameof(ForVpnTenantIpNetworkIn)))
-            {
-                await SetVpnTenantIpNetworkIn();
-            }
+            if (_args.ContainsKey(nameof(ForVpnTenantIpNetworkIn))) await SetVpnTenantIpNetworkIn();
             if (_args.ContainsKey(nameof(WithLocalIpRoutingPreference)))
-            {
                 _vpnTenantIpNetworkIn.LocalIpRoutingPreference = (int)_args[nameof(WithLocalIpRoutingPreference)];
-            }
+
             if (_args.ContainsKey(nameof(AddToAllBgpPeersInAttachmentSet)))
-            {
                 _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = (bool)_args[nameof(AddToAllBgpPeersInAttachmentSet)];
-            }
+            
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await base.SetIpv4BgpPeerAsync();
 
-            base.Validate();
+            _vpnTenantIpNetworkIn.Validate();
 
             return _vpnTenantIpNetworkIn;
         }
@@ -64,9 +59,7 @@ namespace Mind.Builders
             var vpnTenantIpNetworkIn = (from result in await _unitOfWork.VpnTenantIpNetworkInRepository.GetAsync(
                                       q =>
                                         q.VpnTenantIpNetworkInID == vpnTenantIpNetworkInId,
-                                        includeProperties: "AttachmentSet," +
-                                        "TenantIpNetwork," +
-                                        "BgpPeer",
+                                        query: x => x.IncludeValidationProperties(),
                                         AsTrackable: true)
                                         select result)
                                         .SingleOrDefault();

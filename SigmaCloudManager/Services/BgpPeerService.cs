@@ -20,11 +20,14 @@ namespace SCM.Services
                   + "VpnTenantIpNetworksOut.TenantIpNetwork";
         private readonly IBgpPeerValidator _validator;
         private readonly IBgpPeerDirector _director;
+        private readonly IBgpPeerUpdateDirector _updateDirector;
 
-        public BgpPeerService(IUnitOfWork unitOfWork, IBgpPeerDirector director, IBgpPeerValidator validator) : base(unitOfWork, validator)
+        public BgpPeerService(IUnitOfWork unitOfWork, IBgpPeerDirector director, 
+            IBgpPeerUpdateDirector updateDirector, IBgpPeerValidator validator) : base(unitOfWork, validator)
         {
             _validator = validator;
             _director = director;
+            _updateDirector = updateDirector;
         }
 
         public async Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool? deep = false, bool asTrackable = false)
@@ -64,11 +67,23 @@ namespace SCM.Services
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
         }
 
+        /// <summary>
+        /// TO-BE-REMOVED
+        /// </summary>
+        /// <param name="bgpPeer"></param>
+        /// <returns></returns>
         public async Task<BgpPeer> UpdateAsync(BgpPeer bgpPeer)
         {
             this.UnitOfWork.BgpPeerRepository.Update(bgpPeer);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
+        }
+
+        public async Task<BgpPeer> UpdateAsync(int bgpPeerId, BgpPeerRequest update)
+        {
+            await _updateDirector.UpdateAsync(bgpPeerId, update);
+            await this.UnitOfWork.SaveAsync();
+            return await GetByIDAsync(bgpPeerId, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int bgpPeerId)

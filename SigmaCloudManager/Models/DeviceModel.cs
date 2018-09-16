@@ -9,7 +9,7 @@ namespace SCM.Models
 
     public class DeviceModel
     {
-        public int DeviceModelID { get; set; }
+        public int DeviceModelID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

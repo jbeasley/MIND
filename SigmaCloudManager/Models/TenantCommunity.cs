@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class TenantCommunity
     {
-        public int TenantCommunityID { get; set; }
+        public int TenantCommunityID { get; private set; }
         [Required]
         public int AutonomousSystemNumber { get; set; }
         [Required]

@@ -8,7 +8,7 @@ namespace SCM.Models
 {
     public class AddressFamily
     {
-        public int AddressFamilyID { get; set; }
+        public int AddressFamilyID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; } 

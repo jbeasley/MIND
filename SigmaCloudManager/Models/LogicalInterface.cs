@@ -15,7 +15,7 @@ namespace SCM.Models
     public class LogicalInterface {
 
         [Key]
-        public int LogicalInterfaceID { get; set; }
+        public int LogicalInterfaceID { get; private set; }
         [NotMapped]
         public string Name
         {

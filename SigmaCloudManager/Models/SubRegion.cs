@@ -7,7 +7,7 @@ namespace SCM.Models
 {
     public class SubRegion
     {
-        public int SubRegionID { get; set; }
+        public int SubRegionID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

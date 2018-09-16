@@ -57,7 +57,7 @@ namespace Mind.Api.Controllers
 
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <param name="body">request object that generates a new routing instance entry for an attachment set</param>
-        /// <response code="204">Successful operation</response>
+        /// <response code="201">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
@@ -66,7 +66,7 @@ namespace Mind.Api.Controllers
         [ValidateModelState]
         [ValidateAttachmentSetExists]
         [SwaggerOperation("AddAttachmentSetRoutingInstance")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 201, type: typeof(AttachmentSetRoutingInstance), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
@@ -97,7 +97,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (BuilderIllegalStateException ex)
+            catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
             }
@@ -108,6 +108,10 @@ namespace Mind.Api.Controllers
             }
         }
 
+        /// <summary>
+        /// Update an existing routing instance association with an attachment set
+        /// </summary>
+
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <param name="routingInstanceId">ID of the routing instance to update</param>
         /// <param name="body">Attachmment set routing instance request object that applies updates to an existing attachment set routing instance</param>
@@ -116,12 +120,12 @@ namespace Mind.Api.Controllers
         /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
-        [HttpPut]
+        [HttpPatch]
         [Route("/v{version:apiVersion}/attachment-sets/{attachmentSetId}/routing-instances/{routingInstanceId}")]
         [ValidateModelState]
         [ValidateAttachmentSetRoutingInstanceExists]
         [SwaggerOperation("UpdateAttachmentSetRoutingInstance")]
-        [SwaggerResponse(statusCode: 200, type: typeof(TenantIpNetwork), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
@@ -139,9 +143,8 @@ namespace Mind.Api.Controllers
                 item.RoutingInstanceID = routingInstanceId.Value;
                 var attachmentSetRoutingInstance = await _attachmentSetRoutingInstanceService.UpdateAsync(item);
                 attachmentSetRoutingInstance.SetModifiedHttpHeaders(Response);
-                var attachmentSetRoutingInstanceApiModel = Mapper.Map<Mind.Api.Models.AttachmentSetRoutingInstance>(attachmentSetRoutingInstance);
 
-                return Ok(attachmentSetRoutingInstanceApiModel);
+                return StatusCode(StatusCodes.Status204NoContent);
             }
 
             catch (ServiceValidationException)

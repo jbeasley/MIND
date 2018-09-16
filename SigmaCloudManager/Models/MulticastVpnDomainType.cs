@@ -13,7 +13,7 @@ namespace SCM.Models
 
     public class MulticastVpnDomainType
     {
-        public int MulticastVpnDomainTypeID { get; set; }
+        public int MulticastVpnDomainTypeID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

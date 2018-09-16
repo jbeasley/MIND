@@ -1,4 +1,5 @@
-﻿using SCM.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using SCM.Data;
 using SCM.Models;
 using System;
 using System.Collections.Generic;
@@ -58,22 +59,15 @@ namespace Mind.Builders
 
         public async Task<VpnTenantIpNetworkIn> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForAttachmentSet)))
-            {
-                _vpnTenantIpNetworkIn.AttachmentSetID = (int)_args[nameof(ForAttachmentSet)];
-            }
-
+            if (_args.ContainsKey(nameof(ForAttachmentSet))) _vpnTenantIpNetworkIn.AttachmentSetID = (int)_args[nameof(ForAttachmentSet)];
             if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName))) await SetTenantIpNetworkAsync();
-
             if (_args.ContainsKey(nameof(WithLocalIpRoutingPreference)))
-            {
                 _vpnTenantIpNetworkIn.LocalIpRoutingPreference = (int)_args[nameof(WithLocalIpRoutingPreference)];
-            }
-
+            
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await SetIpv4BgpPeerAsync();
-
             if (_args.ContainsKey(nameof(AddToAllBgpPeersInAttachmentSet))) SetAddToAllBgpPeersInAttachmentSet();
 
+            _vpnTenantIpNetworkIn.Validate();
             return _vpnTenantIpNetworkIn;
         }
 
@@ -110,7 +104,8 @@ namespace Mind.Builders
             var bgpPeer = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                        q =>
                           q.AttachmentSetID == _vpnTenantIpNetworkIn.AttachmentSetID,
-                          includeProperties: "AttachmentSetRoutingInstances.RoutingInstance.BgpPeers",
+                          query: q => q.Include(x => x.AttachmentSetRoutingInstances)
+                                       .ThenInclude(x => x.RoutingInstance.BgpPeers),
                           AsTrackable: true)
                            from attachmentSetRoutingInstance in result.AttachmentSetRoutingInstances
                            from bgpPeers in attachmentSetRoutingInstance.RoutingInstance.BgpPeers
@@ -135,39 +130,6 @@ namespace Mind.Builders
             else
             {
                 _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = true;
-            }
-        }
-
-        /// <summary>
-        /// Validate the state of the vpn tenant IP network.
-        /// </summary>
-        protected virtual internal void Validate()
-        {
-            if (_vpnTenantIpNetworkIn.AttachmentSet == null) throw new BuilderIllegalStateException("An attachment set association with the " +
-                "tenant IP network is required but was not found.");
-        
-            if (_vpnTenantIpNetworkIn.TenantIpNetwork == null)
-                throw new BuilderIllegalStateException("Unable to create a new tenant IP network association with the " +
-                $"attachment set using the given arguments. The tenant IP network CIDR block '{_args[nameof(WithTenantIpNetworkCidrName)].ToString()}' " +
-                $"does not exist for the given tenant with ID of '{(int)_args[nameof(WithTenant)]}'.");
-
-            if (_vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet)
-            {
-                if (_vpnTenantIpNetworkIn.BgpPeer != null)
-                {
-                    throw new BuilderIllegalStateException($"A BGP peer association with the tenant IP network '{_vpnTenantIpNetworkIn.TenantIpNetwork.CidrName}' " +
-                        "was found but is not required because the request is to add the tenant IP network to all bgp peers in attachment set " +
-                        $"'{_vpnTenantIpNetworkIn.AttachmentSet.Name}'.");
-                }
-            }
-            else
-            {
-                if (_vpnTenantIpNetworkIn.BgpPeer == null)
-                {
-                    throw new BuilderIllegalStateException($"A BGP peer association with the tenant IP network '{_vpnTenantIpNetworkIn.TenantIpNetwork.CidrName}' " +
-                        "is required because the request is to add the tenant IP network to a specific bgp peer in attachment set " +
-                        $"'{_vpnTenantIpNetworkIn.AttachmentSet.Name}'.");
-                }
             }
         }
     }

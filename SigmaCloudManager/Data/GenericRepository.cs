@@ -4,10 +4,12 @@ using System.Linq;
 using System.Data;
 using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using System.Threading.Tasks;
 
 namespace SCM.Data
 {
+
     /// <summary>
     /// Provides CRUD access to the repository.
     /// </summary>
@@ -27,33 +29,39 @@ namespace SCM.Data
             Expression<Func<TEntity, bool>> filter = null,
             Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>> orderBy = null,
             string includeProperties = "",
+            Func<IQueryable<TEntity>, IQueryable<TEntity>> query = null,
             bool AsTrackable = true)
         {
-            IQueryable<TEntity> query = dbSet;
+            IQueryable<TEntity> q = dbSet;
 
             if (filter != null)
             {
-                query = query.Where(filter);
+                q = q.Where(filter);
             }
 
             foreach (var includeProperty in includeProperties.Split
                 (new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries))
             {
-                query = query.Include(includeProperty);
+                q = q.Include(includeProperty);
+            }
+
+            if (query != null)
+            {
+                q = query.Invoke(q);
             }
 
             if (! AsTrackable)
             {
-                query = query.AsNoTracking();
+                q = q.AsNoTracking();
             }
 
             if (orderBy != null)
             {
-                return await orderBy(query).ToListAsync();
+                return await orderBy(q).ToListAsync();
             }
             else
             {
-                return await query.ToListAsync();
+                return await q.ToListAsync();
             }
         }
 

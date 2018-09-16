@@ -12,7 +12,7 @@ namespace SCM.Models
 
     public class RouteDistinguisherRange
     {
-        public int RouteDistinguisherRangeID { get; set; }
+        public int RouteDistinguisherRangeID { get; private set; }
         [Required]
         public RouteDistinguisherRangeTypeEnum Type { get; set; }
         public int AdministratorSubField { get; set; }
@@ -20,6 +20,6 @@ namespace SCM.Models
         public int AssignedNumberSubFieldCount { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
-        public ICollection<RoutingInstance> RoutingInstances { get; set; }
+        public virtual ICollection<RoutingInstance> RoutingInstances { get; set; }
     }
 }

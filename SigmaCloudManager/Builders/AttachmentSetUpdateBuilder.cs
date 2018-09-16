@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SCM.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mind.Builders
 {
@@ -48,7 +49,7 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithSubRegion))) await base.SetSubRegionAsync();
             if (_args.ContainsKey(nameof(WithAttachmentRedundancy))) await base.SetAttachmentRedundancyAsync();
 
-            base.Validate();
+            _attachmentSet.Validate();
             return _attachmentSet;
         }
 
@@ -58,20 +59,8 @@ namespace Mind.Builders
             var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                         x =>
                             x.AttachmentSetID == attachmentSetId,
-                            includeProperties: "MulticastVpnDomainType," +
-                            "AttachmentRedundancy," +
-                            "Region," +
-                            "SubRegion," +
-                            "AttachmentSetRoutingInstances," +
-                            "VpnAttachmentSets," +
-                            "VpnTenantCommunitiesIn," +
-                            "VpnTenantCommunitiesOut," +
-                            "VpnTenantIpNetworksIn," +
-                            "VpnTenantIpNetworksOut," +
-                            "VpnTenantCommunitiesRoutingInstance," +
-                            "VpnTenantIpNetworkStaticRoutesRoutingInstance," +
-                            "VpnTenantMulticastGroups",
-                            AsTrackable: true)
+                            AsTrackable: true,
+                            query: q => q.IncludeValidationProperties())
                             select result)
                             .SingleOrDefault();
 

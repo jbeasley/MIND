@@ -9,7 +9,7 @@ namespace SCM.Models
 {
     public class VpnTenantIpNetworkCommunityIn
     {
-        public int VpnTenantIpNetworkCommunityInID { get; set; }
+        public int VpnTenantIpNetworkCommunityInID { get; private set; }
         public int VpnTenantIpNetworkInID { get; set; }
         public int TenantCommunityID { get; set; }
         [Timestamp]

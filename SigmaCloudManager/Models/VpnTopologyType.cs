@@ -14,7 +14,7 @@ namespace SCM.Models
 
     public class VpnTopologyType
     {
-        public int VpnTopologyTypeID { get; set; }
+        public int VpnTopologyTypeID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

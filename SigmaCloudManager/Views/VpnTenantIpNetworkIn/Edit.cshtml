@@ -92,7 +92,7 @@
                 $localIpRoutingPreference = $('#LocalIpRoutingPreference'),
                 localIpRoutingPreference = $localIpRoutingPreference[0];
 
-            if (vrf.value == null || vrf.value == "") {
+            if (vrf.value === null || vrf.value === "") {
 
                 bgpPeer.disabled = true;
             }
@@ -127,7 +127,7 @@
 
             function PopulateBgpPeersDropDownList(vrfID) {
 
-                if (vrfID != null && vrfID.length > 0) {
+                if (vrfID !== null && vrfID.length > 0) {
 
                     PopulateHtmlFromUrl($bgpPeer, "/VpnTenantIpNetworkIn/BgpPeers", { vrfID: vrfID });
                 }

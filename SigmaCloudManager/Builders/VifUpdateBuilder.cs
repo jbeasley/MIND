@@ -90,32 +90,10 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithJumboMtu))) await base.SetMtuAsync();
             if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
 
-            Validate();
+            _vif.Validate();
 
             return base._vif;
 
-        }
-
-        /// <summary>
-        /// Validate the state of the vif.
-        /// </summary>
-        protected internal override void Validate()
-        {
-            base.Validate();
-            var aggContractBandwidthMbps = _vif.Attachment.Vifs
-                                                          .Where(vif => vif.VifID != _vif.VifID)
-                                                          .Select(
-                                                            vif => 
-                                                                vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
-                                                                .Aggregate(0, (x, y) => x + y);
-
-            var attachmentBandwidthMbps = _vif.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
-            if (attachmentBandwidthMbps < aggContractBandwidthMbps)
-            {
-                throw new BuilderIllegalStateException($"The contract bandwidth requested for the vif of " +
-                    $"{_vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps} Mbps is greater " +
-                    $"than the remaining available bandwidth of the attachment ({attachmentBandwidthMbps - aggContractBandwidthMbps} Mbps).");
-            }
         }
 
         private async Task UpdateContractBandwidthPoolAsync()
@@ -148,14 +126,7 @@ namespace Mind.Builders
             var vif = (from result in await _unitOfWork.VifRepository.GetAsync(
                 q =>
                     q.VifID == vifId,
-                    includeProperties: "Attachment.Vifs.ContractBandwidthPool.ContractBandwidth," +
-                    "Attachment.AttachmentBandwidth," +
-                    "Attachment.Device," +
-                    "Vlans," +
-                    "VifRole.AttachmentRole.PortPool.PortRole," +
-                    "Tenant," +
-                    "ContractBandwidthPool," +
-                    "Mtu",
+                    query: x => x.IncludeValidationProperties(),
                     AsTrackable: true)
                     select result)
                     .SingleOrDefault();

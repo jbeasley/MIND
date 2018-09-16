@@ -7,7 +7,7 @@ namespace SCM.Models
 {
     public class PortPool
     {
-        public int PortPoolID { get; set; }
+        public int PortPoolID { get; private set; }
         [Required]
         [MaxLength(50)]
         public string Name { get; set; }

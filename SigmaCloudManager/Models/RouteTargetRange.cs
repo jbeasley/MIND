@@ -12,7 +12,7 @@ namespace SCM.Models
 
     public class RouteTargetRange
     {
-        public int RouteTargetRangeID { get; set; }
+        public int RouteTargetRangeID { get; private set; }
         [Required]
         public string Name { get; set; }
         [Required]
@@ -22,6 +22,6 @@ namespace SCM.Models
         public int AssignedNumberSubFieldCount { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
-        public ICollection<RouteTarget> RouteTargets  { get; set; }
+        public virtual ICollection<RouteTarget> RouteTargets  { get; set; }
     }
 }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using SCM.Data;
 using SCM.Models;
 
@@ -75,7 +76,7 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithPeer2ByteAutonomousSystem))) _bgpPeer.Peer2ByteAutonomousSystem = (int)_args[nameof(WithPeer2ByteAutonomousSystem)];
             if (_args.ContainsKey(nameof(WithPeerPassword))) _bgpPeer.PeerPassword = _args[nameof(WithPeerPassword)].ToString();
 
-            Validate();
+            _bgpPeer.Validate();
             return _bgpPeer;
         }
 
@@ -86,56 +87,18 @@ namespace Mind.Builders
                               x =>
                                 x.RoutingInstanceID == routingInstanceId,
                                 AsTrackable: true,
-                                includeProperties: "Vifs.Vlans.Vif.Attachment.Interfaces.Ports, " +
-                                "Attachments.Interfaces.Attachment.Interfaces.Ports")
+                                query: q => q.Include(x => x.Vifs)
+                                             .ThenInclude(x => x.Vlans)
+                                             .ThenInclude(x => x.Vif.Attachment.Interfaces)
+                                             .ThenInclude(x => x.Ports)
+                                             .Include(x => x.Attachments)
+                                             .ThenInclude(x => x.Interfaces)
+                                             .ThenInclude(x => x.Attachment.Interfaces)
+                                             .ThenInclude(x => x.Ports))
                                 select result)
                                 .SingleOrDefault();
 
             _bgpPeer.RoutingInstance = routingInstance;
-        }
-
-        protected internal virtual void Validate()
-        {
-            if (_bgpPeer.RoutingInstance == null) throw new BuilderIllegalStateException("A routing instance for the BGP peer is required.");
-            if (_bgpPeer.Peer2ByteAutonomousSystem < 1 || _bgpPeer.Peer2ByteAutonomousSystem > 65535)
-                throw new BuilderIllegalStateException("The 2 byte autonomous system number requested is not valid. The number must be between " +
-                    "1 and 65535.");
-
-            if (!IPAddress.TryParse(_bgpPeer.Ipv4PeerAddress, out IPAddress peerIpv4Address))
-                throw new BuilderIllegalStateException("The peer address is not a valid IPv4 address");
-            
-            // For non-multihop peers, the peer IP address must be reachable from at least one vif or attachment which
-            // belongs to the routing instance
-            if (!_bgpPeer.IsMultiHop)
-            {
-                _bgpPeer.RoutingInstance.Vifs.SelectMany(
-                    x => 
-                     x.Vlans)
-                    .ToList()
-                    .ForEach(
-                        x =>
-                        {
-                            var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
-                            if (!network.Contains(peerIpv4Address))
-                            {
-                                throw new BuilderIllegalStateException($"IP address '{_bgpPeer.Ipv4PeerAddress}' is not contained by the network " +
-                                $"assigned to vif '{x.Vif.Name}' ({network.Network.ToString()}/{network.Cidr.ToString()}).");
-                            }
-                        });
-
-
-                _bgpPeer.RoutingInstance.Attachments.SelectMany(x => x.Interfaces)
-                    .ToList()
-                    .ForEach(x =>
-                    {
-                        var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
-                        if (!network.Contains(peerIpv4Address))
-                        {
-                            throw new BuilderIllegalStateException($"IP address '{_bgpPeer.Ipv4PeerAddress}' is not contained by the network " +
-                                $"assigned to attachment '{x.Attachment.Name}' ({network.Network.ToString()}/{network.Cidr.ToString()}).");
-                        }
-                    });
-            }
         }
     }
 }

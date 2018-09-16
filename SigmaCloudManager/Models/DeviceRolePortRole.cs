@@ -7,7 +7,7 @@ namespace SCM.Models
 {
     public class DeviceRolePortRole
     {
-        public int DeviceRolePortRoleID { get; set; }
+        public int DeviceRolePortRoleID { get; private set; }
         public int DeviceRoleID { get; set; }
         public int PortRoleID { get; set; }
         [Required]

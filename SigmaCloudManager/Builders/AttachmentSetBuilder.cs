@@ -30,7 +30,7 @@ namespace Mind.Builders
                 VpnTenantIpNetworksIn = new List<VpnTenantIpNetworkIn>(),
                 VpnTenantIpNetworksOut = new List<VpnTenantIpNetworkOut>(),
                 VpnTenantCommunitiesRoutingInstance = new List<VpnTenantCommunityRoutingInstance>(),
-                VpnTenantIpNetworkStaticRoutesRoutingInstance = new List<VpnTenantIpNetworkStaticRouteRoutingInstance>(),
+                VpnTenantIpNetworkRoutingInstanceStaticRoutes = new List<VpnTenantIpNetworkRoutingInstanceStaticRoute>(),
                 VpnTenantMulticastGroups = new List<VpnTenantMulticastGroup>()
             };
         }

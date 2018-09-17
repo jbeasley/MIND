@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
 
@@ -15,7 +16,33 @@ namespace SCM.Models
         {
             return query.Include(x => x.VpnTenantIpNetworksIn)
                         .Include(x => x.VpnTenantIpNetworksOut)
-                        .Include(x => x.VpnTenantIpNetworksRoutingInstance);
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstancePoliciesIn)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes);
+        }
+
+        public static IQueryable<TenantIpNetwork> IncludeDeleteValidationProperties(this IQueryable<TenantIpNetwork> query)
+        {
+            return query.Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstancePoliciesIn)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.AttachmentSet);
+        }
+
+        public static IQueryable<TenantIpNetwork> IncludeDeepProperties(this IQueryable<TenantIpNetwork> query)
+        {
+            return query.Include(x => x.Tenant)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstancePoliciesIn)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.AttachmentSet);
         }
     }
 
@@ -61,7 +88,8 @@ namespace SCM.Models
         public virtual Tenant Tenant { get; set; }
         public virtual ICollection<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
         public virtual ICollection<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
-        public virtual ICollection<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworksRoutingInstance { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworkRoutingInstancePoliciesIn { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkRoutingInstanceStaticRoute> VpnTenantIpNetworkRoutingInstanceStaticRoutes { get; set; }
         [NotMapped]
         public string CidrName { get
             {
@@ -103,6 +131,46 @@ namespace SCM.Models
                         $"'{this.CidrName}' because the network is bound to at least one extranet vpn.");
                 }
             }
+        }
+
+        /// <summary>
+        /// Validate deletion of the tenant IP network
+        /// </summary>
+        public virtual void ValidateDelete()
+        {
+            var sb = new StringBuilder();
+
+            (from result in this.VpnTenantIpNetworksIn
+             select result)
+            .ToList()
+            .ForEach(
+                x =>
+                sb.Append($"Tenant IP network '{x.TenantIpNetwork.CidrName}' " +
+                $"cannot be deleted because it is used in the inbound policy of attachment set '{x.AttachmentSet.Name}'.\n"));
+
+            (from result in this.VpnTenantIpNetworksOut
+             select result)
+            .ToList()
+            .ForEach(
+                x =>
+                sb.Append($"Tenant IP network '{x.TenantIpNetwork.CidrName}' " +
+                $"cannot be deleted because it is used in the outbound policy of attachment set '{x.AttachmentSet.Name}'.\n"));
+
+            (from result in this.VpnTenantIpNetworkRoutingInstancePoliciesIn
+             select result)
+            .ToList()
+            .ForEach(
+                x =>
+                sb.Append($"Tenant IP network '{x.TenantIpNetwork.CidrName}' " +
+                $"cannot be deleted because it is used in the routing instance policy of attachment set '{x.AttachmentSet.Name}'."));
+
+            (from result in this.VpnTenantIpNetworkRoutingInstanceStaticRoutes
+             select result)
+            .ToList()
+            .ForEach(
+                x =>
+                sb.Append($"Tenant IP network '{x.TenantIpNetwork.CidrName}' " +
+                $"cannot be deleted because it is used in the static routing policy of attachment set '{x.AttachmentSet.Name}'."));
         }
     }
 }

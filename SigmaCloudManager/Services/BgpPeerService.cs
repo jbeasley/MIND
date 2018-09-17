@@ -4,8 +4,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Data;
-using SCM.Validators;
-using Mind.Services;
 using Mind.Builders;
 using Mind.Models.RequestModels;
 
@@ -13,27 +11,20 @@ namespace SCM.Services
 {
     public class BgpPeerService : BaseService, IBgpPeerService
     {
-        private readonly string _properties = "RoutingInstance,"
-                  + "VpnTenantCommunitiesIn.TenantCommunity,"
-                  + "VpnTenantIpNetworksIn.TenantIpNetwork,"
-                  + "VpnTenantCommunitiesOut.TenantCommunity,"
-                  + "VpnTenantIpNetworksOut.TenantIpNetwork";
-        private readonly IBgpPeerValidator _validator;
         private readonly IBgpPeerDirector _director;
         private readonly IBgpPeerUpdateDirector _updateDirector;
 
         public BgpPeerService(IUnitOfWork unitOfWork, IBgpPeerDirector director, 
-            IBgpPeerUpdateDirector updateDirector, IBgpPeerValidator validator) : base(unitOfWork, validator)
+            IBgpPeerUpdateDirector updateDirector) : base(unitOfWork)
         {
-            _validator = validator;
             _director = director;
             _updateDirector = updateDirector;
         }
 
         public async Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return  await this.UnitOfWork.BgpPeerRepository.GetAsync(q => q.RoutingInstanceID == id, 
-                includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+            return await this.UnitOfWork.BgpPeerRepository.GetAsync(q => q.RoutingInstanceID == id,
+                query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                 AsTrackable: asTrackable);
 
         }
@@ -41,7 +32,7 @@ namespace SCM.Services
         public async Task<BgpPeer> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
             return (from result in await this.UnitOfWork.BgpPeerRepository.GetAsync(q => q.BgpPeerID == id,
-                includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                 AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();
@@ -88,8 +79,15 @@ namespace SCM.Services
 
         public async Task DeleteAsync(int bgpPeerId)
         {
-            await _validator.ValidateDeleteAsync(bgpPeerId);
-            if (!_validator.IsValid) throw new ServiceValidationException();
+            var bgpPeer = (from result in await UnitOfWork.BgpPeerRepository.GetAsync(
+                        q => q.BgpPeerID == bgpPeerId,
+                           query: q => q.IncludeDeleteValidationProperties(),
+                           AsTrackable: true)
+                           select result)
+                           .Single();
+
+            bgpPeer.ValidateDelete();
+
             await this.UnitOfWork.BgpPeerRepository.DeleteAsync(bgpPeerId);
             await this.UnitOfWork.SaveAsync();
         }

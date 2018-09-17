@@ -6,10 +6,10 @@ using System.Net;
 
 namespace SCM.Models.ViewModels
 {
-    public class VpnTenantIpNetworkStaticRouteRoutingInstanceViewModel : IValidatableObject
+    public class VpnTenantIpNetworkRoutingInstanceStaticRouteViewModel : IValidatableObject
     {
         [Display(AutoGenerateField = false)]
-        public int VpnTenantIpNetworkStaticRouteRoutingInstanceID { get; set; }
+        public int VpnTenantIpNetworkRoutingInstanceStaticRouteID { get; set; }
         [Required(ErrorMessage = "A Tenant IP Network must be selected.")]
         public int TenantIpNetworkID { get; set; }
         [Required(ErrorMessage = "An Attachment Set must be selected.")]

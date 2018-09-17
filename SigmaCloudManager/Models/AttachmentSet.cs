@@ -26,7 +26,7 @@ namespace SCM.Models
                         .Include(x => x.VpnTenantIpNetworksIn)
                         .Include(x => x.VpnTenantIpNetworksOut)
                         .Include(x => x.VpnTenantCommunitiesRoutingInstance)
-                        .Include(x => x.VpnTenantIpNetworkStaticRoutesRoutingInstance);
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes);
         }
     }
 
@@ -52,7 +52,7 @@ namespace SCM.Models
         public virtual ICollection<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; set; }
         public virtual ICollection<VpnAttachmentSet> VpnAttachmentSets { get; set; }
         public virtual ICollection<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
-        public virtual ICollection<VpnTenantIpNetworkStaticRouteRoutingInstance> VpnTenantIpNetworkStaticRoutesRoutingInstance { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkRoutingInstanceStaticRoute> VpnTenantIpNetworkRoutingInstanceStaticRoutes { get; set; }
         public virtual ICollection<VpnTenantCommunityIn> VpnTenantCommunitiesIn { get; set; }
         public virtual ICollection<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
         public virtual ICollection<VpnTenantCommunityOut> VpnTenantCommunitiesOut { get; set; }

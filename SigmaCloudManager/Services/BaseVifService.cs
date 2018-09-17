@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using SCM.Data;
 using SCM.Models;
 using SCM.Services;
@@ -15,40 +16,11 @@ namespace Mind.Services
     /// </summary>
     public abstract class BaseVifService : BaseService
     {
-        protected internal readonly string _properties = "VifRole,"
-                + "Attachment.Tenant,"
-                + "VifRole.RoutingInstanceType,"
-                + "Attachment.AttachmentRole,"
-                + "Attachment.Device.Location.SubRegion.Region,"
-                + "Attachment.Device.Plane,"
-                + "Attachment.Device.DeviceRole,"
-                + "Attachment.RoutingInstance.BgpPeers,"
-                + "Attachment.RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet,"
-                + "Attachment.AttachmentBandwidth,"
-                + "Attachment.ContractBandwidthPool.ContractBandwidth,"
-                + "Attachment.Interfaces.Device,"
-                + "Attachment.Interfaces.Ports.Device,"
-                + "Attachment.Interfaces.Ports.PortBandwidth,"
-                + "Attachment.Interfaces.Ports.Interface.Vlans.Vif,"
-                + "Attachment.Vifs.Tenant,"
-                + "Attachment.Vifs.RoutingInstance.BgpPeers,"
-                + "Attachment.Vifs.Vlans.Vif.ContractBandwidthPool,"
-                + "Attachment.Vifs.ContractBandwidthPool.Tenant,"
-                + "Attachment.Vifs.ContractBandwidthPool.ContractBandwidth,"
-                + "RoutingInstance.RoutingInstanceType,"
-                + "RoutingInstance.BgpPeers,"
-                + "RoutingInstance.Device,"
-                + "RoutingInstance.Tenant,"
-                + "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet.Tenant,"
-                + "Vlans,"
-                + "ContractBandwidthPool.ContractBandwidth,"
-                + "ContractBandwidthPool.Tenant,"
-                + "Tenant,"
-                + "Mtu";
+        public BaseVifService(IUnitOfWork unitOfWork, IMapper mapper, IValidator validator) : base(unitOfWork, mapper, validator)
+        {
+        }
 
-        public BaseVifService(IUnitOfWork unitOfWork,
-            IMapper mapper,
-            IValidator validator) : base(unitOfWork, mapper, validator)
+        public BaseVifService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
         }
 
@@ -64,7 +36,7 @@ namespace Mind.Services
             return (from result in await UnitOfWork.VifRepository.GetAsync(
                 q => 
                     q.VifID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : "VifRole",
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.Include(x => x.VifRole),
                     AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();
@@ -82,7 +54,7 @@ namespace Mind.Services
             return (from result in await UnitOfWork.VifRepository.GetAsync(
                  q =>
                     q.AttachmentID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : "VifRole",
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.Include(x => x.VifRole),
                     AsTrackable: asTrackable)
                     select result)
                     .ToList();

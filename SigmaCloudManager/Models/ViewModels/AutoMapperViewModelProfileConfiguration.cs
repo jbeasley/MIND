@@ -78,7 +78,7 @@ namespace SCM.Models.ViewModels
             CreateMap<TenantCommunitySetCommunity, TenantCommunitySetCommunityViewModel>().ReverseMap();
             CreateMap<TenantMulticastGroup, TenantMulticastGroupViewModel>().ReverseMap();
             CreateMap<VpnTenantIpNetworkIn, VpnTenantIpNetworkInViewModel>().ReverseMap();
-            CreateMap<VpnTenantIpNetworkStaticRouteRoutingInstance, VpnTenantIpNetworkStaticRouteRoutingInstanceViewModel>().ReverseMap();
+            CreateMap<VpnTenantIpNetworkRoutingInstanceStaticRoute, VpnTenantIpNetworkRoutingInstanceStaticRouteViewModel>().ReverseMap();
             CreateMap<VpnTenantIpNetworkOut, VpnTenantIpNetworkOutViewModel>().ReverseMap();
             CreateMap<VpnTenantIpNetworkRoutingInstance, VpnTenantIpNetworkRoutingInstanceViewModel>().ReverseMap();
             CreateMap<VpnTenantCommunityIn, VpnTenantCommunityInViewModel>().ReverseMap();

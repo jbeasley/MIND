@@ -30,6 +30,5 @@ namespace SCM.Models
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual SubRegion SubRegion { get; set; }
-        public virtual Location AlternateLocation { get; set; }
     }
 }

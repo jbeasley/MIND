@@ -68,7 +68,7 @@ namespace SCM.Data
         public DbSet<RoutingPolicyMatchOption> RoutingPolicyMatchOptions { get; set; }
         public DbSet<TenantCommunitySetCommunity> TenantCommunitySetCommunities { get; set; }
         public DbSet<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
-        public DbSet<VpnTenantIpNetworkStaticRouteRoutingInstance> VpnTenantIpNetworkStaticRoutesRoutingInstance { get; set; }
+        public DbSet<VpnTenantIpNetworkRoutingInstanceStaticRoute> VpnTenantIpNetworkRoutingInstanceStaticRoutes { get; set; }
         public DbSet<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
         public DbSet<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworksRoutingInstance { get; set; }
         public DbSet<VpnTenantCommunityIn> VpnTenantCommunitiesIn { get; set; }
@@ -129,7 +129,7 @@ namespace SCM.Data
             builder.Entity<ExtranetVpnTenantCommunityIn>().ToTable("ExtranetVpnTenantCommunityIn");
             builder.Entity<ExtranetVpnMember>().ToTable("ExtranetVpnMember");
             builder.Entity<VpnTenantIpNetworkIn>().ToTable("VpnTenantIpNetworkIn");
-            builder.Entity<VpnTenantIpNetworkStaticRouteRoutingInstance>().ToTable("VpnTenantIpNetworkStaticRouteRoutingInstance");
+            builder.Entity<VpnTenantIpNetworkRoutingInstanceStaticRoute>().ToTable("VpnTenantIpNetworkRoutingInstanceStaticRoute");
             builder.Entity<VpnTenantIpNetworkOut>().ToTable("VpnTenantIpNetworkOut");
             builder.Entity<VpnTenantIpNetworkRoutingInstance>().ToTable("VpnTenantIpNetworkRoutingInstance");
             builder.Entity<VpnTenantCommunityIn>().ToTable("VpnTenantCommunityIn");
@@ -187,11 +187,6 @@ namespace SCM.Data
 
             builder.Entity<Device>()
                    .HasOne(c => c.Location)
-                   .WithMany()
-                   .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<Location>()
-                   .HasOne(c => c.AlternateLocation)
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
 
@@ -255,7 +250,7 @@ namespace SCM.Data
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
 
-            builder.Entity<VpnTenantIpNetworkStaticRouteRoutingInstance>()
+            builder.Entity<VpnTenantIpNetworkRoutingInstanceStaticRoute>()
                    .HasOne(c => c.TenantIpNetwork)
                    .WithMany()
                    .OnDelete(DeleteBehavior.Restrict);
@@ -422,7 +417,7 @@ namespace SCM.Data
             builder.Entity<VpnTenantIpNetworkIn>()
             .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID, p.AddToAllBgpPeersInAttachmentSet, p.BgpPeerID }).IsUnique().HasFilter(null);
 
-            builder.Entity<VpnTenantIpNetworkStaticRouteRoutingInstance>()
+            builder.Entity<VpnTenantIpNetworkRoutingInstanceStaticRoute>()
             .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();
 
             builder.Entity<VpnTenantIpNetworkOut>()

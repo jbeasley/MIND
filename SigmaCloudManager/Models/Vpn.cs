@@ -34,6 +34,110 @@ namespace SCM.Models
                         .Include(x => x.RouteTargets)
                         .ThenInclude(x => x.RouteTargetRange);
         }
+
+        public static IQueryable<Vpn> IncludeDeepProperties(this IQueryable<Vpn> query)
+        {
+            return query.Include(x => x.Region)
+                        .Include(x => x.Plane)
+                        .Include(x => x.VpnTenancyType)
+                        .Include(x => x.MulticastVpnServiceType)
+                        .Include(x => x.MulticastVpnDirectionType)
+                        .Include(x => x.VpnTopologyType.VpnProtocolType)
+                        .Include(x => x.Tenant)
+                        .Include(x => x.ExtranetVpnMembers)
+                        .ThenInclude(x => x.MemberVpn)
+                        .Include(x => x.ExtranetVpns)
+                        .ThenInclude(x => x.ExtranetVpn)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Device.Location.SubRegion.Region)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Attachments)
+                        .ThenInclude(x => x.Tenant)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Vifs)
+                        .ThenInclude(x => x.Tenant)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.VpnTenantIpNetworkCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantIpNetworksRoutingInstance)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantCommunitiesRoutingInstance)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantCommunitiesRoutingInstance)
+                        .ThenInclude(x => x.TenantCommunitySet.RoutingPolicyMatchOption)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantCommunitiesRoutingInstance)
+                        .ThenInclude(x => x.TenantCommunitySet.TenantCommunitySetCommunities)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.Tenant)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.MulticastVpnRps)
+                        .ThenInclude(x => x.VpnTenantMulticastGroups)
+                        .ThenInclude(x => x.TenantMulticastGroup)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.VpnTenantMulticastGroups)
+                        .ThenInclude(x => x.TenantMulticastGroup)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.MulticastVpnDomainType)
+                        .Include(x => x.RouteTargets)
+                        .ThenInclude(x => x.RouteTargetRange)
+                        .Include(x => x.AddressFamily);
+        }
+
+        public static IQueryable<Vpn> IncludeShallowProperties(this IQueryable<Vpn> query)
+        {
+            return query.Include(x => x.Region)
+                        .Include(x => x.Plane)
+                        .Include(x => x.VpnTenancyType)
+                        .Include(x => x.MulticastVpnServiceType)
+                        .Include(x => x.MulticastVpnDirectionType)
+                        .Include(x => x.VpnTopologyType.VpnProtocolType)
+                        .Include(x => x.Tenant)
+                        .Include(x => x.ExtranetVpnMembers)
+                        .ThenInclude(x => x.MemberVpn)
+                        .Include(x => x.ExtranetVpns)
+                        .ThenInclude(x => x.ExtranetVpn)
+                        .Include(x => x.RouteTargets)
+                        .ThenInclude(x => x.RouteTargetRange)
+                        .Include(x => x.AddressFamily);
+        }
+
+        public static IQueryable<Vpn> IncludeDeleteValidationProperties(this IQueryable<Vpn> query)
+        {
+            return query.Include(x => x.ExtranetVpnMembers);
+        }
     }
 
     public class Vpn : IModifiableResource
@@ -61,6 +165,7 @@ namespace SCM.Models
         public int? MulticastVpnDirectionTypeID { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
+        [ForeignKey("TenantID")]
         public virtual Tenant Tenant { get; set; }
         public virtual Plane Plane { get; set; }
         public virtual Region Region { get; set; }
@@ -255,6 +360,18 @@ namespace SCM.Models
                         "multicast-direct-integration with the tenant domain. If you wish to disable multicast for this then please disable " +
                         "multicast-direct-integration for the attachment set first.");
                 }
+            }
+        }
+
+        /// <summary>
+        /// Validate that a vpn can be deleted
+        /// </summary>
+        public virtual void ValidateDelete()
+        {
+            if (this.IsExtranet && this.ExtranetVpnMembers.Any())
+            {
+                throw new IllegalDeleteAttemptException($"Extranet vpn '{this.Name}' cannot be deleted because member vpns are defined. "
+                    + "Remove the member vpns from the extranet first.");
             }
         }
     }

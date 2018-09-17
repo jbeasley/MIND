@@ -17,7 +17,7 @@ namespace SCM.Models
         public int DeviceRoleID { get; set; }
         public int DeviceModelID { get; set; }
         public int DeviceStatusID { get; set; }
-        public int? LocationID { get; set; }
+        public int LocationID { get; set; }
         public int? PlaneID { get; set; }
         public int? TenantID { get; set; }
         public bool UseLayer2InterfaceMtu { get; set; }

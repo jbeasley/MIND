@@ -15,62 +15,14 @@ namespace Mind.Services
 {
     public class VpnService : BaseService, IVpnService
     {
-        private readonly string _shallowProperties = "Region,"
-                + "Plane,"
-                + "VpnTenancyType,"
-                + "MulticastVpnServiceType,"
-                + "MulticastVpnDirectionType,"
-                + "VpnTopologyType.VpnProtocolType,"
-                + "Tenant,"
-                + "AddressFamily";
-
-        private readonly string _deepProperties = "Region,"
-                + "Plane,"
-                + "VpnTenancyType,"
-                + "MulticastVpnServiceType,"
-                + "MulticastVpnDirectionType,"
-                + "VpnTopologyType.VpnProtocolType,"
-                + "Tenant,"
-                + "ExtranetVpnMembers.MemberVpn,"
-                + "ExtranetVpns.ExtranetVpn,"
-                + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Device.Location.SubRegion.Region,"
-                + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Attachments.Tenant,"
-                + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Attachments.Interfaces.Ports,"
-                + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Vifs.Attachment.Interfaces.Ports,"
-                + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Vifs.Tenant,"
-                + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Tenant,"
-                + "VpnAttachmentSets.AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.BgpPeers,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksIn.TenantIpNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesIn.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksIn.TenantIpNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksIn.VpnTenantIpNetworkCommunitiesIn.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesIn.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksOut.TenantIpNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesOut.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworksRoutingInstance.TenantIpNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunitySet.RoutingPolicyMatchOption,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantCommunitiesRoutingInstance.TenantCommunitySet.TenantCommunitySetCommunities.TenantCommunity,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantIpNetworkStaticRoutesRoutingInstance.TenantIpNetwork,"
-                + "VpnAttachmentSets.AttachmentSet.Tenant,"
-                + "VpnAttachmentSets.AttachmentSet.MulticastVpnRps.VpnTenantMulticastGroups.TenantMulticastGroup,"
-                + "VpnAttachmentSets.AttachmentSet.VpnTenantMulticastGroups.TenantMulticastGroup,"
-                + "VpnAttachmentSets.AttachmentSet.MulticastVpnDomainType,"
-                + "RouteTargets.RouteTargetRange,"
-                + "AddressFamily";
-
         private readonly Func<Mind.Models.RequestModels.VpnRequest, IVpnDirector> _directorFactory;
         private readonly Func<Vpn, IVpnUpdateDirector> _updateDirectorFactory;
-        private readonly IVpnValidator _validator;
 
         public VpnService(IUnitOfWork unitOfWork, IMapper mapper, Func<Mind.Models.RequestModels.VpnRequest, IVpnDirector> directorFactory,
-            Func<Vpn, IVpnUpdateDirector> updateDirectorFactory,
-            IVpnValidator validator) : base(unitOfWork, mapper, validator)
+            Func<Vpn, IVpnUpdateDirector> updateDirectorFactory) : base(unitOfWork, mapper)
         {
             _directorFactory = directorFactory;
             _updateDirectorFactory = updateDirectorFactory;
-            _validator = validator;
         }
 
         /// <summary>
@@ -131,7 +83,7 @@ namespace Mind.Services
         {
             var orderBy = OrderBy(sortKey);
             var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(
-                        includeProperties: deep.HasValue && deep.Value ? _deepProperties : _shallowProperties,
+                        query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.IncludeShallowProperties(),
                         AsTrackable: asTrackable,
                         orderBy: orderBy)
                         select vpns;
@@ -156,7 +108,7 @@ namespace Mind.Services
             return (from result in await this.UnitOfWork.VpnRepository.GetAsync(
                 q =>
                     q.VpnID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _deepProperties : _shallowProperties,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.IncludeShallowProperties(),
                     AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();
@@ -183,7 +135,7 @@ namespace Mind.Services
                         q.VpnAttachmentSets
                         .Where(r => r.AttachmentSetID == id)
                         .Any(),
-                        includeProperties: deep.HasValue && deep.Value ? _deepProperties : _shallowProperties,
+                        query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.IncludeShallowProperties(),
                         AsTrackable: asTrackable,
                         orderBy: orderBy)
                         select vpns;
@@ -215,7 +167,7 @@ namespace Mind.Services
             var query = from vpns in await this.UnitOfWork.VpnRepository.GetAsync(
                 q => 
                     q.TenantID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _deepProperties : _shallowProperties,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.IncludeShallowProperties(),
                     AsTrackable: false,
                     orderBy: orderBy)
                         select vpns;
@@ -261,10 +213,16 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task DeleteAsync(int vpnId)
         {
-            await _validator.ValidateDeleteAsync(vpnId);
-            if (!_validator.IsValid) throw new ServiceValidationException();
+            var vpn = (from result in await UnitOfWork.VpnRepository.GetAsync(
+                    q =>
+                       q.VpnID == vpnId,
+                       query: q => q.IncludeDeleteValidationProperties(),
+                       AsTrackable: true)
+                       select result)
+                       .Single();
 
-            await this.UnitOfWork.VpnRepository.DeleteAsync(vpnId);
+            vpn.ValidateDelete();
+            this.UnitOfWork.VpnRepository.Delete(vpn);
             await this.UnitOfWork.SaveAsync();
         }
     }

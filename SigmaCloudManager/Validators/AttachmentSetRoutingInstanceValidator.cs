@@ -89,7 +89,7 @@ namespace SCM.Validators
                 }
             }
 
-            var vpnTenantIpNetworkStaticRouteRoutingInstances = routingInstance.VpnTenantIpNetworkStaticRouteRoutingInstances
+            var vpnTenantIpNetworkStaticRouteRoutingInstances = routingInstance.VpnTenantIpNetworkRoutingInstanceStaticRoutes
                 .Where(x => x.RoutingInstanceID == attachmentSetRoutingInstance.RoutingInstanceID);
 
             if (vpnTenantIpNetworkStaticRouteRoutingInstances.Any())

@@ -28,6 +28,27 @@ namespace SCM.Models
                         .ThenInclude(x => x.TenantMulticastGroup)
                         .Include(x => x.AttachmentSet.MulticastVpnDomainType);
         }
+
+        public static IQueryable<VpnAttachmentSet> IncludeDeepProperties(this IQueryable<VpnAttachmentSet> query)
+        {
+            return query.Include(x => x.AttachmentSet.Tenant)
+                        .Include(x => x.Vpn.VpnTopologyType)
+                        .Include(x => x.Vpn.VpnTenancyType)
+                        .Include(x => x.Vpn.MulticastVpnServiceType)
+                        .Include(x => x.Vpn.MulticastVpnDirectionType)
+                        .Include(x => x.AttachmentSet.MulticastVpnDomainType)
+                        .Include(x => x.AttachmentSet.AttachmentRedundancy)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Tenant)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Vifs)
+                        .ThenInclude(x => x.Attachment.Interfaces)
+                        .ThenInclude(x => x.Ports)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Attachments)
+                        .ThenInclude(x => x.Interfaces)
+                        .ThenInclude(x => x.Ports);
+        }
     }
 
     public class VpnAttachmentSet : IModifiableResource
@@ -223,5 +244,6 @@ namespace SCM.Models
                 }
             }
         }
+
     }
 }

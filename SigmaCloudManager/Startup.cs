@@ -170,7 +170,7 @@ namespace Mind
             services.AddScoped<ITenantCommunitySetService, TenantCommunitySetService>();
             services.AddScoped<ITenantCommunitySetCommunityService, TenantCommunitySetCommunityService>();
             services.AddScoped<IVpnTenantIpNetworkInService, VpnTenantIpNetworkInService>();
-            services.AddScoped<IVpnTenantIpNetworkStaticRouteRoutingInstanceService, VpnTenantIpNetworkStaticRouteRoutingInstanceService>();
+            services.AddScoped<IVpnTenantIpNetworkRoutingInstanceStaticRouteService, VpnTenantIpNetworkRoutingInstanceStaticRouteService>();
             services.AddScoped<IVpnTenantIpNetworkOutService, VpnTenantIpNetworkOutService>();
             services.AddScoped<IVpnTenantIpNetworkRoutingInstanceService, VpnTenantIpNetworkRoutingInstanceService>();
             services.AddScoped<IVpnTenantCommunityInService, VpnTenantCommunityInService>();

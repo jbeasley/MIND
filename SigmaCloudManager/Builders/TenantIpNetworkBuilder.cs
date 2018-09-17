@@ -20,7 +20,7 @@ namespace Mind.Builders
             {
                 VpnTenantIpNetworksIn = new List<VpnTenantIpNetworkIn>(),
                 VpnTenantIpNetworksOut = new List<VpnTenantIpNetworkOut>(),
-                VpnTenantIpNetworksRoutingInstance = new List<VpnTenantIpNetworkRoutingInstance>()
+                VpnTenantIpNetworkRoutingInstancePoliciesIn = new List<VpnTenantIpNetworkRoutingInstance>()
             };
         }
 

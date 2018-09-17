@@ -582,10 +582,7 @@ namespace SCM.Controllers
             var port = await PortService.GetByIDAsync(id.Value);
 
             await PopulatePlanesDropDownList(port.Device.PlaneID);
-            if (port.Device.LocationID != null)
-            {
-                await base.PopulateDevicesByLocationDropDownList(port.Device.LocationID.Value, port.Device.PlaneID, port.DeviceID);
-            }
+            await base.PopulateDevicesByLocationDropDownList(port.Device.LocationID, port.Device.PlaneID, port.DeviceID);
 
             return await base.BaseEditPort(port);
         }

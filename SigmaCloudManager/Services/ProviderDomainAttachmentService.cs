@@ -21,17 +21,15 @@ namespace Mind.Services
     {
         private readonly Func<ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector> _directorFactory;
         private readonly Func<Attachment, IProviderDomainAttachmentUpdateDirector> _updateDirectorFactory;
-        private readonly IProviderDomainAttachmentValidator _validator;
 
         public ProviderDomainAttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
             IProviderDomainAttachmentValidator validator,
             Func<ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector> directorFactory,
-            Func<Attachment, IProviderDomainAttachmentUpdateDirector> updateDirectorFactory) : base(unitOfWork, mapper, validator)
+            Func<Attachment, IProviderDomainAttachmentUpdateDirector> updateDirectorFactory) : base(unitOfWork, mapper)
         {
             _directorFactory = directorFactory;
             _updateDirectorFactory = updateDirectorFactory;
-            _validator = validator;
         }
 
         /// <summary>
@@ -82,41 +80,35 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update)
         {
-            var attachment = await GetByIDAsync(attachmentId, asTrackable: false);
-
-            // Remember old routing instance ID and contract bandwidth pool ID for later removal checks
-            var oldRoutingInstanceID = attachment.RoutingInstanceID;
-            var oldContractBandwidthPoolID = attachment.ContractBandwidthPoolID;
+            var attachment = (from result in await UnitOfWork.AttachmentRepository.GetAsync(
+                            q =>
+                              q.AttachmentID == attachmentId,
+                              query: q => q.Include(x => x.RoutingInstance.Attachments)
+                                           .Include(x => x.RoutingInstance.Vifs)
+                                           .Include(x => x.ContractBandwidthPool.Attachments)
+                                           .Include(x => x.ContractBandwidthPool.Vifs),
+                                            AsTrackable: true)
+                                            select result)
+                                            .Single();
 
             var director = _updateDirectorFactory(attachment);
             var updatedAttachment = await director.UpdateAsync(attachment, update);
-            UnitOfWork.AttachmentRepository.Update(updatedAttachment);
 
             // Cleanup routing instance if there are no attachment or vifs which are using it.
-            if (oldRoutingInstanceID != null && oldRoutingInstanceID != attachment.RoutingInstanceID)
+            if (attachment.RoutingInstanceID != null && attachment.RoutingInstanceID != updatedAttachment.RoutingInstanceID)
             {
-                var oldRoutingInstance = (from routingInstances in await UnitOfWork.RoutingInstanceRepository.GetAsync(x =>
-                    x.RoutingInstanceID == oldRoutingInstanceID,
-                    includeProperties: "Attachments,Vifs", AsTrackable: true)
-                                          select routingInstances)
-                                          .Single();
-
-                if (!oldRoutingInstance.Attachments.Any() && !oldRoutingInstance.Vifs.Any())
+                if (!attachment.RoutingInstance.Attachments.Any(x => x.AttachmentID != attachmentId) && 
+                    !updatedAttachment.RoutingInstance.Vifs.Any())
                 {
-                    UnitOfWork.RoutingInstanceRepository.Delete(oldRoutingInstance);
+                    UnitOfWork.RoutingInstanceRepository.Delete(attachment.RoutingInstance);
                 }
             }
 
             // Cleanup contract bandwidth pool if the attachment is no longer using it.
-            if (oldContractBandwidthPoolID != null && oldContractBandwidthPoolID != attachment.ContractBandwidthPoolID)
+            if (attachment.ContractBandwidthPoolID != null && attachment.ContractBandwidthPoolID != updatedAttachment.ContractBandwidthPoolID)
             {
-                var oldContractBandwidthPool = (from contractBandwidthPools in await UnitOfWork.ContractBandwidthPoolRepository.GetAsync(x =>
-                    x.ContractBandwidthPoolID == oldContractBandwidthPoolID,
-                    includeProperties: "Attachments", AsTrackable: true)
-                                                select contractBandwidthPools)
-                                               .Single();
-
-                if (!oldContractBandwidthPool.Attachments.Any()) UnitOfWork.ContractBandwidthPoolRepository.Delete(oldContractBandwidthPool);
+                if (!attachment.ContractBandwidthPool.Attachments.Any(x => x.AttachmentID != attachmentId))
+                    UnitOfWork.ContractBandwidthPoolRepository.Delete(attachment.ContractBandwidthPool);
             }
 
             await UnitOfWork.SaveAsync();
@@ -132,28 +124,7 @@ namespace Mind.Services
             var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
                             q => 
                              q.AttachmentID == attachmentId,
-                             query: q => 
-                                    q.Include(x => x.ContractBandwidthPool.Attachments)
-                                     .Include(x => x.ContractBandwidthPool.Vifs)
-                                     .Include(x => x.Interfaces)
-                                     .ThenInclude(x => x.Ports)
-                                     .ThenInclude(x => x.PortStatus)
-                                     .Include(x => x.Vifs)
-                                     .ThenInclude(x => x.Vlans)
-                                     .Include(x => x.Vifs)
-                                     .ThenInclude(x => x.RoutingInstance.RoutingInstanceType)
-                                     .Include(x => x.Vifs)
-                                     .ThenInclude(x => x.RoutingInstance.Attachments)
-                                     .Include(x => x.Vifs)
-                                     .ThenInclude(x => x.RoutingInstance.Vifs)
-                                     .Include(x => x.Vifs)
-                                     .ThenInclude(x => x.ContractBandwidthPool.Vifs)
-                                     .Include(x => x.Vifs)
-                                     .ThenInclude(x => x.ContractBandwidthPool.Attachments)
-                                     .Include(x => x.RoutingInstance.RoutingInstanceType)
-                                     .Include(x => x.RoutingInstance.Vifs)
-                                     .Include(x => x.RoutingInstance.Attachments)
-                                     .Include(x => x.RoutingInstance.BgpPeers),
+                             query: q => q.IncludeDeleteValidationProperties(),
                               AsTrackable: true)
                               select attachments)
                               .Single();
@@ -168,7 +139,8 @@ namespace Mind.Services
 
             var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(
                                 q => 
-                                    q.PortStatusType == PortStatusTypeEnum.Free)
+                                    q.PortStatusType == PortStatusTypeEnum.Free, 
+                                    AsTrackable: true)
                                     select portStatuses)
                                     .Single().PortStatusID;
 
@@ -178,8 +150,6 @@ namespace Mind.Services
                 port.TenantID = null;
                 port.PortStatusID = portStatusFreeId;
                 port.InterfaceID = null;
-
-                UnitOfWork.PortRepository.Update(port);
             }
 
             if (attachment.RoutingInstance != null)
@@ -188,7 +158,7 @@ namespace Mind.Services
                 {
                     // Check if the current attachment is the only attachment using the routing instance and no 
                     // vifs are using the routing instance. If so delete the routing instance.
-                    if (attachment.RoutingInstance.Attachments.Where(x => x.AttachmentID == attachmentId).Count() == attachment.RoutingInstance.Attachments.Count && 
+                    if (!attachment.RoutingInstance.Attachments.Any(x => x.AttachmentID != attachmentId) && 
                         !attachment.RoutingInstance.Vifs.Any())
                     {
                         UnitOfWork.RoutingInstanceRepository.Delete(attachment.RoutingInstance);
@@ -207,7 +177,11 @@ namespace Mind.Services
                 // If there are no attachments which share the routing instance, and the
                 // only vifs which share the routing instance are those which belong to the attachment being deleted then the routing instance can be 
                 // deleted.
-                if (!routingInstance.Attachments.Any() && routingInstance.Vifs.Intersect(attachment.Vifs).Count() == routingInstance.Vifs.Count())
+                if (!routingInstance.Attachments.Any() && 
+                    routingInstance.Vifs
+                                   .Intersect(
+                                        attachment.Vifs, new VifComparer())
+                                        .Count() == routingInstance.Vifs.Count())
                 {
                     UnitOfWork.RoutingInstanceRepository.Delete(routingInstance);
                 }
@@ -227,6 +201,27 @@ namespace Mind.Services
 
             UnitOfWork.AttachmentRepository.Delete(attachment);
             await UnitOfWork.SaveAsync();
+        }
+
+        private class VifComparer : IEqualityComparer<Vif>
+        {
+            public bool Equals(Vif x, Vif y)
+            {
+                return
+                 (
+                     x.VifID == y.VifID ||
+                     x.VifID.Equals(y.VifID)
+                 );
+            }
+
+            public int GetHashCode(Vif obj)
+            {
+                var hashCode = 41;
+
+                // Just had on the vifID - two instance are considered 'same' if the IDs are the same
+                hashCode = hashCode * 59 + obj.VifID.GetHashCode();
+                return hashCode;
+            }
         }
     }
 }

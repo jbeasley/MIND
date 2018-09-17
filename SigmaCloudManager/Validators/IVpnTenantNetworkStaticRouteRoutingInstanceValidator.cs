@@ -9,6 +9,6 @@ namespace SCM.Validators
 {
     public interface IVpnTenantIpNetworkStaticRouteRoutingInstanceValidator : IValidator
     {
-        Task ValidateNewAsync(VpnTenantIpNetworkStaticRouteRoutingInstance vpnTenantIpNetworkStaticRouteRoutingInstance);
+        Task ValidateNewAsync(VpnTenantIpNetworkRoutingInstanceStaticRoute vpnTenantIpNetworkStaticRouteRoutingInstance);
     }
 }

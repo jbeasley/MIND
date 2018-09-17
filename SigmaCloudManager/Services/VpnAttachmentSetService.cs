@@ -12,21 +12,11 @@ namespace Mind.Services
 {
     public class VpnAttachmentSetService : BaseService, IVpnAttachmentSetService
     {
-        private readonly string _properties = "AttachmentSet.Tenant,"
-       + "Vpn.VpnTopologyType,"
-       + "Vpn.VpnTenancyType,"
-       + "Vpn.MulticastVpnServiceType,"
-       + "Vpn.MulticastVpnDirectionType,"
-       + "AttachmentSet.MulticastVpnDomainType,"
-       + "AttachmentSet.AttachmentRedundancy,"
-       + "AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Tenant,"
-       + "AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Vifs.Attachment.Interfaces.Ports,"
-       + "AttachmentSet.AttachmentSetRoutingInstances.RoutingInstance.Attachments.Interfaces.Ports";
-
         private readonly IVpnAttachmentSetDirector _director;
         private readonly IVpnAttachmentSetUpdateDirector _updateDirector;
 
-        public VpnAttachmentSetService(IUnitOfWork unitOfWork, IVpnAttachmentSetDirector director, IVpnAttachmentSetUpdateDirector updateDirector) : base(unitOfWork)
+        public VpnAttachmentSetService(IUnitOfWork unitOfWork, IVpnAttachmentSetDirector director, 
+            IVpnAttachmentSetUpdateDirector updateDirector) : base(unitOfWork)
         {
             _director = director;
             _updateDirector = updateDirector;
@@ -44,7 +34,7 @@ namespace Mind.Services
             return (from result in await UnitOfWork.VpnAttachmentSetRepository.GetAsync(
                 q => 
                     q.VpnAttachmentSetID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();
@@ -63,7 +53,7 @@ namespace Mind.Services
             return (from result in await UnitOfWork.VpnAttachmentSetRepository.GetAsync(
                 q =>
                     q.VpnID == vpnId && q.AttachmentSetID == attachmentSetId,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();
@@ -81,7 +71,7 @@ namespace Mind.Services
             return (from result in await UnitOfWork.VpnAttachmentSetRepository.GetAsync(
                 q =>
                     q.AttachmentSetID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select result)
                     .ToList();
@@ -99,7 +89,7 @@ namespace Mind.Services
             return (from result in await UnitOfWork.VpnAttachmentSetRepository.GetAsync(
                 q =>
                     q.VpnID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select result)
                     .ToList();

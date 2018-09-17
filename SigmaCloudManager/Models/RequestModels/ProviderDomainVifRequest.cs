@@ -60,6 +60,13 @@ namespace Mind.Models.RequestModels
         public bool? TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
+        /// If specified, the vif should be associated with an existing contract bandwidth pool
+        /// of the given name which is associated with another vif under the same attachment.
+        /// </summary>
+        /// <value>A string value of the name of an existing contract bandwidth pool</value>
+        public string ExistingContractBandwidthPoolName { get; set; }
+
+        /// <summary>
         /// A list of IPv4 addresses to be assigned to the interfaces of the vif
         /// </summary>
         /// <value>A list of Ipv4AddressAndMask objcets</value>

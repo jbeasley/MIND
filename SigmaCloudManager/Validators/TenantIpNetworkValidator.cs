@@ -49,7 +49,7 @@ namespace SCM.Validators
             .ForEach(x => ValidationDictionary.AddError(string.Empty, $"Tenant IP network '{x.TenantIpNetwork.CidrName}' "
             + $"cannot be deleted because it is used in the routing instance policy of attachment set '{x.AttachmentSet.Name}'."));
 
-            (from result in await _unitOfWork.VpnTenantIpNetworkStaticRouteRoutingInstanceRepository.GetAsync(q =>
+            (from result in await _unitOfWork.VpnTenantIpNetworkRoutingInstanceStaticRouteRepository.GetAsync(q =>
             q.TenantIpNetwork.TenantIpNetworkID == tenantIpNetworkId,
             includeProperties: "TenantIpNetwork,AttachmentSet", AsTrackable: false)
              select result)

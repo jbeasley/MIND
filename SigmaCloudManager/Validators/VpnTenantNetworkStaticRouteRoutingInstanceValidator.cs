@@ -22,7 +22,7 @@ namespace SCM.Validators
         /// </summary>
         /// <param name="vpnTenantIpNetworkStaticRouteRoutingInstance"></param>
         /// <returns></returns>
-        public async Task ValidateNewAsync(VpnTenantIpNetworkStaticRouteRoutingInstance vpnTenantIpNetworkStaticRouteRoutingInstance)
+        public async Task ValidateNewAsync(VpnTenantIpNetworkRoutingInstanceStaticRoute vpnTenantIpNetworkStaticRouteRoutingInstance)
         {
             var tenantIpNetwork = await _unitOfWork.TenantIpNetworkRepository.GetByIDAsync(vpnTenantIpNetworkStaticRouteRoutingInstance.TenantIpNetworkID);
             (from result in await _unitOfWork.VpnAttachmentSetRepository.GetAsync(q =>

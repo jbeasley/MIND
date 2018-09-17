@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
+using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
 
@@ -31,6 +32,39 @@ namespace SCM.Models
                         .ThenInclude(x => x.TenantCommunity)
                         .Include(x => x.VpnTenantIpNetworksIn)
                         .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork);
+        }
+
+        public static IQueryable<BgpPeer> IncludeDeleteValidationProperties(this IQueryable<BgpPeer> query)
+        {
+            return query.Include(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork);
+        }
+
+        public static IQueryable<BgpPeer> IncludeDeepProperties(this IQueryable<BgpPeer> query)
+        {
+            return query.Include(x => x.RoutingInstance)
+                        .Include(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
                         .Include(x => x.VpnTenantIpNetworksOut)
                         .ThenInclude(x => x.TenantIpNetwork);
         }
@@ -109,6 +143,43 @@ namespace SCM.Models
                         $"directly reachable from routing instance '{this.RoutingInstance.Name}'. Check that the IP address for at least one vif or " +
                         $"attachment belonging to the routing instance is in the same IPv4 network as the bgp peer.");
             }
+        }
+
+        /// <summary>
+        /// Validate a bgp peer can be deleted
+        /// </summary>
+        public virtual void ValidateDelete()
+        {
+            var sb = new StringBuilder();
+            this.VpnTenantCommunitiesIn
+               .ToList()
+               .ForEach(x =>
+                   sb.Append("The BGP Peer cannot be deleted because community "
+                   + $"'{x.TenantCommunity.Name}' is applied to the inbound policy of attachment set '{x.AttachmentSet.Name}'.\n")
+            );
+
+            this.VpnTenantCommunitiesOut
+                .ToList()
+                .ForEach(x =>
+                    sb.Append("The BGP Peer cannot be deleted because community "
+                    + $"'{x.TenantCommunity.Name}' is applied to the outbound policy of attachment set '{x.AttachmentSet.Name}'.\n")
+                );
+
+            this.VpnTenantIpNetworksIn
+                .ToList()
+                .ForEach(x =>
+                    sb.Append("The BGP Peer cannot be deleted because IP network "
+                    + $"'{x.TenantIpNetwork.CidrName}' is applied to the inbound policy of attachment set '{x.AttachmentSet.Name}'.\n")
+                );
+
+            this.VpnTenantIpNetworksOut
+                .ToList()
+                .ForEach(x =>
+                    sb.Append("The BGP Peer cannot be deleted because IP network "
+                    + $"'{x.TenantIpNetwork.CidrName}' is applied to the outbound policy of attachment set '{x.AttachmentSet.Name}'.\n")
+                );
+
+            if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());
         }
     }
 }

@@ -24,7 +24,46 @@ namespace SCM.Models
                             .ThenInclude(x => x.Ports)
                             .Include(x => x.Vifs);
         }
-    }
+
+        public static IQueryable<Attachment> IncludeDeleteValidationProperties(this IQueryable<Attachment> query)
+        {
+            return query.Include(x => x.ContractBandwidthPool.Attachments)
+                                     .Include(x => x.ContractBandwidthPool.Vifs)
+                                     .Include(x => x.Interfaces)
+                                     .ThenInclude(x => x.Ports)
+                                     .ThenInclude(x => x.PortStatus)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.Vlans)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.RoutingInstance.RoutingInstanceType)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.RoutingInstance.Attachments)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.RoutingInstance.Vifs)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.ContractBandwidthPool.Vifs)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.ContractBandwidthPool.Attachments)
+                                     .Include(x => x.Vifs)
+                                     .ThenInclude(x => x.RoutingInstance.AttachmentSetRoutingInstances)
+                                     .Include(x => x.RoutingInstance.RoutingInstanceType)
+                                     .Include(x => x.RoutingInstance.Vifs)
+                                     .Include(x => x.RoutingInstance.Attachments)
+                                     .Include(x => x.RoutingInstance.BgpPeers)
+                                     .Include(x => x.RoutingInstance.AttachmentSetRoutingInstances);
+        }
+
+        public static IQueryable<Attachment> IncludeDeepProperties(this IQueryable<Attachment> query)
+        {
+            return query.Include(x => x.Device.Location.SubRegion.Region)
+                        .Include(x => x.ContractBandwidthPool.ContractBandwidth)
+                        .Include(x => x.Interfaces)
+                        .ThenInclude(x => x.Ports)
+                        .Include(x => x.Mtu)
+                        .Include(x => x.RoutingInstance.BgpPeers)
+                        .Include(x => x.Tenant);
+        }
+     }
 
     public class Attachment : IModifiableResource
     {
@@ -95,7 +134,7 @@ namespace SCM.Models
         public virtual void Validate()
         {
             if (this.Mtu == null) throw new IllegalStateException("An MTU is required for the attachment.");
-            if (this.AttachmentBandwidth == null) throw new IllegalStateException("An attachmnt bandwidth is required for the attachment.");
+            if (this.AttachmentBandwidth == null) throw new IllegalStateException("An attachment bandwidth is required for the attachment.");
             if (this.AttachmentRole == null) throw new IllegalStateException("An attachment role is required for the attachment.");
             if (this.Device == null) throw new IllegalStateException("A device is required for the attachment.");
             if (!this.Interfaces.Any()) throw new IllegalStateException("At least one interface is required for the attachment.");

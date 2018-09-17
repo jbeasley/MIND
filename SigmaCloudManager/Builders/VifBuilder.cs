@@ -306,7 +306,8 @@ namespace Mind.Builders
                                            select routingInstances)
                                            .SingleOrDefault();
 
-            _vif.RoutingInstance = existingRoutingInstance;
+            _vif.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException($"The routing instance with name " +
+                $"'{routingInstanceName}' was not found.");
             _vif.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }
 

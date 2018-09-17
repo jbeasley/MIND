@@ -23,9 +23,32 @@ namespace SCM.Models
                         .Include(x => x.ContractBandwidthPool)
                         .Include(x => x.Mtu);
         }
+
+        public static IQueryable<Vif> IncludeDeleteValidationProperties(this IQueryable<Vif> query)
+        {
+            return query.Include(x => x.RoutingInstance.Vifs)
+                        .Include(x => x.RoutingInstance.Attachments)
+                        .Include(x => x.ContractBandwidthPool)
+                        .Include(x => x.Vlans)
+                        .Include(x => x.RoutingInstance.RoutingInstanceType)
+                        .Include(x => x.ContractBandwidthPool.Vifs)
+                        .Include(x => x.ContractBandwidthPool.Attachments)
+                        .Include(x => x.RoutingInstance.BgpPeers); 
+        }
+
+        public static IQueryable<Vif> IncludeDeepProperties(this IQueryable<Vif> query)
+        {
+            return query.Include(x => x.VifRole)
+                        .Include(x => x.Attachment.Interfaces)
+                        .ThenInclude(x => x.Ports)
+                        .Include(x => x.ContractBandwidthPool)
+                        .Include(x => x.RoutingInstance)
+                        .Include(x => x.Vlans)
+                        .Include(x => x.Tenant);
+        }
     }
 
-    public class Vif : IModifiableResource, IEquatable<Vif>
+    public class Vif : IModifiableResource
     {
         public int VifID { get; private set; }
         public bool IsLayer3 { get; set; }
@@ -167,42 +190,6 @@ namespace SCM.Models
                     throw new IllegalDeleteAttemptException("The vif is a member belongs to one or more attachment sets " +
                         "and cannot be deleted. Remove the vif from all attachment sets first.");
                 }
-            }
-        }
-
-        public bool Equals(Vif other)
-        {
-            if (ReferenceEquals(null, this)) return false;
-            if (ReferenceEquals(null, other)) return false;
-            if (ReferenceEquals(this, other)) return true;
-
-            return
-                (
-                    this.VifID == other.VifID ||
-                    this.VifID.Equals(other.VifID)
-                );
-        }
-
-        public override int GetHashCode()
-        {
-            unchecked // Overflow is fine, just wrap
-            {
-                var hashCode = 41;
-
-                // Ignore hashing the name property - we need a deeply populated vif object to calulate
-                // 'name' and we have enough properties to hash and avoid chance of collision
-                hashCode = hashCode * 59 + this.VifID.GetHashCode();
-                hashCode = hashCode * 59 + this.IsLayer3.GetHashCode();
-                hashCode = hashCode * 59 + this.VlanTag.GetHashCode();
-                hashCode = hashCode * 59 + this.AttachmentID.GetHashCode();
-                hashCode = hashCode * 59 + this.TenantID.GetHashCode();
-                if (this.RoutingInstance != null)
-                    hashCode = hashCode * 59 + this.RoutingInstance.GetHashCode();
-                if (this.Vlans != null)
-                    hashCode = hashCode * 59 + this.Vlans.GetHashCode();
-                if (this.ContractBandwidthPool != null)
-                    hashCode = hashCode * 59 + this.ContractBandwidthPool.GetHashCode();
-                return hashCode;
             }
         }
     }

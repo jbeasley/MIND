@@ -128,9 +128,9 @@ namespace Mind.Api.Controllers
                 return StatusCode(StatusCodes.Status204NoContent);
             }
 
-            catch (ServiceValidationException)
+            catch (IllegalDeleteAttemptException ex)
             {
-                return new ValidationFailedResult(this.ModelState);
+                return new ValidationFailedResult(ex.Message);
             }
 
             catch (DbUpdateException)

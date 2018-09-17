@@ -12,9 +12,10 @@ using System;
 namespace SigmaCloudManager.Migrations
 {
     [DbContext(typeof(SigmaContext))]
-    partial class SigmaContextModelSnapshot : ModelSnapshot
+    [Migration("20180917160449_update19")]
+    partial class update19
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -1640,8 +1641,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantID");
 
-                    b.Property<int?>("TenantID1");
-
                     b.Property<int>("VpnTenancyTypeID");
 
                     b.Property<int>("VpnTopologyTypeID");
@@ -1662,8 +1661,6 @@ namespace SigmaCloudManager.Migrations
                     b.HasIndex("RegionID");
 
                     b.HasIndex("TenantID");
-
-                    b.HasIndex("TenantID1");
 
                     b.HasIndex("VpnTenancyTypeID");
 
@@ -2563,10 +2560,6 @@ namespace SigmaCloudManager.Migrations
                         .WithMany()
                         .HasForeignKey("TenantID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.Tenant")
-                        .WithMany("Vpns")
-                        .HasForeignKey("TenantID1");
 
                     b.HasOne("SCM.Models.VpnTenancyType", "VpnTenancyType")
                         .WithMany("Vpns")

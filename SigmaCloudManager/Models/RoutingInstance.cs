@@ -31,7 +31,7 @@ namespace SCM.Models
         public virtual ICollection<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; set; }
         public virtual ICollection<VpnTenantCommunityRoutingInstance> VpnTenantCommunityRoutingInstances { get; set; }
         public virtual ICollection<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworkRoutingInstances { get; set; }
-        public virtual ICollection<VpnTenantIpNetworkStaticRouteRoutingInstance> VpnTenantIpNetworkStaticRouteRoutingInstances { get; set; }
+        public virtual ICollection<VpnTenantIpNetworkRoutingInstanceStaticRoute> VpnTenantIpNetworkRoutingInstanceStaticRoutes { get; set; }
 
         public virtual void Validate()
         {

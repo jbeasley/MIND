@@ -39,6 +39,7 @@ namespace Mind.Api.Models
         /// Determines whether DSCP and COS markings of packets received from the tenant domain should be trusted by the provider
         /// </summary>
         /// <value>Boolean value denoting the required trust state</value>
+        /// <example>false</example>
         [DataMember(Name = "trustReceivedCosAndDscp")]
         public bool? TrustReceivedCosAndDscp { get; set; }
 

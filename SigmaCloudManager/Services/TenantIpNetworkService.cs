@@ -14,28 +14,23 @@ namespace Mind.Services
 {
     public class TenantIpNetworkService : BaseService, ITenantIpNetworkService
     {
-        private readonly string _properties = "Tenant," +
-                    "VpnTenantIpNetworksIn.AttachmentSet," +
-                    "VpnTenantIpNetworksOut.AttachmentSet," +
-                    "VpnTenantIpNetworksRoutingInstance";
-
-        private readonly ITenantIpNetworkValidator _validator;
         private readonly ITenantIpNetworkDirector _director;
         private readonly ITenantIpNetworkUpdateDirector _updateDirector;
 
         public TenantIpNetworkService(IUnitOfWork unitOfWork, ITenantIpNetworkDirector director, 
-            ITenantIpNetworkUpdateDirector updateDirector, ITenantIpNetworkValidator validator) : base(unitOfWork, validator)
+            ITenantIpNetworkUpdateDirector updateDirector) : base(unitOfWork)
         {
-            _validator = validator;
             _director = director;
             _updateDirector = updateDirector;
         }
 
         public async Task<IEnumerable<TenantIpNetwork>> GetAllByTenantIDAsync(int id, string searchString = "", bool? deep = false, bool asTrackable = false)
         {
-            var query = (from result in await this.UnitOfWork.TenantIpNetworkRepository.GetAsync(q => q.TenantID == id,
-                     includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
-                     AsTrackable: asTrackable)
+            var query = (from result in await this.UnitOfWork.TenantIpNetworkRepository.GetAsync(
+                      q => 
+                         q.TenantID == id,
+                         query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties(): q,
+                         AsTrackable: asTrackable)
                          select result);
 
             if (!string.IsNullOrEmpty(searchString)) query = query.Where(q => q.CidrName == searchString);
@@ -44,10 +39,12 @@ namespace Mind.Services
 
         public async Task<TenantIpNetwork> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return (from result in await this.UnitOfWork.TenantIpNetworkRepository.GetAsync(q => q.TenantIpNetworkID == id,
-                   includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
-                   AsTrackable: asTrackable)
-                   select result)
+            return (from result in await this.UnitOfWork.TenantIpNetworkRepository.GetAsync(
+                 q => 
+                    q.TenantIpNetworkID == id,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
+                    AsTrackable: asTrackable)
+                    select result)
                    .SingleOrDefault();
         }
 
@@ -75,9 +72,15 @@ namespace Mind.Services
 
         public async Task DeleteAsync(int tenantNetworkId)
         {
-            await _validator.ValidateDeleteAsync(tenantNetworkId);
-            if (!_validator.IsValid) throw new ServiceValidationException();
+            var tenantIpNetwork = (from result in await UnitOfWork.TenantIpNetworkRepository.GetAsync(
+                                x =>
+                                   x.TenantIpNetworkID == tenantNetworkId,
+                                   query: q => q.IncludeDeleteValidationProperties(),
+                                   AsTrackable: true)
+                                   select result)
+                                   .Single();
 
+            tenantIpNetwork.ValidateDelete();
             await this.UnitOfWork.TenantIpNetworkRepository.DeleteAsync(tenantNetworkId);
             await this.UnitOfWork.SaveAsync();
         }

@@ -60,7 +60,7 @@ namespace Mind.Builders
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps)
         {
-            if (contractBandwidthMbps.HasValue) _args.Add(nameof(contractBandwidthMbps), contractBandwidthMbps);
+            if (contractBandwidthMbps.HasValue) _args.Add(nameof(WithContractBandwidth), contractBandwidthMbps);
             return this;
         }
 
@@ -116,12 +116,9 @@ namespace Mind.Builders
             CreateInterfaces();
             await SetMtuAsync();
 
-            if (_args.ContainsKey(nameof(WithContractBandwidth)))
-            {
-                await CreateContractBandwidthPoolAsync();
-                SetTrustReceivedCosAndDscp();
-            }
-
+            if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
+            if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
+            
             if (_args.ContainsKey(nameof(WithExistingRoutingInstance)))
             {
                 await AssociateExistingRoutingInstanceAsync();
@@ -245,7 +242,8 @@ namespace Mind.Builders
             var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
             var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(
                                   q =>
-                                     q.BandwidthMbps == contractBandwidthMbps)
+                                     q.BandwidthMbps == contractBandwidthMbps,
+                                     AsTrackable: true)
                                      select contractBandwidths)
                                     .SingleOrDefault();
 
@@ -255,16 +253,19 @@ namespace Mind.Builders
             var contractBandwidthPool = new ContractBandwidthPool
             {
                 ContractBandwidthID = contractBandwidth.ContractBandwidthID,
+                ContractBandwidth = contractBandwidth,
                 TenantID = _attachment.Tenant.TenantID,
                 Name = Guid.NewGuid().ToString("N")
             };
+
+            _attachment.ContractBandwidthPool = contractBandwidthPool;
         }
 
         protected internal virtual void SetTrustReceivedCosAndDscp()
         {
             if (_attachment.ContractBandwidthPool != null)
             {
-                var trustReceivedCosAndDscp = _args[nameof(WithTrustReceivedCosAndDscp)] != null ? (bool)_args[nameof(WithTrustReceivedCosAndDscp)] : false;
+                var trustReceivedCosAndDscp = (bool)_args[nameof(WithTrustReceivedCosAndDscp)];
                 _attachment.ContractBandwidthPool.TrustReceivedCosDscp = trustReceivedCosAndDscp;
             }
         }

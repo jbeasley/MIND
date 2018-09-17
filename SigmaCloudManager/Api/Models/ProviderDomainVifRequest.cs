@@ -25,7 +25,7 @@ namespace Mind.Api.Models
     /// Model for requesting a vif which belongs to a tenant attachment to the provider domain
     /// </summary>
     [DataContract]
-    public partial class ProviderDomainVifRequest : IEquatable<ProviderDomainVifRequest>
+    public partial class ProviderDomainVifRequest : IEquatable<ProviderDomainVifRequest>, IValidatableObject
     {
         /// <summary>
         /// The ID of the tenant to which the vif belongs. Usually this is the same tenant as the owner of the attachment
@@ -76,6 +76,15 @@ namespace Mind.Api.Models
         public int? ContractBandwidthMbps { get; set; }
 
         /// <summary>
+        /// If specified, the vif should be associated with an existing contract bandwidth pool
+        /// of the given name which is associated with another vif under the same attachment.
+        /// </summary>
+        /// <value>A string value of the name of an existing contract bandwidth pool</value>
+        /// <exanple>db7c48eaa9864cd0b3aa6af08c8370d6</exanple>
+        [DataMember(Name = "existingContractBandwidthPoolName")]
+        public string ExistingContractBandwidthPoolName { get; set; }
+
+        /// <summary>
         /// Determines whether DSCP and COS markings of packets received from the tenant domain should be trusted by the provider
         /// </summary>
         /// <value>Boolean value denoting the required trust state</value>
@@ -88,6 +97,20 @@ namespace Mind.Api.Models
         /// <value>A list of Ipv4AddressAndMask objcets</value>
         [DataMember(Name="ipv4Addresses")]
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (ContractBandwidthMbps != null)
+            {
+                if (!string.IsNullOrEmpty(ExistingContractBandwidthPoolName))
+                {
+                    yield return new ValidationResult(
+                        "The 'ContractBandwidthMbps' option cannot be used concurrently with the 'ExistingContractBandwidthPoolName' option. " +
+                        "Either remove the 'ExistingContractBandwidthPoolName' property or remove the 'ContractBandwidthMbps' property from " +
+                        "the request.");
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -104,6 +127,7 @@ namespace Mind.Api.Models
             sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
             sb.Append("  TrustReceivedCosAndDscp: ").Append(TrustReceivedCosAndDscp).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
+            sb.Append("  ExistingContractBandwidthPoolName: ").Append(ExistingContractBandwidthPoolName).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -140,6 +164,11 @@ namespace Mind.Api.Models
             if (ReferenceEquals(this, other)) return true;
 
             return
+                (
+                    ExistingContractBandwidthPoolName == other.ExistingContractBandwidthPoolName ||
+                    ExistingContractBandwidthPoolName != null &&
+                    ExistingContractBandwidthPoolName.Equals(other.ExistingContractBandwidthPoolName)
+                ) &&
                 (
                     TenantId == other.TenantId ||
                     TenantId != null &&
@@ -200,6 +229,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + TrustReceivedCosAndDscp.GetHashCode();
                     if (Ipv4Addresses != null)
                     hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
+                    if (ExistingContractBandwidthPoolName != null)
+                    hashCode = hashCode * 59 + ExistingContractBandwidthPoolName.GetHashCode();
                 return hashCode;
             }
         }

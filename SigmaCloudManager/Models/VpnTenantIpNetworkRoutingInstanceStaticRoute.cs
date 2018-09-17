@@ -8,9 +8,9 @@ using System.Net;
 
 namespace SCM.Models
 {
-    public class VpnTenantIpNetworkStaticRouteRoutingInstance : IModifiableResource
+    public class VpnTenantIpNetworkRoutingInstanceStaticRoute : IModifiableResource
     {
-        public int VpnTenantIpNetworkStaticRouteRoutingInstanceID { get; private set; }
+        public int VpnTenantIpNetworkRoutingInstanceStaticRouteID { get; private set; }
         public int TenantIpNetworkID { get; set; }
         public int AttachmentSetID { get; set; }
         public bool AddToAllRoutingInstancesInAttachmentSet { get; set; }

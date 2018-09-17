@@ -18,43 +18,13 @@ namespace SCM.Services
     /// </summary>
     public abstract class BaseAttachmentService : BaseService
     {
-        public BaseAttachmentService(IUnitOfWork unitOfWork,
-            IMapper mapper,
-            IValidator validator) : base(unitOfWork, mapper, validator)
+        public BaseAttachmentService(IUnitOfWork unitOfWork, IMapper mapper, IValidator validator) : base(unitOfWork, mapper, validator)
         {
         }
 
-        protected internal string Properties { get; } = "Tenant,"
-                + "AttachmentRole.PortPool.PortRole,"
-                + "Mtu,"
-                + "Device.Location.SubRegion.Region,"
-                + "Device.Plane,"
-                + "Device.DeviceRole,"
-                + "Device.DeviceStatus,"
-                + "Device.DeviceRole,"
-                + "Device.DeviceModel,"
-                + "RoutingInstance.RoutingInstanceType,"
-                + "RoutingInstance.BgpPeers,"
-                + "RoutingInstance.Tenant,"
-                + "RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet.Tenant,"
-                + "AttachmentBandwidth,"
-                + "ContractBandwidthPool.ContractBandwidth,"
-                + "ContractBandwidthPool.Tenant,"
-                + "Interfaces.Device,"
-                + "Interfaces.Ports.Device,"
-                + "Interfaces.Ports.PortSfp,"
-                + "Interfaces.Ports.PortStatus,"
-                + "Interfaces.Ports.PortPool.PortRole,"
-                + "Interfaces.Ports.PortConnector,"
-                + "Interfaces.Ports.PortBandwidth,"
-                + "Interfaces.Ports.Interface.Vlans.Vif,"
-                + "Vifs.RoutingInstance.BgpPeers,"
-                + "Vifs.RoutingInstance.Tenant,"
-                + "Vifs.RoutingInstance.AttachmentSetRoutingInstances.AttachmentSet.Tenant,"
-                + "Vifs.Vlans.Vif.ContractBandwidthPool,"
-                + "Vifs.ContractBandwidthPool.ContractBandwidth,"
-                + "Vifs.ContractBandwidthPool.Tenant,"
-                + "Vifs.VifRole";
+        public BaseAttachmentService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
+        {
+        }
 
         /// <summary>
         /// Find an attachment by ID
@@ -67,9 +37,11 @@ namespace SCM.Services
         protected internal async virtual Task<Attachment> GetByIDAsync(int id, SCM.Models.PortRoleTypeEnum portRoleType, 
             bool? deep = false, bool asTrackable = false)
         {
-            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.AttachmentID == id 
+            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
+                q => 
+                    q.AttachmentID == id 
                     && q.AttachmentRole.PortPool.PortRole.PortRoleType == portRoleType,
-                    includeProperties: deep.HasValue && deep.Value ? Properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select attachments)
                     .SingleOrDefault();
@@ -87,9 +59,11 @@ namespace SCM.Services
         protected internal async virtual Task<List<Attachment>> GetAllByTenantIDAsync(int id, SCM.Models.PortRoleTypeEnum portRoleType,
             bool? deep = false, bool asTrackable = false)
         {
-            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(q => q.TenantID == id
+            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
+                q => 
+                    q.TenantID == id
                     && q.AttachmentRole.PortPool.PortRole.PortRoleType == portRoleType,
-                    includeProperties: deep.HasValue && deep.Value ? Properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select attachments)
                     .ToList();

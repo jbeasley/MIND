@@ -60,7 +60,7 @@ namespace Mind.Builders
         public async Task<VpnTenantIpNetworkIn> BuildAsync()
         {
             if (_args.ContainsKey(nameof(ForAttachmentSet))) _vpnTenantIpNetworkIn.AttachmentSetID = (int)_args[nameof(ForAttachmentSet)];
-            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName))) await SetTenantIpNetworkAsync();
+            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName)) && _args.ContainsKey(nameof(WithTenant))) await SetTenantIpNetworkAsync();
             if (_args.ContainsKey(nameof(WithLocalIpRoutingPreference)))
                 _vpnTenantIpNetworkIn.LocalIpRoutingPreference = (int)_args[nameof(WithLocalIpRoutingPreference)];
             
@@ -75,9 +75,13 @@ namespace Mind.Builders
         {
             var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
             var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
-                q => q.AttachmentSetID == attachmentSetId, AsTrackable: true)
-                                 select result)
-                                 .SingleOrDefault();
+                            q => 
+                                q.AttachmentSetID == attachmentSetId, 
+                                query: q => q.Include(x => x.VpnAttachmentSets)
+                                .ThenInclude(x => x.Vpn),
+                                AsTrackable: true)
+                                select result)
+                                .SingleOrDefault();
 
             _vpnTenantIpNetworkIn.AttachmentSet = attachmentSet;
         }
@@ -89,9 +93,9 @@ namespace Mind.Builders
 
             var tenantIpNetwork = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
                               q =>
-                                q.TenantID == tenantId
-                                && q.CidrNameIncludingIpv4LessThanOrEqualToLength == tenantIpNetworkCidrName,
-                                AsTrackable: true)
+                                   q.TenantID == tenantId &&
+                                   q.CidrNameIncludingIpv4LessThanOrEqualToLength == tenantIpNetworkCidrName,
+                                   AsTrackable: true)
                                    select result)
                                    .SingleOrDefault();
 
@@ -114,23 +118,13 @@ namespace Mind.Builders
                                 x =>
                                     x.Ipv4PeerAddress == ipv4PeerAddress);
 
-            _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = false;
-            _vpnTenantIpNetworkIn.BgpPeer = bgpPeer ?? throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association " +
-                $"with the attachment set using the given arguments. The BGP peer address '{ipv4PeerAddress}' does not " +
-                $"exist within any routing instance which belongs to the attachment set.");
+            _vpnTenantIpNetworkIn.BgpPeer = bgpPeer;
         }
 
         protected virtual internal void SetAddToAllBgpPeersInAttachmentSet()
         {
             var addToAllBgpPeersInAttachmentSet = (bool)_args[nameof(AddToAllBgpPeersInAttachmentSet)];
-            if (_vpnTenantIpNetworkIn.BgpPeerID != null)
-            {
-                _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = false;
-            }
-            else
-            {
-                _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = true;
-            }
+            _vpnTenantIpNetworkIn.AddToAllBgpPeersInAttachmentSet = addToAllBgpPeersInAttachmentSet;
         }
     }
 }

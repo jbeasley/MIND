@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Data;
+using Mind.Models.RequestModels;
 
 namespace SCM.Services
 {
@@ -13,7 +14,8 @@ namespace SCM.Services
         Task<IEnumerable<VpnTenantIpNetworkRoutingInstanceStaticRoute>> GetAllByVpnIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> AddAsync(VpnTenantIpNetworkRoutingInstanceStaticRoute vpnTenantNetworkStaticRouteRoutingInstance);
+        Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> AddAsync(int attachmentSetId, VpnTenantIpNetworkRoutingInstanceStaticRouteRequest request);
         Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> UpdateAsync(VpnTenantIpNetworkRoutingInstanceStaticRoute vpnTenantNetworkStaticRouteRoutingInstance);
-        Task DeleteAsync(int vpnTenantNetworkStaticRouteRoutingInstanceId);
+        Task DeleteAsync(int vpnTenantNetworkRoutingInstanceStaticRouteId);
     }
 }

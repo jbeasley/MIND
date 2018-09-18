@@ -17,6 +17,13 @@ namespace SCM.Models
                         .Include(x => x.TenantIpNetwork)
                         .Include(x => x.BgpPeer);
         }
+
+        public static IQueryable<VpnTenantIpNetworkOut> IncludeDeepProperties(this IQueryable<VpnTenantIpNetworkOut> query)
+        {
+            return query.Include(x => x.AttachmentSet.VpnAttachmentSets)
+                        .Include(x => x.BgpPeer.RoutingInstance)
+                        .Include(x => x.TenantIpNetwork);
+        }
     }
 
     public class VpnTenantIpNetworkOut : IModifiableResource
@@ -47,7 +54,7 @@ namespace SCM.Models
                 throw new IllegalStateException("A tenant IP network is required but was not found.");
 
             if (this.BgpPeer == null)
-                throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrName}' " +
+                throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrName}' is required but " +
                     "was not found.");
         }
     }

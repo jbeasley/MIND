@@ -3,7 +3,7 @@ using System;
 namespace Mind.Models.RequestModels
 {
     /// <summary>
-    /// 
+    /// Model for requesting a tenant IP network asociation with the inbound policy of an attachment set
     /// </summary>
     public partial class VpnTenantIpNetworkInRequest
     {

@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
+using System.Text;
 
 namespace SCM.Models
 {
@@ -16,6 +17,15 @@ namespace SCM.Models
             return query.Include(x => x.AttachmentSet)
                         .Include(x => x.TenantIpNetwork)
                         .Include(x => x.BgpPeer);
+        }
+
+        public static IQueryable<VpnTenantIpNetworkIn> IncludeDeepProperties(this IQueryable<VpnTenantIpNetworkIn> query)
+        {
+            return query.Include(x => x.AttachmentSet.VpnAttachmentSets)
+                        .Include(x => x.BgpPeer.RoutingInstance)
+                        .Include(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnTenantIpNetworkCommunitiesIn)
+                        .Include(x => x.ExtranetVpnTenantNetworksIn);            
         }
     }
 
@@ -66,6 +76,20 @@ namespace SCM.Models
                         $"'{this.AttachmentSet.Name}'.");
                 }
             }
+
+            var sb = new StringBuilder();
+            (from result in this.AttachmentSet.VpnAttachmentSets.Where(
+             q =>
+             q.AttachmentSetID == this.AttachmentSetID && q.Vpn.IsExtranet)
+             select result.Vpn)
+             .ToList()
+             .ForEach(
+                x => sb.Append($"Tenant IP network '{this.TenantIpNetwork.CidrName}' " +
+                               $"cannot be added to the inbound policy of attachment set '{this.AttachmentSet.Name}' because the attachment set " +
+                               $"is associated with extranet vpn '{x.Name}' and the tenant IP network is not enabled for extranet. Update the tenant " +
+                               $"IP network to enable it for extranet services first.\n"));
+
+            if (sb.Length > 0) throw new IllegalStateException(sb.ToString());
         }
     }
 }

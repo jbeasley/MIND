@@ -25,17 +25,17 @@ namespace Mind.Api.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class VpnTenantIpNetworkInRequest : IEquatable<VpnTenantIpNetworkInRequest>, IValidatableObject
+    public partial class VpnTenantIpNetworkRoutingInstanceStaticRouteRequest : IEquatable<VpnTenantIpNetworkRoutingInstanceStaticRouteRequest>, IValidatableObject
     {
 
         /// <summary>
-        /// The ID of the tenant owner of the IP network to ba added to the inbound
-        /// policy of the attachment set.
+        /// The ID of the tenant owner of the IP network to ba added as a static route to the routing instance
+        /// of the attachment set.
         /// </summary>
         /// <value>An integer denoting the ID of the tenant</value>
         /// <example>1001</example>
         [DataMember(Name = "tenantId")]
-        [Required(ErrorMessage = "Please supply the ID of the tenant owner of the IP network to be added to the attachment set")]
+        [Required(ErrorMessage = "Please supply the ID of the tenant owner of the IP network to be added as a static route to the attachment set")]
         public int? TenantId { get; set; }
 
         /// <summary>
@@ -49,42 +49,50 @@ namespace Mind.Api.Models
         public string TenantIpNetworkCidrName { get; set; }
 
         /// <summary>
-        /// Denotes whether the tenant IP network should be learned from all BGP peers that are configured within the attachment set. This property 
-        /// caanot be used concurrently with the 'Ipv4PeerAddress' property.
+        /// Denotes whether the static route should be applied to all routing instances that are configured within the attachment set. This property 
+        /// caanot be used concurrently with the 'RoutingInstanceName' property.
         /// </summary>
-        /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
+        /// <value>Boolean denoting whether the static route should be applied to all routing instances that exist within the attachment set</value>
         /// <example>true</example>
-        [DataMember(Name = "addToAllBgpPeersInAttachmentSet")]
-        public bool? AddToAllBgpPeersInAttachmentSet { get; set; } = true;
+        [DataMember(Name = "addToAllRoutingInstancesInAttachmentSet")]
+        public bool? AddToAllRoutingInstancesInAttachmentSet { get; set; } = true;
 
         /// <summary>
-        /// An IPv4 BGP peer address from which the tenant IP network should be learned. THe specified BGP peer must be configured and exist
-        /// within the attachment set. This property cannot be used concurrently with the 'AddToAllBgpPeersInAttachmentSet' property.
+        /// The MIND system-generated name of a routing instance which is associated with the attachment set
+        /// to which the static route is to be associated
         /// </summary>
-        /// <value>string representing the address of an existing configured IPv4 BGP peer</value>
+        /// <value>String denoting the name of the routing instance</value>
+        /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
+        [DataMember(Name = "routingInstanceName")]
+        public string RoutingInstanceName { get; set; }
+
+        /// <summary>
+        /// An IPv4 next-hop address towards which traffic for the tenant IP network should be forwarded. The specified next-hop must be
+        /// reachable from all routing instances for which the static route is to be applied.
+        /// </summary>
+        /// <value>string representing the next-hop address</value>
         /// <example>192.168.0.1</example>
-        [DataMember(Name="ipv4PeerAddress")]
+        [DataMember(Name="ipv4NextHopAddress")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", 
             ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
-        public string Ipv4PeerAddress { get; set; }
+        public string Ipv4NextHopAddress { get; set; }
 
         /// <summary>
-        /// The local IP routing preference to be applied to the route towards the tenant IP network
+        /// Determines whether the static route is enabled with BFD fast-failure detection.
         /// </summary>
-        /// <value>Integer representing the local IP routing preference</value>
+        /// <value>Boolean value denoting whether BFD is enabled for the static route</value>
         /// <example>200</example>
-        [DataMember(Name = "localIpRoutingPreference")]
-        [Range(1, 500, ErrorMessage = "Local IP routing preference must be a number between 1 and 500")]
-        public int? LocalIpRoutingPreference { get; set; } = 100;
+        [DataMember(Name = "isBfdEnabled")]
+        public bool? IsBfdEnabled { get; set; } = true;
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-
-            if (!AddToAllBgpPeersInAttachmentSet.Value && string.IsNullOrEmpty(Ipv4PeerAddress))
+            if (AddToAllRoutingInstancesInAttachmentSet.HasValue && AddToAllRoutingInstancesInAttachmentSet.Value)
+                if (!string.IsNullOrEmpty(RoutingInstanceName))
             {
                 yield return new ValidationResult(
-                    "A BGP Peer address must be specified with the 'Ipv4PeerAddress' argument when the " +
-                    "'AddToAllBgpPeersInAttachmentSet' argument is set to false.");
+                    "The name of a routing instance must be specified with the 'RoutingInstanceName' argument when the " +
+                    "'AddToAllRoutingInstancesInAttachmentSet' argument is set to false.");
             }
         }
 
@@ -95,12 +103,13 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class VpnTenantIpNetworkInRequest {\n");
+            sb.Append("class VpnTenantIpNetworkRoutingInstanceStaticRouteRequest {\n");
             sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  TenantIpNetworkCidrName: ").Append(TenantIpNetworkCidrName).Append("\n");
-            sb.Append("  AddToAllBgpPeersInAttachmentSet: ").Append(AddToAllBgpPeersInAttachmentSet).Append("\n");
-            sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
-            sb.Append("  LocalIpRoutingPreference: ").Append(LocalIpRoutingPreference).Append("\n");
+            sb.Append("  AddToAllRoutingInstancesInAttachmentSet: ").Append(AddToAllRoutingInstancesInAttachmentSet).Append("\n");
+            sb.Append("  RoutingInstanceName: ").Append(RoutingInstanceName).Append("\n");
+            sb.Append("  Ipv4NextHopAddress: ").Append(Ipv4NextHopAddress).Append("\n");
+            sb.Append("  IsBfdEnabled: ").Append(IsBfdEnabled).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -123,15 +132,15 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((VpnTenantIpNetworkInRequest)obj);
+            return obj.GetType() == GetType() && Equals((VpnTenantIpNetworkRoutingInstanceStaticRouteRequest)obj);
         }
 
         /// <summary>
-        /// Returns true if VpnTenantIpNetworkIn instances are equal
+        /// Returns true if VpnTenantIpNetworkRoutingInstanceStaticRouteRequest instances are equal
         /// </summary>
-        /// <param name="other">Instance of VpnTenantIpNetworkIn to be compared</param>
+        /// <param name="other">Instance of VpnTenantIpNetworkRoutingInstanceStaticRouteRequest to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(VpnTenantIpNetworkInRequest other)
+        public bool Equals(VpnTenantIpNetworkRoutingInstanceStaticRouteRequest other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -148,19 +157,24 @@ namespace Mind.Api.Models
                     TenantIpNetworkCidrName.Equals(other.TenantIpNetworkCidrName)
                 ) &&
                 (
-                    AddToAllBgpPeersInAttachmentSet == other.AddToAllBgpPeersInAttachmentSet ||
-                    AddToAllBgpPeersInAttachmentSet != null &&
-                    AddToAllBgpPeersInAttachmentSet.Equals(other.AddToAllBgpPeersInAttachmentSet)
+                    AddToAllRoutingInstancesInAttachmentSet == other.AddToAllRoutingInstancesInAttachmentSet ||
+                    AddToAllRoutingInstancesInAttachmentSet != null &&
+                    AddToAllRoutingInstancesInAttachmentSet.Equals(other.AddToAllRoutingInstancesInAttachmentSet)
+                ) &&
+                (
+                    RoutingInstanceName == other.RoutingInstanceName ||
+                    RoutingInstanceName != null &&
+                    RoutingInstanceName.Equals(other.RoutingInstanceName)
                 ) && 
                 (
-                    Ipv4PeerAddress == other.Ipv4PeerAddress ||
-                    Ipv4PeerAddress != null &&
-                    Ipv4PeerAddress.Equals(other.Ipv4PeerAddress)
+                    Ipv4NextHopAddress == other.Ipv4NextHopAddress ||
+                    Ipv4NextHopAddress != null &&
+                    Ipv4NextHopAddress.Equals(other.Ipv4NextHopAddress)
                 ) && 
                 (
-                    LocalIpRoutingPreference == other.LocalIpRoutingPreference ||
-                    LocalIpRoutingPreference != null &&
-                    LocalIpRoutingPreference.Equals(other.LocalIpRoutingPreference)
+                    IsBfdEnabled == other.IsBfdEnabled ||
+                    IsBfdEnabled != null &&
+                    IsBfdEnabled.Equals(other.IsBfdEnabled)
                 );
         }
 
@@ -178,12 +192,14 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (TenantIpNetworkCidrName != null)
                     hashCode = hashCode * 59 + TenantIpNetworkCidrName.GetHashCode();
-                    if (AddToAllBgpPeersInAttachmentSet != null)
-                    hashCode = hashCode * 59 + AddToAllBgpPeersInAttachmentSet.GetHashCode();
-                    if (Ipv4PeerAddress != null)
-                    hashCode = hashCode * 59 + Ipv4PeerAddress.GetHashCode();
-                    if (LocalIpRoutingPreference != null)
-                    hashCode = hashCode * 59 + LocalIpRoutingPreference.GetHashCode();
+                    if (AddToAllRoutingInstancesInAttachmentSet != null)
+                    hashCode = hashCode * 59 + AddToAllRoutingInstancesInAttachmentSet.GetHashCode();
+                    if (RoutingInstanceName != null)
+                    hashCode = hashCode * 59 + RoutingInstanceName.GetHashCode();
+                    if (Ipv4NextHopAddress != null)
+                    hashCode = hashCode * 59 + Ipv4NextHopAddress.GetHashCode();
+                    if (IsBfdEnabled != null)
+                    hashCode = hashCode * 59 + IsBfdEnabled.GetHashCode();
                 return hashCode;
             }
         }
@@ -191,12 +207,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(VpnTenantIpNetworkInRequest left, VpnTenantIpNetworkInRequest right)
+        public static bool operator ==(VpnTenantIpNetworkRoutingInstanceStaticRouteRequest left, VpnTenantIpNetworkRoutingInstanceStaticRouteRequest right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(VpnTenantIpNetworkInRequest left, VpnTenantIpNetworkInRequest right)
+        public static bool operator !=(VpnTenantIpNetworkRoutingInstanceStaticRouteRequest left, VpnTenantIpNetworkRoutingInstanceStaticRouteRequest right)
         {
             return !Equals(left, right);
         }

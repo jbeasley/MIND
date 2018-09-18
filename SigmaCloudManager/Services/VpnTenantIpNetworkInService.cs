@@ -6,6 +6,7 @@ using SCM.Models;
 using System.Threading.Tasks;
 using Mind.Models.RequestModels;
 using Mind.Builders;
+using Microsoft.EntityFrameworkCore;
 
 namespace SCM.Services
 {
@@ -13,9 +14,6 @@ namespace SCM.Services
     {
         private readonly IVpnTenantIpNetworkInDirector _director;
         private readonly IVpnTenantIpNetworkInUpdateDirector _updateDirector;
-        private readonly string _properties = "AttachmentSet.VpnAttachmentSets.Vpn.ExtranetVpns.ExtranetVpn,"
-        + "BgpPeer.RoutingInstance,"
-        + "TenantIpNetwork";
 
         public VpnTenantIpNetworkInService(IUnitOfWork unitOfWork, IVpnTenantIpNetworkInDirector director, 
             IVpnTenantIpNetworkInUpdateDirector updateDirector) : base(unitOfWork)
@@ -28,18 +26,26 @@ namespace SCM.Services
         /// Get all VPN Tenant IP Networks for a given Attachment Set.
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="deep"></param>
         /// <returns></returns>
         public async Task<IEnumerable<VpnTenantIpNetworkIn>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await this.UnitOfWork.VpnTenantIpNetworkInRepository.GetAsync(q => q.AttachmentSetID == id, 
-                includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
-                AsTrackable: asTrackable);
+            return await this.UnitOfWork.VpnTenantIpNetworkInRepository.GetAsync(
+                    q => 
+                        q.AttachmentSetID == id,
+                        query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.Include(x => x.TenantIpNetwork),
+                        AsTrackable: asTrackable);
         }
 
         /// <summary>
         /// Get all VPN tenant IP networks for a given tenant which are associated with a given VPN 
         /// </summary>
         /// <param name="vpnId"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="deep"></param>
+        /// <param name="extranet"></param>
+        /// <param name="tenantId"></param>
         /// <returns></returns>
         public async Task<IEnumerable<VpnTenantIpNetworkIn>> GetAllByVpnIDAsync(int vpnId, int? tenantId = null, bool extranet = false, bool? deep = false, bool asTrackable = false)
         {
@@ -47,7 +53,7 @@ namespace SCM.Services
                   q =>
                         q.AttachmentSet.VpnAttachmentSets.Select(x =>
                         x.VpnID == vpnId).Any(),
-                        includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
+                        query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.Include(x => x.TenantIpNetwork),
                         AsTrackable: asTrackable)
                          select result);
 
@@ -59,13 +65,15 @@ namespace SCM.Services
         /// Get a single VPN Tenant IP Network.
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="deep"></param>
+        /// <param name="asTrackable"></param>
         /// <returns></returns>
         public async Task<VpnTenantIpNetworkIn> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
             return (from result in await UnitOfWork.VpnTenantIpNetworkInRepository.GetAsync(
                 q => 
                     q.VpnTenantIpNetworkInID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : "TenantIpNetwork",
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q.Include(x => x.TenantIpNetwork),
                     AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();

@@ -1,7 +1,7 @@
 namespace Mind.Models.RequestModels
 {
     /// <summary>
-    /// 
+    /// Model for requesting a tenant ip network association with the outbound policy of an attachment set
     /// </summary>
     public partial class VpnTenantIpNetworkOutRequest
     {

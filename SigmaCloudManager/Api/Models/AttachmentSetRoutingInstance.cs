@@ -33,35 +33,35 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>An integer value</value>
         [DataMember(Name = "attachmentSetRoutingInstanceId")]
-        public int? AttachmentSetRoutingInstanceID { get; set; }
+        public int? AttachmentSetRoutingInstanceID { get; private set; }
 
         /// <summary>
         /// Default preference applied to IPv4 and IPv6 routes within the routing instance
         /// </summary>
         /// <value>Integer value denoting the default preference applied to IPv4 and IPv6 routes within the routing instance</value>
         [DataMember(Name = "localIpRoutingPreference")]
-        public int? LocalIpRoutingPreference { get; set; }
+        public int? LocalIpRoutingPreference { get; private set; }
 
         /// <summary>
         /// Default preference of IPv4 and IPv6 routes advertised from the routing instance
         /// </summary>
         /// <value>Integer value denoting the default preference of IPv4 and IPv6 routes advertised from the routing instance</value>
         [DataMember(Name = "advertisedIpRoutingPreference")]
-        public int? AdvertisedIpRoutingPreference { get; set; }
+        public int? AdvertisedIpRoutingPreference { get; private set; }
 
         /// <summary>
         /// Default multicast designated router preference
         /// </summary>
         /// <value>Integer value denoting the multicast designated router preference</value>
         [DataMember(Name = "multicastDesignatedRouterPreference")]
-        public int? MulticastDesignatedRouterPreference { get; set; }
+        public int? MulticastDesignatedRouterPreference { get; private set; }
 
         /// <summary>
         /// The routing instance
         /// </summary>
         /// <value>An instance of RoutingInstance</value>
         [DataMember(Name = "routingInstance")]
-        public RoutingInstance RoutingInstance { get; set; }
+        public RoutingInstance RoutingInstance { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

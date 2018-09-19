@@ -32,28 +32,28 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>The ID of the interface</value>
         [DataMember(Name="interfaceId")]
-        public int? InterfaceId { get; set; }
+        public int? InterfaceId { get; private set; }
 
         /// <summary>
         /// IPv4 address assigned to the interface
         /// </summary>
         /// <value>String value representing the IPv4 address assigned to the interface</value>
         [DataMember(Name = "ipAddress")]
-        public string IpAddress { get; set; }
+        public string IpAddress { get; private set; }
 
         /// <summary>
         /// IPv4 subnet mask assigned to the interface
         /// </summary>
         /// <value>String value representing the IPv4 subnet mask assigned to the interface</value>
         [DataMember(Name = "subnetMask")]
-        public string SubnetMask { get; set; }
+        public string SubnetMask { get; private set; }
 
         /// <summary>
         /// Ports which provide physical connectivity to the network for the interface
         /// </summary>
         /// <value>The ports of the interface</value>
         [DataMember(Name = "ports")]
-        public List<Port> Ports { get; set; }
+        public List<Port> Ports { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

@@ -33,7 +33,7 @@ namespace Mind.Api.Models
         /// <value>Integer denoting the ID of the vpn attachment set</value>
         /// <example>13001</example>
         [DataMember(Name = "vpnAttachmentSetId")]
-        public int? VpnAttachmentSetId { get; set; }
+        public int? VpnAttachmentSetId { get; private set; }
 
         /// <summary>
         /// The name of the attachment set
@@ -41,7 +41,7 @@ namespace Mind.Api.Models
         /// <value>A string denoting the name of the attachment set</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [DataMember(Name = "attachmentSetName")]
-        public string AttachmentSetName { get; set; }
+        public string AttachmentSetName { get; private set; }
 
         /// <summary>
         /// The ID of the attachment set
@@ -49,7 +49,7 @@ namespace Mind.Api.Models
         /// <value>An integer value denoting the ID of the attachment set</value>
         /// <example>9001</example>
         [DataMember(Name = "attachmentSetId")]
-        public string AttachmentSetId { get; set; }
+        public string AttachmentSetId { get; private set; }
 
         /// <summary>
         /// The name of the vpn
@@ -57,7 +57,7 @@ namespace Mind.Api.Models
         /// <value>A string denoting the name of the vpn</value>
         /// <example>cloud-connectivity-vpn</example>
         [DataMember(Name = "vpnName")]
-        public string VpnName { get; set; }
+        public string VpnName { get; private set; }
 
         /// <summary>
         /// The ID of the vpn
@@ -65,7 +65,7 @@ namespace Mind.Api.Models
         /// <value>An integer denoting the ID of the vpn</value>
         /// <example>8001</example>
         [DataMember(Name = "vpnId")]
-        public string VpnId { get; set; }
+        public string VpnId { get; private set; }
 
         /// <summary>
         /// Determines if the attachment set is configured as a hub for the association with the vpn.
@@ -73,7 +73,7 @@ namespace Mind.Api.Models
         /// <value>Boolean value denoting the hub state of the attachment set</value>
         /// <example>true</example>
         [DataMember(Name="isHub")]
-        public bool? IsHub { get; set; }
+        public bool? IsHub { get; private set; }
 
         /// <summary>
         /// Determines if the attachment set is directly integrated with the tenant multicast domain.
@@ -81,7 +81,7 @@ namespace Mind.Api.Models
         /// <value>Boolean value denoting whether the attachment set is directly integrated with the tenant multicast domain</value>
         /// <example>true</example>
         [DataMember(Name = "isMulticastDirectlyIntegrated")]
-        public bool? IsMulticastDirectlyIntegrated { get; set; }
+        public bool? IsMulticastDirectlyIntegrated { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

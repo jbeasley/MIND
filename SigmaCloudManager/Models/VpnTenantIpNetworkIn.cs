@@ -62,7 +62,7 @@ namespace SCM.Models
             {
                 if (this.BgpPeer != null)
                 {
-                    throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrName}' " +
+                    throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' " +
                         "was found but is not required because the request is to add the tenant IP network to all bgp peers in attachment set " +
                         $"'{this.AttachmentSet.Name}'.");
                 }
@@ -71,7 +71,7 @@ namespace SCM.Models
             {
                 if (this.BgpPeer == null)
                 {
-                    throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrName}' " +
+                    throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' " +
                         "is required because the request is to add the tenant IP network to a specific bgp peer in attachment set " +
                         $"'{this.AttachmentSet.Name}'.");
                 }
@@ -90,6 +90,13 @@ namespace SCM.Models
                                $"IP network to enable it for extranet services first.\n"));
 
             if (sb.Length > 0) throw new IllegalStateException(sb.ToString());
+
+            if (this.TenantIpNetwork.TenantID != this.AttachmentSet.TenantID)
+            {
+                throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' cannot " +
+                    $"be added to the inbound policy of attachment set '{this.AttachmentSet.Name}' because the tenant owner of the IP network and " +
+                    $"the tenant owner of the attachment set are not the same.");
+            }
         }
     }
 }

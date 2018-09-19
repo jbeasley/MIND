@@ -33,7 +33,7 @@ namespace Mind.Api.Models
         /// <value>Integer value for the ID of the attachment set</value>
         /// <example>11001</example>
         [DataMember(Name="attachmentSetId")]
-        public int AttachmentSetID { get; set; }
+        public int AttachmentSetID { get; private set; }
 
         /// <summary>
         /// MIND System-generated name of the attachment set
@@ -41,7 +41,7 @@ namespace Mind.Api.Models
         /// <value>String value for the name of the attachment set</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [DataMember(Name="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// The geographic region within which the attachment set operates.
@@ -49,7 +49,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the geographic region within which the attachment set operates</value>
         /// <example>EMEA</example>
         [DataMember(Name="region")]
-        public string Region { get; set; }
+        public string Region { get; private set; }
 
         /// <summary>
         /// The geographic sub-region within which the attachment set operates
@@ -57,7 +57,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the geographic sub-region within which the attachment set operates</value>
         /// <example>UK</example>
         [DataMember(Name="subRegion")]
-        public string SubRegion { get; set; }
+        public string SubRegion { get; private set; }
 
         /// <summary>
         /// Denotes the attachment redundancy level supported by the attachment set
@@ -65,7 +65,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the attachment redundancy level</value>
         /// <example>Silver</example>
         [DataMember(Name="attachmentRedundancy")]
-        public string AttachmentRedundancy { get; set; }
+        public string AttachmentRedundancy { get; private set; }
 
         /// <summary>
         /// Denotes the multicast vpn domain type of the attachment set
@@ -73,7 +73,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the multicast vpn domain type</value>
         /// <example>Sender-Only</example>
         [DataMember(Name = "multicastVpnDomainType")]
-        public string MulticastVpnDomainType { get; set; }
+        public string MulticastVpnDomainType { get; private set; }
 
         /// <summary>
         /// Denotees whether the attachment set is enabled for layer 3
@@ -81,27 +81,35 @@ namespace Mind.Api.Models
         /// <value>Boolean value denoting if the attachment set is enabled for layer 3</value>
         /// <example>true</example>
         [DataMember(Name="isLayer3")]
-        public bool? IsLayer3 { get; set; }
+        public bool? IsLayer3 { get; private set; }
 
         /// <summary>
         /// The list of routing instances which belong to the attachment Set
         /// </summary>
         /// <value>A list of AttachmentSetRoutingInstance objects</value>
         [DataMember(Name="attachmentSetRoutingInstances")]
-        public List<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; set; }
+        public List<AttachmentSetRoutingInstance> AttachmentSetRoutingInstances { get; private set; }
 
         /// <summary>
-        /// A list of tenant IP network associations with the inbound policy of the attachment set
+        /// A list of tenant IP network associations with the bgp inbound policy of the attachment set
         /// </summary>
         /// <value>A list of vpn tenant IP network in objects</value>
-        [DataMember(Name = "vpnTenantIpNetworksIn")]
-        public List<VpnTenantIpNetworkIn> VpnTenantIpNetworksIn { get; set; }
+        [DataMember(Name = "bgpIpNetworkInboundPolicy")]
+        public List<VpnTenantIpNetworkIn> BgpIpNetworkInboundPolicy { get; private set; }
 
         /// <summary>
-        /// A lit of tenant IP network associations with the outbound policy of the attachment set
+        /// A list of tenant IP network associations with the bgp outbound policy of the attachment set
         /// </summary>
-        [DataMember(Name = "vpnTenantIpNetworksOut")]
-        public List<VpnTenantIpNetworkOut> VpnTenantIpNetworksOut { get; set; }
+        /// <value>A list of vpn tenant IP network out objects</value>
+        [DataMember(Name = "bgpIpNetworkOutboundPolicy")]
+        public List<VpnTenantIpNetworkOut> BgpIpNetworkOutboundPolicy { get; private set; }
+
+        /// <summary>
+        /// A list of tenant IP network static route associations with the attachment set
+        /// </summary>
+        /// <value>A list of vpn tenant IP network routing instance static route objects</value>
+        [DataMember(Name = "staticRoutes")]
+        public List<VpnTenantIpNetworkRoutingInstanceStaticRoute> StaticRoutes { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -116,8 +124,8 @@ namespace Mind.Api.Models
             sb.Append("  SubRegion: ").Append(SubRegion).Append("\n");
             sb.Append("  AttachmentRedundancy: ").Append(AttachmentRedundancy).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
-            sb.Append("  VpnTenantIpNetworksIn: ").Append(VpnTenantIpNetworksIn).Append("\n");
-            sb.Append("  VpnTenantIpNetworksOut: ").Append(VpnTenantIpNetworksOut).Append("\n");
+            sb.Append("  BgpIpNetworkInboundPolicy: ").Append(BgpIpNetworkInboundPolicy).Append("\n");
+            sb.Append("  BgpIpNetworkOutboundPolicy: ").Append(BgpIpNetworkOutboundPolicy).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -180,14 +188,14 @@ namespace Mind.Api.Models
                     IsLayer3.Equals(other.IsLayer3)
                 ) &&
                 (
-                    VpnTenantIpNetworksIn == other.VpnTenantIpNetworksIn ||
-                    VpnTenantIpNetworksIn != null &&
-                    VpnTenantIpNetworksIn.Equals(other.VpnTenantIpNetworksIn)
+                    BgpIpNetworkInboundPolicy == other.BgpIpNetworkInboundPolicy ||
+                    BgpIpNetworkInboundPolicy != null &&
+                    BgpIpNetworkInboundPolicy.Equals(other.BgpIpNetworkInboundPolicy)
                 ) &&
                 (
-                    VpnTenantIpNetworksOut == other.VpnTenantIpNetworksOut ||
-                    VpnTenantIpNetworksOut != null &&
-                    VpnTenantIpNetworksOut.Equals(other.VpnTenantIpNetworksOut)
+                    BgpIpNetworkOutboundPolicy == other.BgpIpNetworkOutboundPolicy ||
+                    BgpIpNetworkOutboundPolicy != null &&
+                    BgpIpNetworkOutboundPolicy.Equals(other.BgpIpNetworkOutboundPolicy)
                 );
         }
 
@@ -211,10 +219,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AttachmentRedundancy.GetHashCode();
                     if (IsLayer3 != null)
                     hashCode = hashCode * 59 + IsLayer3.GetHashCode();
-                    if (VpnTenantIpNetworksIn != null)
-                    hashCode = hashCode * 59 + VpnTenantIpNetworksIn.GetHashCode();
-                    if (VpnTenantIpNetworksOut != null)
-                    hashCode = hashCode * 59 + VpnTenantIpNetworksOut.GetHashCode();
+                    if (BgpIpNetworkInboundPolicy != null)
+                    hashCode = hashCode * 59 + BgpIpNetworkInboundPolicy.GetHashCode();
+                    if (BgpIpNetworkOutboundPolicy != null)
+                    hashCode = hashCode * 59 + BgpIpNetworkOutboundPolicy.GetHashCode();
                 return hashCode;
             }
         }

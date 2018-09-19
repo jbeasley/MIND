@@ -116,7 +116,7 @@ namespace SCM.Models
             // belongs to the routing instance
             if (!this.IsMultiHop)
             {
-                var vif = this.RoutingInstance.Vifs.SelectMany(
+                var vlan = this.RoutingInstance.Vifs.SelectMany(
                     x =>
                     x.Vlans)
                      .ToList()
@@ -127,7 +127,7 @@ namespace SCM.Models
                             return network.Contains(peerIpv4Address);
                         });
 
-                var attachment = this.RoutingInstance.Attachments.SelectMany(
+                var iface = this.RoutingInstance.Attachments.SelectMany(
                     x =>
                     x.Interfaces)
                      .ToList()
@@ -138,7 +138,7 @@ namespace SCM.Models
                             return network.Contains(peerIpv4Address);
                         });
 
-                if (vif == null && attachment == null)
+                if (vlan == null && iface == null)
                     throw new IllegalStateException($"The peer address '{this.Ipv4PeerAddress}' is not contained by any network which is " +
                         $"directly reachable from routing instance '{this.RoutingInstance.Name}'. Check that the IP address for at least one vif or " +
                         $"attachment belonging to the routing instance is in the same IPv4 network as the bgp peer.");

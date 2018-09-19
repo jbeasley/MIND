@@ -16,6 +16,7 @@ namespace SCM.Services
         Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> AddAsync(VpnTenantIpNetworkRoutingInstanceStaticRoute vpnTenantNetworkStaticRouteRoutingInstance);
         Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> AddAsync(int attachmentSetId, VpnTenantIpNetworkRoutingInstanceStaticRouteRequest request);
         Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> UpdateAsync(VpnTenantIpNetworkRoutingInstanceStaticRoute vpnTenantNetworkStaticRouteRoutingInstance);
+        Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> UpdateAsync(int vpnTenantIpNetworkRoutingInstanceStaticRouteId, VpnTenantIpNetworkRoutingInstanceStaticRouteUpdate update);
         Task DeleteAsync(int vpnTenantNetworkRoutingInstanceStaticRouteId);
     }
 }

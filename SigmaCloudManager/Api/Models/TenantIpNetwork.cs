@@ -73,14 +73,14 @@ namespace Mind.Api.Models
         /// <value>Integer value for the ID of the tenant</value>
         /// <example>1001</example>
         [DataMember(Name="tenantId")]
-        public int? TenantId { get; set; }
+        public int? TenantId { get; private set; }
 
         /// <summary>
         /// The IP routing behavior for traffic forwarding towards the tenant IP network
         /// </summary>
         /// <value>Enum member value denoting the tenant ip routing behavior</value>
         [DataMember(Name = "tenantIpRoutingBehaviour")]
-        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; }
+        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

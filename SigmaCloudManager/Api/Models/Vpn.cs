@@ -33,7 +33,7 @@ namespace Mind.Api.Models
         /// <value>Integer value denoting the ID of the vpn</value>
         /// <example>12001</example>
         [DataMember(Name = "vpnId")]
-        public int? VpnId { get; set; }
+        public int? VpnId { get; private set; }
 
         /// <summary>
         /// The name of the VPN
@@ -41,7 +41,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the name of the vpn</value>
         /// <example>cloud-connectivity-vpn</example>
         [DataMember(Name="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// A description of the vpn
@@ -49,7 +49,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the description of the vpn</value>
         /// <example>vpn for providing IP connectivity between hosts running in public and private clouds</example>
         [DataMember(Name="description")]
-        public string Description { get; set; }
+        public string Description { get; private set; }
 
         /// <summary>
         /// The tenant owner of the vpn
@@ -57,7 +57,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the name of the tenant owner</value>
         /// <example>product-group-tenant</example>
         [DataMember(Name = "tenantOwnerName")]
-        public string TenantOwnerName { get; set; }
+        public string TenantOwnerName { get; private set; }
 
         /// <summary>
         /// The geographical region which the vpn operates within.
@@ -65,7 +65,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the geographical region which the vpn operates within.</value>
         /// <example>EMEA</example>
         [DataMember(Name="region")]
-        public string Region { get; set; }
+        public string Region { get; private set; }
 
         /// <summary>
         /// The provider plane which the vpn operates within.
@@ -73,7 +73,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the provider plane which the vpn operates within.</value>
         /// <example>red</example>
         [DataMember(Name="plane")]
-        public string Plane { get; set; }
+        public string Plane { get; private set; }
 
         /// <summary>
         /// The tenancy type of the vpn. If the tenancy type is 'single' then only the owner of the VPN can participate in the vpn. 
@@ -82,7 +82,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the tenancy type of the vpn.</value>
         /// <example>single</example>
         [DataMember(Name="tenancyType")]
-        public string TenancyType { get; set; }
+        public string TenancyType { get; private set; }
 
         /// <summary>
         /// The topology type of the vpn. A meshed vpn allows any endpoint to communicate with any other endpoint. 
@@ -91,7 +91,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the topology type of the vpn.</value>
         /// <example>meshed</example>
         [DataMember(Name="topologyType")]
-        public string TopologyType { get; set; }
+        public string TopologyType { get; private set; }
 
         /// <summary>
         /// The address family of the vpn.
@@ -99,7 +99,7 @@ namespace Mind.Api.Models
         /// <value>String valude dneoting the address family of the vpn.</value>
         /// <example>ipv4</example>
         [DataMember(Name="addressFamily")]
-        public string AddressFamily { get; set; }
+        public string AddressFamily { get; private set; }
 
         /// <summary>
         /// Denotes whether the vpn conforms to the Nova standard. If this attribute is set to disabled then the VPN does not follow a standard 
@@ -108,7 +108,7 @@ namespace Mind.Api.Models
         /// <value>Boolean value denoting the vpn as Nova standard compliant.</value>
         /// <example>true</example>
         [DataMember(Name="isNovaVpn")]
-        public bool? IsNovaVpn { get; set; }
+        public bool? IsNovaVpn { get; private set; }
 
         /// <summary>
         /// Denotes if the vpn supports extranet connectivity
@@ -116,7 +116,7 @@ namespace Mind.Api.Models
         /// <value>Boolean denoting whether the vpn supports extranet</value>
         /// <example>true</example>
         [DataMember(Name = "isExtranet")]
-        public bool? IsExtranet { get; set; }
+        public bool? IsExtranet { get; private set; }
 
         /// <summary>
         /// Denotes if the VPN supports IP multicast
@@ -124,7 +124,7 @@ namespace Mind.Api.Models
         /// <value>Boolean denoting whether the vpn supports IP multicast.</value>
         /// <example>true</example>
         [DataMember(Name = "isMulticastVpn")]
-        public bool? IsMulticastVpn { get; set; }
+        public bool? IsMulticastVpn { get; private set; }
 
         /// <summary>
         /// The multicast service type of the VPN. 
@@ -132,7 +132,7 @@ namespace Mind.Api.Models
         /// <value>Enum value denoting the multicast service type of the vpn.</value>
         /// <example>ssm</example>
         [DataMember(Name = "multicastVpnServiceType")]
-        public string MulticastVpnServiceType { get; set; }
+        public string MulticastVpnServiceType { get; private set; }
 
         /// <summary>
         /// The multicast direction type of the VPN. 
@@ -140,14 +140,14 @@ namespace Mind.Api.Models
         /// <value>Enum value denoting the multicast direction type of the vpn.</value>
         /// <example>unidirectional</example>
         [DataMember(Name = "multicastVpnDirectionType")]
-        public string MulticastVpnDirectionType { get; set; }
+        public string MulticastVpnDirectionType { get; private set; }
 
         /// <summary>
         /// Route targets assigned to the vpn
         /// </summary>
         /// <value>A list of RouteTarget objects</value>
         [DataMember(Name = "routeTargets")]
-        public List<RouteTarget> RouteTargets { get; set; }
+        public List<RouteTarget> RouteTargets { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

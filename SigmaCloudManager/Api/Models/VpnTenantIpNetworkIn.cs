@@ -66,7 +66,7 @@ namespace Mind.Api.Models
         /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
         /// <example>true</example>
         [DataMember(Name = "addToAllBgpPeersInAttachmentSet")]
-        public bool? AddToAllBgpPeersInAttachmentSet { get; set; } = true;
+        public bool? AddToAllBgpPeersInAttachmentSet { get; private set; } = true;
 
         /// <summary>
         /// An IPv4 BGP peer address from which the tenant IP network should be learned
@@ -74,7 +74,7 @@ namespace Mind.Api.Models
         /// <value>string representing the address of an existing configured IPv4 BGP peer</value>
         /// <example>192.168.0.1</example>
         [DataMember(Name = "ipv4PeerAddress")]
-        public string Ipv4PeerAddress { get; set; }
+        public string Ipv4PeerAddress { get; private set; }
 
         /// <summary>
         /// The local IP routing preference applied to the route towards the tenant IP network
@@ -82,7 +82,7 @@ namespace Mind.Api.Models
         /// <value>Integer representing the local IP routing preference</value>
         /// <example>200</example>
         [DataMember(Name = "localIpRoutingPreference")]
-        public int? LocalIpRoutingPreference { get; set; } = 100;
+        public int? LocalIpRoutingPreference { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

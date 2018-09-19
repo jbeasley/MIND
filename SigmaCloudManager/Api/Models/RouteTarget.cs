@@ -33,7 +33,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the name of the route target range</value>
         /// <example>default</example>
         [DataMember(Name="rangeName")]
-        public string RangeName { get; set; }
+        public string RangeName { get; private set; }
 
         /// <summary>
         /// The administrator subfield value.
@@ -41,7 +41,7 @@ namespace Mind.Api.Models
         /// <value>Integer value for the administrator subfield</value>
         /// <example></example>
         [DataMember(Name = "administratorSubField")]
-        public int? AdministratorSubField { get; set; }
+        public int? AdministratorSubField { get; private set; }
 
         /// <summary>
         /// The assigned-number subfield value.
@@ -49,7 +49,7 @@ namespace Mind.Api.Models
         /// <value>Integer value for the assigned number subfield</value>
         /// <example></example>
         [DataMember(Name ="assignedNumberSubField")]
-        public int? AssignedNumberSubField { get; set; }
+        public int? AssignedNumberSubField { get; private set; }
 
         /// <summary>
         /// The name of the route target formatted according to type 0 as defined in RFC 4364
@@ -57,7 +57,7 @@ namespace Mind.Api.Models
         /// <value>A string value denoting the name of the route target</value>
         /// <example>8718:1001</example>
         [DataMember(Name ="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Denotes whether the route target is assigned as a hub-export route target for a hub-and-spoke vpn.
@@ -65,7 +65,7 @@ namespace Mind.Api.Models
         /// <value>Boolean value denoting whether the route target should be assigned as a hub export route target.</value>
         /// <example>true</example>
         [DataMember(Name = "isHubExport")]
-        public bool? IsHubExport { get; set; }
+        public bool? IsHubExport { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

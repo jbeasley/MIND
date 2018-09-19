@@ -29,16 +29,6 @@ namespace Mind.Api.Models
     {
 
         /// <summary>
-        /// The ID of the tenant owner of the IP network to ba added as a static route to the routing instance
-        /// of the attachment set.
-        /// </summary>
-        /// <value>An integer denoting the ID of the tenant</value>
-        /// <example>1001</example>
-        [DataMember(Name = "tenantId")]
-        [Required(ErrorMessage = "Please supply the ID of the tenant owner of the IP network to be added as a static route to the attachment set")]
-        public int? TenantId { get; set; }
-
-        /// <summary>
         /// CIDR block name of the tenant IP network
         /// </summary>
         /// <value>String value for the CIDR representation of the tenant IP network</value>
@@ -53,9 +43,9 @@ namespace Mind.Api.Models
         /// caanot be used concurrently with the 'RoutingInstanceName' property.
         /// </summary>
         /// <value>Boolean denoting whether the static route should be applied to all routing instances that exist within the attachment set</value>
-        /// <example>true</example>
+        /// <example>false</example>
         [DataMember(Name = "addToAllRoutingInstancesInAttachmentSet")]
-        public bool? AddToAllRoutingInstancesInAttachmentSet { get; set; } = true;
+        public bool? AddToAllRoutingInstancesInAttachmentSet { get; set; } = false;
 
         /// <summary>
         /// The MIND system-generated name of a routing instance which is associated with the attachment set
@@ -75,6 +65,7 @@ namespace Mind.Api.Models
         [DataMember(Name="ipv4NextHopAddress")]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", 
             ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
+        [Required]
         public string Ipv4NextHopAddress { get; set; }
 
         /// <summary>
@@ -89,11 +80,20 @@ namespace Mind.Api.Models
         {
             if (AddToAllRoutingInstancesInAttachmentSet.HasValue && AddToAllRoutingInstancesInAttachmentSet.Value)
                 if (!string.IsNullOrEmpty(RoutingInstanceName))
-            {
-                yield return new ValidationResult(
-                    "The name of a routing instance must be specified with the 'RoutingInstanceName' argument when the " +
-                    "'AddToAllRoutingInstancesInAttachmentSet' argument is set to false.");
-            }
+                {
+                    yield return new ValidationResult(
+                        "The name of a routing instance canot be specified when the 'AddToAllRoutingInstancesInAttachmentSet' " +
+                        "argument is set to 'true'.");
+                }
+
+            if (AddToAllRoutingInstancesInAttachmentSet.HasValue && !AddToAllRoutingInstancesInAttachmentSet.Value)
+                if (string.IsNullOrEmpty(RoutingInstanceName))
+                {
+                    yield return new ValidationResult(
+                        "You must specify either the name of a routing instance with the 'RoutingInstanceName' argument, or specify that " +
+                        "the static route should be associated with all routing instances in the attachment set with the " +
+                        "'AddToAllRoutingInstancesInAttachmentSet' argument.");
+                }
         }
 
         /// <summary>
@@ -104,7 +104,6 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class VpnTenantIpNetworkRoutingInstanceStaticRouteRequest {\n");
-            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  TenantIpNetworkCidrName: ").Append(TenantIpNetworkCidrName).Append("\n");
             sb.Append("  AddToAllRoutingInstancesInAttachmentSet: ").Append(AddToAllRoutingInstancesInAttachmentSet).Append("\n");
             sb.Append("  RoutingInstanceName: ").Append(RoutingInstanceName).Append("\n");
@@ -147,11 +146,6 @@ namespace Mind.Api.Models
 
             return
                 (
-                    TenantId == other.TenantId ||
-                    TenantId != null &&
-                    TenantId.Equals(other.TenantId)
-                ) &&
-                (
                     TenantIpNetworkCidrName == other.TenantIpNetworkCidrName ||
                     TenantIpNetworkCidrName != null &&
                     TenantIpNetworkCidrName.Equals(other.TenantIpNetworkCidrName)
@@ -188,8 +182,6 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (TenantId != null)
-                    hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (TenantIpNetworkCidrName != null)
                     hashCode = hashCode * 59 + TenantIpNetworkCidrName.GetHashCode();
                     if (AddToAllRoutingInstancesInAttachmentSet != null)

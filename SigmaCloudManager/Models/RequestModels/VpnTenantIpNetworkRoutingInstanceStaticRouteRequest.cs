@@ -6,14 +6,6 @@ namespace Mind.Models.RequestModels
     /// </summary>
     public class VpnTenantIpNetworkRoutingInstanceStaticRouteRequest
     {
-
-        /// <summary>
-        /// The ID of the tenant owner of the IP network to ba added as a static route to the routing instance
-        /// of the attachment set.
-        /// </summary>
-        /// <value>An integer denoting the ID of the tenant</value>
-        public int? TenantId { get; set; }
-
         /// <summary>
         /// CIDR block name of the tenant IP network
         /// </summary>

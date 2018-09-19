@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model of a vif - a virtual attachment which is configured under a tagged attachment
     /// </summary>
     [DataContract]
     public partial class Vif : IEquatable<Vif>
@@ -32,67 +32,67 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>The ID of the vif</value>
         [DataMember(Name="vifId")]
-        public int? VifId { get; set; }
+        public int? VifId { get; private set; }
 
         /// <summary>
         /// The name of the vif  
         /// </summary>
         /// <value>The name of the vif  </value>
         [DataMember(Name="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// Determines if the vif is enabled for layer 3
         /// </summary>
         /// <value>Determines if the vif is enabled for layer 3</value>
         [DataMember(Name="isLayer3")]
-        public bool? IsLayer3 { get; set; }
+        public bool? IsLayer3 { get; private set; }
 
         /// <summary>
         /// The vlan tag number assigned to the vif
         /// </summary>
         /// <value>The vlan tag number assigned to the vif</value>
         [DataMember(Name="vlanTag")]
-        public int? VlanTag { get; set; }
+        public int? VlanTag { get; private set; }
 
         /// <summary>
         /// The ID of the parent attachment
         /// </summary>
         /// <value>The ID of the parent attachment</value>
         [DataMember(Name="attachmentId")]
-        public int? AttachmentId { get; set; }
+        public int? AttachmentId { get; private set; }
 
         /// <summary>
         /// The ID of the owning tenant
         /// </summary>
         /// <value>The ID of the owning tenant</value>
         [DataMember(Name="tenantId")]
-        public int? TenantId { get; set; }
+        public int? TenantId { get; private set; }
 
         /// <summary>
         /// Gets or Sets RoutingInstance
         /// </summary>
         [DataMember(Name="routingInstance")]
-        public RoutingInstance RoutingInstance { get; set; }
+        public RoutingInstance RoutingInstance { get; private set; }
 
         /// <summary>
         /// Gets or Sets Vlans
         /// </summary>
         [DataMember(Name="vlans")]
-        public List<Vlan> Vlans { get; set; }
+        public List<Vlan> Vlans { get; private set; }
 
         /// <summary>
         /// Gets or Sets ContractBandwidthPool
         /// </summary>
         [DataMember(Name="contractBandwidthPool")]
-        public ContractBandwidthPool ContractBandwidthPool { get; set; }
+        public ContractBandwidthPool ContractBandwidthPool { get; private set; }
 
         /// <summary>
         /// The maximum transmission unit supported by the vif
         /// </summary>
         /// <value>The MTU in bytes</value>
         [DataMember(Name = "mtu")]
-        public int? Mtu { get; set; }
+        public int? Mtu { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

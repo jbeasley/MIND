@@ -27,12 +27,6 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder WithTenant(int? tenantId)
-        {
-            if (tenantId != null) _args.Add(nameof(WithTenant), tenantId);
-            return this;
-        }
-
         public virtual IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder WithTenantIpNetworkCidrName(string tenantIpNetworkCidrName)
         {
             if (!string.IsNullOrEmpty(tenantIpNetworkCidrName)) _args.Add(nameof(WithTenantIpNetworkCidrName), tenantIpNetworkCidrName);
@@ -65,9 +59,8 @@ namespace Mind.Builders
 
         public async Task<VpnTenantIpNetworkRoutingInstanceStaticRoute> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForAttachmentSet)))
-                _vpnTenantIpNetworkRoutingInstanceStaticRoute.AttachmentSetID = (int)_args[nameof(ForAttachmentSet)];
-            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName)) && _args.ContainsKey(nameof(WithTenant))) await SetTenantIpNetworkAsync();           
+            if (_args.ContainsKey(nameof(ForAttachmentSet))) await SetAttachmentSetAsync();
+            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName))) await SetTenantIpNetworkAsync();
             if (_args.ContainsKey(nameof(WithIpv4NextHopAddress))) SetIpv4NextHopAddress();
             if (_args.ContainsKey(nameof(AddToAllRoutingInstancesInAttachmentSet))) SetAddToAllRoutingInstancesInAttachmentSet();
             if (_args.ContainsKey(nameof(WithRoutingInstance))) await SetRoutingInstanceAsync();
@@ -81,7 +74,9 @@ namespace Mind.Builders
             var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
             var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                             q => 
-                                 q.AttachmentSetID == attachmentSetId, AsTrackable: true)
+                                 q.AttachmentSetID == attachmentSetId,
+                                 query: q => q.IncludeValidationProperties(),
+                                 AsTrackable: true)
                                  select result)
                                  .SingleOrDefault();
 
@@ -91,18 +86,15 @@ namespace Mind.Builders
         protected virtual internal async Task SetTenantIpNetworkAsync()
         {
             var tenantIpNetworkCidrName = _args[nameof(WithTenantIpNetworkCidrName)].ToString();
-            var tenantId = (int)_args[nameof(WithTenant)];
-
             var tenantIpNetwork = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
                               q =>
-                                   q.TenantID == tenantId
-                                   && q.CidrNameIncludingIpv4LessThanOrEqualToLength == tenantIpNetworkCidrName,
+                                   q.CidrNameIncludingIpv4LessThanOrEqualToLength == tenantIpNetworkCidrName,
                                    AsTrackable: true)
                                    select result)
                                    .SingleOrDefault();
 
             _vpnTenantIpNetworkRoutingInstanceStaticRoute.TenantIpNetwork = tenantIpNetwork ?? throw new BuilderBadArgumentsException("Tenant IP network " +
-                $"'{tenantIpNetworkCidrName}' was not found or does not belong to tenant with ID '{tenantId}'.");
+                $"'{tenantIpNetworkCidrName}' was not found.");
         }
 
         protected virtual internal void SetAddToAllRoutingInstancesInAttachmentSet()

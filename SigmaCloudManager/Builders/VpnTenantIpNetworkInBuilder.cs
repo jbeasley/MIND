@@ -27,12 +27,6 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVpnTenantIpNetworkInBuilder WithTenant(int? tenantId)
-        {
-            if (tenantId != null) _args.Add(nameof(WithTenant), tenantId);
-            return this;
-        }
-
         public virtual IVpnTenantIpNetworkInBuilder WithTenantIpNetworkCidrName(string tenantIpNetworkCidrName)
         {
             if (!string.IsNullOrEmpty(tenantIpNetworkCidrName)) _args.Add(nameof(WithTenantIpNetworkCidrName), tenantIpNetworkCidrName);
@@ -59,8 +53,8 @@ namespace Mind.Builders
 
         public async Task<VpnTenantIpNetworkIn> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForAttachmentSet))) _vpnTenantIpNetworkIn.AttachmentSetID = (int)_args[nameof(ForAttachmentSet)];
-            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName)) && _args.ContainsKey(nameof(WithTenant))) await SetTenantIpNetworkAsync();
+            if (_args.ContainsKey(nameof(ForAttachmentSet))) await SetAttachmentSetAsync();
+            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName))) await SetTenantIpNetworkAsync();
             if (_args.ContainsKey(nameof(WithLocalIpRoutingPreference)))
                 _vpnTenantIpNetworkIn.LocalIpRoutingPreference = (int)_args[nameof(WithLocalIpRoutingPreference)];
             
@@ -89,11 +83,8 @@ namespace Mind.Builders
         protected virtual internal async Task SetTenantIpNetworkAsync()
         {
             var tenantIpNetworkCidrName = _args[nameof(WithTenantIpNetworkCidrName)].ToString();
-            var tenantId = (int)_args[nameof(WithTenant)];
-
             var tenantIpNetwork = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
                               q =>
-                                   q.TenantID == tenantId &&
                                    q.CidrNameIncludingIpv4LessThanOrEqualToLength == tenantIpNetworkCidrName,
                                    AsTrackable: true)
                                    select result)

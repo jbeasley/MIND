@@ -51,13 +51,21 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentRedundancy.Name))
                 .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
                 .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name))
-                .ForMember(dst => dst.MulticastVpnDomainType, conf => conf.MapFrom(src => src.MulticastVpnDomainType.Name));
+                .ForMember(dst => dst.MulticastVpnDomainType, conf => conf.MapFrom(src => src.MulticastVpnDomainType.Name))
+                .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksIn))
+                .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksOut))
+                 // Static routes which are associated with all routing instances which belong to the attachment set
+                .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes));                                                                             
             CreateMap<SCM.Models.VpnTenantIpNetworkIn, Mind.Api.Models.VpnTenantIpNetworkIn>()
                 .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
                 .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
             CreateMap<SCM.Models.VpnTenantIpNetworkOut, Mind.Api.Models.VpnTenantIpNetworkOut>()
                 .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
                 .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
+            CreateMap<SCM.Models.VpnTenantIpNetworkRoutingInstanceStaticRoute, Mind.Api.Models.VpnTenantIpNetworkRoutingInstanceStaticRoute>()
+                .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
+                .ForMember(dst => dst.AssociatedWithAllRoutingInstances, conf => conf.MapFrom(src => src.AddToAllRoutingInstancesInAttachmentSet))
+                .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name));
             CreateMap<SCM.Models.Vpn, Mind.Api.Models.Vpn>()
                 .ForMember(dst => dst.TenantOwnerName, conf => conf.MapFrom(src => src.Tenant.Name))
                 .ForMember(dst => dst.AddressFamily, conf => conf.MapFrom(src => src.AddressFamily.Name))
@@ -73,6 +81,13 @@ namespace Mind.Api.Models
             CreateMap<SCM.Models.VpnAttachmentSet, Mind.Api.Models.VpnAttachmentSet>()
                   .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name))
                   .ForMember(dst => dst.VpnName, conf => conf.MapFrom(src => src.Vpn.Name));
+            CreateMap<SCM.Models.RoutingInstance, Mind.Api.Models.RoutingInstance>()
+                   // Static routes which belong only to a specific routing instance within the attachment set
+                  .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes));
+            CreateMap<SCM.Models.BgpPeer, Mind.Api.Models.BgpPeer>()
+                  .ForMember(dst => dst.RoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
+                  .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksIn))
+                  .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksOut));
 
             // API model to entity model mappings
 

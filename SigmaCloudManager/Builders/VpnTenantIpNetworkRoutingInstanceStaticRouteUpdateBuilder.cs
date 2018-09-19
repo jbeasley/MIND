@@ -66,6 +66,7 @@ namespace Mind.Builders
             var vpnTenantIpNetworkRoutingInstanceStaticRoute = (from result in await _unitOfWork.VpnTenantIpNetworkRoutingInstanceStaticRouteRepository.GetAsync(
                                                              q =>
                                                                 q.VpnTenantIpNetworkRoutingInstanceStaticRouteID == vpnTenantIpNetworkRoutingInstanceStaticRouteId,
+                                                                query : q => q.IncludeValidationProperties(),
                                                                 AsTrackable: true)
                                                                 select result)
                                                                 .SingleOrDefault();

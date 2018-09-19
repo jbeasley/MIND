@@ -288,6 +288,8 @@ namespace Mind
             builder.RegisterType<TenantIpNetworkUpdateDirector>().As<ITenantIpNetworkUpdateDirector>();
             builder.RegisterType<VpnAttachmentSetDirector>().As<IVpnAttachmentSetDirector>();
             builder.RegisterType<VpnAttachmentSetUpdateDirector>().As<IVpnAttachmentSetUpdateDirector>();
+            builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteDirector>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteDirector>();
+            builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector>();
 
             // Director Factories
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
@@ -401,6 +403,8 @@ namespace Mind
             builder.RegisterType<TenantIpNetworkUpdateBuilder>().As<ITenantIpNetworkUpdateBuilder>();
             builder.RegisterType<VpnAttachmentSetBuilder>().As<IVpnAttachmentSetBuilder>();
             builder.RegisterType<VpnAttachmentSetUpdateBuilder>().As<IVpnAttachmentSetUpdateBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteBuilder>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder>();
+            builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteUpdateBuilder>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteUpdateBuilder>();
         }
  
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

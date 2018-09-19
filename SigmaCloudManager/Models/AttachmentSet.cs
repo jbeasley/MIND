@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
+using System.Text;
 
 namespace SCM.Models
 {
@@ -19,7 +20,15 @@ namespace SCM.Models
                         .Include(x => x.AttachmentRedundancy)
                         .Include(x => x.SubRegion)
                         .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Attachments)
+                        .ThenInclude(x => x.Interfaces)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Vifs)
+                        .ThenInclude(x => x.Vlans)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Device.Location.SubRegion.Region)
                         .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.Vpn)
                         .Include(x => x.VpnTenantMulticastGroups)
                         .Include(x => x.VpnTenantCommunitiesIn)
                         .Include(x => x.VpnTenantCommunitiesOut)
@@ -28,10 +37,81 @@ namespace SCM.Models
                         .Include(x => x.VpnTenantCommunitiesRoutingInstance)
                         .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes);
         }
+
+        public static IQueryable<AttachmentSet> IncludeDeepProperties(this IQueryable<AttachmentSet> query)
+        {
+            return query.Include(x => x.MulticastVpnDomainType)
+                        .Include(x => x.Region)
+                        .Include(x => x.AttachmentRedundancy)
+                        .Include(x => x.SubRegion)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Attachments)
+                        .ThenInclude(x => x.Interfaces)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Vifs)
+                        .ThenInclude(x => x.Vlans)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .Include(x => x.VpnAttachmentSets)
+                        .Include(x => x.VpnTenantMulticastGroups)
+                        .Include(x => x.VpnTenantCommunitiesIn)
+                        .Include(x => x.VpnTenantCommunitiesOut)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnTenantCommunitiesRoutingInstance)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        // Need a projection in order to filter on static routes associations with all routing instances 
+                        // in the attachment set
+                        .Select(x => new AttachmentSet(x.AttachmentSetID)
+                        {
+                            AttachmentRedundancy = x.AttachmentRedundancy,
+                            AttachmentRedundancyID = x.AttachmentRedundancyID,
+                            AttachmentSetRoutingInstances = x.AttachmentSetRoutingInstances,
+                            IsLayer3 = x.IsLayer3,
+                            MulticastVpnDomainType = x.MulticastVpnDomainType,
+                            MulticastVpnDomainTypeID = x.MulticastVpnDomainTypeID,
+                            MulticastVpnRps = x.MulticastVpnRps,
+                            Name = x.Name,
+                            Region = x.Region,
+                            RegionID = x.RegionID,
+                            RowVersion = x.RowVersion,
+                            SubRegion = x.SubRegion,
+                            SubRegionID = x.SubRegionID,
+                            Tenant = x.Tenant,
+                            TenantID = x.TenantID,
+                            VpnAttachmentSets = x.VpnAttachmentSets,
+                            VpnTenantCommunitiesIn = x.VpnTenantCommunitiesIn,
+                            VpnTenantCommunitiesOut = x.VpnTenantCommunitiesOut,
+                            VpnTenantCommunitiesRoutingInstance = x.VpnTenantCommunitiesRoutingInstance,
+                            VpnTenantIpNetworksIn = x.VpnTenantIpNetworksIn,
+                            VpnTenantIpNetworksOut = x.VpnTenantIpNetworksOut,
+                            VpnTenantIpNetworksRoutingInstance = x.VpnTenantIpNetworksRoutingInstance,
+                            VpnTenantMulticastGroups = x.VpnTenantMulticastGroups,
+                            // The following gives us a result set with static routes which are to be added to all routing instances
+                            // in the attachment set
+                            VpnTenantIpNetworkRoutingInstanceStaticRoutes = x.VpnTenantIpNetworkRoutingInstanceStaticRoutes
+                                                                             .Where(q => q.AddToAllRoutingInstancesInAttachmentSet).ToList()
+                        });
+        }
+                        
+        public static IQueryable<AttachmentSet> IncludeDeleteValidationProperties(this IQueryable<AttachmentSet> query)
+        {
+            return query.Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.Vpn);
+        }
     }
 
     public class AttachmentSet : IModifiableResource
     {
+        public AttachmentSet() { }
+        public AttachmentSet(int attachmentSetId) => AttachmentSetID = attachmentSetId;
+
         public int AttachmentSetID { get; private set; }
         [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
@@ -175,15 +255,39 @@ namespace SCM.Models
                     $"attachment set '{this.Name}'.");
             }
 
-            if (this.MulticastVpnDomainType.MvpnDomainType == MvpnDomainTypeEnum.ReceiverOnly)
+            if (this.VpnAttachmentSets.Select(x => x.Vpn.IsMulticastVpn).Any())
             {
-                if (this.VpnTenantMulticastGroups.Any())
+                if (this.MulticastVpnDomainType == null)
                 {
-                    throw new IllegalStateException("The multicast domain type cannot be 'Receiver-Only' for attachment set "
-                        + $"'{this.Name}' because multicast group ranges are associated with the attachment set. "
-                        + "Remove the multicast group ranges from the attachment set first.");
+                    throw new IllegalStateException($"A multicast domain type for attachment set '{this.Name}' must be defined because the " +
+                        $"attachment set is associated with one or more multicast vpns.");
                 }
             }
+
+            if (this.MulticastVpnDomainType != null)
+            {
+                if (this.MulticastVpnDomainType.MvpnDomainType == MvpnDomainTypeEnum.ReceiverOnly)
+                {
+                    if (this.VpnTenantMulticastGroups.Any())
+                    {
+                        throw new IllegalStateException($"The multicast domain type for for attachment set '{this.Name}' cannot be 'Receiver-Only' " +
+                            $"because multicast group ranges are associated with the attachment set. " +
+                            "Remove the multicast group ranges from the attachment set first.");
+                    }
+                }
+            }
+        }
+
+        public virtual void ValidateDelete()
+        {
+            var sb = new StringBuilder();
+            this.VpnAttachmentSets
+                .ToList()
+                .ForEach(q =>
+                        sb.Append($"Remove the attachment set '{this.Name}' from vpn '{q.Vpn.Name}' before trying to delete the attachment set.\n")
+                 );
+
+            if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());
         }
     }
 }

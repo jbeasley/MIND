@@ -97,7 +97,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the name of the infrastructure device</value>
         /// <example>UK2-PE1</example>
         [DataMember(Name="infrastructureDeviceName")]
-        public string InfrastructureDeviceName { get; set; }
+        public string InfrastructureDeviceName { get; private set; }
 
         /// <summary>
         /// The name of the provider location within which the attachment is terminated
@@ -105,7 +105,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the provider location</value>
         /// <example>UK2</example>
         [DataMember(Name = "LocationName")]
-        public string LocationName { get; set; }
+        public string LocationName { get; private set; }
 
         /// <summary>
         /// The name of the provider plane within which the attachment is terminated
@@ -113,7 +113,7 @@ namespace Mind.Api.Models
         /// <value>String value denoting the provider plane</value>
         /// <example>Red</example>
         [DataMember(Name = "PlaneName")]
-        public string PlaneName { get; set; }
+        public string PlaneName { get; private set; }
 
         /// <summary>
         /// The bandwidth of the attachment in Gbps
@@ -121,35 +121,35 @@ namespace Mind.Api.Models
         /// <value>Integer value denoting the bandwidth of the attachment in Gbps</value>
         /// <example>10</example>
         [DataMember(Name="attachmentBandwidthGbps")]
-        public int? AttachmentBandwidthGbps { get; set; }
+        public int? AttachmentBandwidthGbps { get; private set; }
 
         /// <summary>
         /// The contract bandwidth pool created for the attachment
         /// </summary>
         /// <value>An object of type ContractBandwidthPool</value>
         [DataMember(Name="contractBandwidthPool")]
-        public ContractBandwidthPool ContractBandwidthPool { get; set; }
+        public ContractBandwidthPool ContractBandwidthPool { get; private set; }
 
         /// <summary>
         /// The routing instance created for the attachment
         /// </summary>
         /// <value>An object of type RoutingInstance</value>
         [DataMember(Name="routingInstance")]
-        public RoutingInstance RoutingInstance { get; set; }
+        public RoutingInstance RoutingInstance { get; private set; }
 
         /// <summary>
         /// A list of interfaces created for the attachment
         /// </summary>
         /// <value>A list of Interface objects</value>
         [DataMember(Name = "interfaces")]
-        public List<Interface> Interfaces { get; set; }
+        public List<Interface> Interfaces { get; private set; }
 
         /// <summary>
         /// The maximum transmission unit supported by the attachment
         /// </summary>
         /// <value>The MTU in bytes</value>
         [DataMember(Name = "mtu")]
-        public int? Mtu { get; set; }
+        public int? Mtu { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

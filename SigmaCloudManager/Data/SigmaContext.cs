@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using SCM.Models;
+using System.Linq;
 
 namespace SCM.Data
 {
@@ -91,7 +92,7 @@ namespace SCM.Data
             builder.Entity<VpnAttachmentSet>().ToTable("VpnAttachmentSet");
             builder.Entity<AttachmentSetRoutingInstance>().ToTable("AttachmentSetRoutingInstance");
             builder.Entity<AttachmentRedundancy>().ToTable("AttachmentRedundancy");
-            builder.Entity<BgpPeer>().ToTable("BgpPeer");;
+            builder.Entity<BgpPeer>().ToTable("BgpPeer"); ;
             builder.Entity<ContractBandwidth>().ToTable("ContractBandwidth");
             builder.Entity<ContractBandwidthPool>().ToTable("ContractBandwidthPool");
             builder.Entity<Device>().ToTable("Device");

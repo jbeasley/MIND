@@ -48,13 +48,10 @@ namespace Mind.Builders
         public async Task<VpnTenantIpNetworkOut> BuildAsync()
         {
             if (_args.ContainsKey(nameof(ForAttachmentSet))) await SetAttachmentSetAsync();
-
             if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName))) await SetTenantIpNetworkAsync();
-
             if (_args.ContainsKey(nameof(WithAdvertisedIpRoutingPreference))) { 
                 _vpnTenantIpNetworkOut.AdvertisedIpRoutingPreference = (int)_args[nameof(WithAdvertisedIpRoutingPreference)];
             }
-
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await SetIpv4BgpPeerAsync();
 
             return _vpnTenantIpNetworkOut;
@@ -64,7 +61,9 @@ namespace Mind.Builders
         {
             var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
             var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
-                q => q.AttachmentSetID == attachmentSetId, AsTrackable: true)
+                            q => 
+                                 q.AttachmentSetID == attachmentSetId, 
+                                 AsTrackable: true)
                                  select result)
                                  .SingleOrDefault();
 

@@ -16,7 +16,14 @@ namespace SCM.Models
         {
             return query.Include(x => x.AttachmentSet)
                         .Include(x => x.TenantIpNetwork)
-                        .Include(x => x.RoutingInstance);
+                        .Include(x => x.RoutingInstance)
+                        .Include(x => x.AttachmentSet.VpnAttachmentSets)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Vifs)
+                        .ThenInclude(x => x.Vlans)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Attachments)
+                        .ThenInclude(x => x.Interfaces);
         }
 
         public static IQueryable<VpnTenantIpNetworkRoutingInstanceStaticRoute> IncludeDeepProperties(this IQueryable<VpnTenantIpNetworkRoutingInstanceStaticRoute> query)
@@ -74,6 +81,18 @@ namespace SCM.Models
                 }
             }
 
+            if (this.TenantIpNetwork.TenantID != this.AttachmentSet.TenantID)
+            {
+                throw new IllegalStateException($"A static route for tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' cannot " +
+                    $"be created for attachment set '{this.AttachmentSet.Name}' because the tenant owner of the IP network and the tenant owner of the attachment set " +
+                    $"are not the same.");
+            }
+
+            if (string.IsNullOrEmpty(this.Ipv4NextHopAddress)) throw new IllegalStateException("An IPv4 next-hop address is required but was not found.");
+
+            if (!IPAddress.TryParse(this.Ipv4NextHopAddress, out IPAddress ipv4NextHopAddress))
+                throw new IllegalStateException("The next-hop address is not a valid IPv4 address");
+
             if (this.RoutingInstance != null)
             {
                 if (!this.AttachmentSet.AttachmentSetRoutingInstances.Any(x => x.RoutingInstance.Name == this.RoutingInstance.Name))
@@ -81,6 +100,75 @@ namespace SCM.Models
                     throw new IllegalStateException($"Routing instance '{this.RoutingInstance.Name}' was not found or does not belong to attachment set " +
                         $"'{this.AttachmentSet.Name}'.");
                 }
+
+                // Check the IPv4 next-hop address is 'reachable' within the routing instance
+                var vlan = this.RoutingInstance.Vifs.SelectMany(
+                    x =>
+                    x.Vlans)
+                     .ToList()
+                     .FirstOrDefault(
+                        x =>
+                        {
+                            var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
+                            return network.Contains(ipv4NextHopAddress);
+                        });
+
+                var iface = this.RoutingInstance.Attachments.SelectMany(
+                    x =>
+                    x.Interfaces)
+                     .ToList()
+                     .FirstOrDefault(
+                        x =>
+                        {
+                            var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
+                            return network.Contains(ipv4NextHopAddress);
+                        });
+
+                if (vlan == null && iface == null)
+                    throw new IllegalStateException($"The IPv4 next-hop address '{this.Ipv4NextHopAddress}' is not contained by any network which is " +
+                        $"directly reachable from routing instance '{this.RoutingInstance.Name}'. Check that the IP address for at least one vif or " +
+                        $"attachment belonging to the routing instance is in the same IPv4 network as the next-hop address.");
+            }
+            else
+            {
+                //Check that the next-hop address is 'reachable' from within any routing instance in the attachment set
+                var vlan = this.AttachmentSet.AttachmentSetRoutingInstances.Select(
+                          q => q.RoutingInstance)
+                          .Select(
+                          q => 
+                            q.Vifs.SelectMany(
+                              x =>
+                              x.Vlans)
+                              .ToList()
+                          .FirstOrDefault(
+                          x =>
+                            {
+                                var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
+                                return network.Contains(ipv4NextHopAddress);
+                            }))
+                          ?.FirstOrDefault();
+
+                var iface = this.AttachmentSet.AttachmentSetRoutingInstances.Select(
+                          q => q.RoutingInstance)
+                          .Select(
+                          q =>
+                            q.Attachments.SelectMany(
+                              x =>
+                              x.Interfaces)
+                              .ToList()
+                          .FirstOrDefault(
+                          x =>
+                          {
+                              var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
+                              return network.Contains(ipv4NextHopAddress);
+                          }))
+                          ?.FirstOrDefault();
+
+                if (vlan == null && iface == null)
+                    throw new IllegalStateException($"The IPv4 next-hop address '{this.Ipv4NextHopAddress}' is not contained by any network which is " +
+                        $"directly reachable from any routing instance in attachment set '{this.AttachmentSet.Name}'. Check that the IP address for " +
+                        $"at least one vif or attachment belonging to the routing instances in the attachment set is in the same IPv4 network as " +
+                        $"the next-hop address.");
             }
 
             var sb = new StringBuilder();

@@ -36,6 +36,14 @@ namespace Mind.Api.Models
         public int? BgpPeerId { get; private set; }
 
         /// <summary>
+        /// The name of the routing instance to which the bgp peer is associated.
+        /// </summary>
+        /// <value>A string value denoting the name of the routing instance</value>
+        /// <example>713faafc85ff43db8472b6b9c38033a1</example>
+        [DataMember(Name = "routingInstanceName")]
+        public string RoutingInstanceName { get; private set; }
+
+        /// <summary>
         /// IPv4 address of the BGP peer
         /// </summary>
         /// <value>An IPv4 address</value>
@@ -84,6 +92,20 @@ namespace Mind.Api.Models
         public int? MaximumRoutes { get; private set; }
 
         /// <summary>
+        /// A list of tenant IP network associations with the bgp inbound policy
+        /// </summary>
+        /// <value>A list of vpn tenant IP network in objects</value>
+        [DataMember(Name = "bgpIpNetworkInboundPolicy")]
+        public List<VpnTenantIpNetworkIn> BgpIpNetworkInboundPolicy { get; private set; }
+
+        /// <summary>
+        /// A list of tenant IP network associations with the bgp outbound policyt
+        /// </summary>
+        /// <value>A list of vpn tenant IP network out objects</value>
+        [DataMember(Name = "bgpIpNetworkOutboundPolicy")]
+        public List<VpnTenantIpNetworkOut> BgpIpNetworkOutboundPolicy { get; private set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -98,6 +120,9 @@ namespace Mind.Api.Models
             sb.Append("  IsMultiHop: ").Append(IsMultiHop).Append("\n");
             sb.Append("  IsBfdEnabled: ").Append(IsBfdEnabled).Append("\n");
             sb.Append("  MaximumRoutes: ").Append(MaximumRoutes).Append("\n");
+            sb.Append("  RoutingInstanceName: ").Append(RoutingInstanceName).Append("\n");
+            sb.Append("  BgpIpNetworkInboundPolicy: ").Append(BgpIpNetworkInboundPolicy).Append("\n");
+            sb.Append("  BgpIpNetworkOutboundPolicy: ").Append(BgpIpNetworkOutboundPolicy).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -143,22 +168,22 @@ namespace Mind.Api.Models
                     Ipv4PeerAddress == other.Ipv4PeerAddress ||
                     Ipv4PeerAddress != null &&
                     Ipv4PeerAddress.Equals(other.Ipv4PeerAddress)
-                ) && 
+                ) &&
                 (
                     Peer2ByteAutonomousSystem == other.Peer2ByteAutonomousSystem ||
                     Peer2ByteAutonomousSystem != null &&
                     Peer2ByteAutonomousSystem.Equals(other.Peer2ByteAutonomousSystem)
-                ) && 
+                ) &&
                 (
                     PeerPassword == other.PeerPassword ||
                     PeerPassword != null &&
                     PeerPassword.Equals(other.PeerPassword)
-                ) && 
+                ) &&
                 (
                     IsMultiHop == other.IsMultiHop ||
                     IsMultiHop != null &&
                     IsMultiHop.Equals(other.IsMultiHop)
-                ) && 
+                ) &&
                 (
                     IsBfdEnabled == other.IsBfdEnabled ||
                     IsBfdEnabled != null &&
@@ -168,6 +193,21 @@ namespace Mind.Api.Models
                     MaximumRoutes == other.MaximumRoutes ||
                     MaximumRoutes != null &&
                     MaximumRoutes.Equals(other.MaximumRoutes)
+                ) &&
+                (
+                    RoutingInstanceName == other.RoutingInstanceName ||
+                    RoutingInstanceName != null &&
+                    RoutingInstanceName.Equals(other.RoutingInstanceName)
+                ) && 
+                (
+                    BgpIpNetworkInboundPolicy == other.BgpIpNetworkInboundPolicy ||
+                    BgpIpNetworkInboundPolicy != null &&
+                    BgpIpNetworkInboundPolicy.Equals(other.BgpIpNetworkInboundPolicy)
+                ) &&
+                (
+                    BgpIpNetworkOutboundPolicy == other.BgpIpNetworkOutboundPolicy ||
+                    BgpIpNetworkOutboundPolicy != null &&
+                    BgpIpNetworkOutboundPolicy.Equals(other.BgpIpNetworkOutboundPolicy)
                 );
         }
 
@@ -195,6 +235,12 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsBfdEnabled.GetHashCode();
                     if (MaximumRoutes != null)
                     hashCode = hashCode * 59 + MaximumRoutes.GetHashCode();
+                    if (RoutingInstanceName != null)
+                    hashCode = hashCode * 59 + RoutingInstanceName.GetHashCode();
+                    if (BgpIpNetworkInboundPolicy != null)
+                    hashCode = hashCode * 59 + BgpIpNetworkInboundPolicy.GetHashCode();
+                    if (BgpIpNetworkOutboundPolicy != null)
+                    hashCode = hashCode * 59 + BgpIpNetworkOutboundPolicy.GetHashCode();
                 return hashCode;
             }
         }

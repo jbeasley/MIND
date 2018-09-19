@@ -29,16 +29,6 @@ namespace Mind.Api.Models
     {
 
         /// <summary>
-        /// The ID of the tenant owner of the IP network to ba added to the inbound
-        /// policy of the attachment set.
-        /// </summary>
-        /// <value>An integer denoting the ID of the tenant</value>
-        /// <example>1001</example>
-        [DataMember(Name = "tenantId")]
-        [Required(ErrorMessage = "Please supply the ID of the tenant owner of the IP network to be added to the attachment set")]
-        public int? TenantId { get; set; }
-
-        /// <summary>
         /// CIDR block name of the tenant IP network
         /// </summary>
         /// <value>String value for the CIDR representation of the tenant IP network</value>
@@ -96,7 +86,6 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class VpnTenantIpNetworkInRequest {\n");
-            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  TenantIpNetworkCidrName: ").Append(TenantIpNetworkCidrName).Append("\n");
             sb.Append("  AddToAllBgpPeersInAttachmentSet: ").Append(AddToAllBgpPeersInAttachmentSet).Append("\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
@@ -138,11 +127,6 @@ namespace Mind.Api.Models
 
             return
                 (
-                    TenantId == other.TenantId ||
-                    TenantId != null &&
-                    TenantId.Equals(other.TenantId)
-                ) &&
-                (
                     TenantIpNetworkCidrName == other.TenantIpNetworkCidrName ||
                     TenantIpNetworkCidrName != null &&
                     TenantIpNetworkCidrName.Equals(other.TenantIpNetworkCidrName)
@@ -174,8 +158,6 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (TenantId != null)
-                    hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (TenantIpNetworkCidrName != null)
                     hashCode = hashCode * 59 + TenantIpNetworkCidrName.GetHashCode();
                     if (AddToAllBgpPeersInAttachmentSet != null)

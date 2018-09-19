@@ -54,8 +54,15 @@ namespace SCM.Models
                 throw new IllegalStateException("A tenant IP network is required but was not found.");
 
             if (this.BgpPeer == null)
-                throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrName}' is required but " +
+                throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is required but " +
                     "was not found.");
+
+            if (this.TenantIpNetwork.TenantID != this.AttachmentSet.TenantID)
+            {
+                throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' cannot " +
+                    $"be added to the outbound policy of attachment set '{this.AttachmentSet.Name}' because the tenant owner of the IP network and " +
+                    $"the tenant owner of the attachment set are not the same.");
+            }
         }
     }
 }

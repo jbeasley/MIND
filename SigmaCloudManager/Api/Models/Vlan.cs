@@ -32,28 +32,28 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>The ID of the vlan</value>
         [DataMember(Name="vlanID")]
-        public int? VlanID { get; set; }
+        public int? VlanID { get; private set; }
 
         /// <summary>
         /// The vlan tag
         /// </summary>
         /// <value>The vlan tag</value>
         [DataMember(Name="vlanTag")]
-        public int? VlanTag { get; set; }
+        public int? VlanTag { get; private set; }
 
         /// <summary>
         /// IPv4 address assigned to the vlan
         /// </summary>
         /// <value>String value representing the IPv4 address assigned to the vlan</value>
         [DataMember(Name = "ipAddress")]
-        public string IpAddress { get; set; }
+        public string IpAddress { get; private set; }
 
         /// <summary>
         /// IPv4 subnet mask assigned to the vlan
         /// </summary>
         /// <value>String value representing the IPv4 subnet mask assigned to the vlan</value>
         [DataMember(Name = "subnetMask")]
-        public string SubnetMask { get; set; }
+        public string SubnetMask { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

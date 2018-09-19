@@ -18,7 +18,6 @@ namespace Mind.Builders
         public async Task<SCM.Models.VpnTenantIpNetworkRoutingInstanceStaticRoute> BuildAsync(int attachmentSetId, VpnTenantIpNetworkRoutingInstanceStaticRouteRequest request)
         {
             return await _builder.ForAttachmentSet(attachmentSetId)
-                                 .WithTenant(request.TenantId)
                                  .WithIpv4NextHopAddress(request.Ipv4NextHopAddress)
                                  .WithTenantIpNetworkCidrName(request.TenantIpNetworkCidrName)
                                  .AddToAllRoutingInstancesInAttachmentSet(request.AddToAllRoutingInstancesInAttachmentSet)

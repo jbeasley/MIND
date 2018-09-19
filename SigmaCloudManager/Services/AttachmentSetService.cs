@@ -17,36 +17,21 @@ namespace SCM.Services
     {
         private readonly IAttachmentSetDirector _director;
         private readonly IAttachmentSetUpdateDirector _updateDirector;
-        private readonly IAttachmentSetValidator _validator;
 
         public AttachmentSetService(IUnitOfWork unitOfWork, 
             IMapper mapper, 
-            IAttachmentSetValidator validator,
             IAttachmentSetDirector director,
-            IAttachmentSetUpdateDirector updateDirector) : base(unitOfWork, mapper, validator)
+            IAttachmentSetUpdateDirector updateDirector) : base(unitOfWork, mapper)
         {
             _director = director;
             _updateDirector = updateDirector;
-            _validator = validator;
         }
-
-        private readonly string _properties = "Tenant," +
-                "SubRegion," +
-                "Region," +
-                "AttachmentRedundancy," +
-                "AttachmentSetRoutingInstances.RoutingInstance.Device.Plane," +
-                "AttachmentSetRoutingInstances.RoutingInstance.Tenant," +
-                "AttachmentSetRoutingInstances.RoutingInstance.Attachments.Interfaces.Ports," +
-                "AttachmentSetRoutingInstances.RoutingInstance.Vifs.Attachment.Interfaces.Ports," +
-                "MulticastVpnDomainType," +
-                "VpnTenantIpNetworksIn," +
-                "VpnTenantIpNetworksOut," +
-                "VpnTenantMulticastGroups.TenantMulticastGroup";
 
         public async Task<IEnumerable<AttachmentSet>> GetAllByTenantIDAsync(int tenantId, bool? deep = false, bool asTrackable = false)
         {
             return (from attachmentSets in await this.UnitOfWork.AttachmentSetRepository.GetAsync(q =>
-                    q.TenantID == tenantId, includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    q.TenantID == tenantId,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select attachmentSets)
                     .ToList();
@@ -55,7 +40,7 @@ namespace SCM.Services
         public async Task<AttachmentSet> GetByIDAsync(int id, bool? deep = false, bool asTrackable = true)
         {
             return (from attachmentSets in await UnitOfWork.AttachmentSetRepository.GetAsync(q => q.AttachmentSetID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select attachmentSets)
                     .SingleOrDefault();
@@ -107,10 +92,16 @@ namespace SCM.Services
 
         public async Task DeleteAsync(int attachmentSetId)
         {
-            await _validator.ValidateDeleteAsync(attachmentSetId);
-            if (!_validator.IsValid) throw new ServiceValidationException();
+            var attachmentSet = (from result in await UnitOfWork.AttachmentSetRepository.GetAsync(
+                              q =>
+                                q.AttachmentSetID == attachmentSetId,
+                                query: q => q.IncludeDeleteValidationProperties(),
+                                AsTrackable: true)
+                                select result)
+                                .Single();
 
-            await this.UnitOfWork.AttachmentSetRepository.DeleteAsync(attachmentSetId);
+            attachmentSet.ValidateDelete();
+            this.UnitOfWork.AttachmentSetRepository.Delete(attachmentSet);
             await this.UnitOfWork.SaveAsync();
         }
     }

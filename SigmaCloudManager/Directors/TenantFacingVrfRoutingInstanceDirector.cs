@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class TenantFacingVrfRoutingInstanceDirector : IRoutingInstanceDirector
+    public class TenantFacingVrfRoutingInstanceDirector : IVrfRoutingInstanceDirector
     {
         private readonly IVrfRoutingInstanceBuilder _builder;
 

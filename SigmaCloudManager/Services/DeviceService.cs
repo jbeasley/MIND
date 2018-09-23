@@ -49,9 +49,9 @@ namespace SCM.Services
 
         public async Task<IEnumerable<Device>> GetAllAsync(bool? isProviderDomainRole = null, bool? isTenantDomainRole = null,
             bool? requiresSync = null, bool? created = null, bool? showRequiresSyncAlert = null, bool? showCreatedAlert = null,
-            string searchString = "", bool deep = false, bool asTrackable = false)
+            string searchString = "", bool? deep = false, bool asTrackable = false)
         {
-            var p = deep ? Properties : "DeviceRole";
+            var p = deep.HasValue && deep.Value ? Properties : "DeviceRole";
 
             var query = from devices in await this.UnitOfWork.DeviceRepository.GetAsync(includeProperties: p,
                                    AsTrackable: asTrackable)
@@ -95,9 +95,9 @@ namespace SCM.Services
             return query.ToList();
         }
       
-        public async Task<IEnumerable<Device>> GetAllByLocationIDAsync(int locationID, int? planeID = null, bool deep = false, bool asTrackable = false)
+        public async Task<IEnumerable<Device>> GetAllByLocationIDAsync(int locationID, int? planeID = null, bool? deep = false, bool asTrackable = false)
         {
-            var p = deep ? Properties : string.Empty;
+            var p = deep.HasValue && deep.Value ? Properties : string.Empty;
             var query = from devices in await this.UnitOfWork.DeviceRepository.GetAsync(q => q.LocationID == locationID, includeProperties: p,
                                AsTrackable: asTrackable)
                         select devices;
@@ -110,9 +110,9 @@ namespace SCM.Services
             return query.ToList();
         }
 
-        public async Task<IEnumerable<Device>> GetAllByTenantIDAsync(int tenantID, string searchString = "", bool deep = false, bool asTrackable = false)
+        public async Task<IEnumerable<Device>> GetAllByTenantIDAsync(int tenantID, string searchString = "", bool? deep = false, bool asTrackable = false)
         {
-            var p = deep ? Properties : string.Empty;
+            var p = deep.HasValue && deep.Value ? Properties : string.Empty;
             var query = from devices in await this.UnitOfWork.DeviceRepository.GetAsync(q => q.TenantID == tenantID, includeProperties: p,
                               AsTrackable: asTrackable)
                               select devices;
@@ -125,9 +125,9 @@ namespace SCM.Services
             return query.ToList();
         }
 
-        public async Task<Device> GetByIDAsync(int id, bool deep = false, bool asTrackable = false)
+        public async Task<Device> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            var p = deep ? Properties : string.Empty;
+            var p = deep.HasValue && deep.Value ? Properties : string.Empty;
             var result = await this.UnitOfWork.DeviceRepository.GetAsync(d => d.DeviceID == id, 
                 includeProperties: p,
                 AsTrackable: asTrackable);
@@ -135,9 +135,9 @@ namespace SCM.Services
             return result.SingleOrDefault();
         }
 
-        public async Task<Device> GetByNameAsync(string name, bool deep = false, bool asTrackable = false)
+        public async Task<Device> GetByNameAsync(string name, bool? deep = false, bool asTrackable = false)
         {
-            var p = deep ? Properties : string.Empty;
+            var p = deep.HasValue && deep.Value ? Properties : string.Empty;
             var result = await this.UnitOfWork.DeviceRepository.GetAsync(d => d.Name == name, 
                 includeProperties: p,
                 AsTrackable: asTrackable);

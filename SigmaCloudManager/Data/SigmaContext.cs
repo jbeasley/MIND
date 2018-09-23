@@ -422,7 +422,7 @@ namespace SCM.Data
             .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();
 
             builder.Entity<VpnTenantIpNetworkOut>()
-            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();
+            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID, p.BgpPeerID }).IsUnique();
 
             builder.Entity<VpnTenantIpNetworkRoutingInstance>()
             .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();

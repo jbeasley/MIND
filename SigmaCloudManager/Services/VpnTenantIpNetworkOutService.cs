@@ -26,6 +26,8 @@ namespace SCM.Services
         /// Get all VPN tenant IP networks for a given attachment set.
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="deep"></param>
         /// <returns></returns>
         public async Task<IEnumerable<VpnTenantIpNetworkOut>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
@@ -40,6 +42,8 @@ namespace SCM.Services
         /// Get all VPN tenant IP networks for a given vpn.
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="deep"></param>
+        /// <param name="asTrackable"></param>
         /// <returns></returns>
         public async Task<IEnumerable<VpnTenantIpNetworkOut>> GetAllByVpnIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
@@ -55,6 +59,8 @@ namespace SCM.Services
         /// Get a single vpn tenant IP network.
         /// </summary>
         /// <param name="id"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="deep"></param>
         /// <returns></returns>
         public async Task<VpnTenantIpNetworkOut> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
@@ -99,9 +105,9 @@ namespace SCM.Services
             return await GetByIDAsync(vpnTenantIpNetworkOut.VpnTenantIpNetworkOutID, deep: true, asTrackable: false);
         }
 
-        public async Task<VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutRequest request)
+        public async Task<VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutUpdate update)
         {
-            await _updateDirector.UpdateAsync(vpnTenantIpNetworkOutId, request);
+            await _updateDirector.UpdateAsync(vpnTenantIpNetworkOutId, update);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(vpnTenantIpNetworkOutId, deep: true, asTrackable: false);
         }

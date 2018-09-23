@@ -237,4 +237,64 @@ namespace Mind.Api
         [EnumMember(Value = "Blue-Plane")]
         BluePlane = 3
     }
+
+    /// <summary>
+    /// Enumeration for device status options
+    /// </summary>
+    public enum DeviceStatusTypeEnum
+    {
+        /// <summary>
+        /// Enum for Production
+        /// </summary>
+        [EnumMember(Value ="Production")]
+        Production = 0,
+
+        /// <summary>
+        /// Enum for Staging
+        /// </summary>
+        [EnumMember(Value ="Staging")]
+        Staging = 1,
+
+        /// <summary>
+        /// Enum for Retired
+        /// </summary>
+        [EnumMember(Value = "Retired")]
+        Retired = 2
+    }
+
+    /// <summary>
+    /// Enumeration for port status options
+    /// </summary>
+    public enum PortStatusTypeEnum
+    {
+        /// <summary>
+        /// Enum for Free
+        /// </summary>
+        [EnumMember(Value = "Free")]
+        Free = 0,
+
+        /// <summary>
+        /// Enum for Assigned
+        /// </summary>
+        [EnumMember(Value = "Assigned")]
+        Assigned = 1,
+
+        /// <summary>
+        /// Enum for Locked
+        /// </summary>
+        [EnumMember(Value = "Locked")]
+        Locked = 2,
+
+        /// <summary>
+        /// Enum for Migration
+        /// </summary>
+        [EnumMember(Value = "Migration")]
+        Migration = 3,
+
+        /// <summary>
+        /// Enum for Reserved
+        /// </summary>
+        [EnumMember(Value = "Reserved")]
+        Reserved = 4
+    }
 }

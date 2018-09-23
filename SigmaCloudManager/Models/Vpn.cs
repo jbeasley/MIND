@@ -232,7 +232,7 @@ namespace SCM.Models
                             x => 
                             x.IsHubExport)
                             .Count() != 1)
-                        throw new IllegalStateException("One route target must be enabled with the 'isHubExport' property for hub-and-spoke vpns.");
+                        throw new IllegalStateException($"One route target must be enabled with the 'isHubExport' property for hub-and-spoke vpn '{this.Name}'.");
                 }
 
                 // The tenancy type can be 'Single' if the only Tenant of the VPN is the 'Owner'.
@@ -243,36 +243,39 @@ namespace SCM.Models
                                         x.AttachmentSet.Tenant);
 
                     var ownerCount = tenants.Count(s => s.Name == this.Tenant.Name);
-                    if (ownerCount != tenants.Count()) throw new IllegalStateException("The tenancy type cannot be Single because tenants other " +
+                    if (ownerCount != tenants.Count()) throw new IllegalStateException($"The tenancy type of vpn '{this.Name}' cannot be Single because tenants other " +
                        "than the owner are attached to the VPN.");
                 }
 
-                var distinctRegions = this.VpnAttachmentSets.SelectMany(
-                                            vpnAttachmentSet =>
-                                            vpnAttachmentSet.AttachmentSet.AttachmentSetRoutingInstances
-                                            .Select(
-                                                attachmentSetRoutingInstance =>
-                                                attachmentSetRoutingInstance.RoutingInstance.Device.Location.SubRegion.Region))
-                                                .GroupBy(
-                                                    q => 
-                                                    q.RegionID)
-                                                    .Select(
-                                                        group => 
-                                                        group.First());
+                if (this.Region != null)
+                {
+                    var distinctRegions = this.VpnAttachmentSets.SelectMany(
+                                                vpnAttachmentSet =>
+                                                vpnAttachmentSet.AttachmentSet.AttachmentSetRoutingInstances
+                                                .Select(
+                                                    attachmentSetRoutingInstance =>
+                                                    attachmentSetRoutingInstance.RoutingInstance.Device.Location.SubRegion.Region))
+                                                    .GroupBy(
+                                                        q =>
+                                                        q.RegionID)
+                                                        .Select(
+                                                            group =>
+                                                            group.First());
 
-                if (distinctRegions.Count() == 1)
-                {
-                    var region = distinctRegions.Single();
-                    if (region.RegionID != this.RegionID)
+                    if (distinctRegions.Count() == 1)
                     {
-                        throw new IllegalStateException($"The region of vpn cannot be set to '{this.Region.Name}'specific region because all of the " +
-                            $"tenants of the vpn exist in the " + region.Name + " region.");
+                        var region = distinctRegions.Single();
+                        if (region.RegionID != this.Region.RegionID)
+                        {
+                            throw new IllegalStateException($"The region of vpn '{this.Name}' cannot be set to '{this.Region.Name}' because all of the " +
+                                $"tenants of the vpn exist in the '{region.Name}' region.");
+                        }
                     }
-                }
-                else if (distinctRegions.Count() > 1)
-                {
-                    throw new IllegalStateException($"The region setting cannot be set to '{this.Region.Name}' because tenants of the vpn "
-                        + "exist in more than one region.");
+                    else if (distinctRegions.Count() > 1)
+                    {
+                        throw new IllegalStateException($"The region setting cannot be set to '{this.Region.Name}' because tenants of vpn '{this.Name}' "
+                            + "exist in more than one region.");
+                    }
                 }
 
                 // Checks for extranet vpn
@@ -284,7 +287,7 @@ namespace SCM.Models
                         throw new IllegalStateException("In order to enable a vpn for extranet the tenancy type must be 'multi'. " +
                             "Please change the tenancy type and try again.");
 
-                    if (this.RegionID != null)
+                    if (this.Region != null)
                     {
                         (from extranetMembers in this.ExtranetVpnMembers
                          select extranetMembers)?
@@ -292,7 +295,7 @@ namespace SCM.Models
                          .ForEach(
                             extranetVpnMember =>
                             {
-                                if (extranetVpnMember.MemberVpn.RegionID != null && extranetVpnMember.MemberVpn.RegionID != this.RegionID)
+                                if (extranetVpnMember.MemberVpn.RegionID != null && extranetVpnMember.MemberVpn.RegionID != this.Region.RegionID)
                                 {
                                     throw new IllegalStateException($"The region '{this.Region.Name}' of the extranet vpn conflicts with region " +
                                         $"'{extranetVpnMember.MemberVpn.Region.Name}' which is set for " +
@@ -301,12 +304,15 @@ namespace SCM.Models
                             });
                     }
 
-                    if (this.ExtranetVpns.Any()) throw new IllegalStateException($"The vpn cannot be enabled for extranet " +
-                           "because the vpn is a member of at least one other extranet vpn.");
+                    if (this.ExtranetVpns.Any()) throw new IllegalStateException($"Vpn '{this.Name}' cannot be enabled for extranet " +
+                        "because the vpn is a member of at least one other extranet vpn.");
+
+                    if (this.VpnAttachmentSets.Any()) throw new IllegalStateException($"Vpn '{this.Name}' cannot be enabled for extranet " +
+                        $"because one or more attachment sets are bound to the vpn. Remove the attachment sets first.");
                 }
                 else
                 {
-                    if (this.ExtranetVpnMembers.Any()) throw new IllegalStateException("The vpn must be enabled for extranet because extranet " +
+                    if (this.ExtranetVpnMembers.Any()) throw new IllegalStateException($"Vpn '{this.Name}' must be enabled for extranet because extranet " +
                         "vpn members are defined.");
 
                     (from extranetVpns in this.ExtranetVpns
@@ -317,7 +323,7 @@ namespace SCM.Models
                         {
                             if (extranetVpn.ExtranetVpn.RegionID != null && this.RegionID != extranetVpn.ExtranetVpn.RegionID)
                             {
-                                throw new IllegalStateException($"The vpn is a member of extranet vpn '{extranetVpn.ExtranetVpn.Name}' which " +
+                                throw new IllegalStateException($"Vpn '{this.Name}' is a member of extranet vpn '{extranetVpn.ExtranetVpn.Name}' which " +
                                     $"operates in region '{extranetVpn.ExtranetVpn.Region.Name}' only. The region of vpn '{this.Name}' must match the " +
                                     $"region of the extranet vpn.");
                             }
@@ -327,23 +333,23 @@ namespace SCM.Models
                 // Checks for multicast vpn
                 if (this.IsMulticastVpn)
                 {
-                    if (this.Plane == null) throw new IllegalStateException("A plane option must be specified for a multicast vpn.");
+                    if (this.Plane == null) throw new IllegalStateException($"A plane option must be specified for multicast vpn '{this.Name}'.");
 
                     if (this.MulticastVpnServiceType == null) throw new IllegalStateException("A multicast vpn service type option must " +
-                        "be specified for multicast vpn.");
+                        $"be specified for multicast vpn '{this.Name}'.");
 
                     if (this.VpnTopologyType.TopologyType == SCM.Models.TopologyTypeEnum.HubandSpoke)
                     {
                         if (this.MulticastVpnDirectionType == null)
                         {
-                            throw new IllegalStateException("A multicast vpn direction type option must be specified for a hub-and-spoke vpn.");
+                            throw new IllegalStateException($"A multicast vpn direction type option must be specified for hub-and-spoke vpn '{this.Name}'.");
                         }
                     }
                     else if (this.VpnTopologyType.TopologyType == SCM.Models.TopologyTypeEnum.Meshed)
                     {
                         if (this.MulticastVpnDirectionType != null)
                         {
-                            throw new IllegalStateException("A multicast vpn direction type option must not be specified for a meshed vpn.");
+                            throw new IllegalStateException($"A multicast vpn direction type option must not be specified for meshed vpn '{this.Name}'.");
                         }
                     }
                 }

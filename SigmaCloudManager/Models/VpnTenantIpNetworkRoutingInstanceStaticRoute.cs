@@ -81,13 +81,6 @@ namespace SCM.Models
                 }
             }
 
-            if (this.TenantIpNetwork.TenantID != this.AttachmentSet.TenantID)
-            {
-                throw new IllegalStateException($"A static route for tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' cannot " +
-                    $"be created for attachment set '{this.AttachmentSet.Name}' because the tenant owner of the IP network and the tenant owner of the attachment set " +
-                    $"are not the same.");
-            }
-
             if (string.IsNullOrEmpty(this.Ipv4NextHopAddress)) throw new IllegalStateException("An IPv4 next-hop address is required but was not found.");
 
             if (!IPAddress.TryParse(this.Ipv4NextHopAddress, out IPAddress ipv4NextHopAddress))
@@ -178,10 +171,12 @@ namespace SCM.Models
              select result.Vpn)
              .ToList()
              .ForEach(
-                x => sb.Append($"A static route for tenant IP network '{this.TenantIpNetwork.CidrName}' " +
+                x => 
+                    sb.Append($"A static route for tenant IP network '{this.TenantIpNetwork.CidrName}' " +
                                $"cannot be added to attachment set '{this.AttachmentSet.Name}' because the attachment set is associated with extranet vpn " +
                                $"'{x.Name}' and the tenant IP network is not enabled for extranet. Update the tenant IP network " +
-                               "to enable it for extranet services first.\n"));
+                               "to enable it for extranet services first.").Append("\r\n")
+                     );
 
             if (sb.Length > 0) throw new IllegalStateException(sb.ToString());
         }

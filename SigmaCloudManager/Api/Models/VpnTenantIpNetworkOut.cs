@@ -44,6 +44,14 @@ namespace Mind.Api.Models
         public int? TenantIpNetworkId { get; private set; }
 
         /// <summary>
+        /// The name of the attachment set to which the tenant IP network is associated.
+        /// </summary>
+        /// <value>A string value denoting the name of the attachment set</value>
+        /// <example>713faafc85ff43db8472b6b9c38033a1</example>
+        [DataMember(Name = "attachmentSetName")]
+        public string AttachmentSetName { get; private set; }
+
+        /// <summary>
         /// The CIDR block representation of the tenant IP network
         /// </summary>
         /// <value>String representing the CIDR notation of the tenant IP network</value>
@@ -80,6 +88,7 @@ namespace Mind.Api.Models
             sb.Append("  CidrName: ").Append(CidrName).Append("\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
             sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
+            sb.Append("  AttachmentSetName: ").Append(AttachmentSetName).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -140,6 +149,11 @@ namespace Mind.Api.Models
                                 AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
                                 AdvertisedIpRoutingPreference != null &&
                                 AdvertisedIpRoutingPreference.Equals(other.AdvertisedIpRoutingPreference)
+                            ) &&
+                            (
+                                AttachmentSetName == other.AttachmentSetName ||
+                                AttachmentSetName != null &&
+                                AttachmentSetName.Equals(other.AttachmentSetName)
                             );
         }
 
@@ -163,6 +177,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Ipv4PeerAddress.GetHashCode();
                 if (AdvertisedIpRoutingPreference != null)
                     hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
+                if (AttachmentSetName != null)
+                    hashCode = hashCode * 59 + AttachmentSetName.GetHashCode();
                 return hashCode;
             }
         }

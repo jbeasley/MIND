@@ -1942,7 +1942,7 @@ namespace SigmaCloudManager.Migrations
 
                     b.HasIndex("TenantIpNetworkID1");
 
-                    b.HasIndex("TenantIpNetworkID", "AttachmentSetID")
+                    b.HasIndex("TenantIpNetworkID", "AttachmentSetID", "BgpPeerID")
                         .IsUnique();
 
                     b.ToTable("VpnTenantIpNetworkOut");

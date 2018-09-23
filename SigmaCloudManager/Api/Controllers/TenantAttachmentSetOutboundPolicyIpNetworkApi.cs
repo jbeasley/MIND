@@ -109,15 +109,15 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> UpdateAttachmentSetOutboundPolicyTenantIpNetwork([FromRoute][Required]int? attachmentSetId, [FromRoute][Required]int? vpnTenantIpNetworkOutId,
-            [FromBody]VpnTenantIpNetworkOutRequest body)
+            [FromBody]VpnTenantIpNetworkOutUpdate body)
         {
             try
             {
                 var item = await _vpnTenantIpNetworkOutService.GetByIDAsync(vpnTenantIpNetworkOutId.Value);
                 if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
 
-                var request = Mapper.Map<Mind.Models.RequestModels.VpnTenantIpNetworkOutRequest>(body);
-                var vpnTenantIpNetworkOut = await _vpnTenantIpNetworkOutService.UpdateAsync(item.VpnTenantIpNetworkOutID, request);
+                var update = Mapper.Map<Mind.Models.RequestModels.VpnTenantIpNetworkOutUpdate>(body);
+                var vpnTenantIpNetworkOut = await _vpnTenantIpNetworkOutService.UpdateAsync(item.VpnTenantIpNetworkOutID, update);
                 vpnTenantIpNetworkOut.SetModifiedHttpHeaders(Response);
                 
                 return StatusCode(StatusCodes.Status204NoContent);

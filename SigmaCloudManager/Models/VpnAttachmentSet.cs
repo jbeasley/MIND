@@ -20,6 +20,8 @@ namespace SCM.Models
                         .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.Device.Plane)
                         .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Device.Location.SubRegion.Region)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.Attachments)
                         .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.Vifs)
@@ -36,23 +38,97 @@ namespace SCM.Models
                         .Include(x => x.Vpn.VpnTenancyType)
                         .Include(x => x.Vpn.MulticastVpnServiceType)
                         .Include(x => x.Vpn.MulticastVpnDirectionType)
+                        .Include(x => x.Vpn.RouteTargets)
+                        .ThenInclude(x => x.RouteTargetRange)
                         .Include(x => x.AttachmentSet.MulticastVpnDomainType)
+                        .Include(x => x.AttachmentSet.Region)
                         .Include(x => x.AttachmentSet.AttachmentRedundancy)
-                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
-                        .ThenInclude(x => x.RoutingInstance.Tenant)
-                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
-                        .ThenInclude(x => x.RoutingInstance.Vifs)
-                        .ThenInclude(x => x.Attachment.Interfaces)
-                        .ThenInclude(x => x.Ports)
+                        .Include(x => x.AttachmentSet.SubRegion)
                         .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.Attachments)
                         .ThenInclude(x => x.Interfaces)
-                        .ThenInclude(x => x.Ports);
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Vifs)
+                        .ThenInclude(x => x.Vlans)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksIn)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesIn)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSet.VpnAttachmentSets)
+                        .Include(x => x.AttachmentSet.VpnTenantMulticastGroups)
+                        .Include(x => x.AttachmentSet.VpnTenantCommunitiesIn)
+                        .Include(x => x.AttachmentSet.VpnTenantCommunitiesOut)
+                        .Include(x => x.AttachmentSet.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSet.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSet.VpnTenantCommunitiesRoutingInstance)
+                        .Include(x => x.AttachmentSet.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        // Need a projection in order to filter static routes, IP networks, and communities in the attachment set
+                        .Select(x => new VpnAttachmentSet(x.VpnAttachmentSetID)
+                        {
+                            Vpn = x.Vpn,
+                            VpnID = x.VpnID,
+                            IsHub = x.IsHub,
+                            RowVersion = x.RowVersion,
+                            IsMulticastDirectlyIntegrated = x.IsMulticastDirectlyIntegrated,
+                            AttachmentSetID = x.AttachmentSetID,                            
+                            AttachmentSet = new AttachmentSet(x.AttachmentSetID)
+                            {
+                                AttachmentRedundancy = x.AttachmentSet.AttachmentRedundancy,
+                                AttachmentRedundancyID = x.AttachmentSet.AttachmentRedundancyID,
+                                AttachmentSetRoutingInstances = x.AttachmentSet.AttachmentSetRoutingInstances,
+                                IsLayer3 = x.AttachmentSet.IsLayer3,
+                                MulticastVpnDomainType = x.AttachmentSet.MulticastVpnDomainType,
+                                MulticastVpnDomainTypeID = x.AttachmentSet.MulticastVpnDomainTypeID,
+                                MulticastVpnRps = x.AttachmentSet.MulticastVpnRps,
+                                Name = x.AttachmentSet.Name,
+                                Region = x.AttachmentSet.Region,
+                                RegionID = x.AttachmentSet.RegionID,
+                                RowVersion = x.AttachmentSet.RowVersion,
+                                SubRegion = x.AttachmentSet.SubRegion,
+                                SubRegionID = x.AttachmentSet.SubRegionID,
+                                Tenant = x.AttachmentSet.Tenant,
+                                TenantID = x.AttachmentSet.TenantID,
+                                // The following gives us a result set with tenant IP netwokrs which are to be added to 
+                                // the inbound policy of all BGP peers in the attachment set
+                                VpnTenantCommunitiesIn = x.AttachmentSet.VpnTenantCommunitiesIn
+                                                                        .Where(q => q.AddToAllBgpPeersInAttachmentSet)
+                                                                        .ToList(),
+                                VpnTenantCommunitiesOut = x.AttachmentSet.VpnTenantCommunitiesOut,
+                                VpnTenantCommunitiesRoutingInstance = x.AttachmentSet.VpnTenantCommunitiesRoutingInstance,
+                                // The following gives us a result set with tenant communities which are to be added to 
+                                // the inbound policy of all BGP peers in the attachment set
+                                VpnTenantIpNetworksIn = x.AttachmentSet.VpnTenantIpNetworksIn
+                                                                       .Where(q => q.AddToAllBgpPeersInAttachmentSet)
+                                                                       .ToList(),
+                                VpnTenantIpNetworksRoutingInstance = x.AttachmentSet.VpnTenantIpNetworksRoutingInstance,
+                                VpnTenantMulticastGroups = x.AttachmentSet.VpnTenantMulticastGroups,
+                                // The following gives us a result set with static routes which are to be added to all routing instances
+                                // in the attachment set
+                                VpnTenantIpNetworkRoutingInstanceStaticRoutes = x.AttachmentSet.VpnTenantIpNetworkRoutingInstanceStaticRoutes
+                                                                                               .Where(q => q.AddToAllRoutingInstancesInAttachmentSet)
+                                                                                               .ToList()
+                            }
+                        });
+
         }
     }
 
     public class VpnAttachmentSet : IModifiableResource
     {
+        public VpnAttachmentSet() { }
+        public VpnAttachmentSet(int vpnAttachmentSetId) => VpnAttachmentSetID = vpnAttachmentSetId;
         public int VpnAttachmentSetID { get; private set; }
         public int AttachmentSetID { get; set; }
         public int VpnID { get; set; }
@@ -244,6 +320,5 @@ namespace SCM.Models
                 }
             }
         }
-
     }
 }

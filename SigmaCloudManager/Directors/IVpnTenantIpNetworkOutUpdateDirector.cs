@@ -8,8 +8,8 @@ using Mind.Models.RequestModels;
 
 namespace Mind.Builders
 {
-    public interface IVpnTenantIpNetworkInUpdateDirector
+    public interface IVpnTenantIpNetworkOutUpdateDirector
     {
-        Task<VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInRequest request);
+        Task<VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutUpdate update);
     }
 }

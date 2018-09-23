@@ -22,49 +22,49 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for updates to an existing tenant device
     /// </summary>
     [DataContract]
     public partial class TenantDeviceUpdate : IEquatable<TenantDeviceUpdate>
-    { 
+    {
         /// <summary>
         /// The name of the device
         /// </summary>
-        /// <value>The name of the device</value>
-        [Required]
-        [DataMember(Name="name")]
+        /// <value>String denoting the name of the device</value>
+        /// <example>DTC-CPE-1</example>
+        [DataMember(Name = "name")]
         public string Name { get; set; }
 
         /// <summary>
         /// A description of the device
         /// </summary>
-        /// <value>A description of the device</value>
-        [Required]
-        [DataMember(Name="description")]
+        /// <value>String denoting the description of the device</value>
+        /// <example>Customer edge device located in DTC</example>
+        [DataMember(Name = "description")]
         public string Description { get; set; }
-
-        /// <summary>
-        /// The model of the device
-        /// </summary>
-        /// <value>The model of the device</value>
-        [Required]
-        [DataMember(Name="deviceModel")]
-        public string DeviceModel { get; set; }
 
         /// <summary>
         /// The status of the device
         /// </summary>
-        /// <value>The status of the device</value>
-        [Required]
-        [DataMember(Name="deviceStatus")]
-        public string DeviceStatus { get; set; }
+        /// <value>A member of the DeviceStatusTypeEnum enumeration</value>
+        /// <example>Production</example>
+        [DataMember(Name = "deviceStatus")]
+        public DeviceStatusTypeEnum? DeviceStatus { get; set; }
 
         /// <summary>
-        /// Determines if layer 2 overhead is included in the device MTU calculation
+        /// Determines if layer 2 overhead should be included in the device MTU calculation
         /// </summary>
-        /// <value>Determines if layer 2 overhead is included in the device MTU calculation</value>
-        [DataMember(Name="useLayer2InterfaceMtu")]
+        /// <value>Boolean value denoting if layer 2 overhead is included in the device MTU calculation</value>
+        /// <example>true</example>
+        [DataMember(Name = "useLayer2InterfaceMtu")]
         public bool? UseLayer2InterfaceMtu { get; set; }
+
+        /// <summary>
+        /// List of port updates for the device
+        /// </summary>
+        /// <value>List of PortUpdate objects</value>
+        [DataMember(Name = "ports")]
+        public List<PortUpdate> Ports { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -76,9 +76,9 @@ namespace Mind.Api.Models
             sb.Append("class TenantDeviceUpdate {\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
-            sb.Append("  DeviceModel: ").Append(DeviceModel).Append("\n");
             sb.Append("  DeviceStatus: ").Append(DeviceStatus).Append("\n");
             sb.Append("  UseLayer2InterfaceMtu: ").Append(UseLayer2InterfaceMtu).Append("\n");
+            sb.Append("  Ports: ").Append(Ports).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -114,31 +114,31 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
-                ) && 
+                ) &&
                 (
                     Description == other.Description ||
                     Description != null &&
                     Description.Equals(other.Description)
-                ) && 
-                (
-                    DeviceModel == other.DeviceModel ||
-                    DeviceModel != null &&
-                    DeviceModel.Equals(other.DeviceModel)
-                ) && 
+                ) &&
                 (
                     DeviceStatus == other.DeviceStatus ||
                     DeviceStatus != null &&
                     DeviceStatus.Equals(other.DeviceStatus)
-                ) && 
+                ) &&
                 (
                     UseLayer2InterfaceMtu == other.UseLayer2InterfaceMtu ||
                     UseLayer2InterfaceMtu != null &&
                     UseLayer2InterfaceMtu.Equals(other.UseLayer2InterfaceMtu)
+                ) &&
+                (
+                    Ports == other.Ports ||
+                    Ports != null &&
+                    Ports.SequenceEqual(other.Ports)
                 );
         }
 
@@ -152,16 +152,16 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Name != null)
+                if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
-                    if (Description != null)
+                if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
-                    if (DeviceModel != null)
-                    hashCode = hashCode * 59 + DeviceModel.GetHashCode();
-                    if (DeviceStatus != null)
+                if (DeviceStatus != null)
                     hashCode = hashCode * 59 + DeviceStatus.GetHashCode();
-                    if (UseLayer2InterfaceMtu != null)
+                if (UseLayer2InterfaceMtu != null)
                     hashCode = hashCode * 59 + UseLayer2InterfaceMtu.GetHashCode();
+                if (Ports != null)
+                    hashCode = hashCode * 59 + Ports.GetHashCode();
                 return hashCode;
             }
         }

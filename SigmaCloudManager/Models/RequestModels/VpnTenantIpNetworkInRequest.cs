@@ -8,6 +8,13 @@ namespace Mind.Models.RequestModels
     public partial class VpnTenantIpNetworkInRequest
     {
         /// <summary>
+        /// The ID of the tenant owner of the tenant IP network to be added to the BGP peers of the attachment set
+        /// </summary>
+        /// <value>An integer denoting the ID of the tenant owner</value>
+        /// <example>1001</example>
+        public int? TenantId { get; set; }
+
+        /// <summary>
         /// Gets or Sets TenantIpNetworkCidrName
         /// </summary>
         /// <value>string value for the CIDR name of the tenant IP network</value>

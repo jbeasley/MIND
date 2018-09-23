@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// Model for requesting a port
+    /// Model for requesting the creation of a device port
     /// </summary>
     [DataContract]
     public partial class PortRequest : IEquatable<PortRequest>
@@ -30,7 +30,8 @@ namespace Mind.Api.Models
         /// <summary>
         /// The type of the port, e.g. TenGigabitEtheret
         /// </summary>
-        /// <value>The type of the port, e.g. TenGigabitEtheret</value>
+        /// <value>String denoting the type of the port</value>
+        /// <example>TenGigabitEtheret</example>
         [Required]
         [DataMember(Name="type")]
         public string Type { get; set; }
@@ -38,7 +39,8 @@ namespace Mind.Api.Models
         /// <summary>
         /// The name of the port, e.g. 1/0
         /// </summary>
-        /// <value>The name of the port, e.g. 1/0</value>
+        /// <value>String denoting the name of the port</value>
+        /// <example>1/0</example>
         [Required]
         [DataMember(Name="name")]
         public string Name { get; set; }
@@ -46,7 +48,8 @@ namespace Mind.Api.Models
         /// <summary>
         /// Small Form-Factor Pluggable optic for the port
         /// </summary>
-        /// <value>Small Form-Factor Pluggable optic for the port</value>
+        /// <value>String denoting the small form-factor pluggable optic for the port</value>
+        /// <example>SFP-10G-SR</example>
         [Required]
         [DataMember(Name="portSfp")]
         public string PortSfp { get; set; }
@@ -54,23 +57,49 @@ namespace Mind.Api.Models
         /// <summary>
         /// Status of the port
         /// </summary>
-        /// <value>Status of the port</value>
+        /// <value>Member of the PortStatusTypeEnum enunmeration</value>
         [Required]
         [DataMember(Name="portStatus")]
-        public string PortStatus { get; set; }
+        public PortStatusTypeEnum? PortStatus { get; set; }
 
         /// <summary>
         /// The role of the port
         /// </summary>
-        /// <value>The role of the port</value>
+        /// <value>String value denoting the role of the port</value>
         [Required]
         [DataMember(Name="portRole")]
         public string PortRole { get; set; }
 
         /// <summary>
+        /// The connector type of the port
+        /// </summary>
+        /// <value>String value denoting the required port connector</value>
+        /// <example>RJ45</example>
+        [Required]
+        [DataMember(Name = "portConnector")]
+        public string PortConnector { get; set; }
+
+        /// <summary>
+        /// The physical bandwidth of the port in Gbps
+        /// </summary>
+        /// <value>Integer value denoting the physical bandwidth of the port</value>
+        /// <example>10</example>
+        [Required]
+        [DataMember(Name = "portBandwidthGbps")]
+        public int? PortBandwidthGbps { get; set; }
+
+        /// <summary>
+        /// The ID of the tenant to which the port should be assigned.
+        /// </summary>
+        /// <value>Integer value denoting the ID of the tenant</value>
+        /// <example>9009</example>
+        [DataMember(Name = "tenantId")]
+        public int? TenantId { get; set; }
+
+        /// <summary>
         /// Pool to which the port is assigned
         /// </summary>
-        /// <value>Pool to which the port is assigned</value>
+        /// <value>String value denoting the pool to which the port should be assigned</value>
         [Required]
         [DataMember(Name="portPool")]
         public string PortPool { get; set; }
@@ -89,6 +118,9 @@ namespace Mind.Api.Models
             sb.Append("  PortStatus: ").Append(PortStatus).Append("\n");
             sb.Append("  PortRole: ").Append(PortRole).Append("\n");
             sb.Append("  PortPool: ").Append(PortPool).Append("\n");
+            sb.Append("  PortConnector: ").Append(PortConnector).Append("\n");
+            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
+            sb.Append("  PortBandwidthGbps: ").Append(PortBandwidthGbps).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -124,36 +156,51 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     Type == other.Type ||
                     Type != null &&
                     Type.Equals(other.Type)
-                ) && 
+                ) &&
                 (
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
-                ) && 
+                ) &&
                 (
                     PortSfp == other.PortSfp ||
                     PortSfp != null &&
                     PortSfp.Equals(other.PortSfp)
-                ) && 
+                ) &&
                 (
                     PortStatus == other.PortStatus ||
                     PortStatus != null &&
                     PortStatus.Equals(other.PortStatus)
-                ) && 
+                ) &&
                 (
                     PortRole == other.PortRole ||
                     PortRole != null &&
                     PortRole.Equals(other.PortRole)
-                ) && 
+                ) &&
                 (
                     PortPool == other.PortPool ||
                     PortPool != null &&
                     PortPool.Equals(other.PortPool)
+                ) &&
+                (
+                    PortConnector == other.PortConnector ||
+                    PortConnector != null &&
+                    PortConnector.Equals(other.PortConnector)
+                ) &&
+                (
+                    PortBandwidthGbps == other.PortBandwidthGbps ||
+                    PortBandwidthGbps != null &&
+                    PortBandwidthGbps.Equals(other.PortBandwidthGbps)
+                ) &&
+                (
+                    TenantId == other.TenantId ||
+                    TenantId != null &&
+                    TenantId.Equals(other.TenantId)
                 );
         }
 
@@ -179,6 +226,12 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + PortRole.GetHashCode();
                     if (PortPool != null)
                     hashCode = hashCode * 59 + PortPool.GetHashCode();
+                    if (PortConnector != null)
+                    hashCode = hashCode * 59 + PortConnector.GetHashCode();
+                    if (PortBandwidthGbps != null)
+                    hashCode = hashCode * 59 + PortBandwidthGbps.GetHashCode();
+                    if (TenantId != null)
+                    hashCode = hashCode * 59 + TenantId.GetHashCode();
                 return hashCode;
             }
         }

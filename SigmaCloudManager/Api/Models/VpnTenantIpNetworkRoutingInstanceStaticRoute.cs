@@ -111,7 +111,7 @@ namespace Mind.Api.Models
             sb.Append("  IsBfdEnabled: ").Append(IsBfdEnabled).Append("\n");
             sb.Append("  AssociatedWithAllRoutingInstances: ").Append(AssociatedWithAllRoutingInstances).Append("\n");
             sb.Append("  RoutingInstanceName: ").Append(RoutingInstanceName).Append("\n");
-            sb.Append("  AttachmentSeteName: ").Append(AttachmentSetName).Append("\n");
+            sb.Append("  AttachmentSetName: ").Append(AttachmentSetName).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }

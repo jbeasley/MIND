@@ -16,9 +16,9 @@ namespace Mind.Builders
     {
         protected internal Vif _vif;
         private const string _defaultVlanTagRange = "Default";
-        private readonly Func<RoutingInstanceType, IRoutingInstanceDirector> _routingInstanceDirectorFactory;
+        private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
 
-        public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory) : base(unitOfWork)
+        public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) : base(unitOfWork)
         {
             _vif = new Vif
             {
@@ -299,9 +299,9 @@ namespace Mind.Builders
 
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                                         x => 
-                                           x.Name == routingInstanceName
-                                           && x.TenantID == _vif.Tenant.TenantID
-                                           && x.DeviceID == _vif.Attachment.DeviceID,
+                                           x.Name == routingInstanceName &&
+                                           x.TenantID == _vif.Tenant.TenantID &&
+                                           x.DeviceID == _vif.Attachment.DeviceID,
                                            AsTrackable: true)
                                            select routingInstances)
                                            .SingleOrDefault();

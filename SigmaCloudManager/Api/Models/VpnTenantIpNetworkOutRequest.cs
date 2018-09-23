@@ -20,9 +20,9 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Mind.Api.Models
-{ 
+{
     /// <summary>
-    /// 
+    /// Model for requesting a tenant IP network association with the outbound policy of an attachment set
     /// </summary>
     [DataContract]
     public partial class VpnTenantIpNetworkOutRequest : IEquatable<VpnTenantIpNetworkOutRequest>

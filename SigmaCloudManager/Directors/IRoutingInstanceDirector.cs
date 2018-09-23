@@ -8,6 +8,6 @@ namespace Mind.Builders
 {
     public interface IRoutingInstanceDirector
     {
-        Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int tenantId, RouteDistinguisherRangeTypeEnum rdRangeTyp = RouteDistinguisherRangeTypeEnum.Default);
+        Task<SCM.Models.RoutingInstance> BuildAsync(Device device);
     }
 }

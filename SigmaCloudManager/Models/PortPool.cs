@@ -1,10 +1,20 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace SCM.Models
 {
+    public static class PortPoolQueryableExtensions
+    {
+        public static IQueryable<PortPool> IncludeValidationProperties(this IQueryable<PortPool> query)
+        {
+            return query.Include(x => x.PortRole.DeviceRolePortRoles);
+        }
+    }
+
     public class PortPool
     {
         public int PortPoolID { get; private set; }

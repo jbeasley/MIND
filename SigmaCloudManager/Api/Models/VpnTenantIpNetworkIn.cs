@@ -65,8 +65,8 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
         /// <example>true</example>
-        [DataMember(Name = "addToAllBgpPeersInAttachmentSet")]
-        public bool? AddToAllBgpPeersInAttachmentSet { get; private set; } = true;
+        [DataMember(Name = "associatedWithAllBgpPeersInAttachmentSet")]
+        public bool? AssociatedWithAllBgpPeersInAttachmentSet { get; private set; } = true;
 
         /// <summary>
         /// An IPv4 BGP peer address from which the tenant IP network should be learned
@@ -75,6 +75,14 @@ namespace Mind.Api.Models
         /// <example>192.168.0.1</example>
         [DataMember(Name = "ipv4PeerAddress")]
         public string Ipv4PeerAddress { get; private set; }
+
+        /// <summary>
+        /// The name of the attachment set to which the tenant IP network is associated.
+        /// </summary>
+        /// <value>A string value denoting the name of the attachment set</value>
+        /// <example>713faafc85ff43db8472b6b9c38033a1</example>
+        [DataMember(Name = "attachmentSetName")]
+        public string AttachmentSetName { get; private set; }
 
         /// <summary>
         /// The local IP routing preference applied to the route towards the tenant IP network
@@ -96,9 +104,10 @@ namespace Mind.Api.Models
             sb.Append("  VpnTenantIpNetworkInId: ").Append(VpnTenantIpNetworkInId).Append("\n");
             sb.Append("  TenantIpNetworkId: ").Append(TenantIpNetworkId).Append("\n");
             sb.Append("  CidrName: ").Append(CidrName).Append("\n");
-            sb.Append("  AddToAllBgpPeersInAttachmentSet: ").Append(AddToAllBgpPeersInAttachmentSet).Append("\n");
+            sb.Append("  AssociatedWithAllBgpPeersInAttachmentSet: ").Append(AssociatedWithAllBgpPeersInAttachmentSet).Append("\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
             sb.Append("  LocalIpRoutingPreference: ").Append(LocalIpRoutingPreference).Append("\n");
+            sb.Append("  AttachmentSetName: ").Append(AttachmentSetName).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -149,26 +158,31 @@ namespace Mind.Api.Models
                     TenantIpNetworkId == other.TenantIpNetworkId ||
                     TenantIpNetworkId != null &&
                     TenantIpNetworkId.Equals(other.TenantIpNetworkId)
-                ) && 
+                ) &&
                 (
                     CidrName == other.CidrName ||
                     CidrName != null &&
                     CidrName.Equals(other.CidrName)
                 ) &&
                 (
-                    AddToAllBgpPeersInAttachmentSet == other.AddToAllBgpPeersInAttachmentSet ||
-                    AddToAllBgpPeersInAttachmentSet != null &&
-                    AddToAllBgpPeersInAttachmentSet.Equals(other.AddToAllBgpPeersInAttachmentSet)
+                    AssociatedWithAllBgpPeersInAttachmentSet == other.AssociatedWithAllBgpPeersInAttachmentSet ||
+                    AssociatedWithAllBgpPeersInAttachmentSet != null &&
+                    AssociatedWithAllBgpPeersInAttachmentSet.Equals(other.AssociatedWithAllBgpPeersInAttachmentSet)
                 ) &&
                 (
                     Ipv4PeerAddress == other.Ipv4PeerAddress ||
                     Ipv4PeerAddress != null &&
                     Ipv4PeerAddress.Equals(other.Ipv4PeerAddress)
-                ) && 
+                ) &&
                 (
                     LocalIpRoutingPreference == other.LocalIpRoutingPreference ||
                     LocalIpRoutingPreference != null &&
                     LocalIpRoutingPreference.Equals(other.LocalIpRoutingPreference)
+                ) &&
+                (
+                    AttachmentSetName == other.AttachmentSetName ||
+                    AttachmentSetName != null &&
+                    AttachmentSetName.Equals(other.AttachmentSetName)
                 );
         }
 
@@ -190,12 +204,14 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + TenantIpNetworkId.GetHashCode();
                     if (CidrName != null)
                     hashCode = hashCode * 59 + CidrName.GetHashCode();
-                    if (AddToAllBgpPeersInAttachmentSet != null)
-                    hashCode = hashCode * 59 + AddToAllBgpPeersInAttachmentSet.GetHashCode();
+                    if (AssociatedWithAllBgpPeersInAttachmentSet != null)
+                    hashCode = hashCode * 59 + AssociatedWithAllBgpPeersInAttachmentSet.GetHashCode();
                     if (Ipv4PeerAddress != null)
                     hashCode = hashCode * 59 + Ipv4PeerAddress.GetHashCode();
                     if (LocalIpRoutingPreference != null)
                     hashCode = hashCode * 59 + LocalIpRoutingPreference.GetHashCode();
+                    if (AttachmentSetName != null)
+                    hashCode = hashCode * 59 + AttachmentSetName.GetHashCode();
                 return hashCode;
             }
         }

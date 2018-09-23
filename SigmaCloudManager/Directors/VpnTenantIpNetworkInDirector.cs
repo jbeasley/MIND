@@ -18,6 +18,7 @@ namespace Mind.Builders
         public async Task<SCM.Models.VpnTenantIpNetworkIn> BuildAsync(int attachmentSetId, VpnTenantIpNetworkInRequest request)
         {
             return await _builder.ForAttachmentSet(attachmentSetId)
+                                 .WithTenantOwner(request.TenantId)
                                  .WithLocalIpRoutingPreference(request.LocalIpRoutingPreference)
                                  .WithIpv4PeerAddress(request.Ipv4PeerAddress)
                                  .WithTenantIpNetworkCidrName(request.TenantIpNetworkCidrName)

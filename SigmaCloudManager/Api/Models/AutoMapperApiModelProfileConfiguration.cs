@@ -53,15 +53,17 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name))
                 .ForMember(dst => dst.MulticastVpnDomainType, conf => conf.MapFrom(src => src.MulticastVpnDomainType.Name))
                 .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksIn))
-                .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksOut))
                  // Static routes which are associated with all routing instances which belong to the attachment set
-                .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes));                                                                             
+                .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes));
             CreateMap<SCM.Models.VpnTenantIpNetworkIn, Mind.Api.Models.VpnTenantIpNetworkIn>()
                 .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
-                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
+                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
+                .ForMember(dst => dst.AssociatedWithAllBgpPeersInAttachmentSet, conf => conf.MapFrom(src => src.AddToAllBgpPeersInAttachmentSet))
+                .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name));
             CreateMap<SCM.Models.VpnTenantIpNetworkOut, Mind.Api.Models.VpnTenantIpNetworkOut>()
                 .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
-                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress));
+                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
+                .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name));
             CreateMap<SCM.Models.VpnTenantIpNetworkRoutingInstanceStaticRoute, Mind.Api.Models.VpnTenantIpNetworkRoutingInstanceStaticRoute>()
                 .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
                 .ForMember(dst => dst.AssociatedWithAllRoutingInstances, conf => conf.MapFrom(src => src.AddToAllRoutingInstancesInAttachmentSet))

@@ -20,9 +20,9 @@ namespace Mind.Builders
         protected internal IEnumerable<Port> _ports;
         protected internal Attachment _attachment;
 
-        private readonly Func<RoutingInstanceType, IRoutingInstanceDirector> _routingInstanceDirectorFactory;
+        private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
 
-        public AttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory) : base(unitOfWork)
+        public AttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) : base(unitOfWork)
         {
             _attachment = new Attachment
             {
@@ -292,7 +292,6 @@ namespace Mind.Builders
         protected internal virtual async Task AssociateExistingRoutingInstanceAsync()
         {
             var routingInstanceName = _args[nameof(WithExistingRoutingInstance)].ToString();
-
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                                     x =>
                                            x.Name == routingInstanceName

@@ -20,13 +20,21 @@ using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Mind.Api.Models
-{ 
+{
     /// <summary>
-    /// 
+    /// Model for requesting a tenant IP network association with the inbound policy of an attachment set
     /// </summary>
     [DataContract]
     public partial class VpnTenantIpNetworkInRequest : IEquatable<VpnTenantIpNetworkInRequest>, IValidatableObject
     {
+        /// <summary>
+        /// The ID of the tenant owner of the tenant IP network to be added to the BGP peers of the attachment set
+        /// </summary>
+        /// <value>An integer denoting the ID of the tenant owner</value>
+        /// <example>1001</example>
+        [DataMember(Name = "tenantId")]
+        [Required(ErrorMessage="The ID of the tenant owner of the tenant IP network must be specified")]
+        public int? TenantId { get; private set; }
 
         /// <summary>
         /// CIDR block name of the tenant IP network
@@ -69,13 +77,23 @@ namespace Mind.Api.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
+            if (AddToAllBgpPeersInAttachmentSet.HasValue && AddToAllBgpPeersInAttachmentSet.Value)
+                if (!string.IsNullOrEmpty(Ipv4PeerAddress))
+                {
+                    yield return new ValidationResult(
+                        "A BGP peer address canot be specified when the 'AddToAllBgpPeersInAttachmentSet' " +
+                        "argument is not specified or is set to 'true'. Include the 'AddToAllBgpPeersInAttachmentSet' argument with a value of " +
+                        "'false' in the request if you wish to associate the IP network with a specific BGP peer.");
+                }
 
-            if (!AddToAllBgpPeersInAttachmentSet.Value && string.IsNullOrEmpty(Ipv4PeerAddress))
-            {
-                yield return new ValidationResult(
-                    "A BGP Peer address must be specified with the 'Ipv4PeerAddress' argument when the " +
-                    "'AddToAllBgpPeersInAttachmentSet' argument is set to false.");
-            }
+            if (AddToAllBgpPeersInAttachmentSet.HasValue && !AddToAllBgpPeersInAttachmentSet.Value)
+                if (string.IsNullOrEmpty(Ipv4PeerAddress))
+                {
+                    yield return new ValidationResult(
+                        "You must specify either a BGP peer address with the 'Ipv4PeerAddress' argument, or specify that " +
+                        "the IP network should be associated with all BGP peers in the attachment set with the " +
+                        "'AddToAllBgpPeersInAttachmentSet' argument.");
+                }
         }
 
         /// <summary>
@@ -86,6 +104,7 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class VpnTenantIpNetworkInRequest {\n");
+            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  TenantIpNetworkCidrName: ").Append(TenantIpNetworkCidrName).Append("\n");
             sb.Append("  AddToAllBgpPeersInAttachmentSet: ").Append(AddToAllBgpPeersInAttachmentSet).Append("\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
@@ -116,9 +135,9 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Returns true if VpnTenantIpNetworkIn instances are equal
+        /// Returns true if VpnTenantIpNetworkInRequest instances are equal
         /// </summary>
-        /// <param name="other">Instance of VpnTenantIpNetworkIn to be compared</param>
+        /// <param name="other">Instance of VpnTenantIpNetworkInRequest to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(VpnTenantIpNetworkInRequest other)
         {
@@ -126,6 +145,11 @@ namespace Mind.Api.Models
             if (ReferenceEquals(this, other)) return true;
 
             return
+                (
+                    TenantId == other.TenantId||
+                    TenantId != null &&
+                    TenantId.Equals(other.TenantId)
+                ) &&
                 (
                     TenantIpNetworkCidrName == other.TenantIpNetworkCidrName ||
                     TenantIpNetworkCidrName != null &&
@@ -158,6 +182,8 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (TenantId != null)
+                    hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (TenantIpNetworkCidrName != null)
                     hashCode = hashCode * 59 + TenantIpNetworkCidrName.GetHashCode();
                     if (AddToAllBgpPeersInAttachmentSet != null)

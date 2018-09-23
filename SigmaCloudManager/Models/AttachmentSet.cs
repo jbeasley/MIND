@@ -31,11 +31,16 @@ namespace SCM.Models
                         .ThenInclude(x => x.Vpn)
                         .Include(x => x.VpnTenantMulticastGroups)
                         .Include(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
                         .Include(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
                         .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.VpnTenantCommunitiesRoutingInstance)
-                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes);
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork);
         }
 
         public static IQueryable<AttachmentSet> IncludeDeepProperties(this IQueryable<AttachmentSet> query)
@@ -55,6 +60,14 @@ namespace SCM.Models
                         .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksIn)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesIn)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.VpnAttachmentSets)
                         .Include(x => x.VpnTenantMulticastGroups)
                         .Include(x => x.VpnTenantCommunitiesIn)
@@ -66,8 +79,7 @@ namespace SCM.Models
                         .Include(x => x.VpnTenantCommunitiesRoutingInstance)
                         .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
                         .ThenInclude(x => x.TenantIpNetwork)
-                        // Need a projection in order to filter on static routes associations with all routing instances 
-                        // in the attachment set
+                        // Need a projection in order to filter static routes, IP networks, and communities in the attachment set
                         .Select(x => new AttachmentSet(x.AttachmentSetID)
                         {
                             AttachmentRedundancy = x.AttachmentRedundancy,
@@ -86,11 +98,16 @@ namespace SCM.Models
                             Tenant = x.Tenant,
                             TenantID = x.TenantID,
                             VpnAttachmentSets = x.VpnAttachmentSets,
-                            VpnTenantCommunitiesIn = x.VpnTenantCommunitiesIn,
+                            // The following gives us a result set with tenant IP netwokrs which are to be added to 
+                            // the inbound policy of all BGP peers in the attachment set
+                            VpnTenantCommunitiesIn = x.VpnTenantCommunitiesIn
+                                                      .Where(q => q.AddToAllBgpPeersInAttachmentSet).ToList(),
                             VpnTenantCommunitiesOut = x.VpnTenantCommunitiesOut,
                             VpnTenantCommunitiesRoutingInstance = x.VpnTenantCommunitiesRoutingInstance,
-                            VpnTenantIpNetworksIn = x.VpnTenantIpNetworksIn,
-                            VpnTenantIpNetworksOut = x.VpnTenantIpNetworksOut,
+                            // The following gives us a result set with tenant communities which are to be added to 
+                            // the inbound policy of all BGP peers in the attachment set
+                            VpnTenantIpNetworksIn = x.VpnTenantIpNetworksIn
+                                                     .Where(q => q.AddToAllBgpPeersInAttachmentSet).ToList(),
                             VpnTenantIpNetworksRoutingInstance = x.VpnTenantIpNetworksRoutingInstance,
                             VpnTenantMulticastGroups = x.VpnTenantMulticastGroups,
                             // The following gives us a result set with static routes which are to be added to all routing instances
@@ -149,7 +166,27 @@ namespace SCM.Models
         public virtual void ValidateAttachmentRedundancy()
         {
             if (!this.AttachmentSetRoutingInstances.Any())
-                throw new IllegalStateException($"Attachment set '{this.Name}' requires at least one routing instance association.");
+                throw new IllegalStateException($"Attachment set '{this.Name}' requires routing instance associations. Currently no routing instances " +
+                    $"are associated with the attachment set.");
+
+            if (this.AttachmentRedundancy.AttachmentRedundancyType != AttachmentRedundancyTypeEnum.Custom)
+            {
+                (from attachmentSetRoutingInstances in this.AttachmentSetRoutingInstances
+                 select attachmentSetRoutingInstances.RoutingInstance)
+                         .ToList()
+                         .ForEach(
+                            routingInstance =>
+                            {
+                                var numLogicalAttachments = routingInstance.Attachments.Count() + routingInstance.Vifs.Count();
+                                if (numLogicalAttachments > 1)
+                                {
+                                    throw new IllegalStateException($"Routing instance '{routingInstance.Name}' can be associated with at most one " +
+                                        $"logical attachment but it is associated with multiple logical attachments. Use a 'custom' attachment Set " +
+                                        $"if you wish to associate the routing instance with more than one logical attachment.");
+                                }
+                            }
+                         );
+            }
 
             if (this.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Bronze)
             {
@@ -278,6 +315,9 @@ namespace SCM.Models
             }
         }
 
+        /// <summary>
+        /// Validate the attachment set can be deleted.
+        /// </summary>
         public virtual void ValidateDelete()
         {
             var sb = new StringBuilder();

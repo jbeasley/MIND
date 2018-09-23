@@ -98,13 +98,6 @@ namespace Mind.Api.Models
         public List<VpnTenantIpNetworkIn> BgpIpNetworkInboundPolicy { get; private set; }
 
         /// <summary>
-        /// A list of tenant IP network associations with the bgp outbound policy of the attachment set
-        /// </summary>
-        /// <value>A list of vpn tenant IP network out objects</value>
-        [DataMember(Name = "bgpIpNetworkOutboundPolicy")]
-        public List<VpnTenantIpNetworkOut> BgpIpNetworkOutboundPolicy { get; private set; }
-
-        /// <summary>
         /// A list of tenant IP network static route associations with the attachment set
         /// </summary>
         /// <value>A list of vpn tenant IP network routing instance static route objects</value>
@@ -125,7 +118,6 @@ namespace Mind.Api.Models
             sb.Append("  AttachmentRedundancy: ").Append(AttachmentRedundancy).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
             sb.Append("  BgpIpNetworkInboundPolicy: ").Append(BgpIpNetworkInboundPolicy).Append("\n");
-            sb.Append("  BgpIpNetworkOutboundPolicy: ").Append(BgpIpNetworkOutboundPolicy).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -191,11 +183,6 @@ namespace Mind.Api.Models
                     BgpIpNetworkInboundPolicy == other.BgpIpNetworkInboundPolicy ||
                     BgpIpNetworkInboundPolicy != null &&
                     BgpIpNetworkInboundPolicy.Equals(other.BgpIpNetworkInboundPolicy)
-                ) &&
-                (
-                    BgpIpNetworkOutboundPolicy == other.BgpIpNetworkOutboundPolicy ||
-                    BgpIpNetworkOutboundPolicy != null &&
-                    BgpIpNetworkOutboundPolicy.Equals(other.BgpIpNetworkOutboundPolicy)
                 );
         }
 
@@ -221,8 +208,6 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsLayer3.GetHashCode();
                     if (BgpIpNetworkInboundPolicy != null)
                     hashCode = hashCode * 59 + BgpIpNetworkInboundPolicy.GetHashCode();
-                    if (BgpIpNetworkOutboundPolicy != null)
-                    hashCode = hashCode * 59 + BgpIpNetworkOutboundPolicy.GetHashCode();
                 return hashCode;
             }
         }

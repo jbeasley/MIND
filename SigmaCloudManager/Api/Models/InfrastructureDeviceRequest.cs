@@ -22,7 +22,7 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for requesting a new infrastructure device
     /// </summary>
     [DataContract]
     public partial class InfrastructureDeviceRequest : IEquatable<InfrastructureDeviceRequest>
@@ -30,7 +30,8 @@ namespace Mind.Api.Models
         /// <summary>
         /// The name of the device
         /// </summary>
-        /// <value>The name of the device</value>
+        /// <value>String denoting the name of the device</value>
+        /// <example>UK2-PE1</example>
         [Required]
         [DataMember(Name="name")]
         public string Name { get; set; }
@@ -38,31 +39,43 @@ namespace Mind.Api.Models
         /// <summary>
         /// A description of the device
         /// </summary>
-        /// <value>A description of the device</value>
-        [Required]
+        /// <value>String denoting the description of the device</value>
+        /// <example>Provider Edge device located in UK2</example>
         [DataMember(Name="description")]
         public string Description { get; set; }
 
         /// <summary>
         /// The model of the device
         /// </summary>
-        /// <value>The model of the device</value>
+        /// <value>String denoting the model of the device</value>
+        /// <example>ASR-9001</example>
         [Required]
         [DataMember(Name="deviceModel")]
         public string DeviceModel { get; set; }
 
         /// <summary>
+        /// The role of the device
+        /// </summary>
+        /// <value>A string denoting the role of the device</value>
+        /// <example>PE</example>
+        [DataMember(Name = "deviceRole")]
+        [Required]
+        public string DeviceRole { get; set; }
+
+        /// <summary>
         /// The provider network plane to which the device belongs
         /// </summary>
-        /// <value>The provider network plane to which the device belongs</value>
+        /// <value>A member of the PlaneEnum enumeration</value>
+        /// <example>Red</example>
         [Required]
         [DataMember(Name="planeName")]
-        public string PlaneName { get; set; }
+        public PlaneEnum? PlaneName { get; set; }
 
         /// <summary>
         /// The location of the device
         /// </summary>
-        /// <value>The location of the device</value>
+        /// <value>A string denoting the location of the device</value>
+        /// <example>UK2</example>
         [Required]
         [DataMember(Name="locationName")]
         public string LocationName { get; set; }
@@ -70,24 +83,26 @@ namespace Mind.Api.Models
         /// <summary>
         /// The status of the device
         /// </summary>
-        /// <value>The status of the device</value>
+        /// <value>A member of the DeviceStatusTypeEnum enumeration</value>
+        /// <example>Production</example>
         [Required]
         [DataMember(Name="deviceStatus")]
-        public string DeviceStatus { get; set; }
+        public DeviceStatusTypeEnum? DeviceStatus { get; set; }
 
         /// <summary>
-        /// Determines if layer 2 overhead is included in the device MTU calculation
+        /// Determines if layer 2 overhead should be included in the device MTU calculation
         /// </summary>
-        /// <value>Determines if layer 2 overhead is included in the device MTU calculation</value>
+        /// <value>Boolean value denoting if layer 2 overhead is included in the device MTU calculation</value>
+        /// <example>true</example>
         [DataMember(Name="useLayer2InterfaceMtu")]
         public bool? UseLayer2InterfaceMtu { get; set; }
 
         /// <summary>
-        /// List of ports for the device
+        /// List of port requests for the device
         /// </summary>
-        /// <value>List of ports for the device</value>
+        /// <value>List of PortRequest objects</value>
         [DataMember(Name="ports")]
-        public List<Port> Ports { get; set; }
+        public List<PortRequest> Ports { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -100,6 +115,7 @@ namespace Mind.Api.Models
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  DeviceModel: ").Append(DeviceModel).Append("\n");
+            sb.Append("  DeviceRole: ").Append(DeviceRole).Append("\n");
             sb.Append("  PlaneName: ").Append(PlaneName).Append("\n");
             sb.Append("  LocationName: ").Append(LocationName).Append("\n");
             sb.Append("  DeviceStatus: ").Append(DeviceStatus).Append("\n");
@@ -155,7 +171,12 @@ namespace Mind.Api.Models
                     DeviceModel == other.DeviceModel ||
                     DeviceModel != null &&
                     DeviceModel.Equals(other.DeviceModel)
-                ) && 
+                ) &&
+                (
+                    DeviceRole == other.DeviceRole ||
+                    DeviceRole != null &&
+                    DeviceRole.Equals(other.DeviceRole)
+                ) &&
                 (
                     PlaneName == other.PlaneName ||
                     PlaneName != null &&
@@ -199,6 +220,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Description.GetHashCode();
                     if (DeviceModel != null)
                     hashCode = hashCode * 59 + DeviceModel.GetHashCode();
+                    if (DeviceRole != null)
+                    hashCode = hashCode * 59 + DeviceRole.GetHashCode();
                     if (PlaneName != null)
                     hashCode = hashCode * 59 + PlaneName.GetHashCode();
                     if (LocationName != null)

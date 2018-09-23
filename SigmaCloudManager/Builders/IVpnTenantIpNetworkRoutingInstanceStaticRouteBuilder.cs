@@ -11,6 +11,7 @@ namespace Mind.Builders
     public interface IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder
     {
         IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder ForAttachmentSet(int? attachmenSetId);
+        IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder WithTenantOwner(int? tenantId);
         IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder WithTenantIpNetworkCidrName(string tenantIpNetworkCidrName);
         IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder WithIpv4NextHopAddress(string ipv4NextHopAddress);
         IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder AddToAllRoutingInstancesInAttachmentSet(bool? addToAllRoutingInstancesInAttachmentSet);

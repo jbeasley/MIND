@@ -7,7 +7,6 @@ using SCM.Models.RequestModels;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Mind.Services;
-using SCM.Validators;
 using SCM.Services;
 using Mind.Models.RequestModels;
 using Mind.Builders;
@@ -16,31 +15,19 @@ namespace Mind.Services
 {
     public class AttachmentSetRoutingInstanceService : BaseService, IAttachmentSetRoutingInstanceService
     {
-        private readonly IAttachmentSetRoutingInstanceValidator _validator;
         private readonly IAttachmentSetRoutingInstanceDirector _director;
 
-        public AttachmentSetRoutingInstanceService(IUnitOfWork unitOfWork, IAttachmentSetRoutingInstanceValidator validator, 
-            IAttachmentSetRoutingInstanceDirector director) : base(unitOfWork,validator)
+        public AttachmentSetRoutingInstanceService(IUnitOfWork unitOfWork, IAttachmentSetRoutingInstanceDirector director) : base(unitOfWork)
         {
-            _validator = validator;
             _director = director;
         }
-
-        private readonly string _properties = "AttachmentSet.Tenant,"
-               + "RoutingInstance.Device.Location.SubRegion.Region,"
-               + "RoutingInstance.Device.Plane,"
-               + "RoutingInstance.Tenant,"
-               + "RoutingInstance.Attachments.ContractBandwidthPool.Tenant,"
-               + "RoutingInstance.Attachments.Interfaces.Ports,"
-               + "RoutingInstance.Vifs.ContractBandwidthPool.Tenant,"
-               + "RoutingInstance.Vifs.Attachment.Interfaces.Ports";
 
         public async Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
             return await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(
                 q =>
                     q.AttachmentSetID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable);
         }
 
@@ -49,7 +36,7 @@ namespace Mind.Services
             return (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(
                 q => 
                     q.AttachmentSetRoutingInstanceID == id,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select result)
                    .SingleOrDefault();
@@ -62,10 +49,30 @@ namespace Mind.Services
                 q => 
                     q.AttachmentSetID == attachmentSetId
                     && q.RoutingInstanceID == routingInstanceId,
-                    includeProperties: deep.HasValue && deep.Value ? _properties : string.Empty,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select result)
                    .SingleOrDefault();
+        }
+
+        /// <summary>
+        /// Get all routing instances which are candidates for satisfying an attachment set routing instance request.
+        /// </summary>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<IEnumerable<RoutingInstance>> GetCandidateRoutingInstances(AttachmentSetRoutingInstanceRequest request)
+        {
+            var query = (from result in await UnitOfWork.RoutingInstanceRepository.GetAsync(
+                    q =>
+                        q.Device.LocationID == request.LocationID &&
+                        q.TenantID == request.TenantID,
+                        query: q => q.Include(x => x.Device)
+                                     .Include(x => x.Tenant),
+                        AsTrackable: false)
+                        select result);
+
+            if (request.PlaneID != null) query = query.Where(q => q.Device.PlaneID == request.PlaneID);
+            return query.ToList();
         }
 
         public async Task<AttachmentSetRoutingInstance> AddAsync(int attachmentSetId, RoutingInstanceForAttachmentSetRequest request)
@@ -89,34 +96,16 @@ namespace Mind.Services
         {
             var attachmentSetRoutingInstance = (from result in await UnitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(
                                              q =>
-                                                q.AttachmentSetID == attachmentSetId && q.RoutingInstanceID == routingInstanceId)
+                                                q.AttachmentSetID == attachmentSetId && 
+                                                q.RoutingInstanceID == routingInstanceId,
+                                                query: q => q.IncludeDeleteValidationProperties(),
+                                                AsTrackable: true)
                                                 select result)
                                                 .Single();
 
-            await _validator.ValidateDeleteAsync(attachmentSetRoutingInstance.AttachmentSetRoutingInstanceID);
-            if (!_validator.IsValid) throw new ServiceValidationException();
-
+            attachmentSetRoutingInstance.ValidateDelete();
             this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Delete(attachmentSetRoutingInstance);
             await this.UnitOfWork.SaveAsync();
-        }
-
-        /// <summary>
-        /// Get all routing instances which are candidates for satisfying an attachment set routing instance request.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<RoutingInstance>> GetCandidateRoutingInstances(AttachmentSetRoutingInstanceRequest request)
-        {
-            var query = (from result in await UnitOfWork.RoutingInstanceRepository.GetAsync(
-                    q => 
-                        q.Device.LocationID == request.LocationID &&
-                        q.TenantID == request.TenantID,
-                        includeProperties: "Device,Tenant",
-                        AsTrackable: false)
-                        select result);
-
-            if (request.PlaneID != null) query = query.Where(q => q.Device.PlaneID == request.PlaneID);
-            return query.ToList();
         }
     }
 }

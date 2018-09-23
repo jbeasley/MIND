@@ -12,7 +12,7 @@ namespace Mind.Builders
     /// </summary>
     public class BundleAttachmentUpdateBuilder : BundleAttachmentBuilder, IBundleAttachmentUpdateBuilder
     {
-        public BundleAttachmentUpdateBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory) :
+        public BundleAttachmentUpdateBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) :
             base(unitOfWork, routingInstanceDirectorFactory)
         {
         }

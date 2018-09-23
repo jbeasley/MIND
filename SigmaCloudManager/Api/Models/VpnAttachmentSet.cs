@@ -52,6 +52,13 @@ namespace Mind.Api.Models
         public string AttachmentSetId { get; private set; }
 
         /// <summary>
+        /// The attachment set which is bound to the vpn.
+        /// </summary>
+        /// <value>An AttchmentSet object</value>
+        [DataMember(Name = "attachmentSet")]
+        public AttachmentSet AttachmentSet { get; private set; }
+
+        /// <summary>
         /// The name of the vpn
         /// </summary>
         /// <value>A string denoting the name of the vpn</value>
@@ -66,6 +73,13 @@ namespace Mind.Api.Models
         /// <example>8001</example>
         [DataMember(Name = "vpnId")]
         public string VpnId { get; private set; }
+
+        /// <summary>
+        /// The vpn to which the attachment set is bound.
+        /// </summary>
+        /// <value>A Vpn object</value>
+        [DataMember(Name = "vpn")]
+        public Vpn Vpn { get; private set; }
 
         /// <summary>
         /// Determines if the attachment set is configured as a hub for the association with the vpn.
@@ -94,8 +108,10 @@ namespace Mind.Api.Models
             sb.Append("  VpnAttachmentSetId: ").Append(VpnAttachmentSetId).Append("\n");
             sb.Append("  AttachmentSetName: ").Append(AttachmentSetName).Append("\n");
             sb.Append("  AttachmentSetId: ").Append(AttachmentSetId).Append("\n");
+            sb.Append("  AttachmentSet: ").Append(AttachmentSet).Append("\n");
             sb.Append("  VpnName: ").Append(VpnName).Append("\n");
             sb.Append("  VpnId: ").Append(VpnId).Append("\n");
+            sb.Append("  Vpn: ").Append(Vpn).Append("\n");
             sb.Append("  IsHub: ").Append(IsHub).Append("\n");
             sb.Append("  IsMulticastDirectlyIntegrated: ").Append(IsMulticastDirectlyIntegrated).Append("\n");
             sb.Append("}\n");
@@ -150,6 +166,11 @@ namespace Mind.Api.Models
                     AttachmentSetId.Equals(other.AttachmentSetId)
                 ) &&
                 (
+                    AttachmentSet == other.AttachmentSet ||
+                    AttachmentSet != null &&
+                    AttachmentSet.Equals(other.AttachmentSet)
+                ) &&
+                (
                     VpnName == other.VpnName ||
                     VpnName != null &&
                     VpnName.Equals(other.VpnName)
@@ -158,6 +179,11 @@ namespace Mind.Api.Models
                     VpnId == other.VpnId ||
                     VpnId != null &&
                     VpnId.Equals(other.VpnId)
+                ) &&
+                (
+                    Vpn == other.Vpn ||
+                    Vpn != null &&
+                    Vpn.Equals(other.Vpn)
                 ) &&
                 (
                     IsHub == other.IsHub ||
@@ -187,10 +213,14 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AttachmentSetName.GetHashCode();
                     if (AttachmentSetId != null)
                     hashCode = hashCode * 59 + AttachmentSetId.GetHashCode();
+                    if (AttachmentSet != null)
+                    hashCode = hashCode * 59 + AttachmentSet.GetHashCode();
                     if (VpnName != null)
                     hashCode = hashCode * 59 + VpnName.GetHashCode();
                     if (VpnId != null)
                     hashCode = hashCode * 59 + VpnId.GetHashCode();
+                    if (Vpn != null)
+                    hashCode = hashCode * 59 + Vpn.GetHashCode();
                     if (IsHub != null)
                     hashCode = hashCode * 59 + IsHub.GetHashCode();
                     if (IsMulticastDirectlyIntegrated != null)

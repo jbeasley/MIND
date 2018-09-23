@@ -211,4 +211,56 @@ namespace Mind.Models.RequestModels
         /// </summary>
         BluePlane = 3
     }
+
+    /// <summary>
+    /// Enumeration for device status options
+    /// </summary>
+    public enum DeviceStatusTypeEnum
+    {
+        /// <summary>
+        /// Enum for Production
+        /// </summary>
+        Production = 0,
+
+        /// <summary>
+        /// Enum for Staging
+        /// </summary>
+        Staging = 1,
+
+        /// <summary>
+        /// Enum for Retired
+        /// </summary>
+        Retired = 2
+    }
+
+    /// <summary>
+    /// Enumeration for port status options
+    /// </summary>
+    public enum PortStatusTypeEnum
+    {
+        /// <summary>
+        /// Enum for Free
+        /// </summary>
+        Free = 0,
+
+        /// <summary>
+        /// Enum for Assigned
+        /// </summary>
+        Assigned = 1,
+
+        /// <summary>
+        /// Enum for Locked
+        /// </summary>
+        Locked = 2,
+
+        /// <summary>
+        /// Enum for Migration
+        /// </summary>
+        Migration = 3,
+
+        /// <summary>
+        /// Enum for Reserved
+        /// </summary>
+        Reserved = 4
+    }
 }

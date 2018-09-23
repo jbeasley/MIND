@@ -23,9 +23,9 @@ namespace Mind.Builders
             };
         }
 
-        public virtual IVrfRoutingInstanceBuilder ForDevice(int deviceId)
+        public virtual IVrfRoutingInstanceBuilder ForDevice(int? deviceId)
         {
-            _args.Add(nameof(ForDevice), deviceId);
+            if (deviceId.HasValue) _args.Add(nameof(ForDevice), deviceId);
             return this;
         }
 
@@ -49,7 +49,7 @@ namespace Mind.Builders
 
         public virtual async Task<RoutingInstance> BuildAsync()
         {
-            await SetDeviceAsync();
+            if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
             if (_args.ContainsKey(nameof(WithTenant))) await SetTenantAsync();
             await SetRoutingInstanceTypeAsync();
             await SetRouteDistinguisherAsync();
@@ -65,12 +65,12 @@ namespace Mind.Builders
                     q =>
                         q.DeviceID == deviceId,
                         AsTrackable: true)
-                        select result)
+                          select result)
                         .SingleOrDefault();
 
-            _routingInstance.Device = device;      
+            _routingInstance.Device = device;
         }
-
+         
         protected internal virtual async Task SetTenantAsync()
         {
             var tenantId = (int)_args[nameof(WithTenant)];

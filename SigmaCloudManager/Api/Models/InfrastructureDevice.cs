@@ -30,64 +30,72 @@ namespace Mind.Api.Models
         /// <summary>
         /// The ID of the device
         /// </summary>
-        /// <value>The ID of the device</value>
-        [DataMember(Name="deviceID")]
-        public int? DeviceID { get; set; }
+        /// <value>Integer denoting the ID of the device</value>
+        /// <example>90991</example>
+        [DataMember(Name="deviceId")]
+        public int? DeviceId { get; private set; }
 
         /// <summary>
         /// The name of the device
         /// </summary>
-        /// <value>The name of the device</value>
+        /// <value>String denoting the name of the device</value>
+        /// <example>UK2-PE1</example>
         [DataMember(Name="name")]
-        public string Name { get; set; }
+        public string Name { get; private set; }
 
         /// <summary>
         /// A description of the device
         /// </summary>
         /// <value>A description of the device</value>
         [DataMember(Name="description")]
-        public string Description { get; set; }
+        public string Description { get; private set; }
 
         /// <summary>
-        /// Determines if layer 2 overhead is included in the device MTU calculation
+        /// Denotes whether layer 2 overhead is included in the device MTU calculation
         /// </summary>
-        /// <value>Determines if layer 2 overhead is included in the device MTU calculation</value>
+        /// <value>Boolean denoting whether  layer 2 overhead is included in the device MTU calculation</value>
+        /// <example>true</example>
         [DataMember(Name="useLayer2InterfaceMtu")]
-        public bool? UseLayer2InterfaceMtu { get; set; }
+        public bool? UseLayer2InterfaceMtu { get; private set; }
 
         /// <summary>
         /// The model of the device
         /// </summary>
-        /// <value>The model of the device</value>
+        /// <value>String value denoting the model of the device</value>
+        /// <example>ASR-9001</example>
         [DataMember(Name="deviceModel")]
-        public string DeviceModel { get; set; }
+        public string DeviceModel { get; private set; }
 
         /// <summary>
         /// The provider network plane to which the device belongs
         /// </summary>
-        /// <value>The provider network plane to which the device belongs</value>
+        /// <value>String value denoting provider network plane to which the device belongs</value>
+        /// <example>Red</example>
         [DataMember(Name="planeName")]
-        public string PlaneName { get; set; }
+        public string PlaneName { get; private set; }
 
         /// <summary>
         /// The location of the device
         /// </summary>
-        /// <value>The location of the device</value>
+        /// <value>String value denoting the location of the device</value>
+        /// <example>UK2</example>
         [DataMember(Name="locationName")]
-        public string LocationName { get; set; }
+        public string LocationName { get; private set; }
 
         /// <summary>
         /// The status of the device
         /// </summary>
-        /// <value>The status of the device</value>
+        /// <value>String value denoting the status of the device</value>
+        /// <example>Production</example>
         [DataMember(Name="deviceStatus")]
-        public string DeviceStatus { get; set; }
+        public string DeviceStatus { get; private set; }
 
         /// <summary>
-        /// Gets or Sets Ports
+        /// A lit of ports which belong to the device
         /// </summary>
+        /// <value>A list of Port objects</value>
         [DataMember(Name="ports")]
-        public List<Port> Ports { get; set; }
+        public List<Port> Ports { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -97,7 +105,7 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class InfrastructureDevice {\n");
-            sb.Append("  DeviceID: ").Append(DeviceID).Append("\n");
+            sb.Append("  DeviceID: ").Append(DeviceId).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  UseLayer2InterfaceMtu: ").Append(UseLayer2InterfaceMtu).Append("\n");
@@ -143,9 +151,9 @@ namespace Mind.Api.Models
 
             return 
                 (
-                    DeviceID == other.DeviceID ||
-                    DeviceID != null &&
-                    DeviceID.Equals(other.DeviceID)
+                    DeviceId == other.DeviceId ||
+                    DeviceId != null &&
+                    DeviceId.Equals(other.DeviceId)
                 ) && 
                 (
                     Name == other.Name ||
@@ -199,8 +207,8 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (DeviceID != null)
-                    hashCode = hashCode * 59 + DeviceID.GetHashCode();
+                    if (DeviceId != null)
+                    hashCode = hashCode * 59 + DeviceId.GetHashCode();
                     if (Name != null)
                     hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)

@@ -239,6 +239,8 @@ namespace Mind
             services.AddScoped<IBgpPeerValidator, BgpPeerValidator>();
             services.AddScoped<ILocationValidator, LocationValidator>();
             services.AddScoped<IVlanValidator, VlanValidator>();
+            services.AddScoped<IProviderDomainAttachmentValidator, ProviderDomainAttachmentValidator>();
+            services.AddScoped<IProviderDomainVifValidator, ProviderDomainVifValidator>();
 
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());
@@ -253,10 +255,10 @@ namespace Mind
             //Services
             builder.RegisterType<ProviderDomainAttachmentService>().As<IProviderDomainAttachmentService>();
             builder.RegisterType<ProviderDomainVifService>().As<IProviderDomainVifService>();
+            builder.RegisterType<InfrastructureDeviceService>().As<IInfrastructureDeviceService>();
+            builder.RegisterType<InfrastructurePortService>().As<IInfrastructurePortService>();
 
             // Directors
-            builder.RegisterType<ProviderDomainAttachmentValidator>().As<IProviderDomainAttachmentValidator>();
-            builder.RegisterType<ProviderDomainVifValidator>().As<IProviderDomainVifValidator>();
             builder.RegisterType<ProviderDomainAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
                 .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainSingleAttachmentDirector");
             builder.RegisterType<ProviderDomainAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
@@ -278,8 +280,9 @@ namespace Mind
             builder.RegisterType<VpnTenantIpNetworkOutUpdateDirector>().As<IVpnTenantIpNetworkOutUpdateDirector>();
             builder.RegisterType<ProviderDomainVifDirector>().As<IProviderDomainVifDirector>();
             builder.RegisterType<ProviderDomainVifUpdateDirector>().As<IProviderDomainVifUpdateDirector>();
-            builder.RegisterType<TenantFacingVrfRoutingInstanceDirector>().As<IRoutingInstanceDirector>()
-                .Keyed<IRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
+            builder.RegisterType<TenantFacingVrfRoutingInstanceDirector>().As<IVrfRoutingInstanceDirector>()
+                .Keyed<IVrfRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
+            builder.RegisterType<DefaultRoutingInstanceDirector>().As<IRoutingInstanceDirector>();
             builder.RegisterType<IpVpnDirector>().As<IVpnDirector>().Keyed<IVpnDirector>("IpVpnDirector");
             builder.RegisterType<IpVpnUpdateDirector>().As<IVpnUpdateDirector>().Keyed<IVpnUpdateDirector>("IpVpnUpdateDirector");
             builder.RegisterType<BgpPeerDirector>().As<IBgpPeerDirector>();
@@ -290,6 +293,10 @@ namespace Mind
             builder.RegisterType<VpnAttachmentSetUpdateDirector>().As<IVpnAttachmentSetUpdateDirector>();
             builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteDirector>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteDirector>();
             builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector>();
+            builder.RegisterType<InfrastructureDeviceDirector>().As<IInfrastructureDeviceDirector>();
+            builder.RegisterType<InfrastructureDeviceUpdateDirector>().As<IInfrastructureDeviceUpdateDirector>();
+            builder.RegisterType<PortDirector>().As<IPortDirector>();
+            builder.RegisterType<PortUpdateDirector>().As<IPortUpdateDirector>();
 
             // Director Factories
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
@@ -316,14 +323,14 @@ namespace Mind
                 };
             });
 
-            builder.Register<Func<SCM.Models.RoutingInstanceType, IRoutingInstanceDirector>>((c, p) =>
+            builder.Register<Func<SCM.Models.RoutingInstanceType, IVrfRoutingInstanceDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
                 return (routingInstanceType) =>
                 {
                     if (routingInstanceType.Type == SCM.Models.RoutingInstanceTypeEnum.TenantFacingVrf)
                     {
-                        return context.ResolveKeyed<IRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
+                        return context.ResolveKeyed<IVrfRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
                     }
 
                     return null;
@@ -379,10 +386,15 @@ namespace Mind
             });
 
             //Builders
+            builder.RegisterType<InfrastructureDeviceBuilder>().As<IInfrastructureDeviceBuilder>();
+            builder.RegisterType<InfrastructureDeviceUpdateBuilder>().As<IInfrastructureDeviceUpdateBuilder>();
+            builder.RegisterType<PortBuilder>().As<IPortBuilder>();
+            builder.RegisterType<PortUpdateBuilder>().As<IPortUpdateBuilder>();
             builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
             builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
             builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
             builder.RegisterType<VrfRoutingInstanceBuilder>().As<IVrfRoutingInstanceBuilder>();
+            builder.RegisterType<DefaultRoutingInstanceBuilder>().As<IDefaultRoutingInstanceBuilder>();
             builder.RegisterType<SingleAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<SingleAttachmentUpdateBuilder>>();
             builder.RegisterType<MultiPortAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>>();
             builder.RegisterType<BundleAttachmentUpdateBuilder>().As<IBundleAttachmentUpdateBuilder>();

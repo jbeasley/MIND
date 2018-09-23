@@ -1,0 +1,24 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Mind.Models.RequestModels;
+using SCM.Models;
+using SCM.Models.RequestModels;
+
+namespace Mind.Builders
+{
+    public interface IInfrastructureDeviceBuilder
+    {
+        IInfrastructureDeviceBuilder WithName(string name);
+        IInfrastructureDeviceBuilder WithDescription(string description);
+        IInfrastructureDeviceBuilder WithLocation(string locationName);
+        IInfrastructureDeviceBuilder WithRole(string role);
+        IInfrastructureDeviceBuilder WithModel(string model);
+        IInfrastructureDeviceBuilder WithStatus(string status);
+        IInfrastructureDeviceBuilder UseLayer2InterfaceMtu(bool? useLayer2InterfaceMtu);
+        IInfrastructureDeviceBuilder WithPorts(List<PortRequest> ports);
+        IInfrastructureDeviceBuilder WithPlane(string planeName);
+        Task<Device> BuildAsync();
+    }
+}

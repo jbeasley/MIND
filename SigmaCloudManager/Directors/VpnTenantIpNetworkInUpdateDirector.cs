@@ -16,12 +16,12 @@ namespace Mind.Builders
             _builder = builder;
         }
 
-        public async Task<SCM.Models.VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInRequest request)
+        public async Task<SCM.Models.VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInUpdate update)
         {
             return await _builder.ForVpnTenantIpNetworkIn(vpnTenantIpNetworkInId)
-                                 .WithLocalIpRoutingPreference(request.LocalIpRoutingPreference)
-                                 .WithIpv4PeerAddress(request.Ipv4PeerAddress)
-                                 .AddToAllBgpPeersInAttachmentSet(request.AddToAllBgpPeersInAttachmentSet)
+                                 .WithLocalIpRoutingPreference(update.LocalIpRoutingPreference)
+                                 .WithIpv4PeerAddress(update.Ipv4PeerAddress)
+                                 .AddToAllBgpPeersInAttachmentSet(update.AddToAllBgpPeersInAttachmentSet)
                                  .UpdateAsync();
         }
     }

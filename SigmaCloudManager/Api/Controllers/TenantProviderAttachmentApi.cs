@@ -249,11 +249,6 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (ServiceValidationException)
-            {
-                return new ValidationFailedResult(this.ModelState);
-            }
-
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();

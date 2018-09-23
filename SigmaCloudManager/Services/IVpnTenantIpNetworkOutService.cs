@@ -16,7 +16,7 @@ namespace SCM.Services
         Task<VpnTenantIpNetworkOut> AddAsync(VpnTenantIpNetworkOut vpnTenantNetworkOut);
         Task<VpnTenantIpNetworkOut> AddAsync(int attachmentSetId, VpnTenantIpNetworkOutRequest request);
         Task<VpnTenantIpNetworkOut> UpdateAsync(VpnTenantIpNetworkOut vpnTenantNetworkOut);
-        Task<VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutRequest request);
+        Task<VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutUpdate update);
         Task DeleteAsync(int vpnTenantNetworkOutId);
     }
 }

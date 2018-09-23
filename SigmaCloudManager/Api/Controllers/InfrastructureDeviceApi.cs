@@ -23,307 +23,227 @@ using Newtonsoft.Json;
 using System.ComponentModel.DataAnnotations;
 using Mind.Api.Attributes;
 using Mind.Api.Models;
+using Mind.Services;
+using AutoMapper;
+using SCM.Data;
+using Microsoft.EntityFrameworkCore;
+using Mind.Builders;
+using Mind.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 { 
     /// <summary>
-    /// 
+    /// Create and manage the lifecycle of infrastructure devices
     /// </summary>
-    public class InfrastructureDeviceApiController : Controller
+    [ApiVersion("1.0")]
+    public class InfrastructureDeviceApiController : BaseApiController
     { 
+        private readonly IInfrastructureDeviceService _infrastructureDeviceService;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="infrastructureDeviceService"></param>
+        /// <param name="mapper"></param>
+        public InfrastructureDeviceApiController(IInfrastructureDeviceService infrastructureDeviceService, IMapper mapper) : base(infrastructureDeviceService, mapper)
+        {
+            _infrastructureDeviceService = infrastructureDeviceService;
+        }
+
         /// <summary>
         /// Create a new infrastructure device
         /// </summary>
-        
-        /// <param name="body">device request object that generates a new device</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
-        [HttpPost]
-        [Route("/v1/infrastructure/device")]
-        [ValidateModelState]
-        [SwaggerOperation("AddInfrastructureDevice")]
-        [SwaggerResponse(statusCode: 200, type: typeof(InfrastructureDevice), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
-        public virtual IActionResult AddInfrastructureDevice([FromBody]InfrastructureDeviceRequest body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(InfrastructureDevice));
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Device>\n  <deviceID>123</deviceID>\n  <name>aeiou</name>\n  <description>aeiou</description>\n  <useLayer2InterfaceMtu>true</useLayer2InterfaceMtu>\n  <deviceModel>aeiou</deviceModel>\n  <planeName>aeiou</planeName>\n  <locationName>aeiou</locationName>\n  <deviceStatus>aeiou</deviceStatus>\n</Device>";
-            exampleJson = "{\n  \"useLayer2InterfaceMtu\" : true,\n  \"planeName\" : \"planeName\",\n  \"locationName\" : \"locationName\",\n  \"name\" : \"name\",\n  \"description\" : \"description\",\n  \"deviceModel\" : \"deviceModel\",\n  \"ports\" : [ {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  }, {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  } ],\n  \"deviceID\" : 6,\n  \"deviceStatus\" : \"deviceStatus\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<InfrastructureDevice>(exampleJson)
-            : default(InfrastructureDevice);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Create a new port
-        /// </summary>
-        
-        /// <param name="deviceId">ID of the device</param>
-        /// <param name="body">Created port object</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
+        /// <param name="body">infrastructure device request object that generates a new infrastructure device</param>
+        /// <response code="201">Successful operation</response>
+        /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpPost]
-        [Route("/v1/infrastructure/device/{deviceId}/port")]
+        [Route("/v{version:apiVersion}/infrastructure-devices")]
         [ValidateModelState]
-        [SwaggerOperation("CreateInfrastructurePort")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Port), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerOperation("CreateInfrastructureDevice")]
+        [SwaggerResponse(statusCode: 201, type: typeof(InfrastructureDevice), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult CreateInfrastructurePort([FromRoute][Required]int? deviceId, [FromBody]PortRequest body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Port));
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> CreateInfrastructureDevice([FromBody]Mind.Api.Models.InfrastructureDeviceRequest body)
+        {
+            try
+            {
+                var request = Mapper.Map<Mind.Models.RequestModels.InfrastructureDeviceRequest>(body);
+                var device = await _infrastructureDeviceService.AddAsync(request);
+                var deviceApiModel = Mapper.Map<Mind.Api.Models.InfrastructureDevice>(device);
+                return CreatedAtRoute("GetInfrastructureDevice", new { deviceId = device.DeviceID }, deviceApiModel);
+            }
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
+            catch (BuilderBadArgumentsException ex) 
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
 
-            string exampleJson = null;
-            exampleJson = "<null>\n  <portId>123</portId>\n  <type>aeiou</type>\n  <name>aeiou</name>\n  <portSfp>aeiou</portSfp>\n  <portStatus>aeiou</portStatus>\n  <portRole>aeiou</portRole>\n  <portPool>aeiou</portPool>\n</null>";
-            exampleJson = "{\n  \"portPool\" : \"portPool\",\n  \"name\" : \"name\",\n  \"portStatus\" : \"portStatus\",\n  \"portId\" : 1,\n  \"type\" : \"type\",\n  \"portSfp\" : \"portSfp\",\n  \"portRole\" : \"portRole\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Port>(exampleJson)
-            : default(Port);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (IllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
         }
 
         /// <summary>
-        /// Deletes a device
+        /// Deletes an infrastructure device
         /// </summary>
-        
-        /// <param name="deviceId">ID of the device</param>
+
+        /// <param name="deviceId">ID of the device/param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
+        /// <response code="422">Validation failed</response>
+        /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v1/infrastructure/device/{deviceId}")]
+        [Route("/v{version:apiVersion}/infrastructure-devices/{deviceId}")]
+        [ValidateInfrastructureDeviceExists]
         [ValidateModelState]
         [SwaggerOperation("DeleteInfrastructureDevice")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult DeleteInfrastructureDevice([FromRoute][Required]int? deviceId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> DeleteInfrastructureDevice([FromRoute][Required]int? deviceId)
+        {
+            try
+            {
+                await _infrastructureDeviceService.DeleteAsync(deviceId.Value);
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+            catch (IllegalDeleteAttemptException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
 
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
         }
 
         /// <summary>
-        /// Deletes a port
+        /// Find an infrastructure device by ID
         /// </summary>
-        
-        /// <param name="portId">ID of the port</param>
-        /// <response code="204">Successful operation</response>
+        /// <remarks>Returns a single infrastructure device</remarks>
+        /// <param name="deviceId">ID of the device</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
+        /// <response code="200">Successful operation</response>
+        /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
-        [HttpDelete]
-        [Route("/v1/infrastructure/device/port/{portId}")]
+        [HttpGet]
+        [Route("/v{version:apiVersion}/infrastructure-devices/{deviceId}", Name = "GetInfrastructureDevice")]
         [ValidateModelState]
-        [SwaggerOperation("DeleteInfrastructurePort")]
-        [SwaggerResponse(statusCode: 204, type: typeof(ApiResponse), description: "Successful operation")]
+        [ValidateInfrastructureDeviceExists]
+        [SwaggerOperation("GetInfrastructureDeviceById")]
+        [SwaggerResponse(statusCode: 200, type: typeof(InfrastructureDevice), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult DeleteInfrastructurePort([FromRoute][Required]int? portId)
-        { 
-            //TODO: Uncomment the next line to return response 204 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(204, default(ApiResponse));
+        public virtual async Task<IActionResult> GetInfrastructureDeviceById([FromRoute][Required]int? deviceId, [FromQuery]bool? deep)
+        {
+            var device = await _infrastructureDeviceService.GetByIDAsync(deviceId.Value, deep: deep);
+            if (device.HasBeenModified(Request))
+            {
+                device.SetModifiedHttpHeaders(Response);
+            }
+            else
+            {
+                return StatusCode(StatusCodes.Status304NotModified);
+            }
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <code>123</code>\n  <type>aeiou</type>\n  <message>aeiou</message>\n</null>";
-            exampleJson = "{\n  \"code\" : 0,\n  \"type\" : \"type\",\n  \"message\" : \"message\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<ApiResponse>(exampleJson)
-            : default(ApiResponse);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            return Ok(Mapper.Map<InfrastructureDevice>(device));
         }
 
         /// <summary>
         /// Find all infrastructure devices
         /// </summary>
         /// <remarks>Returns all infrastructure devices</remarks>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
+        /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v1/infrastructure/device")]
+        [Route("/v{version:apiVersion}/infrastructure-devices")]
         [ValidateModelState]
-        [SwaggerOperation("GetAllInfrastructureDevices")]
+        [SwaggerOperation("GetInfrastructureDevices")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<InfrastructureDevice>), description: "Successful operation")]
-        public virtual IActionResult GetAllInfrastructureDevices()
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<InfrastructureDevice>));
-
-            string exampleJson = null;
-            exampleJson = "<Device>\n  <deviceID>123</deviceID>\n  <name>aeiou</name>\n  <description>aeiou</description>\n  <useLayer2InterfaceMtu>true</useLayer2InterfaceMtu>\n  <deviceModel>aeiou</deviceModel>\n  <planeName>aeiou</planeName>\n  <locationName>aeiou</locationName>\n  <deviceStatus>aeiou</deviceStatus>\n</Device>";
-            exampleJson = "[ {\n  \"useLayer2InterfaceMtu\" : true,\n  \"planeName\" : \"planeName\",\n  \"locationName\" : \"locationName\",\n  \"name\" : \"name\",\n  \"description\" : \"description\",\n  \"deviceModel\" : \"deviceModel\",\n  \"ports\" : [ {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  }, {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  } ],\n  \"deviceID\" : 6,\n  \"deviceStatus\" : \"deviceStatus\"\n}, {\n  \"useLayer2InterfaceMtu\" : true,\n  \"planeName\" : \"planeName\",\n  \"locationName\" : \"locationName\",\n  \"name\" : \"name\",\n  \"description\" : \"description\",\n  \"deviceModel\" : \"deviceModel\",\n  \"ports\" : [ {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  }, {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  } ],\n  \"deviceID\" : 6,\n  \"deviceStatus\" : \"deviceStatus\"\n} ]";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<InfrastructureDevice>>(exampleJson)
-            : default(List<InfrastructureDevice>);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Find device by ID
-        /// </summary>
-        /// <remarks>Returns a single device</remarks>
-        /// <param name="deviceId">ID of the device</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpGet]
-        [Route("/v1/infrastructure/device/{deviceId}")]
-        [ValidateModelState]
-        [SwaggerOperation("GetInfrastructureDeviceById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(InfrastructureDevice), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetInfrastructureDeviceById([FromRoute][Required]int? deviceId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(InfrastructureDevice));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<Device>\n  <deviceID>123</deviceID>\n  <name>aeiou</name>\n  <description>aeiou</description>\n  <useLayer2InterfaceMtu>true</useLayer2InterfaceMtu>\n  <deviceModel>aeiou</deviceModel>\n  <planeName>aeiou</planeName>\n  <locationName>aeiou</locationName>\n  <deviceStatus>aeiou</deviceStatus>\n</Device>";
-            exampleJson = "{\n  \"useLayer2InterfaceMtu\" : true,\n  \"planeName\" : \"planeName\",\n  \"locationName\" : \"locationName\",\n  \"name\" : \"name\",\n  \"description\" : \"description\",\n  \"deviceModel\" : \"deviceModel\",\n  \"ports\" : [ {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  }, {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  } ],\n  \"deviceID\" : 6,\n  \"deviceStatus\" : \"deviceStatus\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<InfrastructureDevice>(exampleJson)
-            : default(InfrastructureDevice);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+        public async virtual Task<IActionResult> GetInfrastructureDevices([FromQuery]bool? deep)
+        {
+            var devices = await _infrastructureDeviceService.GetAllAsync(deep: deep);
+            return Ok(Mapper.Map<List<InfrastructureDevice>>(devices));
         }
 
         /// <summary>
-        /// Find port by ID
+        /// Update an existing infrastructure device
         /// </summary>
-        /// <remarks>Returns a single port</remarks>
-        /// <param name="portId">ID of the port</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpGet]
-        [Route("/v1/infrastructure/device/port/{portId}")]
-        [ValidateModelState]
-        [SwaggerOperation("GetInfrastructurePortById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Port), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetInfrastructurePortById([FromRoute][Required]int? portId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(Port));
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <portId>123</portId>\n  <type>aeiou</type>\n  <name>aeiou</name>\n  <portSfp>aeiou</portSfp>\n  <portStatus>aeiou</portStatus>\n  <portRole>aeiou</portRole>\n  <portPool>aeiou</portPool>\n</null>";
-            exampleJson = "{\n  \"portPool\" : \"portPool\",\n  \"name\" : \"name\",\n  \"portStatus\" : \"portStatus\",\n  \"portId\" : 1,\n  \"type\" : \"type\",\n  \"portSfp\" : \"portSfp\",\n  \"portRole\" : \"portRole\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<Port>(exampleJson)
-            : default(Port);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Find all ports for a given infrastructure device
-        /// </summary>
-        /// <remarks>Returns all ports for a given infrastructure device</remarks>
         /// <param name="deviceId">ID of the device</param>
-        /// <response code="200">Successful operation</response>
+        /// <param name="body">Infrastructure device update object that updates an existing device</param>
+        /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
-        [HttpGet]
-        [Route("/v1/infrastructure/device/{deviceId}/port")]
+        /// <response code="412">Precondition failed</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpPatch]
+        [Route("/v{version:apiVersion}/infrastructure-devices/{deviceId}")]
         [ValidateModelState]
-        [SwaggerOperation("GetPortsByInfrastructureDevice")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<Port>), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult GetPortsByInfrastructureDevice([FromRoute][Required]int? deviceId)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(List<Port>));
-
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
-
-            string exampleJson = null;
-            exampleJson = "<null>\n  <portId>123</portId>\n  <type>aeiou</type>\n  <name>aeiou</name>\n  <portSfp>aeiou</portSfp>\n  <portStatus>aeiou</portStatus>\n  <portRole>aeiou</portRole>\n  <portPool>aeiou</portPool>\n</null>";
-            exampleJson = "[ {\n  \"portPool\" : \"portPool\",\n  \"name\" : \"name\",\n  \"portStatus\" : \"portStatus\",\n  \"portId\" : 1,\n  \"type\" : \"type\",\n  \"portSfp\" : \"portSfp\",\n  \"portRole\" : \"portRole\"\n}, {\n  \"portPool\" : \"portPool\",\n  \"name\" : \"name\",\n  \"portStatus\" : \"portStatus\",\n  \"portId\" : 1,\n  \"type\" : \"type\",\n  \"portSfp\" : \"portSfp\",\n  \"portRole\" : \"portRole\"\n} ]";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<List<Port>>(exampleJson)
-            : default(List<Port>);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
-        }
-
-        /// <summary>
-        /// Update an existing device
-        /// </summary>
-        
-        /// <param name="deviceId">ID of the device</param>
-        /// <param name="body">device update object that updates an existing device</param>
-        /// <response code="200">Successful operation</response>
-        /// <response code="400">Validation error</response>
-        /// <response code="404">The specified resource was not found</response>
-        [HttpPut]
-        [Route("/v1/infrastructure/device/{deviceId}")]
-        [ValidateModelState]
+        [ValidateInfrastructureDeviceExists]
         [SwaggerOperation("UpdateInfrastructureDevice")]
-        [SwaggerResponse(statusCode: 200, type: typeof(InfrastructureDevice), description: "Successful operation")]
-        [SwaggerResponse(statusCode: 400, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual IActionResult UpdateInfrastructureDevice([FromRoute][Required]int? deviceId, [FromBody]InfrastructureDeviceUpdate body)
-        { 
-            //TODO: Uncomment the next line to return response 200 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(200, default(InfrastructureDevice));
+        [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> UpdateInfrastructureDevice([FromRoute][Required]int? deviceId, [FromBody]Mind.Api.Models.InfrastructureDeviceUpdate body)
+        {
+            try
+            {
+                var item = await _infrastructureDeviceService.GetByIDAsync(deviceId.Value);
+                if (item.HasPreconditionFailed(Request))
+                {
+                    return new PreconditionFailedResult();
+                }
 
-            //TODO: Uncomment the next line to return response 400 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(400, default(ApiResponse));
+                var update = Mapper.Map<Mind.Models.RequestModels.InfrastructureDeviceUpdate>(body);
+                var device = await _infrastructureDeviceService.UpdateAsync(deviceId.Value, update);
+                device.SetModifiedHttpHeaders(Response);
 
-            //TODO: Uncomment the next line to return response 404 or use other options such as return this.NotFound(), return this.BadRequest(..), ...
-            // return StatusCode(404, default(ApiResponse));
+                return StatusCode(StatusCodes.Status204NoContent);
+            }
 
-            string exampleJson = null;
-            exampleJson = "<Device>\n  <deviceID>123</deviceID>\n  <name>aeiou</name>\n  <description>aeiou</description>\n  <useLayer2InterfaceMtu>true</useLayer2InterfaceMtu>\n  <deviceModel>aeiou</deviceModel>\n  <planeName>aeiou</planeName>\n  <locationName>aeiou</locationName>\n  <deviceStatus>aeiou</deviceStatus>\n</Device>";
-            exampleJson = "{\n  \"useLayer2InterfaceMtu\" : true,\n  \"planeName\" : \"planeName\",\n  \"locationName\" : \"locationName\",\n  \"name\" : \"name\",\n  \"description\" : \"description\",\n  \"deviceModel\" : \"deviceModel\",\n  \"ports\" : [ {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  }, {\n    \"portPool\" : \"portPool\",\n    \"name\" : \"name\",\n    \"portStatus\" : \"portStatus\",\n    \"portId\" : 1,\n    \"type\" : \"type\",\n    \"portSfp\" : \"portSfp\",\n    \"portRole\" : \"portRole\"\n  } ],\n  \"deviceID\" : 6,\n  \"deviceStatus\" : \"deviceStatus\"\n}";
-            
-            var example = exampleJson != null
-            ? JsonConvert.DeserializeObject<InfrastructureDevice>(exampleJson)
-            : default(InfrastructureDevice);
-            //TODO: Change the data returned
-            return new ObjectResult(example);
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (IllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
         }
     }
 }

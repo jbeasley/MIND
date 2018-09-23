@@ -54,6 +54,8 @@ namespace Mind.Builders
             }
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await SetIpv4BgpPeerAsync();
 
+            _vpnTenantIpNetworkOut.Validate();
+
             return _vpnTenantIpNetworkOut;
         }
 
@@ -81,7 +83,7 @@ namespace Mind.Builders
                                    select result)
                                  .SingleOrDefault();
 
-            _vpnTenantIpNetworkOut.TenantIpNetwork = tenantIpNetwork ?? throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
+            _vpnTenantIpNetworkOut.TenantIpNetwork = tenantIpNetwork ?? throw new BuilderBadArgumentsException("Unable to create a tenant IP network association with the attachment set using " +
                 $"the given arguments. The tenant IP network CIDR name '{tenantIpNetworkCidrName}' does not exist.");
         }
 
@@ -90,17 +92,17 @@ namespace Mind.Builders
             var ipv4PeerAddress = _args[nameof(WithIpv4PeerAddress)].ToString();
             var bgpPeer = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                           q =>
-                          q.AttachmentSetID == _vpnTenantIpNetworkOut.AttachmentSetID,
+                          q.AttachmentSetID == _vpnTenantIpNetworkOut.AttachmentSet.AttachmentSetID,
                           query: q => 
                                  q.Include(x => x.AttachmentSetRoutingInstances)
                                   .ThenInclude(x => x.RoutingInstance.BgpPeers),
-                          AsTrackable: false)
+                          AsTrackable: true)
                            from attachmentSetRoutingInstance in result.AttachmentSetRoutingInstances
                            from bgpPeers in attachmentSetRoutingInstance.RoutingInstance.BgpPeers
                            select bgpPeers)
                                     .SingleOrDefault(x => x.Ipv4PeerAddress == ipv4PeerAddress);
 
-            _vpnTenantIpNetworkOut.BgpPeer = bgpPeer ?? throw new BuilderBadArgumentsException("Unable to create a new tenant IP network association with the attachment set using " +
+            _vpnTenantIpNetworkOut.BgpPeer = bgpPeer ?? throw new BuilderBadArgumentsException("Unable to create a tenant IP network association with the attachment set using " +
                 $"the given arguments. The BGP peer address '{ipv4PeerAddress}' does not exist within any routing instance which belongs to " +
                 $"the attachment set.");
         }

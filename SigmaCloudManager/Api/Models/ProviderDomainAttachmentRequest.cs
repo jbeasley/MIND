@@ -90,7 +90,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// Optional name of the provider network plane within which the attachment will be provisioned
         /// </summary>
-        /// <value>A member of the PlaneNameEnum enumeration</value>
+        /// <value>A member of the PlaneEnum enumeration</value>
         /// <example>Red</example>
         [DataMember(Name="planeName")]
         public PlaneEnum? PlaneName { get; set; }

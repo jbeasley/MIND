@@ -16,11 +16,11 @@ namespace Mind.Builders
             _builder = builder;
         }
 
-        public async Task<SCM.Models.VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutRequest request)
+        public async Task<SCM.Models.VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutUpdate update)
         {
             return await _builder.ForVpnTenantIpNetworkOut(vpnTenantIpNetworkOutId)
-                                 .WithAdvertisedIpRoutingPreference(request.AdvertisedIpRoutingPreference)
-                                 .WithIpv4PeerAddress(request.Ipv4PeerAddress)
+                                 .WithAdvertisedIpRoutingPreference(update.AdvertisedIpRoutingPreference)
+                                 .WithIpv4PeerAddress(update.Ipv4PeerAddress)
                                  .UpdateAsync();
         }
     }

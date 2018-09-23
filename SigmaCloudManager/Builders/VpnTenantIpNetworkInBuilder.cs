@@ -27,6 +27,18 @@ namespace Mind.Builders
             return this;
         }
 
+        /// <summary>
+        /// The owning tenant of the tenant IP network. Multiple tenants may be allocated the same CIDR block so the 
+        /// tenant owner is required in order to identify the correct CIDR block.
+        /// </summary>
+        /// <param name="tenantId"></param>
+        /// <returns></returns>
+        public virtual IVpnTenantIpNetworkInBuilder WithTenantOwner(int? tenantId)
+        {
+            if (tenantId != null) _args.Add(nameof(WithTenantOwner), tenantId);
+            return this;
+        }
+
         public virtual IVpnTenantIpNetworkInBuilder WithTenantIpNetworkCidrName(string tenantIpNetworkCidrName)
         {
             if (!string.IsNullOrEmpty(tenantIpNetworkCidrName)) _args.Add(nameof(WithTenantIpNetworkCidrName), tenantIpNetworkCidrName);
@@ -54,7 +66,7 @@ namespace Mind.Builders
         public async Task<VpnTenantIpNetworkIn> BuildAsync()
         {
             if (_args.ContainsKey(nameof(ForAttachmentSet))) await SetAttachmentSetAsync();
-            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName))) await SetTenantIpNetworkAsync();
+            if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName)) && _args.ContainsKey(nameof(WithTenantOwner))) await SetTenantIpNetworkAsync();
             if (_args.ContainsKey(nameof(WithLocalIpRoutingPreference)))
                 _vpnTenantIpNetworkIn.LocalIpRoutingPreference = (int)_args[nameof(WithLocalIpRoutingPreference)];
             
@@ -71,8 +83,7 @@ namespace Mind.Builders
             var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                             q => 
                                 q.AttachmentSetID == attachmentSetId, 
-                                query: q => q.Include(x => x.VpnAttachmentSets)
-                                .ThenInclude(x => x.Vpn),
+                                query: q => q.IncludeValidationProperties(),
                                 AsTrackable: true)
                                 select result)
                                 .SingleOrDefault();
@@ -83,8 +94,10 @@ namespace Mind.Builders
         protected virtual internal async Task SetTenantIpNetworkAsync()
         {
             var tenantIpNetworkCidrName = _args[nameof(WithTenantIpNetworkCidrName)].ToString();
+            var tenantOwnerId = (int)_args[nameof(WithTenantOwner)];
             var tenantIpNetwork = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
                               q =>
+                                   q.TenantID == tenantOwnerId && 
                                    q.CidrNameIncludingIpv4LessThanOrEqualToLength == tenantIpNetworkCidrName,
                                    AsTrackable: true)
                                    select result)
@@ -98,7 +111,7 @@ namespace Mind.Builders
             var ipv4PeerAddress = _args[nameof(WithIpv4PeerAddress)].ToString();
             var bgpPeer = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                        q =>
-                          q.AttachmentSetID == _vpnTenantIpNetworkIn.AttachmentSetID,
+                          q.AttachmentSetID == _vpnTenantIpNetworkIn.AttachmentSet.AttachmentSetID,
                           query: q => q.Include(x => x.AttachmentSetRoutingInstances)
                                        .ThenInclude(x => x.RoutingInstance.BgpPeers),
                           AsTrackable: true)

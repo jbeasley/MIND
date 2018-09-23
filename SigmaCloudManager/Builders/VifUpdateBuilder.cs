@@ -13,7 +13,7 @@ namespace Mind.Builders
     /// </summary>
     public class VifUpdateBuilder : VifBuilder, IVifUpdateBuilder
     {
-        public VifUpdateBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory) : 
+        public VifUpdateBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) : 
             base(unitOfWork, routingInstanceDirectorFactory)
         {
         }

@@ -33,6 +33,9 @@ namespace SCM.Models
         public virtual ICollection<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworkRoutingInstances { get; set; }
         public virtual ICollection<VpnTenantIpNetworkRoutingInstanceStaticRoute> VpnTenantIpNetworkRoutingInstanceStaticRoutes { get; set; }
 
+        /// <summary>
+        /// Validate the state of the routing instance
+        /// </summary>
         public virtual void Validate()
         {
             if (this.Device == null) throw new IllegalStateException("A device must be defined for the routing instance.");

@@ -63,17 +63,7 @@ namespace Mind.Builders
                             q =>
                                 q.Name == attachmentSetName,
                                 query: q => 
-                                       q.Include(x => x.AttachmentRedundancy)
-                                        .Include(x => x.AttachmentSetRoutingInstances)
-                                        .ThenInclude(x => x.RoutingInstance.Device.Plane)
-                                        .Include(x => x.AttachmentSetRoutingInstances)
-                                        .ThenInclude(x => x.RoutingInstance.Attachments)
-                                        .Include(x => x.AttachmentSetRoutingInstances)
-                                        .ThenInclude(x => x.RoutingInstance.Vifs)
-                                        .ThenInclude(x => x.Attachment)
-                                        .Include(x => x.VpnTenantMulticastGroups)
-                                        .ThenInclude(x => x.TenantMulticastGroup)
-                                        .Include(x => x.MulticastVpnDomainType),
+                                       q.IncludeValidationProperties(),
                                 AsTrackable: true)
                                 select result)
                                 .SingleOrDefault();
@@ -90,11 +80,8 @@ namespace Mind.Builders
                     q =>
                        q.VpnID == vpnId,
                        AsTrackable: true,
-                       query: q => 
-                              q.Include(x => x.Plane)
-                               .Include(x => x.MulticastVpnDirectionType)
-                               .Include(x => x.MulticastVpnServiceType)
-                               .Include(x => x.VpnTopologyType))
+                       query: x => x.IncludeBaseValidationProperties()
+                                    .IncludeIpVpnValidationProperties())
                        select result)
                        .SingleOrDefault();
 

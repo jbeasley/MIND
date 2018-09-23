@@ -27,6 +27,14 @@ namespace Mind.Api.Models
     [DataContract]
     public partial class VpnTenantIpNetworkRoutingInstanceStaticRouteRequest : IEquatable<VpnTenantIpNetworkRoutingInstanceStaticRouteRequest>, IValidatableObject
     {
+        /// <summary>
+        /// The ID of the tenant owner of the tenant IP network to be added as a static route of the attachment set
+        /// </summary>
+        /// <value>An integer denoting the ID of the tenant owner</value>
+        /// <example>1001</example>
+        [DataMember(Name = "tenantId")]
+        [Required(ErrorMessage = "The ID of the tenant owner of the tenant IP network must be specified")]
+        public int? TenantId { get; private set; }
 
         /// <summary>
         /// CIDR block name of the tenant IP network
@@ -104,6 +112,7 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class VpnTenantIpNetworkRoutingInstanceStaticRouteRequest {\n");
+            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  TenantIpNetworkCidrName: ").Append(TenantIpNetworkCidrName).Append("\n");
             sb.Append("  AddToAllRoutingInstancesInAttachmentSet: ").Append(AddToAllRoutingInstancesInAttachmentSet).Append("\n");
             sb.Append("  RoutingInstanceName: ").Append(RoutingInstanceName).Append("\n");
@@ -146,6 +155,11 @@ namespace Mind.Api.Models
 
             return
                 (
+                    TenantId == other.TenantId ||
+                    TenantId != null &&
+                    TenantId.Equals(other.TenantId)
+                ) &&
+                (
                     TenantIpNetworkCidrName == other.TenantIpNetworkCidrName ||
                     TenantIpNetworkCidrName != null &&
                     TenantIpNetworkCidrName.Equals(other.TenantIpNetworkCidrName)
@@ -182,6 +196,8 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (TenantId != null)
+                    hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (TenantIpNetworkCidrName != null)
                     hashCode = hashCode * 59 + TenantIpNetworkCidrName.GetHashCode();
                     if (AddToAllRoutingInstancesInAttachmentSet != null)

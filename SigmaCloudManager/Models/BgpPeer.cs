@@ -155,28 +155,28 @@ namespace SCM.Models
                .ToList()
                .ForEach(x =>
                    sb.Append("The BGP Peer cannot be deleted because community "
-                   + $"'{x.TenantCommunity.Name}' is applied to the inbound policy of attachment set '{x.AttachmentSet.Name}'.\n")
+                   + $"'{x.TenantCommunity.Name}' is applied to the inbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
             );
 
             this.VpnTenantCommunitiesOut
                 .ToList()
                 .ForEach(x =>
                     sb.Append("The BGP Peer cannot be deleted because community "
-                    + $"'{x.TenantCommunity.Name}' is applied to the outbound policy of attachment set '{x.AttachmentSet.Name}'.\n")
+                    + $"'{x.TenantCommunity.Name}' is applied to the outbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
                 );
 
             this.VpnTenantIpNetworksIn
                 .ToList()
                 .ForEach(x =>
                     sb.Append("The BGP Peer cannot be deleted because IP network "
-                    + $"'{x.TenantIpNetwork.CidrName}' is applied to the inbound policy of attachment set '{x.AttachmentSet.Name}'.\n")
+                    + $"'{x.TenantIpNetwork.CidrName}' is applied to the inbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
                 );
 
             this.VpnTenantIpNetworksOut
                 .ToList()
                 .ForEach(x =>
                     sb.Append("The BGP Peer cannot be deleted because IP network "
-                    + $"'{x.TenantIpNetwork.CidrName}' is applied to the outbound policy of attachment set '{x.AttachmentSet.Name}'.\n")
+                    + $"'{x.TenantIpNetwork.CidrName}' is applied to the outbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
                 );
 
             if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());

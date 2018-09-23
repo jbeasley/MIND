@@ -111,9 +111,9 @@ namespace SCM.Services
             return await GetByIDAsync(vpnTenantIpNetworkIn.VpnTenantIpNetworkInID, deep: true, asTrackable: false);
         }
 
-        public async Task<VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInRequest request)
+        public async Task<VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInUpdate update)
         {
-            await _updateDirector.UpdateAsync(vpnTenantIpNetworkInId, request);
+            await _updateDirector.UpdateAsync(vpnTenantIpNetworkInId, update);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(vpnTenantIpNetworkInId, deep: true, asTrackable: false);
         }

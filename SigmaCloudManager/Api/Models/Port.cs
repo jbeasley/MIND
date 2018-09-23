@@ -100,6 +100,22 @@ namespace Mind.Api.Models
         public int? PortBandwidthGbps { get; private set; }
 
         /// <summary>
+        /// The ID of the tenant to which the port should be assigned.
+        /// </summary>
+        /// <value>Integer value denoting the ID of the tenant</value>
+        /// <example>9009</example>
+        [DataMember(Name = "tenantId")]
+        public int? TenantId { get; private set; }
+
+        /// <summary>
+        /// The name of the tenant to which the port should be assigned.
+        /// </summary>
+        /// <value>String value denoting the name of the tenant</value>
+        /// <example>9009</example>
+        [DataMember(Name = "tenantName")]
+        public string TenantName { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -116,6 +132,7 @@ namespace Mind.Api.Models
             sb.Append("  PortPool: ").Append(PortPool).Append("\n");
             sb.Append("  PortConnector: ").Append(PortConnector).Append("\n");
             sb.Append("  PortBandwidthGbps: ").Append(PortBandwidthGbps).Append("\n");
+            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -196,6 +213,16 @@ namespace Mind.Api.Models
                     PortBandwidthGbps == other.PortBandwidthGbps ||
                     PortBandwidthGbps != null &&
                     PortBandwidthGbps.Equals(other.PortBandwidthGbps)
+                ) &&
+                (
+                    TenantId == other.TenantId ||
+                    TenantId != null &&
+                    TenantId.Equals(other.TenantId)
+                ) &&
+                (
+                    TenantName == other.TenantName ||
+                    TenantName != null &&
+                    TenantName.Equals(other.TenantName)
                 );
         }
 
@@ -227,6 +254,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + PortConnector.GetHashCode();
                     if (PortBandwidthGbps != null)
                     hashCode = hashCode * 59 + PortBandwidthGbps.GetHashCode();
+                    if (TenantId != null)
+                    hashCode = hashCode * 59 + TenantId.GetHashCode();
+                    if (TenantName != null)
+                    hashCode = hashCode * 59 + TenantName.GetHashCode();
                 return hashCode;
             }
         }

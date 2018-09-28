@@ -257,71 +257,211 @@ namespace Mind
             builder.RegisterType<ProviderDomainVifService>().As<IProviderDomainVifService>();
             builder.RegisterType<InfrastructureDeviceService>().As<IInfrastructureDeviceService>();
             builder.RegisterType<InfrastructurePortService>().As<IInfrastructurePortService>();
+            builder.RegisterType<TenantDeviceService>().As<ITenantDeviceService>();
+            builder.RegisterType<TenantPortService>().As<ITenantPortService>();
+            builder.RegisterType<TenantDomainAttachmentService>().As<ITenantDomainAttachmentService>();
 
-            // Directors
-            builder.RegisterType<ProviderDomainAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
-                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainSingleAttachmentDirector");
-            builder.RegisterType<ProviderDomainAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
-                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainSingleAttachmentUpdateDirector");
-            builder.RegisterType<ProviderDomainBundleAttachmentDirector>().As<IProviderDomainAttachmentDirector>()
-                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainBundleAttachmentDirector");
-            builder.RegisterType<ProviderDomainBundleAttachmentUpdateDirector>().As<IProviderDomainAttachmentUpdateDirector>()
-                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainBundleAttachmentUpdateDirector");
-            builder.RegisterType<ProviderDomainAttachmentDirector<MultiPortAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
-                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainMultiPortAttachmentDirector");
-            builder.RegisterType<ProviderDomainAttachmentUpdateDirector<MultiPortAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
-                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainMultiPortAttachmentUpdateDirector");
+            // Provider domain single attachment directors
+            builder.RegisterType<ProviderDomainUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
+                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedSingleAttachmentDirector");
+            builder.RegisterType<ProviderDomainTaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
+                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedSingleAttachmentDirector");
+
+            // Provider domain bundle attachment directors
+            builder.RegisterType<ProviderDomainUntaggedBundleAttachmentDirector>().As<IProviderDomainAttachmentDirector>()
+                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedBundleAttachmentDirector");
+            builder.RegisterType<ProviderDomainTaggedBundleAttachmentDirector>().As<IProviderDomainAttachmentDirector>()
+                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedBundleAttachmentDirector");
+
+            // Provider domain multiport attachment directors
+            builder.RegisterType<ProviderDomainUntaggedAttachmentDirector<MultiPortAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
+                .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedMultiPortAttachmentDirector");
+            builder.RegisterType<ProviderDomainTaggedAttachmentDirector<MultiPortAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
+            .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedMultiPortAttachmentDirector");
+
+            //Provider domain single attachment update directors
+            builder.RegisterType<ProviderDomainUntaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedSingleAttachmentUpdateDirector");
+            builder.RegisterType<ProviderDomainTaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedSingleAttachmentUpdateDirector");
+
+            //Provider domain bundle attachment update directors
+            builder.RegisterType<ProviderDomainUntaggedBundleAttachmentUpdateDirector>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedBundleAttachmentUpdateDirector");
+            builder.RegisterType<ProviderDomainTaggedBundleAttachmentUpdateDirector>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedBundleAttachmentUpdateDirector");
+
+            //Provider domain multiport attachment update directors
+            builder.RegisterType<ProviderDomainUntaggedAttachmentUpdateDirector<MultiPortAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedMultiPortAttachmentUpdateDirector");
+            builder.RegisterType<ProviderDomainTaggedAttachmentUpdateDirector<MultiPortAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+                .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedMultiPortAttachmentUpdateDirector");
+
+            // Tenant domain single attachment directors
+            builder.RegisterType<TenantDomainUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<ITenantDomainAttachmentDirector>()
+                .Keyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedSingleAttachmentDirector");
+            builder.RegisterType<TenantDomainTaggedAttachmentDirector<SingleAttachmentBuilder>>().As<ITenantDomainAttachmentDirector>()
+                .Keyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedSingleAttachmentDirector");
+
+            // Tenant domain bundle attachment directors
+            builder.RegisterType<TenantDomainUntaggedBundleAttachmentDirector>().As<ITenantDomainAttachmentDirector>()
+                .Keyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedBundleAttachmentDirector");
+            builder.RegisterType<TenantDomainTaggedBundleAttachmentDirector>().As<ITenantDomainAttachmentDirector>()
+                .Keyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedBundleAttachmentDirector");
+
+            // Tenant domain multiport attachment directors
+            builder.RegisterType<TenantDomainUntaggedAttachmentDirector<MultiPortAttachmentBuilder>>().As<ITenantDomainAttachmentDirector>()
+                .Keyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedMultiPortAttachmentDirector");
+            builder.RegisterType<TenantDomainTaggedAttachmentDirector<MultiPortAttachmentBuilder>>().As<ITenantDomainAttachmentDirector>()
+                .Keyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedMultiPortAttachmentDirector");
+
+            // Tenant domain single attachment update directors
+            builder.RegisterType<TenantDomainUntaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<ITenantDomainAttachmentUpdateDirector>()
+                .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedSingleAttachmentUpdateDirector");
+            builder.RegisterType<TenantDomainTaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<ITenantDomainAttachmentUpdateDirector>()
+                .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedSingleAttachmentUpdateDirector");
+
+            // Tenant domain bundle attachment update directors
+            builder.RegisterType<TenantDomainUntaggedBundleAttachmentUpdateDirector>().As<ITenantDomainAttachmentUpdateDirector>()
+                .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedBundleAttachmentUpdateDirector");
+            builder.RegisterType<TenantDomainTaggedBundleAttachmentUpdateDirector>().As<ITenantDomainAttachmentUpdateDirector>()
+                .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedBundleAttachmentUpdateDirector");
+
+            // Attachment set directors
             builder.RegisterType<AttachmentSetDirector>().As<IAttachmentSetDirector>();
             builder.RegisterType<AttachmentSetUpdateDirector>().As<IAttachmentSetUpdateDirector>();
+
+            // Attachment set routing instance director
             builder.RegisterType<AttachmentSetRoutingInstanceDirector>().As<IAttachmentSetRoutingInstanceDirector>();
+
+            // Attachment set inbound policy directors
             builder.RegisterType<VpnTenantIpNetworkInDirector>().As<IVpnTenantIpNetworkInDirector>();
             builder.RegisterType<VpnTenantIpNetworkInUpdateDirector>().As<IVpnTenantIpNetworkInUpdateDirector>();
+
+            // Attachment set outbound policy directors
             builder.RegisterType<VpnTenantIpNetworkOutDirector>().As<IVpnTenantIpNetworkOutDirector>();
             builder.RegisterType<VpnTenantIpNetworkOutUpdateDirector>().As<IVpnTenantIpNetworkOutUpdateDirector>();
+
+            // Provider domain vif directors
             builder.RegisterType<ProviderDomainVifDirector>().As<IProviderDomainVifDirector>();
             builder.RegisterType<ProviderDomainVifUpdateDirector>().As<IProviderDomainVifUpdateDirector>();
+
+            // VRF routing instance director
             builder.RegisterType<TenantFacingVrfRoutingInstanceDirector>().As<IVrfRoutingInstanceDirector>()
                 .Keyed<IVrfRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
+
+            // Default routing instance director 
             builder.RegisterType<DefaultRoutingInstanceDirector>().As<IRoutingInstanceDirector>();
+
+            // IP vpn directors
             builder.RegisterType<IpVpnDirector>().As<IVpnDirector>().Keyed<IVpnDirector>("IpVpnDirector");
             builder.RegisterType<IpVpnUpdateDirector>().As<IVpnUpdateDirector>().Keyed<IVpnUpdateDirector>("IpVpnUpdateDirector");
+
+            // BGP Peer directors
             builder.RegisterType<BgpPeerDirector>().As<IBgpPeerDirector>();
             builder.RegisterType<BgpPeerUpdateDirector>().As<IBgpPeerUpdateDirector>();
+
+            // Tenant IP network directors
             builder.RegisterType<TenantIpNetworkDirector>().As<ITenantIpNetworkDirector>();
             builder.RegisterType<TenantIpNetworkUpdateDirector>().As<ITenantIpNetworkUpdateDirector>();
+
+            // VPN attachment set directors
             builder.RegisterType<VpnAttachmentSetDirector>().As<IVpnAttachmentSetDirector>();
             builder.RegisterType<VpnAttachmentSetUpdateDirector>().As<IVpnAttachmentSetUpdateDirector>();
+
+            // Tenant IP network static route directors
             builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteDirector>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteDirector>();
             builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector>();
+
+            // Infrastructure device directors
             builder.RegisterType<InfrastructureDeviceDirector>().As<IInfrastructureDeviceDirector>();
             builder.RegisterType<InfrastructureDeviceUpdateDirector>().As<IInfrastructureDeviceUpdateDirector>();
+
+            // Port director
             builder.RegisterType<PortDirector>().As<IPortDirector>();
             builder.RegisterType<PortUpdateDirector>().As<IPortUpdateDirector>();
 
+            // Tenant device director
+            builder.RegisterType<TenantDeviceDirector>().As<ITenantDeviceDirector>();
+            builder.RegisterType<TenantDeviceUpdateDirector>().As<ITenantDeviceUpdateDirector>();
+
             // Director Factories
-            builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector>>((c, p) =>
+            builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, SCM.Models.AttachmentRole, IProviderDomainAttachmentDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
-                return (request) =>
+                return (request, role) =>
                 {
-                    if (request.BundleRequired != null)
+                    if (role.IsTaggedRole)
                     {
-                        if (request.BundleRequired.Value)
+                        if (request.BundleRequired.HasValue && request.BundleRequired.Value)
                         {
-                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainBundleAttachmentDirector");
+                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedBundleAttachmentDirector");
+                        }
+                        else if (request.MultiportRequired.HasValue && request.MultiportRequired.Value)
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedMultiPortAttachmentDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedSingleAttachmentDirector");
                         }
                     }
-                    if (request.MultiportRequired != null)
+                    else
                     {
-                        if (request.MultiportRequired.Value)
+                        if (request.BundleRequired.HasValue && request.BundleRequired.Value)
                         {
-                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainMultiPortAttachmentDirector");
+                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedBundleAttachmentDirector");
+                        }
+                        else if (request.MultiportRequired.HasValue && request.MultiportRequired.Value)
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedMultiPortAttachmentDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedSingleAttachmentDirector");
                         }
                     }
-
-                    return context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainSingleAttachmentDirector");
                 };
             });
+
+            builder.Register<Func<SCM.Models.RequestModels.TenantDomainAttachmentRequest, SCM.Models.AttachmentRole, ITenantDomainAttachmentDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (request, role) =>
+                {
+                    if (role.IsTaggedRole)
+                    {
+                        if (request.BundleRequired.HasValue && request.BundleRequired.Value)
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedBundleAttachmentDirector");
+                        }
+                        else if (request.MultiportRequired.HasValue && request.MultiportRequired.Value)
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedMultiPortAttachmentDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedSingleAttachmentDirector");
+                        }
+                    }
+                    else
+                    {
+                        if (request.BundleRequired.HasValue && request.BundleRequired.Value)
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedBundleAttachmentDirector");
+                        }
+                        else if (request.MultiportRequired.HasValue && request.MultiportRequired.Value)
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedMultiPortAttachmentDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedSingleAttachmentDirector");
+                        }
+                    }
+                };
+            });
+
 
             builder.Register<Func<SCM.Models.RoutingInstanceType, IVrfRoutingInstanceDirector>>((c, p) =>
             {
@@ -342,17 +482,73 @@ namespace Mind
                 var context = c.Resolve<IComponentContext>();
                 return (attachment) =>
                 {
-                    if (attachment.IsBundle)
+                    if (attachment.IsTagged)
                     {
-                        return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainBundleAttachmentUpdateDirector");
-                    }
-                    else if (attachment.IsMultiPort)
-                    {
-                        return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainMultiPortAttachmentUpdateDirector");
+                        if (attachment.IsBundle)
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedBundleAttachmentUpdateDirector");
+                        }
+                        else if (attachment.IsMultiPort)
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedMultiPortAttachmentUpdateDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedSingleAttachmentUpdateDirector");
+                        }
                     }
                     else
                     {
-                        return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainSingleAttachmentUpdateDirector");
+                        if (attachment.IsBundle)
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedBundleAttachmentUpdateDirector");
+                        }
+                        else if (attachment.IsMultiPort)
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedMultiPortAttachmentUpdateDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedSingleAttachmentUpdateDirector");
+                        }
+                    }
+                };
+            });
+
+            builder.Register<Func<SCM.Models.Attachment, ITenantDomainAttachmentUpdateDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (attachment) =>
+                {
+                    if (attachment.AttachmentRole.IsTaggedRole)
+                    {
+                        if (attachment.IsBundle)
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedBundleAttachmentUpdateDirector");
+                        }
+                        else if (attachment.IsMultiPort)
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedMultiPortAttachmentUpdateDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedSingleAttachmentUpdateDirector");
+                        }
+                    }
+                    else
+                    {
+                        if (attachment.IsBundle)
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedBundleAttachmentUpdateDirector");
+                        }
+                        else if (attachment.IsMultiPort)
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedMultiPortAttachmentUpdateDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedSingleAttachmentUpdateDirector");
+                        }
                     }
                 };
             });
@@ -388,6 +584,8 @@ namespace Mind
             //Builders
             builder.RegisterType<InfrastructureDeviceBuilder>().As<IInfrastructureDeviceBuilder>();
             builder.RegisterType<InfrastructureDeviceUpdateBuilder>().As<IInfrastructureDeviceUpdateBuilder>();
+            builder.RegisterType<TenantDeviceBuilder>().As<ITenantDeviceBuilder>();
+            builder.RegisterType<TenantDeviceUpdateBuilder>().As<ITenantDeviceUpdateBuilder>();
             builder.RegisterType<PortBuilder>().As<IPortBuilder>();
             builder.RegisterType<PortUpdateBuilder>().As<IPortUpdateBuilder>();
             builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();

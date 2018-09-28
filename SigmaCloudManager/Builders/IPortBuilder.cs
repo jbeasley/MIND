@@ -21,5 +21,4 @@ namespace Mind.Builders
         IPortBuilder AssignToTenant(int? tenantId);
         Task<Port> BuildAsync();
     }
-
 }

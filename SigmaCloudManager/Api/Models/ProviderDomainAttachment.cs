@@ -25,7 +25,7 @@ namespace Mind.Api.Models
     /// 
     /// </summary>
     [DataContract]
-    public partial class Attachment : IEquatable<Attachment>
+    public partial class ProviderDomainAttachment : IEquatable<ProviderDomainAttachment>
     { 
         /// <summary>
         /// ID of the attachment
@@ -158,7 +158,7 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class Attachment {\n");
+            sb.Append("class ProviderDomainAttachment {\n");
             sb.Append("  AttachmentId: ").Append(AttachmentId).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
             sb.Append("  IsBundle: ").Append(IsBundle).Append("\n");
@@ -196,15 +196,15 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((Attachment)obj);
+            return obj.GetType() == GetType() && Equals((ProviderDomainAttachment)obj);
         }
 
         /// <summary>
-        /// Returns true if Attachment instances are equal
+        /// Returns true if ProviderDomainAttachment instances are equal
         /// </summary>
         /// <param name="other">Instance of Attachment to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(Attachment other)
+        public bool Equals(ProviderDomainAttachment other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -334,12 +334,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(Attachment left, Attachment right)
+        public static bool operator ==(ProviderDomainAttachment left, ProviderDomainAttachment right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(Attachment left, Attachment right)
+        public static bool operator !=(ProviderDomainAttachment left, ProviderDomainAttachment right)
         {
             return !Equals(left, right);
         }

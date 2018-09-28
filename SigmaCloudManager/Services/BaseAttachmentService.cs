@@ -68,5 +68,26 @@ namespace SCM.Services
                     select attachments)
                     .ToList();
         }
+
+        /// <summary>
+        /// Find all attachments for a given device
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="deep"></param>
+        /// <param name="asTrackable"></param>
+        /// <param name="portRoleType"></param>
+        /// <returns></returns>
+        protected internal async virtual Task<List<Attachment>> GetAllByDeviceIDAsync(int id, SCM.Models.PortRoleTypeEnum portRoleType,
+            bool? deep = false, bool asTrackable = false)
+        {
+            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
+                q =>
+                    q.DeviceID == id
+                    && q.AttachmentRole.PortPool.PortRole.PortRoleType == portRoleType,
+                    query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
+                    AsTrackable: asTrackable)
+                    select attachments)
+                    .ToList();
+        }
     }
 }

@@ -89,16 +89,7 @@ namespace Mind.Builders
         private async Task UpdatePortsAsync()
         {
             var ports = (List<PortUpdate>)_args[nameof(WithPorts)];
-            var tasks = ports.Select(
-                             async portUpdate =>
-                                 {
-                                    if (portUpdate.PortId.HasValue) {
-                                        await _portUpdateDirector.UpdateAsync(portUpdate.PortId.Value, portUpdate);
-                                    }
-                                 }
-                             );
-
-            await Task.WhenAll(tasks);
+            await _portUpdateDirector.UpdateAsync(ports);
         }
     }
 }

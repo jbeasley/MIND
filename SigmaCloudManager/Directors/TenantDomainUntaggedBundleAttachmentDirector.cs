@@ -7,28 +7,27 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class ProviderDomainAttachmentDirector<TAttachmentBuilder> : IProviderDomainAttachmentDirector 
-        where TAttachmentBuilder: AttachmentBuilder<TAttachmentBuilder>
+    public class TenantDomainUntaggedBundleAttachmentDirector : ITenantDomainAttachmentDirector 
     {
-        private readonly Func<ProviderDomainAttachmentRequest, IAttachmentBuilder<TAttachmentBuilder>> _builderFactory;
+        private readonly Func<TenantDomainAttachmentRequest, IBundleAttachmentBuilder> _builderFactory;
 
-        public ProviderDomainAttachmentDirector(Func<ProviderDomainAttachmentRequest, IAttachmentBuilder<TAttachmentBuilder>> builderFactory)
+        public TenantDomainUntaggedBundleAttachmentDirector(Func<TenantDomainAttachmentRequest, IBundleAttachmentBuilder> builderFactory)
         {
             _builderFactory = builderFactory;
         }
 
-        public async Task<SCM.Models.Attachment> BuildAsync(int tenantId, ProviderDomainAttachmentRequest request)
+        public async Task<SCM.Models.Attachment> BuildAsync(int deviceId, TenantDomainAttachmentRequest request)
         {
             var builder = _builderFactory(request);
-            return await builder.ForTenant(tenantId)
+            return await builder.ForDevice(deviceId)
                                 .WithAttachmentRole(request.AttachmentRoleName)
                                 .WithPortPool(request.PortPoolName)
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
-                                .WithLocation(request.LocationName)
-                                .WithPlane(request.PlaneName.ToString())
                                 .WithIpv4(request.Ipv4Addresses)
+                                .UseDefaultRoutingInstance(true)
                                 .WithContractBandwidth(request.ContractBandwidthMbps)
                                 .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
+                                .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
                                 .BuildAsync();
         }
     }

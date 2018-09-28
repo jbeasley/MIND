@@ -19,6 +19,24 @@ namespace Mind.Builders
         {
         }
 
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.ForDevice(int? deviceId)
+        {
+            base.ForDevice(deviceId);
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.UseExistingRoutingInstance(string routingInstanceName)
+        {
+            base.UseExistingRoutingInstance(routingInstanceName);
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.UseDefaultRoutingInstance(bool? useDefaultRoutingInstance)
+        {
+            base.UseDefaultRoutingInstance(useDefaultRoutingInstance);
+            return this;
+        }
+
         public IBundleAttachmentBuilder WithBundleLinks(int? minLinks, int? maxLinks)
         {
             if (minLinks != null) _args.Add(nameof(minLinks), minLinks);

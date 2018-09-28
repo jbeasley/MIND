@@ -11,5 +11,6 @@ namespace Mind.Builders
     public interface IPortUpdateDirector
     {
         Task<Port> UpdateAsync(int portId, PortUpdate update);
+        Task<List<Port>> UpdateAsync(List<PortUpdate> updates);
     }
 }

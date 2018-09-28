@@ -25,14 +25,24 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
                 .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Location.SiteName))
                 .ForMember(dst => dst.PlaneName, conf => conf.MapFrom(src => src.Plane.Name));
+            CreateMap<SCM.Models.Device, Mind.Api.Models.TenantDevice>()
+                .ForMember(dst => dst.DeviceModel, conf => conf.MapFrom(src => src.DeviceModel.Name))
+                .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
+                .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Location.SiteName))
+                .ForMember(dst => dst.DeviceRole, conf => conf.MapFrom(src => src.DeviceRole.Name));
             CreateMap<SCM.Models.RoutingInstance, Mind.Api.Models.RoutingInstance>();
             CreateMap<SCM.Models.ContractBandwidthPool, Mind.Api.Models.ContractBandwidthPool>()
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidth.BandwidthMbps));
-            CreateMap<SCM.Models.Attachment, Mind.Api.Models.Attachment>()
+            CreateMap<SCM.Models.Attachment, Mind.Api.Models.ProviderDomainAttachment>()
                 .ForMember(dst => dst.InfrastructureDeviceName, conf => conf.MapFrom(src => src.Device.Name))
                 .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name))
                 .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
                 .ForMember(dst => dst.PlaneName, conf => conf.MapFrom(src => src.Device.Plane.Name))
+                .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps))
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
+            CreateMap<SCM.Models.Attachment, Mind.Api.Models.TenantDomainAttachment>()
+                .ForMember(dst => dst.TenantDeviceName, conf => conf.MapFrom(src => src.Device.Name))
+                .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
                 .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps))
                 .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
             CreateMap<SCM.Models.Vif, Mind.Api.Models.Vif>()

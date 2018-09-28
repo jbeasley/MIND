@@ -12,5 +12,6 @@ namespace Mind.Builders
     {
         Task<Port> BuildAsync(int deviceId, PortRequest request);
         Task<Port> BuildAsync(Device device, PortRequest request);
+        Task<List<Port>> BuildAsync(Device device, List<PortRequest> requests);
     }
 }

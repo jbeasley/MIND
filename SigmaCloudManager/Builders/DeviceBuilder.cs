@@ -95,6 +95,7 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
             if (_args.ContainsKey(nameof(UseLayer2InterfaceMtu))) SetUseLayer2InterfaceMtu();
             if (_args.ContainsKey(nameof(WithPorts))) await SetPortsAsync();
+            await CreateRoutingInstanceAsync();
 
             return _device;
         }
@@ -167,15 +168,8 @@ namespace Mind.Builders
         protected internal virtual async Task SetPortsAsync()
         {
             var portRequests = (List<PortRequest>)_args[nameof(WithPorts)];
-            var tasks = portRequests.Select(
-                    async request =>
-                        {
-                            var port = await _portDirector.BuildAsync(this._device, request);
-                            this._device.Ports.Add(port);
-                        }
-                    );
-
-            await Task.WhenAll(tasks);
+            var ports = await _portDirector.BuildAsync(this._device, portRequests);
+            this._device.Ports = ports;
         }
     }
 }

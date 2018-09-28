@@ -17,7 +17,6 @@ namespace Mind.Builders
 
         public PortBuilder(IUnitOfWork unitOfWork) : base(unitOfWork) => _port = new Port();
 
-
         public virtual IPortBuilder AssignToTenant(int? tenantId)
         {
             if (tenantId.HasValue) _args.Add(nameof(AssignToTenant), tenantId);

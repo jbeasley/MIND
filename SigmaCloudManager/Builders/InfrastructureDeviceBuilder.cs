@@ -94,7 +94,8 @@ namespace Mind.Builders
                         select result)
                         .SingleOrDefault();
 
-            _device.DeviceRole = role;
+            _device.DeviceRole = role ?? throw new BuilderBadArgumentsException($"The device role with name '{roleName}' was not found or is invalid " +
+                $"for an infrastructure device.");
         }
 
         protected internal virtual async Task SetPlaneAsync()

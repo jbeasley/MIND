@@ -35,7 +35,7 @@ namespace Mind.Models.RequestModels
         /// Requests for routing instances to be added to the attachment set
         /// </summary>
         /// <value>A list of RoutingInstanceForAttachmentSetRequest objects</value>
-        public List<RoutingInstanceForAttachmentSetRequest> RoutingInstances { get; set; }
+        public List<RoutingInstanceForAttachmentSetRequest> AttachmentSetRoutingInstances { get; set; }
 
         /// <summary>
         /// Determines the type of multicast domain supported by the attachment set

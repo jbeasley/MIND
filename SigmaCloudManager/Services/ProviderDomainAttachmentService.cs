@@ -19,13 +19,12 @@ namespace Mind.Services
     /// </summary>
     public class ProviderDomainAttachmentService : BaseAttachmentService, IProviderDomainAttachmentService
     {
-        private readonly Func<ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector> _directorFactory;
+        private readonly Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> _directorFactory;
         private readonly Func<Attachment, IProviderDomainAttachmentUpdateDirector> _updateDirectorFactory;
 
         public ProviderDomainAttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
-            IProviderDomainAttachmentValidator validator,
-            Func<ProviderDomainAttachmentRequest, IProviderDomainAttachmentDirector> directorFactory,
+            Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> directorFactory,
             Func<Attachment, IProviderDomainAttachmentUpdateDirector> updateDirectorFactory) : base(unitOfWork, mapper)
         {
             _directorFactory = directorFactory;
@@ -64,7 +63,15 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> AddAsync(int tenantId, ProviderDomainAttachmentRequest request)
         {
-            var director = _directorFactory(request);
+            var attachmentRole = (from result in await UnitOfWork.AttachmentRoleRepository.GetAsync(
+                                x =>
+                                  x.Name == request.AttachmentRoleName)
+                                  select result)
+                                  .SingleOrDefault();
+
+            if (attachmentRole == null) throw new ServiceBadArgumentsException($"Could not find attachment role with name '{request.AttachmentRoleName}'.");
+
+            var director = _directorFactory(request, attachmentRole);
             var attachment = await director.BuildAsync(tenantId, request);
             UnitOfWork.AttachmentRepository.Insert(attachment);
             await UnitOfWork.SaveAsync();

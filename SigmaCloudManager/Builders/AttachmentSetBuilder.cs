@@ -15,12 +15,12 @@ namespace Mind.Builders
     public class AttachmentSetBuilder : BaseBuilder, IAttachmentSetBuilder
     {
         protected internal AttachmentSet _attachmentSet;
-        private readonly IAttachmentSetRoutingInstanceBuilder _attachmentSetRoutingInstanceBuilder;
+        private readonly IAttachmentSetRoutingInstanceDirector _attachmentSetRoutingInstanceDirector;
 
         public AttachmentSetBuilder(IUnitOfWork unitOfWork,
-            IAttachmentSetRoutingInstanceBuilder attachmentSetRoutingInstanceBuilder) : base(unitOfWork)
+            IAttachmentSetRoutingInstanceDirector attachmentSetRoutingInstanceDirector) : base(unitOfWork)
         {
-            _attachmentSetRoutingInstanceBuilder = attachmentSetRoutingInstanceBuilder;
+            _attachmentSetRoutingInstanceDirector = attachmentSetRoutingInstanceDirector;
             _attachmentSet = new AttachmentSet
             {
                 Name = Guid.NewGuid().ToString("N"),
@@ -157,16 +157,7 @@ namespace Mind.Builders
         protected virtual internal async Task SetRoutingInstances()
         {
             var requests = (List<RoutingInstanceForAttachmentSetRequest>)_args[nameof(WithRoutingInstances)];
-            var attachmentSetRoutingInstances = await Task.WhenAll(
-                                                requests.Select(
-                                                      x => 
-                                                       _attachmentSetRoutingInstanceBuilder.ForAttachmentSet(_attachmentSet)
-                                                                                           .WithRoutingInstance(x.RoutingInstanceName)
-                                                                                           .WithAdvertisedIpRoutingPreference(x.AdvertisedIpRoutingPreference)
-                                                                                           .WithLocalIpRoutingPreference(x.LocalIpRoutingPreference)
-                                                                                           .WithMulticastDesignatedRouterPreference(x.MulticastDesignatedRouterPreference)
-                                                                                           .BuildAsync()));
-
+            var attachmentSetRoutingInstances = await _attachmentSetRoutingInstanceDirector.BuildAsync(this._attachmentSet, requests);
             _attachmentSet.AttachmentSetRoutingInstances = attachmentSetRoutingInstances;
         }
 

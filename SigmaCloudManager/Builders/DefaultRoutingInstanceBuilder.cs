@@ -19,7 +19,7 @@ namespace Mind.Builders
         {
             _routingInstance = new RoutingInstance
             {
-                Name = Guid.NewGuid().ToString("N")                 
+                Name = "Default"                 
             };
         }
 

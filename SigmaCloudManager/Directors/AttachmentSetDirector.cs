@@ -22,7 +22,7 @@ namespace Mind.Builders
                                  .WithLayer3(request.IsLayer3)
                                  .WithRegion(request.Region.ToString())
                                  .WithSubRegion(request.SubRegion)
-                                 .WithRoutingInstances(request.RoutingInstances)
+                                 .WithRoutingInstances(request.AttachmentSetRoutingInstances)
                                  .WithMulticastVpnDomainType(request.MulticastVpnDomainType.ToString())
                                  .BuildAsync();
         }

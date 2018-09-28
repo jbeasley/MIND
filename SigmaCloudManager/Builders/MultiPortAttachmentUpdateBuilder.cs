@@ -30,9 +30,9 @@ namespace Mind.Builders
             return this;
         }
 
-        IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder> IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>.WithExistingRoutingInstance(string routingInstanceName)
+        IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder> IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>.UseExistingRoutingInstance(string routingInstanceName)
         {
-            base.WithExistingRoutingInstance(routingInstanceName);
+            base.UseExistingRoutingInstance(routingInstanceName);
             return this;
         }
 
@@ -65,7 +65,7 @@ namespace Mind.Builders
             {
                 await base.CreateRoutingInstanceAsync();
             }
-            else if (base._args.ContainsKey(nameof(WithExistingRoutingInstance)))
+            else if (base._args.ContainsKey(nameof(UseExistingRoutingInstance)))
             {
                 await AssociateExistingRoutingInstanceAsync();
             }

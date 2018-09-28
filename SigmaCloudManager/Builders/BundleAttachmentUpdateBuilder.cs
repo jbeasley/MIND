@@ -35,9 +35,9 @@ namespace Mind.Builders
             return this;
         }
 
-        IBundleAttachmentUpdateBuilder IBundleAttachmentUpdateBuilder.WithExistingRoutingInstance(string routingInstanceName)
+        IBundleAttachmentUpdateBuilder IBundleAttachmentUpdateBuilder.UseExistingRoutingInstance(string routingInstanceName)
         {
-            base.WithExistingRoutingInstance(routingInstanceName);
+            base.UseExistingRoutingInstance(routingInstanceName);
             return this;
         }
 
@@ -74,7 +74,7 @@ namespace Mind.Builders
             {
                 await base.CreateRoutingInstanceAsync();
             }
-            else if (_args.ContainsKey(nameof(WithExistingRoutingInstance)))
+            else if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
             {
                 await AssociateExistingRoutingInstanceAsync();
             }

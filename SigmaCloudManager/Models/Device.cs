@@ -16,10 +16,11 @@ namespace SCM.Models
             return query.Include(x => x.Location)
                         .Include(x => x.Attachments)
                         .Include(x => x.DeviceModel)
-                        .Include(x => x.DeviceRole)
+                        .Include(x => x.DeviceRole.DeviceRoleAttachmentRoles)
                         .Include(x => x.DeviceStatus)
                         .Include(x => x.Interfaces)
                         .Include(x => x.Plane)
+                        .Include(x => x.Attachments)
                         .Include(x => x.Ports)
                         .ThenInclude(x => x.PortConnector)
                         .Include(x => x.Ports)
@@ -34,6 +35,8 @@ namespace SCM.Models
                         .ThenInclude(x => x.PortPool.PortRole.DeviceRolePortRoles)
                         .Include(x => x.Ports)
                         .ThenInclude(x => x.Device.DeviceRole)
+                        .Include(x => x.Ports)
+                        .ThenInclude(x => x.PortPool.PortRole)
                         .Include(x => x.Tenant);                     
         }
 
@@ -66,7 +69,7 @@ namespace SCM.Models
                         .Include(x => x.Ports)
                         .ThenInclude(x => x.PortStatus)
                         .Include(x => x.Ports)
-                        .ThenInclude(x => x.PortPool)
+                        .ThenInclude(x => x.PortPool.PortRole)
                         .Include(x => x.Ports)
                         .ThenInclude(x => x.PortConnector)
                         .Include(x => x.Ports)
@@ -122,6 +125,10 @@ namespace SCM.Models
             if (this.DeviceStatus == null) throw new IllegalStateException($"A device status for device '{this.Name}' is required but was not found.");
             if (this.Location == null) throw new IllegalStateException($"A location for device '{this.Name}' is required but was not found.");
             if (this.DeviceModel == null) throw new IllegalStateException($"A device model for device '{this.Name}' is required but was not found.");
+            if (this.RoutingInstances.SingleOrDefault(x => x.RoutingInstanceType.IsDefault) == null)
+            {
+                throw new IllegalStateException($"A default routing instance is required for device '{this.Name}' but one was not found.");
+            }
             if (this.DeviceRole.IsProviderDomainRole)
             {
                 if (this.Plane == null) throw new IllegalStateException($"A plane for device '{this.Name}' is required because the device is designated as " +

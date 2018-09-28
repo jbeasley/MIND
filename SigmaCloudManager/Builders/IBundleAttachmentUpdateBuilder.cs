@@ -12,7 +12,7 @@ namespace Mind.Builders
         IBundleAttachmentUpdateBuilder WithContractBandwidth(int? contractBandwidthMbps);
         IBundleAttachmentUpdateBuilder WithJumboMtu(bool? useJumboMtu = false);
         IBundleAttachmentUpdateBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp = false);
-        IBundleAttachmentUpdateBuilder WithExistingRoutingInstance(string routingInstanceName);
+        IBundleAttachmentUpdateBuilder UseExistingRoutingInstance(string routingInstanceName);
         IBundleAttachmentUpdateBuilder WithNewRoutingInstance(bool? newRoutingInstance = false);
         IBundleAttachmentUpdateBuilder ForAttachment(int? attachmentId);
         IBundleAttachmentUpdateBuilder WithBundleLinks(int? minLinks, int? maxLinks);

@@ -65,8 +65,8 @@ namespace Mind.Api.Models
         /// to an attachment which is owned by the tenant owner requesting the attachment set.
         /// </summary>
         /// <value>A list of RoutingInstanceForAttachmentSetRequest objects</value>
-        [DataMember(Name="routingInstances")]
-        public List<RoutingInstanceForAttachmentSetRequest> RoutingInstances { get; set; }
+        [DataMember(Name="attachmentSetRoutingInstances")]
+        public List<RoutingInstanceForAttachmentSetRequest> AttachmentSetRoutingInstances { get; set; }
 
         /// <summary>
         /// Determines the multicast domain type supported by the attachment set
@@ -88,7 +88,7 @@ namespace Mind.Api.Models
             sb.Append("  SubRegion: ").Append(SubRegion).Append("\n");
             sb.Append("  AttachmentRedundancy: ").Append(AttachmentRedundancy).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
-            sb.Append("  RoutingInstances: ").Append(RoutingInstances).Append("\n");
+            sb.Append("  AttachmentSetRoutingInstances: ").Append(AttachmentSetRoutingInstances).Append("\n");
             sb.Append("  MulticastVpnDomainType: ").Append(MulticastVpnDomainType).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -147,9 +147,9 @@ namespace Mind.Api.Models
                     IsLayer3.Equals(other.IsLayer3)
                 ) && 
                 (
-                    RoutingInstances == other.RoutingInstances ||
-                    RoutingInstances != null &&
-                    RoutingInstances.SequenceEqual(other.RoutingInstances)
+                    AttachmentSetRoutingInstances == other.AttachmentSetRoutingInstances ||
+                    AttachmentSetRoutingInstances != null &&
+                    AttachmentSetRoutingInstances.SequenceEqual(other.AttachmentSetRoutingInstances)
                 ) &&
                 (
                     MulticastVpnDomainType == other.MulticastVpnDomainType ||
@@ -176,8 +176,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AttachmentRedundancy.GetHashCode();
                     if (IsLayer3 != null)
                     hashCode = hashCode * 59 + IsLayer3.GetHashCode();
-                    if (RoutingInstances != null)
-                    hashCode = hashCode * 59 + RoutingInstances.GetHashCode();
+                    if (AttachmentSetRoutingInstances != null)
+                    hashCode = hashCode * 59 + AttachmentSetRoutingInstances.GetHashCode();
                     if (MulticastVpnDomainType != null)
                     hashCode = hashCode * 59 + MulticastVpnDomainType.GetHashCode();
                 return hashCode;

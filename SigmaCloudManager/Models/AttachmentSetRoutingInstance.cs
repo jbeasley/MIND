@@ -74,13 +74,13 @@ namespace SCM.Models
                     $"property is '{this.RoutingInstance.RoutingInstanceType.IsLayer3}'.");
 
             // The routing instance must belong to the same tenant as the attachment set
-            if (this.RoutingInstance.TenantID != this.AttachmentSet.TenantID)
+            if (this.RoutingInstance.TenantID != this.AttachmentSet.Tenant.TenantID)
                 throw new IllegalStateException($"Routing instance '{this.RoutingInstance.Name}' "
-                   + $" does not belong to the same tenant as the attachment set. The tenant for that attachment set is " +
+                   + $" does not belong to the same tenant as the attachment set. The tenant for the attachment set is " +
                    $"'{this.AttachmentSet.Tenant.Name}'.");
 
             // The routing instance must be associated with a device in the same region as the attachment set
-            if (this.RoutingInstance.Device.Location.SubRegion.Region.RegionID != this.AttachmentSet.RegionID)
+            if (this.RoutingInstance.Device.Location.SubRegion.Region.RegionID != this.AttachmentSet.Region.RegionID)
                 throw new IllegalStateException($"Routing instance '{this.RoutingInstance.Name}' is not associated with "
                      + $"a device in region {this.AttachmentSet.Region.Name}.");
         }

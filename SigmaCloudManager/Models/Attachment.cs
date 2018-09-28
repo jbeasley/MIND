@@ -14,7 +14,7 @@ namespace SCM.Models
         public static IQueryable<Attachment> IncludeValidationProperties(this IQueryable<Attachment> query)
         {
             return query.Include(x => x.Tenant)
-                            .Include(x => x.Device)
+                            .Include(x => x.Device.DeviceRole.DeviceRoleAttachmentRoles)
                             .Include(x => x.RoutingInstance.Attachments)
                             .Include(x => x.RoutingInstance.Vifs)
                             .Include(x => x.ContractBandwidthPool)
@@ -138,12 +138,15 @@ namespace SCM.Models
             if (this.AttachmentRole == null) throw new IllegalStateException("An attachment role is required for the attachment.");
             if (this.Device == null) throw new IllegalStateException("A device is required for the attachment.");
             if (!this.Interfaces.Any()) throw new IllegalStateException("At least one interface is required for the attachment.");
-            if (this.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing && this.Tenant == null)
+            if (!this.Device.DeviceRole.DeviceRoleAttachmentRoles
+                .Any(
+                    x => 
+                      x.AttachmentRoleID == this.AttachmentRole.AttachmentRoleID))
             {
-                throw new IllegalStateException("A tenant association is required for the attachment in accordance with the attachment role of " +
-                    $"'{this.AttachmentRole.Name}'.");
+                throw new IllegalStateException($"The attachment role of '{this.AttachmentRole.Name}' is not valid for device '{this.Device.Name}' because " +
+                    $"the device is assigned to role '{this.Device.DeviceRole.Name}'.");
             }
-            else if (this.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure && this.Tenant == null)
+            if (this.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing && this.Tenant == null)
             {
                 throw new IllegalStateException("A tenant association is required for the attachment in accordance with the attachment role of " +
                     $"'{this.AttachmentRole.Name}'.");

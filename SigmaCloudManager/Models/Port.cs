@@ -37,7 +37,8 @@ namespace SCM.Models
                         .Include(x => x.PortPool)
                         .Include(x => x.PortSfp)
                         .Include(x => x.PortStatus)
-                        .Include(x => x.Tenant);
+                        .Include(x => x.Tenant)
+                        .Include(x => x.PortPool.PortRole);
         }
     }
 
@@ -117,8 +118,11 @@ namespace SCM.Models
 
             if (this.PortStatus.PortStatusType == PortStatusTypeEnum.Assigned)
             {
-                if (this.Tenant == null) throw new IllegalStateException($"Port '{this.FullName}' must be assigned to a tenant in order for the port status " +
-                    $"to be set to 'Assigned'.");
+                if (this.Device.DeviceRole.IsProviderDomainRole)
+                {
+                    if (this.Tenant == null) throw new IllegalStateException($"Port '{this.FullName}' must be assigned to a tenant in order for the port status " +
+                        $"to be set to 'Assigned'.");
+                }
             }
 
             if (this.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing)

@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class ProviderDomainAttachmentUpdateDirector<TAttachmentBuilder> : IProviderDomainAttachmentUpdateDirector 
-        where TAttachmentBuilder: IAttachmentUpdateBuilder<TAttachmentBuilder>
+    public class ProviderDomainUntaggedBundleAttachmentUpdateDirector : IProviderDomainAttachmentUpdateDirector
     {
-        private readonly Func<Attachment, IAttachmentUpdateBuilder<TAttachmentBuilder>> _builderFactory;
+        private readonly Func<Attachment, IBundleAttachmentUpdateBuilder> _builderFactory;
 
-        public ProviderDomainAttachmentUpdateDirector(Func<Attachment, IAttachmentUpdateBuilder<TAttachmentBuilder>> builderFactory)
+        public ProviderDomainUntaggedBundleAttachmentUpdateDirector(Func<Attachment, IBundleAttachmentUpdateBuilder> builderFactory)
         {
             _builderFactory = builderFactory;
         }
@@ -22,11 +21,12 @@ namespace Mind.Builders
         {
             var builder = _builderFactory(attachment);
             return await builder.ForAttachment(attachment.AttachmentID)
-                                .WithExistingRoutingInstance(update.ExistingRoutingInstanceName)
+                                .UseExistingRoutingInstance(update.ExistingRoutingInstanceName)
                                 .WithNewRoutingInstance(update.CreateNewRoutingInstance)
                                 .WithContractBandwidth(update.ContractBandwidthMbps)
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
+                                .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
                                 .UpdateAsync();
         }
     }

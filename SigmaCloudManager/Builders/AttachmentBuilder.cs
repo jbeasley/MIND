@@ -40,6 +40,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IAttachmentBuilder<TAttachmentBuilder> ForDevice(int? deviceId)
+        {
+            if (deviceId.HasValue) _args.Add(nameof(ForDevice), deviceId);
+            return this;
+        }
+
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps)
         {
             if (attachmentBandwidthGbps.HasValue) _args.Add(nameof(WithAttachmentBandwidth), attachmentBandwidthGbps);
@@ -88,9 +94,15 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> WithExistingRoutingInstance(string existingRoutingInstanceName)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> UseExistingRoutingInstance(string existingRoutingInstanceName)
         {
-            if (!string.IsNullOrEmpty(existingRoutingInstanceName)) _args.Add(nameof(WithExistingRoutingInstance), existingRoutingInstanceName);
+            if (!string.IsNullOrEmpty(existingRoutingInstanceName)) _args.Add(nameof(UseExistingRoutingInstance), existingRoutingInstanceName);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> UseDefaultRoutingInstance(bool? useDefaultRoutingInstance)
+        {
+            if (useDefaultRoutingInstance.HasValue) _args.Add(nameof(UseDefaultRoutingInstance), useDefaultRoutingInstance);
             return this;
         }
 
@@ -106,12 +118,21 @@ namespace Mind.Builders
         /// <returns></returns>
         public virtual async Task<Attachment> BuildAsync()
         {
-
             if (_args.ContainsKey(nameof(WithAttachmentBandwidth))) await CreateAttachmentBandwidthAsync();
             if (_args.ContainsKey(nameof(WithAttachmentRole)) && _args.ContainsKey(nameof(WithPortPool))) await CreateAttachmentRoleAsync();
             if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
             SetNumberOfPortsRequired();
             SetPortBandwidthRequired();
+
+            if (_args.ContainsKey(nameof(ForDevice)))
+            {
+                await SetDeviceAsync();
+            }
+            else
+            {
+                await FindDeviceFromConstraintsAsync();
+            }
+
             await AllocatePortsAsync();
             CreateInterfaces();
             await SetMtuAsync();
@@ -119,7 +140,11 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
             
-            if (_args.ContainsKey(nameof(WithExistingRoutingInstance)))
+            if (_args.ContainsKey(nameof(UseDefaultRoutingInstance)))
+            {
+                await AssociateDefaultRoutingInstanceAsync();
+            }
+            else if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
             {
                 await AssociateExistingRoutingInstanceAsync();
             }
@@ -160,9 +185,15 @@ namespace Mind.Builders
         /// <returns></returns>
         protected internal virtual async Task AllocatePortsAsync()
         {
-            _ports = await GetPortsAsync();
+            _ports = _attachment.Device.Ports.Where(
+                                               q =>
+                                               q.PortStatus.PortStatusType == PortStatusTypeEnum.Free &&
+                                               q.PortBandwidth.BandwidthGbps == _portBandwidthRequired &&
+                                               q.PortPoolID == _attachment.AttachmentRole.PortPoolID)
+                                               .Take(_numPortsRequired);
+
             var assignedPortStatus = (from portStatus in await _unitOfWork.PortStatusRepository.GetAsync(
-                                    q => 
+                                      q => 
                                       q.PortStatusType == PortStatusTypeEnum.Assigned)
                                       select portStatus)
                                       .Single();
@@ -170,7 +201,10 @@ namespace Mind.Builders
             foreach (var port in _ports)
             {
                 port.PortStatusID = assignedPortStatus.PortStatusID;
-                port.TenantID = _attachment.Tenant.TenantID;
+                //  Tenant may or may not be assigned the port - e.g. if the attachment is for a Provider Domain device such as a PE
+                //  then the port should be assigned to a tenant. But if the attachment is for a Tenant domain device then a 
+                //  tenant is not required.
+                port.TenantID = _attachment.Tenant?.TenantID;
             }
         }
 
@@ -228,9 +262,9 @@ namespace Mind.Builders
                 Ports = _ports.ToList()
             };
 
-            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses;
-            ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
-            var ipv4AddressAndMask = ipv4Addresses.FirstOrDefault();
+            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses = null;
+            if (_args.ContainsKey(nameof(WithIpv4))) ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
+            var ipv4AddressAndMask = ipv4Addresses?.FirstOrDefault();
             iface.IpAddress = ipv4AddressAndMask?.IpAddress;
             iface.SubnetMask = ipv4AddressAndMask?.SubnetMask;
 
@@ -254,7 +288,7 @@ namespace Mind.Builders
             {
                 ContractBandwidthID = contractBandwidth.ContractBandwidthID,
                 ContractBandwidth = contractBandwidth,
-                TenantID = _attachment.Tenant.TenantID,
+                TenantID = _attachment.Tenant?.TenantID,
                 Name = Guid.NewGuid().ToString("N")
             };
 
@@ -291,7 +325,7 @@ namespace Mind.Builders
 
         protected internal virtual async Task AssociateExistingRoutingInstanceAsync()
         {
-            var routingInstanceName = _args[nameof(WithExistingRoutingInstance)].ToString();
+            var routingInstanceName = _args[nameof(UseExistingRoutingInstance)].ToString();
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                                     x =>
                                            x.Name == routingInstanceName
@@ -303,6 +337,20 @@ namespace Mind.Builders
 
             _attachment.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
                 $"instance '{routingInstanceName}' belonging to tenant '{_attachment.Tenant.Name}'.");
+        }
+
+        protected internal virtual async Task AssociateDefaultRoutingInstanceAsync()
+        {
+            var defaultRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                                    x =>
+                                           x.DeviceID == _attachment.Device.DeviceID &&
+                                           x.RoutingInstanceType.IsDefault,
+                                           AsTrackable: true)
+                                           select routingInstances)
+                                           .SingleOrDefault();
+
+            _attachment.RoutingInstance = defaultRoutingInstance ?? throw new BuilderUnableToCompleteException("Could not find the default routing " +
+                $"instance for device '{_attachment.Device.Name}'. Please report this issue to your system administrator.");
         }
 
         protected internal virtual async Task SetMtuAsync()
@@ -320,11 +368,25 @@ namespace Mind.Builders
             _attachment.Mtu = mtu;
         }
 
+        protected internal virtual async Task SetDeviceAsync()
+        {
+            var deviceId = (int)_args[nameof(ForDevice)];
+            var device = (from result in await _unitOfWork.DeviceRepository.GetAsync(
+                        x =>
+                          x.DeviceID == deviceId,
+                          query: q => q.IncludeValidationProperties(),
+                          AsTrackable: true)
+                          select result)
+                          .SingleOrDefault();
+
+            _attachment.Device = device ?? throw new BuilderBadArgumentsException($"The device with ID '{deviceId}' was not found.");
+        }
+
         /// <summary>
-        /// Get some available ports.
+        /// Find a device from the supplied set of constraints such as locatio, plane, etc.
         /// </summary>
         /// <returns></returns>
-        protected internal virtual async Task<IEnumerable<Port>> GetPortsAsync()
+        protected internal virtual async Task FindDeviceFromConstraintsAsync()
         {
             IList<Device> devices;
 
@@ -354,14 +416,7 @@ namespace Mind.Builders
                             x => 
                             x.AttachmentRoleID == _attachment.AttachmentRole.AttachmentRoleID)
                             .Any(),
-                        query: q => 
-                            q.Include(x => x.Ports)
-                             .ThenInclude(x => x.PortBandwidth)
-                             .Include(x => x.Ports)
-                             .ThenInclude(x => x.Device)
-                             .Include(x => x.Ports)
-                             .ThenInclude(x => x.PortStatus)
-                             .Include(x => x.Attachments),
+                        query: q => q.IncludeValidationProperties(),
                         AsTrackable: true)
                         select d;
 
@@ -411,15 +466,6 @@ namespace Mind.Builders
                 // Only one device found
                 _attachment.Device = devices.Single();
             }
-
-            // Get the ports
-            var ports = _attachment.Device.Ports.Where(
-                    q =>
-                        q.PortStatus.PortStatusType == PortStatusTypeEnum.Free
-                        && q.PortBandwidth.BandwidthGbps == _portBandwidthRequired
-                        && q.PortPoolID == _attachment.AttachmentRole.PortPoolID);
-
-            return ports.Take(_numPortsRequired);
         }
     }
 }

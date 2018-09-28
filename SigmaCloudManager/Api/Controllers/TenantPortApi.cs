@@ -34,50 +34,50 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Mind.Api.Controllers
 { 
     /// <summary>
-    /// Create and manage the lifecycle of tenant attachments to the provider domain
+    /// Create and manage the lifecycle of tenant device ports
     /// </summary>
     [ApiVersion("1.0")]
-    public class ProviderDomainAttachmentApiController : BaseApiController
+    public class TenantPortApiController : BaseApiController
     { 
-        private readonly IProviderDomainAttachmentService _attachmentService;
+        private readonly ITenantPortService _tenantPortService;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="attachmentService"></param>
+        /// <param name="tenantPortService"></param>
         /// <param name="mapper"></param>
-        public ProviderDomainAttachmentApiController(IProviderDomainAttachmentService attachmentService, IMapper mapper) : base(attachmentService, mapper)
+        public TenantPortApiController(ITenantPortService tenantPortService, IMapper mapper) : base(tenantPortService, mapper)
         {
-            _attachmentService = attachmentService;
+            _tenantPortService = tenantPortService;
         }
 
         /// <summary>
-        /// Create a new attachment
+        /// Create a new tenant port
         /// </summary>
 
-        /// <param name="tenantId">ID of the tenant</param>
-        /// <param name="body">attachment request object that generates a new attachment</param>
+        /// <param name="deviceId">The ID of the tenant device</param>
+        /// <param name="body">port request object that generates a new tenant port</param>
         /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPost]
-        [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments")]
+        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/ports")]
         [ValidateModelState]
-        [ValidateTenantExists]
-        [SwaggerOperation("CreateProviderDomainAttachment")]
-        [SwaggerResponse(statusCode: 201, type: typeof(Attachment), description: "Successful operation")]
+        [ValidateTenantDeviceExists]
+        [SwaggerOperation("CreateTenantPort")]
+        [SwaggerResponse(statusCode: 201, type: typeof(Port), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> CreateProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body)
+        public virtual async Task<IActionResult> CreateTenantPort([FromRoute][Required]int? deviceId, [FromBody]Mind.Api.Models.PortRequest body)
         {
             try
             {
-                var request = Mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentRequest>(body);
-                var attachment = await _attachmentService.AddAsync(tenantId.Value, request);
-                var attachmentApiModel = Mapper.Map<Mind.Api.Models.Attachment>(attachment);
-                return CreatedAtRoute("GetProviderDomainAttachment", new { attachmentId = attachment.AttachmentID }, attachmentApiModel);
+                var request = Mapper.Map<Mind.Models.RequestModels.PortRequest>(body);
+                var port = await _tenantPortService.AddAsync(deviceId.Value, request);
+                var portApiModel = Mapper.Map<Mind.Api.Models.Port>(port);
+                return CreatedAtRoute("GetTenantPort", new { deviceId, portId = port.ID }, portApiModel);
             }
 
             catch (BuilderBadArgumentsException ex) 
@@ -102,29 +102,29 @@ namespace Mind.Api.Controllers
         }
 
         /// <summary>
-        /// Deletes an attachment
+        /// Deletes an tenant port
         /// </summary>
 
-        /// <param name="tenantId">ID of the tenant</param>
-        /// <param name="attachmentId">ID of the attachment</param>
+        /// <param name="deviceId">ID of the tenant device/param>
+        /// <param name="portId">ID of the tenant port/param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments/{attachmentId}")]
-        [ValidateProviderDomainAttachmentExists]
+        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/ports/{portId}")]
+        [ValidateTenantPortExists]
         [ValidateModelState]
-        [SwaggerOperation("DeleteProviderDomainAttachment")]
+        [SwaggerOperation("DeleteTenantPort")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> DeleteProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromRoute][Required]int? attachmentId)
+        public virtual async Task<IActionResult> DeleteTenantPort([FromRoute][Required]int? deviceId, [FromRoute][Required]int? portId)
         {
             try
             {
-                await _attachmentService.DeleteAsync(attachmentId.Value);
+                await _tenantPortService.DeleteAsync(portId.Value);
                 return StatusCode(StatusCodes.Status204NoContent);
             }
 
@@ -140,96 +140,96 @@ namespace Mind.Api.Controllers
         }
 
         /// <summary>
-        /// Find a provider domain attachment by ID
+        /// Find an tenant port by ID
         /// </summary>
-        /// <remarks>Returns a single provider domain attachment</remarks>
-        /// <param name="tenantId">The ID of the tenant</param>
-        /// <param name="attachmentId">ID of the attachment</param>
+        /// <remarks>Returns a single tenant port</remarks>
+        /// <param name="deviceId">ID of the tenant device</param>
+        /// <param name="portId">ID of the tenant port</param>
         /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments/{attachmentId}", Name = "GetProviderDomainAttachment")]
+        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/ports/{portId}", Name = "GetTenantPort")]
         [ValidateModelState]
-        [ValidateProviderDomainAttachmentExists]
-        [SwaggerOperation("GetProviderDomainAttachmentById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
+        [ValidateTenantPortExists]
+        [SwaggerOperation("GetTenantPortById")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Port), description: "Successful operation")]
         [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual async Task<IActionResult> GetProviderDomainAttachmentById([FromRoute][Required]int? tenantId, 
-            [FromRoute][Required]int? attachmentId, [FromQuery]bool? deep)
+        public virtual async Task<IActionResult> GetTenantPortById([FromRoute][Required]int? deviceId, 
+            [FromRoute][Required]int? portId, [FromQuery]bool? deep)
         {
-            var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep);
-            if (attachment.HasBeenModified(Request))
+            var port = await _tenantPortService.GetByIDAsync(portId.Value, deep: deep);
+            if (port.HasBeenModified(Request))
             {
-                attachment.SetModifiedHttpHeaders(Response);
+                port.SetModifiedHttpHeaders(Response);
             }
             else
             {
                 return StatusCode(StatusCodes.Status304NotModified);
             }
 
-            return Ok(Mapper.Map<Attachment>(attachment));
+            return Ok(Mapper.Map<Port>(port));
         }
 
         /// <summary>
-        /// Find all provider domain attachments for a given tenant
+        /// Find all tenant ports for a given device
         /// </summary>
-        /// <remarks>Returns all provider domain attachments for a given tenant</remarks>
-        /// <param name="tenantId">ID of the tenant</param>
+        /// <remarks>Returns all tenant ports which exist for a given device</remarks>
+        /// <param name="deviceId">The ID of the tenant device</param>
         /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments")]
+        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/ports")]
         [ValidateModelState]
-        [ValidateTenantExists]
-        [SwaggerOperation("GetProviderDomainAttachmentsByTenantId")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<Attachment>), description: "Successful operation")]
+        [ValidateTenantDeviceExists]
+        [SwaggerOperation("GetTenantPorts")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<Port>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public async virtual Task<IActionResult> GetProviderDomainAttachmentsByTenantId([FromRoute][Required]int? tenantId,[FromQuery]bool? deep)
+        public async virtual Task<IActionResult> GetTenantPorts([FromRoute][Required]int? deviceId, [FromQuery]bool? deep)
         {
-            var attachments = await _attachmentService.GetAllByTenantIDAsync(tenantId.Value, deep);
-            return Ok(Mapper.Map<List<Attachment>>(attachments));
+            var ports = await _tenantPortService.GetAllByDeviceIDAsync(deviceId.Value, deep: deep);
+            return Ok(Mapper.Map<List<Port>>(ports));
         }
 
         /// <summary>
-        /// Update an existing attachment
+        /// Update an existing tenant port
         /// </summary>
 
-        /// <param name="tenantId">The ID of the tenant</param>
-        /// <param name="attachmentId">ID of the attachment</param>
-        /// <param name="body">attachment update object that updates an existing attachment</param>
+        /// <param name="deviceId">ID of the device</param>
+        /// <param name="portId">ID of the tenant port</param>
+        /// <param name="body">Infrastructure device update object that updates an existing device</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPatch]
-        [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments/{attachmentId}")]
+        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/ports/{portId}")]
         [ValidateModelState]
-        [ValidateProviderDomainAttachmentExists]
-        [SwaggerOperation("UpdateProviderDomainAttachment")]
+        [ValidateTenantPortExists]
+        [SwaggerOperation("UpdateTenantPort")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> UpdateProviderDomainAttachment([FromRoute][Required]int? tenantId, 
-            [FromRoute][Required]int? attachmentId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentUpdate body)
+        public virtual async Task<IActionResult> UpdateTenantPort([FromRoute][Required]int? deviceId, [FromRoute][Required]int? portId, 
+            [FromBody]Mind.Api.Models.PortUpdate body)
         {
             try
             {
-                var item = await _attachmentService.GetByIDAsync(attachmentId.Value);
+                var item = await _tenantPortService.GetByIDAsync(portId.Value);
                 if (item.HasPreconditionFailed(Request))
                 {
                     return new PreconditionFailedResult();
                 }
 
-                var update = Mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentUpdate>(body);
-                var attachment = await _attachmentService.UpdateAsync(attachmentId.Value, update);
-                attachment.SetModifiedHttpHeaders(Response);
+                var update = Mapper.Map<Mind.Models.RequestModels.PortUpdate>(body);
+                var port = await _tenantPortService.UpdateAsync(portId.Value, update);
+                port.SetModifiedHttpHeaders(Response);
 
                 return StatusCode(StatusCodes.Status204NoContent);
             }

@@ -76,7 +76,7 @@ namespace Mind.Api.Controllers
                 var request = Mapper.Map<Mind.Models.RequestModels.TenantDeviceRequest>(body);
                 var device = await _tenantDeviceService.AddAsync(tenantId.Value, request);
                 var deviceApiModel = Mapper.Map<Mind.Api.Models.TenantDevice>(device);
-                return CreatedAtRoute("GetTenantDevice", new { deviceId = device.DeviceID }, deviceApiModel);
+                return CreatedAtRoute("GetTenantDevice", new { tenantId, deviceId = device.DeviceID }, deviceApiModel);
             }
 
             catch (BuilderBadArgumentsException ex) 

@@ -83,7 +83,8 @@ namespace Mind.Builders
                                    select result)
                                    .SingleOrDefault();
 
-            _tenantIpNetwork = tenantIpNetwork ?? throw new BuilderBadArgumentsException($"The tenant IP network with ID '{tenantIpNetworkId}' was not found.");
+            _tenantIpNetwork = tenantIpNetwork ?? throw new BuilderBadArgumentsException($"The tenant IP network with ID '{tenantIpNetworkId}' " +
+                $"was not found.");
         }
     }
 }

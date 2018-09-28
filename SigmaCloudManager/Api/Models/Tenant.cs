@@ -55,7 +55,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>A list of Attachment objects</value>
         [DataMember(Name = "attachments")]
-        public List<Attachment> Attachments { get; private set; }
+        public List<ProviderDomainAttachment> Attachments { get; private set; }
 
         /// <summary>
         /// A list of vifs which are assigned to the tenant.

@@ -77,6 +77,7 @@ namespace Mind.Builders
         public override async Task<Device> BuildAsync()
         {
             await base.BuildAsync();
+            if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
             _device.Validate();
 
             return _device;
@@ -105,7 +106,8 @@ namespace Mind.Builders
                         select result)
                         .SingleOrDefault();
 
-            _device.DeviceRole = role;
+            _device.DeviceRole = role ?? throw new BuilderBadArgumentsException($"The device role with name '{roleName}' was not found or is invalid " +
+                $"for a tenant device.");
         }
     }
 }

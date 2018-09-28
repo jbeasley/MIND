@@ -169,7 +169,7 @@ namespace Mind.Api.Controllers
         [ValidateModelState]
         [ValidateProviderDomainVifExists]
         [SwaggerOperation("GetProviderDomainVifById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(Attachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 200, type: typeof(Vif), description: "Successful operation")]
         [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public async virtual Task<IActionResult> GetProvideDomainVifById([FromRoute][Required]int? attachmentId, [FromRoute][Required]int? vifId,[FromQuery]bool? deep)

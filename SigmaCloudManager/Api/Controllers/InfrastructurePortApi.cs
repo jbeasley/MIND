@@ -34,7 +34,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Mind.Api.Controllers
 { 
     /// <summary>
-    /// Create and manage the lifecycle of infrastructure devices
+    /// Create and manage the lifecycle of infrastructure device ports
     /// </summary>
     [ApiVersion("1.0")]
     public class InfrastructurePortApiController : BaseApiController

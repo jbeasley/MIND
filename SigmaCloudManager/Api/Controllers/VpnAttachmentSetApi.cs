@@ -239,7 +239,7 @@ namespace Mind.Api.Controllers
         [ValidateModelState]
         [ValidateVpnExists]
         [SwaggerOperation("GetVpnAttachmentSetsByVpnId")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<Attachment>), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<VpnAttachmentSet>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetVpnAttachmentSetsByVpnId([FromRoute][Required]int? vpnId, [FromQuery]bool? deep)
         {

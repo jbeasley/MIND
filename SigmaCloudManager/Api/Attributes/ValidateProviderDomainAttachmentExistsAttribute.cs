@@ -47,7 +47,7 @@ namespace Mind.Api.Attributes
                         select result)
                        .SingleOrDefault() == null)
                 {
-                    context.ModelState.AddModelError(string.Empty, "Could not find the attachment.");
+                    context.ModelState.AddModelError(string.Empty, "Could not find the provider domain attachment.");
                     context.Result = new ResourceNotFoundResult(context.ModelState);
                     return;
                 }

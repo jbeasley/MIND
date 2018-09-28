@@ -10,7 +10,7 @@ namespace Mind.Builders
     public interface IAttachmentUpdateBuilder<TAttachmentBuilder>
     {
         IAttachmentUpdateBuilder<TAttachmentBuilder> WithContractBandwidth(int? contractBandwidthMbps);
-        IAttachmentUpdateBuilder<TAttachmentBuilder> WithExistingRoutingInstance(string routingInstanceName);
+        IAttachmentUpdateBuilder<TAttachmentBuilder> UseExistingRoutingInstance(string routingInstanceName);
         IAttachmentUpdateBuilder<TAttachmentBuilder> WithNewRoutingInstance(bool? newRoutingInstance = false);
         IAttachmentUpdateBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false);
         IAttachmentUpdateBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp = false);

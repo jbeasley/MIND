@@ -70,7 +70,7 @@ namespace Mind.Api.Models
         public string LocationName { get; set; }
 
         /// <summary>
-        /// The name of a port pool which ports for the new attachment will be allocated from
+        /// The name of a port pool from which ports for the new attachment will be allocated from
         /// </summary>
         /// <value>String value denoting the name of a port pool</value>
         /// <example>General</example>

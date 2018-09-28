@@ -100,6 +100,14 @@ namespace Mind.Api.Models
         public string DeviceStatus { get; private set; }
 
         /// <summary>
+        /// The device role of the device
+        /// </summary>
+        /// <value>String value denoting device role</value>
+        /// <example>Red</example>
+        [DataMember(Name = "deviceRole")]
+        public string DeviceRole { get; private set; }
+
+        /// <summary>
         /// A lit of ports which belong to the device
         /// </summary>
         /// <value>A list of Port objects</value>
@@ -119,6 +127,7 @@ namespace Mind.Api.Models
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  UseLayer2InterfaceMtu: ").Append(UseLayer2InterfaceMtu).Append("\n");
             sb.Append("  DeviceModel: ").Append(DeviceModel).Append("\n");
+            sb.Append("  DeviceRole: ").Append(DeviceRole).Append("\n");
             sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  TenantName: ").Append(TenantName).Append("\n");
             sb.Append("  LocationName: ").Append(LocationName).Append("\n");
@@ -186,6 +195,11 @@ namespace Mind.Api.Models
                     DeviceModel.Equals(other.DeviceModel)
                 ) &&
                 (
+                    DeviceRole == other.DeviceRole ||
+                    DeviceRole != null &&
+                    DeviceRole.Equals(other.DeviceRole)
+                ) &&
+                (
                     TenantId == other.TenantId ||
                     TenantId != null &&
                     TenantId.Equals(other.TenantId)
@@ -232,6 +246,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + UseLayer2InterfaceMtu.GetHashCode();
                     if (DeviceModel != null)
                     hashCode = hashCode * 59 + DeviceModel.GetHashCode();
+                    if (DeviceRole != null)
+                    hashCode = hashCode * 59 + DeviceRole.GetHashCode();
                     if (TenantId != null)
                     hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (TenantName != null)

@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class ProviderDomainBundleAttachmentDirector : IProviderDomainAttachmentDirector
+    public class ProviderDomainUntaggedBundleAttachmentDirector : IProviderDomainAttachmentDirector
     {
         private readonly Func<ProviderDomainAttachmentRequest, IBundleAttachmentBuilder> _builderFactory;
 
-        public ProviderDomainBundleAttachmentDirector(Func<ProviderDomainAttachmentRequest, IBundleAttachmentBuilder> builderFactory)
+        public ProviderDomainUntaggedBundleAttachmentDirector(Func<ProviderDomainAttachmentRequest, IBundleAttachmentBuilder> builderFactory)
         {
             _builderFactory = builderFactory;
         }

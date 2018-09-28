@@ -10,6 +10,7 @@ namespace Mind.Builders
     public interface IBundleAttachmentBuilder
     {
         IBundleAttachmentBuilder ForTenant(int? tenantId);
+        IBundleAttachmentBuilder ForDevice(int? deviceId);
         IBundleAttachmentBuilder WithIpv4(List<Ipv4AddressAndMask> ipv4Addresses);
         IBundleAttachmentBuilder WithAttachmentRole(string attachmentRoleName);
         IBundleAttachmentBuilder WithPortPool(string portPoolName);
@@ -20,6 +21,8 @@ namespace Mind.Builders
         IBundleAttachmentBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IBundleAttachmentBuilder WithJumboMtu(bool? useJumboMtu = false);
         IBundleAttachmentBuilder WithBundleLinks(int? minLinks, int? maxLinks);
+        IBundleAttachmentBuilder UseExistingRoutingInstance(string routingInstanceName);
+        IBundleAttachmentBuilder UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
         Task<Attachment> BuildAsync();
     }
 }

@@ -228,6 +228,7 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <remarks>Returns all attachment sets for a given tenant</remarks>
         /// <param name="tenantId">ID of the tenant</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
@@ -235,7 +236,7 @@ namespace Mind.Api.Controllers
         [ValidateModelState]
         [ValidateTenantExists]
         [SwaggerOperation("GetAttachmentSetsByTenantId")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<Attachment>), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<AttachmentSet>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetAttachmentSetsByTenantId([FromRoute][Required]int? tenantId, [FromQuery]bool? deep)
         {

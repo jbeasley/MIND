@@ -38,14 +38,12 @@ namespace Mind.Api.Attributes
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
             {
-                var tenantId = context.ActionArguments["tenantId"] as int?;
                 var deviceId = context.ActionArguments["deviceId"] as int?;
                 
                 if ((from result in await _unitOfWork.DeviceRepository.GetAsync(
                     q => 
                     q.DeviceID == deviceId && 
-                    q.DeviceRole.IsTenantDomainRole &&
-                    q.TenantID == tenantId,
+                    q.DeviceRole.IsTenantDomainRole,
                     AsTrackable: false)
                     select result)
                     .SingleOrDefault() == null)

@@ -13,8 +13,8 @@ namespace Mind.Builders
     /// </summary>
     public class AttachmentSetUpdateBuilder : AttachmentSetBuilder, IAttachmentSetUpdateBuilder
     {
-        public AttachmentSetUpdateBuilder(IUnitOfWork unitOfWork, IAttachmentSetRoutingInstanceBuilder attachmentSetRoutingInstanceBuilder) : 
-            base(unitOfWork, attachmentSetRoutingInstanceBuilder)
+        public AttachmentSetUpdateBuilder(IUnitOfWork unitOfWork, IAttachmentSetRoutingInstanceDirector attachmentSetRoutingInstanceDirector) : 
+            base(unitOfWork, attachmentSetRoutingInstanceDirector)
         {
         }
 

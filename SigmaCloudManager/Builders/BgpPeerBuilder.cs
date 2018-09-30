@@ -24,9 +24,15 @@ namespace Mind.Builders
             };
         }
 
-        public IBgpPeerBuilder ForRoutingInstance(int routingInstanceId)
+        public IBgpPeerBuilder ForRoutingInstance(int? routingInstanceId)
         {
-            _args.Add(nameof(ForRoutingInstance), routingInstanceId);
+            if (routingInstanceId.HasValue) _args.Add(nameof(ForRoutingInstance), routingInstanceId);
+            return this;
+        }
+
+        public IBgpPeerBuilder ForDevice(int? deviceId)
+        {
+            if (deviceId.HasValue) _args.Add(nameof(ForDevice), deviceId);
             return this;
         }
 
@@ -68,7 +74,8 @@ namespace Mind.Builders
 
         public async Task<BgpPeer> BuildAsync()
         {
-            await SetRoutingInstanceAsync();
+            if (_args.ContainsKey(nameof(ForRoutingInstance))) await SetRoutingInstanceAsync();
+            if (_args.ContainsKey(nameof(ForDevice))) await SetRoutingInstanceByDeviceAsync();
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) _bgpPeer.Ipv4PeerAddress = _args[nameof(WithIpv4PeerAddress)].ToString();
             if (_args.ContainsKey(nameof(WithMaximumRoutes))) _bgpPeer.MaximumRoutes = (int)_args[nameof(WithMaximumRoutes)];
             if (_args.ContainsKey(nameof(WithBfd))) _bgpPeer.IsBfdEnabled = (bool)_args[nameof(WithBfd)];
@@ -87,16 +94,26 @@ namespace Mind.Builders
                               x =>
                                 x.RoutingInstanceID == routingInstanceId,
                                 AsTrackable: true,
-                                query: q => q.Include(x => x.Vifs)
-                                             .ThenInclude(x => x.Vlans)
-                                             .ThenInclude(x => x.Vif.Attachment.Interfaces)
-                                             .ThenInclude(x => x.Ports)
-                                             .Include(x => x.Attachments)
-                                             .ThenInclude(x => x.Interfaces)
-                                             .ThenInclude(x => x.Attachment.Interfaces)
-                                             .ThenInclude(x => x.Ports))
+                                query: q => q.IncludeValidationProperties())
                                 select result)
                                 .SingleOrDefault();
+
+            _bgpPeer.RoutingInstance = routingInstance;
+        }
+
+        protected internal virtual async Task SetRoutingInstanceByDeviceAsync()
+        {
+            var deviceId = (int)_args[nameof(ForDevice)];
+            var routingInstance = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                      x =>
+                          (from routingInstances in x.Device.RoutingInstances
+                           where routingInstances.DeviceID == deviceId & routingInstances.RoutingInstanceType.IsDefault
+                           select routingInstances)
+                           .Any(),
+                          query: q => q.IncludeValidationProperties(),
+                          AsTrackable: true)
+                          select result)
+                          .SingleOrDefault();
 
             _bgpPeer.RoutingInstance = routingInstance;
         }

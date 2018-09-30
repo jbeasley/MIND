@@ -8,7 +8,8 @@ namespace Mind.Builders
 {
     public interface IBgpPeerBuilder
     {
-        IBgpPeerBuilder ForRoutingInstance(int routingInstanceId);
+        IBgpPeerBuilder ForRoutingInstance(int? routingInstanceId);
+        IBgpPeerBuilder ForDevice(int? deviceId);
         IBgpPeerBuilder WithIpv4PeerAddress(string ipv4PeerAddess);
         IBgpPeerBuilder WithPeer2ByteAutonomousSystem(int? peer2ByteASNumber);
         IBgpPeerBuilder WithMaximumRoutes(int? maxRoutes);

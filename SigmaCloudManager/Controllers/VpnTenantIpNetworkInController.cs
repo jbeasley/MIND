@@ -177,7 +177,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var attachmentSet = await _attachmentSetService.GetByIDAsync(vpnTenantNetworkIn.AttachmentSetID, deep:true);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(vpnTenantNetworkIn.AttachmentSetID.Value, deep:true);
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
             await PopulateRoutingInstancesDropDownList(vpnTenantNetworkIn.AttachmentSet.AttachmentSetID);
             if (vpnTenantNetworkIn.BgpPeerID != null)
@@ -268,7 +268,7 @@ namespace SCM.Controllers
 
             }
 
-            var attachmentSet = await _attachmentSetService.GetByIDAsync(currentVpnTenantNetworkIn.AttachmentSetID);
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(currentVpnTenantNetworkIn.AttachmentSetID.Value);
             ViewBag.AttachmentSet = Mapper.Map<AttachmentSetViewModel>(attachmentSet);
             await PopulateRoutingInstancesDropDownList(currentVpnTenantNetworkIn.AttachmentSet.AttachmentSetID, updateModel.RoutingInstanceID);
             if (updateModel.RoutingInstanceID != null)

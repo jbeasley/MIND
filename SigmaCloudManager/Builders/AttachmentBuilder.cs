@@ -192,6 +192,11 @@ namespace Mind.Builders
                                                q.PortPoolID == _attachment.AttachmentRole.PortPoolID)
                                                .Take(_numPortsRequired);
 
+            // Check we have the required number of ports - the 'take' method will only return the number of ports found which may be 
+            // less than the required number
+            if (_ports.Count() != _numPortsRequired) throw new BuilderUnableToCompleteException("Could not find a sufficient number of free ports " +
+                $"matching the requirements. {_numPortsRequired} ports of {_portBandwidthRequired} Gbps are required but {_ports.Count()} free ports were found.");
+
             var assignedPortStatus = (from portStatus in await _unitOfWork.PortStatusRepository.GetAsync(
                                       q => 
                                       q.PortStatusType == PortStatusTypeEnum.Assigned)
@@ -308,7 +313,6 @@ namespace Mind.Builders
         {
             if (_attachment.AttachmentRole.RoutingInstanceType != null)
             {
-
                 var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
                                         q =>
                                            q.RoutingInstanceTypeID == _attachment.AttachmentRole.RoutingInstanceType.RoutingInstanceTypeID)

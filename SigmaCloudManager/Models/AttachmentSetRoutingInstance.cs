@@ -65,7 +65,7 @@ namespace SCM.Models
                 throw new IllegalStateException($"An attachment set is required but was not found.");
 
             if (this.RoutingInstance == null) throw new IllegalStateException($"A routing instance " +
-                $"'{this.RoutingInstance.Name}' is required but was not found.");
+                "is required but was not found.");
 
             if (this.AttachmentSet.IsLayer3 != this.RoutingInstance.RoutingInstanceType.IsLayer3)
                 throw new IllegalStateException($"Routing instance '{this.RoutingInstance.Name}' cannot be added to attachment set " +
@@ -83,6 +83,13 @@ namespace SCM.Models
             if (this.RoutingInstance.Device.Location.SubRegion.Region.RegionID != this.AttachmentSet.Region.RegionID)
                 throw new IllegalStateException($"Routing instance '{this.RoutingInstance.Name}' is not associated with "
                      + $"a device in region {this.AttachmentSet.Region.Name}.");
+
+            // The routing instance must belong to a device in the provider domain
+            if (!this.RoutingInstance.Device.DeviceRole.IsProviderDomainRole)
+            {
+                throw new IllegalStateException($"Routing instance '{this.RoutingInstance.Name}' does not belong to a " +
+                    $"device in the provider domain and cannot be associated wiht an attachment set.");
+            }
         }
 
         /// <summary>

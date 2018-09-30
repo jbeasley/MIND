@@ -14,10 +14,13 @@ namespace SCM.Models
     {
         public static IQueryable<BgpPeer> IncludeValidationProperties(this IQueryable<BgpPeer> query)
         {
-            return query.Include(x => x.RoutingInstance)
+            return query.Include(x => x.RoutingInstance.Device.DeviceRole)
+                        .Include(x => x.RoutingInstance)
                         .ThenInclude(x => x.Vifs)
+                        .ThenInclude(x => x.Vlans)
                         .Include(x => x.RoutingInstance)
                         .ThenInclude(x => x.Attachments)
+                        .ThenInclude(x => x.Interfaces)
                         .Include(x => x.VpnTenantCommunitiesIn)
                         .ThenInclude(x => x.AttachmentSet)
                         .Include(x => x.VpnTenantCommunitiesOut)
@@ -40,12 +43,20 @@ namespace SCM.Models
         {
             return query.Include(x => x.VpnTenantCommunitiesIn)
                         .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.BgpPeer.RoutingInstance.Device)
                         .Include(x => x.VpnTenantCommunitiesOut)
                         .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.BgpPeer.RoutingInstance.Device)
                         .Include(x => x.VpnTenantIpNetworksIn)
                         .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.BgpPeer.RoutingInstance.Device)
                         .Include(x => x.VpnTenantIpNetworksOut)
                         .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.BgpPeer.RoutingInstance.Device)
                         .Include(x => x.VpnTenantCommunitiesIn)
                         .ThenInclude(x => x.TenantCommunity)
                         .Include(x => x.VpnTenantCommunitiesOut)
@@ -154,29 +165,73 @@ namespace SCM.Models
             this.VpnTenantCommunitiesIn
                .ToList()
                .ForEach(x =>
-                   sb.Append("The BGP Peer cannot be deleted because community "
-                   + $"'{x.TenantCommunity.Name}' is applied to the inbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
+                    {
+                        sb.Append("The BGP Peer cannot be deleted because community " +
+                        $"'{x.TenantCommunity.Name}' is applied to the inbound policy of ");
+
+                        if (x.AttachmentSet != null)
+                        {
+                            sb.Append($"attachment set '{x.AttachmentSet.Name}'.").Append("\r\n");
+                        }
+                        else
+                        {
+                            sb.Append($"tenant domain device '{x.BgpPeer.RoutingInstance.Device.Name}'.").Append("\r\n");
+                        }
+                   }
             );
 
             this.VpnTenantCommunitiesOut
                 .ToList()
                 .ForEach(x =>
-                    sb.Append("The BGP Peer cannot be deleted because community "
-                    + $"'{x.TenantCommunity.Name}' is applied to the outbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
+                    {
+                        sb.Append("The BGP Peer cannot be deleted because community " +
+                        $"'{x.TenantCommunity.Name}' is applied to the outbound policy of ");
+
+                        if (x.AttachmentSet != null)
+                        {
+                            sb.Append($"attachment set '{x.AttachmentSet.Name}'.").Append("\r\n");
+                        }
+                        else
+                        {
+                            sb.Append($"tenant domain device '{x.BgpPeer.RoutingInstance.Device.Name}'.").Append("\r\n");
+                        }
+                    }
                 );
 
             this.VpnTenantIpNetworksIn
                 .ToList()
                 .ForEach(x =>
-                    sb.Append("The BGP Peer cannot be deleted because IP network "
-                    + $"'{x.TenantIpNetwork.CidrName}' is applied to the inbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
+                    {
+                        sb.Append("The BGP Peer cannot be deleted because IP network " +
+                        $"'{x.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is applied to the inbound policy of ");
+
+                        if (x.AttachmentSet != null)
+                        {
+                            sb.Append($"attachment set '{x.AttachmentSet.Name}'.").Append("\r\n");
+                        }
+                        else
+                        {
+                            sb.Append($"tenant domain device '{x.BgpPeer.RoutingInstance.Device.Name}'.").Append("\r\n");
+                        }
+                    }
                 );
 
             this.VpnTenantIpNetworksOut
                 .ToList()
                 .ForEach(x =>
-                    sb.Append("The BGP Peer cannot be deleted because IP network "
-                    + $"'{x.TenantIpNetwork.CidrName}' is applied to the outbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
+                    {
+                        sb.Append("The BGP Peer cannot be deleted because IP network " +
+                        $"'{x.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is applied to the outbound policy of ");
+
+                        if (x.AttachmentSet != null)
+                        {
+                            sb.Append($"attachment set '{x.AttachmentSet.Name}'.").Append("\r\n");
+                        }
+                        else
+                        {
+                            sb.Append($"tenant domain device '{x.BgpPeer.RoutingInstance.Device.Name}'.").Append("\r\n");
+                        }
+                    }
                 );
 
             if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());

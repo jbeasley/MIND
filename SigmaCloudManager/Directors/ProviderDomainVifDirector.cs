@@ -23,7 +23,7 @@ namespace Mind.Builders
                                  .WithRequestedVlanTag(request.RequestedVlanTag)
                                  .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
                                  .WithVifRole(request.VifRoleName)
-                                 .WithExistingRoutingInstance(request.ExistingRoutingInstanceName)
+                                 .UseExistingRoutingInstance(request.ExistingRoutingInstanceName)
                                  .WithContractBandwidth(request.ContractBandwidthMbps)
                                  .WithExistingContractBandwidthPool(request.ExistingContractBandwidthPoolName)
                                  .WithIpv4(request.Ipv4Addresses)

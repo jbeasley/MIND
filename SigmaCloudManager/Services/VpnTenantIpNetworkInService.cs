@@ -12,14 +12,8 @@ namespace SCM.Services
 {
     public class VpnTenantIpNetworkInService : BaseService, IVpnTenantIpNetworkInService
     {
-        private readonly IVpnTenantIpNetworkInDirector _director;
-        private readonly IVpnTenantIpNetworkInUpdateDirector _updateDirector;
-
-        public VpnTenantIpNetworkInService(IUnitOfWork unitOfWork, IVpnTenantIpNetworkInDirector director, 
-            IVpnTenantIpNetworkInUpdateDirector updateDirector) : base(unitOfWork)
+        public VpnTenantIpNetworkInService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _director = director;
-            _updateDirector = updateDirector;
         }
 
         /// <summary>
@@ -91,14 +85,6 @@ namespace SCM.Services
             return await GetByIDAsync(vpnTenantNetworkIn.VpnTenantIpNetworkInID, deep: true, asTrackable: false);
         }
 
-        public async Task<VpnTenantIpNetworkIn> AddAsync(int attachmentSetId, VpnTenantIpNetworkInRequest request)
-        {
-            var vpnTenantIpNetworkIn = await _director.BuildAsync(attachmentSetId, request);  
-            this.UnitOfWork.VpnTenantIpNetworkInRepository.Insert(vpnTenantIpNetworkIn);
-            await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(vpnTenantIpNetworkIn.VpnTenantIpNetworkInID, deep: true, asTrackable: false);
-        }
-
         /// <summary>
         /// TO-BE-REMOVED
         /// </summary>
@@ -109,13 +95,6 @@ namespace SCM.Services
             this.UnitOfWork.VpnTenantIpNetworkInRepository.Update(vpnTenantIpNetworkIn);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(vpnTenantIpNetworkIn.VpnTenantIpNetworkInID, deep: true, asTrackable: false);
-        }
-
-        public async Task<VpnTenantIpNetworkIn> UpdateAsync(int vpnTenantIpNetworkInId, VpnTenantIpNetworkInUpdate update)
-        {
-            await _updateDirector.UpdateAsync(vpnTenantIpNetworkInId, update);
-            await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(vpnTenantIpNetworkInId, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int vpnTenantNetworkInId)

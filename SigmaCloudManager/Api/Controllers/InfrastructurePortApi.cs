@@ -105,16 +105,16 @@ namespace Mind.Api.Controllers
         /// Deletes an infrastructure port
         /// </summary>
 
-        /// <param name="deviceId">ID of the infrastructure device/param>
-        /// <param name="portId">ID of the infrastructure port/param>
+        /// <param name="deviceId">ID of the infrastructure device</param>
+        /// <param name="portId">ID of the infrastructure port</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
         [Route("/v{version:apiVersion}/infrastructure-devices/{deviceId}/ports/{portId}")]
-        [ValidateInfrastructurePortExists]
         [ValidateModelState]
+        [ValidateInfrastructurePortExists]
         [SwaggerOperation("DeleteInfrastructurePort")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]

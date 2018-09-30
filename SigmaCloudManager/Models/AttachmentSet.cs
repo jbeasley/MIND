@@ -27,6 +27,13 @@ namespace SCM.Models
                         .ThenInclude(x => x.Vlans)
                         .Include(x => x.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.Device.Location.SubRegion.Region)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.RoutingInstance.Device.DeviceRole)
                         .Include(x => x.VpnAttachmentSets)
                         .ThenInclude(x => x.Vpn)
                         .Include(x => x.VpnTenantMulticastGroups)
@@ -120,7 +127,17 @@ namespace SCM.Models
         public static IQueryable<AttachmentSet> IncludeDeleteValidationProperties(this IQueryable<AttachmentSet> query)
         {
             return query.Include(x => x.VpnAttachmentSets)
-                        .ThenInclude(x => x.Vpn);
+                        .ThenInclude(x => x.Vpn)
+                        .Include(x => x.VpnTenantIpNetworksIn)
+                        .Include(x => x.VpnTenantCommunitiesIn)
+                        .Include(x => x.VpnTenantIpNetworksOut)
+                        .Include(x => x.VpnTenantCommunitiesOut)
+                        .Include(x => x.VpnTenantIpNetworksRoutingInstance)
+                        .Include(x => x.VpnTenantMulticastGroups)
+                        .Include(x => x.VpnTenantCommunitiesRoutingInstance)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .Include(x => x.MulticastVpnRps);
         }
     }
 

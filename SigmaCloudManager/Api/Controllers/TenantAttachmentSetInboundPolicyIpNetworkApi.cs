@@ -20,17 +20,17 @@ namespace Mind.Api.Controllers
     [ApiVersion("1.0")]
     public class TenantAttachmentSetInboundPolicyIpNetworkApiController : BaseApiController
     {
-        private readonly IVpnTenantIpNetworkInService _vpnTenantIpNetworkInService;
+        private readonly IProviderDomainIpNetworkInboundPolicyService _providerDomainIpNetworkInboundPolicyService;
 
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="vpnTenantIpNetworkInService"></param>
+        /// <param name="providerDomainIpNetworkInboundPolicyService"></param>
         /// <param name="mapper"></param>
-        public TenantAttachmentSetInboundPolicyIpNetworkApiController(IVpnTenantIpNetworkInService vpnTenantIpNetworkInService, IMapper mapper) : 
-            base(vpnTenantIpNetworkInService, mapper)
+        public TenantAttachmentSetInboundPolicyIpNetworkApiController(IProviderDomainIpNetworkInboundPolicyService providerDomainIpNetworkInboundPolicyService, IMapper mapper) : 
+            base(providerDomainIpNetworkInboundPolicyService, mapper)
         {
-            _vpnTenantIpNetworkInService = vpnTenantIpNetworkInService;
+            _providerDomainIpNetworkInboundPolicyService = providerDomainIpNetworkInboundPolicyService;
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Mind.Api.Controllers
             try
             {
                 var request = Mapper.Map<Mind.Models.RequestModels.VpnTenantIpNetworkInRequest>(body);
-                var vpnTenantIpNetworkIn = await _vpnTenantIpNetworkInService.AddAsync(attachmentSetId.Value, request);
+                var vpnTenantIpNetworkIn = await _providerDomainIpNetworkInboundPolicyService.AddAsync(attachmentSetId.Value, request);
                 var vpnTenantIpNetworkInApiModel = Mapper.Map<Mind.Api.Models.VpnTenantIpNetworkIn>(vpnTenantIpNetworkIn);
                 return CreatedAtRoute("GetVpnTenantIpNetworkIn", new
                 {
@@ -114,11 +114,11 @@ namespace Mind.Api.Controllers
         {
             try
             {
-                var item = await _vpnTenantIpNetworkInService.GetByIDAsync(vpnTenantIpNetworkInId.Value);
+                var item = await _providerDomainIpNetworkInboundPolicyService.GetByIDAsync(vpnTenantIpNetworkInId.Value);
                 if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
 
                 var update = Mapper.Map<Mind.Models.RequestModels.VpnTenantIpNetworkInUpdate>(body);
-                var vpnTenantIpNetworkIn = await _vpnTenantIpNetworkInService.UpdateAsync(item.VpnTenantIpNetworkInID, update);
+                var vpnTenantIpNetworkIn = await _providerDomainIpNetworkInboundPolicyService.UpdateAsync(item.VpnTenantIpNetworkInID, update);
                 vpnTenantIpNetworkIn.SetModifiedHttpHeaders(Response);
 
                 return StatusCode(StatusCodes.Status204NoContent);
@@ -166,7 +166,7 @@ namespace Mind.Api.Controllers
         {
             try
             {
-                await _vpnTenantIpNetworkInService.DeleteAsync(vpnTenantIpNetworkInId.Value);
+                await _providerDomainIpNetworkInboundPolicyService.DeleteAsync(vpnTenantIpNetworkInId.Value);
                 return StatusCode(StatusCodes.Status204NoContent);
             }
 
@@ -197,7 +197,7 @@ namespace Mind.Api.Controllers
         public virtual async Task<IActionResult> GetAttachmentSetInboundPolicyTenantIpNetwork([FromRoute][Required]int? attachmentSetId,
             [FromRoute][Required]int? vpnTenantIpNetworkInId, [FromQuery]bool? deep)
         {
-            var vpnTenantIpNetworkIn = await _vpnTenantIpNetworkInService.GetByIDAsync(vpnTenantIpNetworkInId.Value, deep: deep);
+            var vpnTenantIpNetworkIn = await _providerDomainIpNetworkInboundPolicyService.GetByIDAsync(vpnTenantIpNetworkInId.Value, deep: deep);
             if (vpnTenantIpNetworkIn.HasBeenModified(Request))
             {
                 vpnTenantIpNetworkIn.SetModifiedHttpHeaders(Response);
@@ -227,7 +227,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetAllAttachmentSetInboundPolicyTenantIpNetworks([FromRoute][Required]int? attachmentSetId, [FromQuery]bool? deep)
         {
-            var vpnTenantIpNetworksIn = await _vpnTenantIpNetworkInService.GetAllByAttachmentSetIDAsync(attachmentSetId.Value, deep: deep);
+            var vpnTenantIpNetworksIn = await _providerDomainIpNetworkInboundPolicyService.GetAllByAttachmentSetIDAsync(attachmentSetId.Value, deep: deep);
             return Ok(Mapper.Map<List<VpnTenantIpNetworkIn>>(vpnTenantIpNetworksIn));
         }
     }

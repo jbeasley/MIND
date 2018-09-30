@@ -11,19 +11,15 @@ namespace SCM.Services
 {
     public class BgpPeerService : BaseService, IBgpPeerService
     {
-        private readonly IBgpPeerDirector _director;
-        private readonly IBgpPeerUpdateDirector _updateDirector;
-
-        public BgpPeerService(IUnitOfWork unitOfWork, IBgpPeerDirector director, 
-            IBgpPeerUpdateDirector updateDirector) : base(unitOfWork)
+        public BgpPeerService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _director = director;
-            _updateDirector = updateDirector;
         }
 
         public async Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await this.UnitOfWork.BgpPeerRepository.GetAsync(q => q.RoutingInstanceID == id,
+            return await this.UnitOfWork.BgpPeerRepository.GetAsync(
+                q => 
+                q.RoutingInstanceID == id,
                 query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                 AsTrackable: asTrackable);
 
@@ -31,7 +27,9 @@ namespace SCM.Services
 
         public async Task<BgpPeer> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return (from result in await this.UnitOfWork.BgpPeerRepository.GetAsync(q => q.BgpPeerID == id,
+            return (from result in await this.UnitOfWork.BgpPeerRepository.GetAsync(
+                q => 
+                q.BgpPeerID == id,
                 query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                 AsTrackable: asTrackable)
                     select result)
@@ -50,14 +48,6 @@ namespace SCM.Services
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
         }
 
-        public async Task<BgpPeer> AddAsync(int routingInstanceId, BgpPeerRequest request)
-        {
-            var bgpPeer = await _director.BuildAsync(routingInstanceId, request);
-            this.UnitOfWork.BgpPeerRepository.Insert(bgpPeer);
-            await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
-        }
-
         /// <summary>
         /// TO-BE-REMOVED
         /// </summary>
@@ -68,13 +58,6 @@ namespace SCM.Services
             this.UnitOfWork.BgpPeerRepository.Update(bgpPeer);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
-        }
-
-        public async Task<BgpPeer> UpdateAsync(int bgpPeerId, BgpPeerRequest update)
-        {
-            await _updateDirector.UpdateAsync(bgpPeerId, update);
-            await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(bgpPeerId, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int bgpPeerId)

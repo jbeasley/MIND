@@ -54,9 +54,9 @@ namespace Mind.Builders
             return this;
         }
 
-        IVifUpdateBuilder IVifUpdateBuilder.WithExistingRoutingInstance(string existingRoutingInstanceName)
+        IVifUpdateBuilder IVifUpdateBuilder.UseExistingRoutingInstance(string existingRoutingInstanceName)
         {
-            base.WithExistingRoutingInstance(existingRoutingInstanceName);
+            base.UseExistingRoutingInstance(existingRoutingInstanceName);
             return this;
         }
 
@@ -83,7 +83,7 @@ namespace Mind.Builders
                 _vif.RoutingInstanceID = null;
                 await base.CreateRoutingInstanceAsync();
             }
-            else if (_args.ContainsKey(nameof(WithExistingRoutingInstance)))
+            else if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
             {
                 await base.AssociateExistingRoutingInstanceAsync();
             }
@@ -136,7 +136,8 @@ namespace Mind.Builders
 
         private void SetIpv4()
         {
-            var ipv4AddressesAndMasks = (List<Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
+            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses = null;
+            if (_args.ContainsKey(nameof(WithIpv4))) ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
             if (base._vif.VifRole.IsLayer3Role)
             { 
                 base._vif.Vlans
@@ -144,10 +145,10 @@ namespace Mind.Builders
                     .ForEach(
                         x =>
                             {
-                                var ipv4AddressAndMask = ipv4AddressesAndMasks.FirstOrDefault();
+                                var ipv4AddressAndMask = ipv4Addresses?.FirstOrDefault();
                                 x.IpAddress = ipv4AddressAndMask?.IpAddress;
                                 x.SubnetMask = ipv4AddressAndMask?.SubnetMask;
-                                if (ipv4AddressAndMask != null) ipv4AddressesAndMasks.Remove(ipv4AddressAndMask);
+                                if (ipv4AddressAndMask != null) ipv4Addresses.Remove(ipv4AddressAndMask);
                             });
 
             }

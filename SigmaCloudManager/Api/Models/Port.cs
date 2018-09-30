@@ -71,7 +71,7 @@ namespace Mind.Api.Models
         /// The role of the port
         /// </summary>
         /// <value>String value denoting the role of the port</value>
-        /// <example>Tenant-Facing</example>
+        /// <example>My-Port-Role</example>
         [DataMember(Name="portRole")]
         public string PortRole { get; private set; }
 
@@ -79,7 +79,7 @@ namespace Mind.Api.Models
         /// Pool to which the port is assigned
         /// </summary>
         /// <value>String value denoting pool to which the port is assigned</value>
-        /// <example>General</example>
+        /// <example>My-Port-Pool</example>
         [DataMember(Name="portPool")]
         public string PortPool { get; private set; }
 
@@ -111,7 +111,7 @@ namespace Mind.Api.Models
         /// The name of the tenant to which the port should be assigned.
         /// </summary>
         /// <value>String value denoting the name of the tenant</value>
-        /// <example>9009</example>
+        /// <example>product-group-tenant</example>
         [DataMember(Name = "tenantName")]
         public string TenantName { get; set; }
 

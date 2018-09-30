@@ -42,7 +42,10 @@ namespace SCM.Models
                         .Include(x => x.Attachment.Interfaces)
                         .ThenInclude(x => x.Ports)
                         .Include(x => x.ContractBandwidthPool)
-                        .Include(x => x.RoutingInstance)
+                        .Include(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksIn)
+                        .Include(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksOut)
                         .Include(x => x.Vlans)
                         .Include(x => x.Tenant);
         }
@@ -106,11 +109,6 @@ namespace SCM.Models
             {
                 throw new IllegalStateException("A tenant association is required for the vif in accordance with the vif role of " +
                     $"'{this.VifRole.Name}'.");
-            }
-            else if (this.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure && this.Tenant == null)
-            {
-                throw new IllegalStateException("A tenant association is required for the vif in accordance with the vif role of " +
-                    $"'{this.VifRole.AttachmentRole.Name}'.");
             }
             else if (this.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure && this.Tenant != null)
             {

@@ -135,7 +135,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>An object of type RoutingInstance</value>
         [DataMember(Name="routingInstance")]
-        public RoutingInstance RoutingInstance { get; private set; }
+        public ProviderDomainRoutingInstance RoutingInstance { get; private set; }
 
         /// <summary>
         /// A list of interfaces created for the attachment

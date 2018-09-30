@@ -14,12 +14,12 @@ namespace SCM.Services
 {
     public class VpnTenantIpNetworkRoutingInstanceStaticRouteService : BaseService, IVpnTenantIpNetworkRoutingInstanceStaticRouteService
     {
-        private IVpnTenantIpNetworkRoutingInstanceStaticRouteDirector _director;
-        private IVpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector _updateDirector;
+        private IRoutingInstanceStaticRouteDirector _director;
+        private IRoutingInstanceStaticRouteUpdateDirector _updateDirector;
 
         public VpnTenantIpNetworkRoutingInstanceStaticRouteService(IUnitOfWork unitOfWork, 
-            IVpnTenantIpNetworkRoutingInstanceStaticRouteDirector director,
-            IVpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector updateDirector) : base(unitOfWork)
+            IRoutingInstanceStaticRouteDirector director,
+            IRoutingInstanceStaticRouteUpdateDirector updateDirector) : base(unitOfWork)
         {
             _director = director;
             _updateDirector = updateDirector;

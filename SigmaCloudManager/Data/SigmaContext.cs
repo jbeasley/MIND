@@ -231,10 +231,20 @@ namespace SCM.Data
                     .WithMany()
                     .OnDelete(DeleteBehavior.Restrict);
 
+            builder.Entity<VpnTenantIpNetworkIn>()
+                    .HasOne(c => c.AttachmentSet)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Cascade);
+
             builder.Entity<VpnTenantIpNetworkOut>()
                     .HasOne(c => c.TenantIpNetwork)
                     .WithMany()
                     .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<VpnTenantIpNetworkOut>()
+                    .HasOne(c => c.AttachmentSet)
+                    .WithMany()
+                    .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<VpnTenantCommunityIn>()
                     .HasOne(c => c.TenantCommunity)
@@ -422,7 +432,7 @@ namespace SCM.Data
             .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();
 
             builder.Entity<VpnTenantIpNetworkOut>()
-            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID, p.BgpPeerID }).IsUnique();
+            .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID, p.BgpPeerID }).IsUnique().HasFilter(null);
 
             builder.Entity<VpnTenantIpNetworkRoutingInstance>()
             .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();

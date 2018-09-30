@@ -63,13 +63,13 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPost]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/vpns")]
+        [ValidateModelState]
         [ValidateTenantExists]
         [SwaggerResponse(statusCode: 201, type: typeof(Vpn), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        [Route("/v{version:apiVersion}/tenants/{tenantId}/vpns")]
-        [ValidateModelState]
         [SwaggerOperation("CreateVpn")]
 
         public virtual async Task<IActionResult> CreateVpn([FromRoute][Required]int? tenantId, [FromBody]VpnRequest body)
@@ -169,8 +169,8 @@ namespace Mind.Api.Controllers
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
         [Route("v{version:apiVersion}/tenants/{tenantId}/vpns/{vpnId}")]
-        [ValidateVpnExists]
         [ValidateModelState]
+        [ValidateVpnExists]
         [SwaggerOperation("DeleteVpn")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]

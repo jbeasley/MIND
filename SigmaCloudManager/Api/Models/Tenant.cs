@@ -51,18 +51,18 @@ namespace Mind.Api.Models
         public List<TenantIpNetwork> TenantIpNetworks { get; private set; }
 
         /// <summary>
-        /// A list of attachments which have been created for the tenant
+        /// A list of provider attachments which have been created for the tenant
         /// </summary>
         /// <value>A list of Attachment objects</value>
         [DataMember(Name = "attachments")]
         public List<ProviderDomainAttachment> Attachments { get; private set; }
 
         /// <summary>
-        /// A list of vifs which are assigned to the tenant.
+        /// A list of provider vifs which are assigned to the tenant.
         /// </summary>
         /// <value>A list of Vif objects</value>
         [DataMember(Name = "vifs")]
-        public List<Vif> Vifs { get; private set; }
+        public List<ProviderVif> Vifs { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

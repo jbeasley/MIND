@@ -1,4 +1,5 @@
-﻿using Mind.Models;
+﻿using Microsoft.EntityFrameworkCore;
+using Mind.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -7,6 +8,24 @@ using System.Linq;
 
 namespace SCM.Models
 {
+    public static class RoutingInstanceQueryableExtensions
+    {
+        public static IQueryable<RoutingInstance> IncludeValidationProperties(this IQueryable<RoutingInstance> query)
+        {
+            return query.Include(x => x.Vifs)
+                        .ThenInclude(x => x.Vlans)
+                        .ThenInclude(x => x.Vif.Attachment.Interfaces)
+                        .ThenInclude(x => x.Ports)
+                        .Include(x => x.Attachments)
+                        .ThenInclude(x => x.Interfaces)
+                        .ThenInclude(x => x.Attachment.Interfaces)
+                        .ThenInclude(x => x.Ports)
+                        .Include(x => x.Device.DeviceRole)
+                        .Include(x => x.RoutingInstanceType)
+                        .Include(x => x.Device.Location.SubRegion.Region);
+        }
+    }
+
     public class RoutingInstance
     {
         public int RoutingInstanceID { get; private set; }

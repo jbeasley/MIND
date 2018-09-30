@@ -103,15 +103,15 @@ namespace Mind.Api.Controllers
         /// Deletes an infrastructure device
         /// </summary>
 
-        /// <param name="deviceId">ID of the device/param>
+        /// <param name="deviceId">ID of the device</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
         [Route("/v{version:apiVersion}/infrastructure-devices/{deviceId}")]
-        [ValidateInfrastructureDeviceExists]
         [ValidateModelState]
+        [ValidateInfrastructureDeviceExists]
         [SwaggerOperation("DeleteInfrastructureDevice")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]

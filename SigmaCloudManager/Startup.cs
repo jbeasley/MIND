@@ -257,9 +257,16 @@ namespace Mind
             builder.RegisterType<ProviderDomainVifService>().As<IProviderDomainVifService>();
             builder.RegisterType<InfrastructureDeviceService>().As<IInfrastructureDeviceService>();
             builder.RegisterType<InfrastructurePortService>().As<IInfrastructurePortService>();
-            builder.RegisterType<TenantDeviceService>().As<ITenantDeviceService>();
-            builder.RegisterType<TenantPortService>().As<ITenantPortService>();
+            builder.RegisterType<TenantDomainDeviceService>().As<ITenantDomainDeviceService>();
+            builder.RegisterType<TenantDomainPortService>().As<ITenantDomainPortService>();
             builder.RegisterType<TenantDomainAttachmentService>().As<ITenantDomainAttachmentService>();
+            builder.RegisterType<TenantDomainVifService>().As<ITenantDomainVifService>();
+            builder.RegisterType<ProviderDomainBgpPeerService>().As<IProviderDomainBgpPeerService>();
+            builder.RegisterType<TenantDomainBgpPeerService>().As<ITenantDomainBgpPeerService>();
+            builder.RegisterType<ProviderDomainIpNetworkInboundPolicyService>().As<IProviderDomainIpNetworkInboundPolicyService>();
+            builder.RegisterType<TenantDomainIpNetworkInboundPolicyService>().As<ITenantDomainIpNetworkInboundPolicyService>();
+            builder.RegisterType<ProviderDomainIpNetworkOutboundPolicyService>().As<IProviderDomainIpNetworkOutboundPolicyService>();
+            builder.RegisterType<TenantDomainIpNetworkOutboundPolicyService>().As<ITenantDomainIpNetworkOutboundPolicyService>();
 
             // Provider domain single attachment directors
             builder.RegisterType<ProviderDomainUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
@@ -334,17 +341,29 @@ namespace Mind
             // Attachment set routing instance director
             builder.RegisterType<AttachmentSetRoutingInstanceDirector>().As<IAttachmentSetRoutingInstanceDirector>();
 
-            // Attachment set inbound policy directors
-            builder.RegisterType<VpnTenantIpNetworkInDirector>().As<IVpnTenantIpNetworkInDirector>();
-            builder.RegisterType<VpnTenantIpNetworkInUpdateDirector>().As<IVpnTenantIpNetworkInUpdateDirector>();
+            // Provider domain inbound policy directors
+            builder.RegisterType<ProviderDomainIpNetworkInboundPolicyDirector>().As<IProviderDomainIpNetworkInboundPolicyDirector>();
+            builder.RegisterType<ProviderDomainIpNetworkInboundPolicyUpdateDirector>().As<IProviderDomainIpNetworkInboundPolicyUpdateDirector>();
 
-            // Attachment set outbound policy directors
-            builder.RegisterType<VpnTenantIpNetworkOutDirector>().As<IVpnTenantIpNetworkOutDirector>();
-            builder.RegisterType<VpnTenantIpNetworkOutUpdateDirector>().As<IVpnTenantIpNetworkOutUpdateDirector>();
+            // Tenant domain inbound policy directors
+            builder.RegisterType<TenantDomainIpNetworkInboundPolicyDirector>().As<ITenantDomainIpNetworkInboundPolicyDirector>();
+            builder.RegisterType<TenantDomainIpNetworkInboundPolicyUpdateDirector>().As<ITenantDomainIpNetworkInboundPolicyUpdateDirector>();
+
+            // Provider domain outbound policy directors
+            builder.RegisterType<ProviderDomainIpNetworkOutboundPolicyDirector>().As<IProviderDomainIpNetworkOutboundPolicyDirector>();
+            builder.RegisterType<ProviderDomainIpNetworkOutboundPolicyUpdateDirector>().As<IProviderDomainIpNetworkOutboundPolicyUpdateDirector>();
+
+            // Tenant domain outbound policy directors
+            builder.RegisterType<TenantDomainIpNetworkOutboundPolicyDirector>().As<ITenantDomainIpNetworkOutboundPolicyDirector>();
+            builder.RegisterType<TenantDomainIpNetworkOutboundPolicyUpdateDirector>().As<ITenantDomainIpNetworkOutboundPolicyUpdateDirector>();
 
             // Provider domain vif directors
             builder.RegisterType<ProviderDomainVifDirector>().As<IProviderDomainVifDirector>();
             builder.RegisterType<ProviderDomainVifUpdateDirector>().As<IProviderDomainVifUpdateDirector>();
+
+            // Tenant domain vif directors
+            builder.RegisterType<TenantDomainVifDirector>().As<ITenantDomainVifDirector>();
+            builder.RegisterType<TenantDomainVifUpdateDirector>().As<ITenantDomainVifUpdateDirector>();
 
             // VRF routing instance director
             builder.RegisterType<TenantFacingVrfRoutingInstanceDirector>().As<IVrfRoutingInstanceDirector>()
@@ -358,7 +377,8 @@ namespace Mind
             builder.RegisterType<IpVpnUpdateDirector>().As<IVpnUpdateDirector>().Keyed<IVpnUpdateDirector>("IpVpnUpdateDirector");
 
             // BGP Peer directors
-            builder.RegisterType<BgpPeerDirector>().As<IBgpPeerDirector>();
+            builder.RegisterType<ProviderDomainBgpPeerDirector>().As<IProviderDomainBgpPeerDirector>();
+            builder.RegisterType<TenantDomainBgpPeerDirector>().As<ITenantDomainBgpPeerDirector>();
             builder.RegisterType<BgpPeerUpdateDirector>().As<IBgpPeerUpdateDirector>();
 
             // Tenant IP network directors
@@ -370,8 +390,8 @@ namespace Mind
             builder.RegisterType<VpnAttachmentSetUpdateDirector>().As<IVpnAttachmentSetUpdateDirector>();
 
             // Tenant IP network static route directors
-            builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteDirector>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteDirector>();
-            builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteUpdateDirector>();
+            builder.RegisterType<RoutingInstanceStaticRouteDirector>().As<IRoutingInstanceStaticRouteDirector>();
+            builder.RegisterType<RoutingInstanceStaticRouteUpdateDirector>().As<IRoutingInstanceStaticRouteUpdateDirector>();
 
             // Infrastructure device directors
             builder.RegisterType<InfrastructureDeviceDirector>().As<IInfrastructureDeviceDirector>();
@@ -382,8 +402,8 @@ namespace Mind
             builder.RegisterType<PortUpdateDirector>().As<IPortUpdateDirector>();
 
             // Tenant device director
-            builder.RegisterType<TenantDeviceDirector>().As<ITenantDeviceDirector>();
-            builder.RegisterType<TenantDeviceUpdateDirector>().As<ITenantDeviceUpdateDirector>();
+            builder.RegisterType<TenantDomainDeviceDirector>().As<ITenantDomainDeviceDirector>();
+            builder.RegisterType<TenantDomainDeviceUpdateDirector>().As<ITenantDomainDeviceUpdateDirector>();
 
             // Director Factories
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, SCM.Models.AttachmentRole, IProviderDomainAttachmentDirector>>((c, p) =>
@@ -584,8 +604,8 @@ namespace Mind
             //Builders
             builder.RegisterType<InfrastructureDeviceBuilder>().As<IInfrastructureDeviceBuilder>();
             builder.RegisterType<InfrastructureDeviceUpdateBuilder>().As<IInfrastructureDeviceUpdateBuilder>();
-            builder.RegisterType<TenantDeviceBuilder>().As<ITenantDeviceBuilder>();
-            builder.RegisterType<TenantDeviceUpdateBuilder>().As<ITenantDeviceUpdateBuilder>();
+            builder.RegisterType<TenantDomainDeviceBuilder>().As<ITenantDomainDeviceBuilder>();
+            builder.RegisterType<TenantDomainDeviceUpdateBuilder>().As<ITenantDomainDeviceUpdateBuilder>();
             builder.RegisterType<PortBuilder>().As<IPortBuilder>();
             builder.RegisterType<PortUpdateBuilder>().As<IPortUpdateBuilder>();
             builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
@@ -599,10 +619,8 @@ namespace Mind
             builder.RegisterType<AttachmentSetBuilder>().As<IAttachmentSetBuilder>();
             builder.RegisterType<AttachmentSetUpdateBuilder>().As<IAttachmentSetUpdateBuilder>();
             builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkInBuilder>().As<IVpnTenantIpNetworkInBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkInUpdateBuilder>().As<IVpnTenantIpNetworkInUpdateBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkOutBuilder>().As<IVpnTenantIpNetworkOutBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkOutUpdateBuilder>().As<IVpnTenantIpNetworkOutUpdateBuilder>();
+            builder.RegisterType<TenantIpNetworkInboundPolicyBuilder>().As<ITenantIpNetworkInboundPolicyBuilder>();
+            builder.RegisterType<TenantIpNetworkOutboundPolicyBuilder>().As<ITenantIpNetworkOutboundPolicyBuilder>();
             builder.RegisterType<VifBuilder>().As<IVifBuilder>();
             builder.RegisterType<VifUpdateBuilder>().As<IVifUpdateBuilder>();
             builder.RegisterType<IpVpnBuilder>().As<IIpVpnBuilder>();
@@ -613,8 +631,7 @@ namespace Mind
             builder.RegisterType<TenantIpNetworkUpdateBuilder>().As<ITenantIpNetworkUpdateBuilder>();
             builder.RegisterType<VpnAttachmentSetBuilder>().As<IVpnAttachmentSetBuilder>();
             builder.RegisterType<VpnAttachmentSetUpdateBuilder>().As<IVpnAttachmentSetUpdateBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteBuilder>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteBuilder>();
-            builder.RegisterType<VpnTenantIpNetworkRoutingInstanceStaticRouteUpdateBuilder>().As<IVpnTenantIpNetworkRoutingInstanceStaticRouteUpdateBuilder>();
+            builder.RegisterType<RoutingInstanceStaticRouteBuilder>().As<IRoutingInstanceStaticRouteBuilder>();
         }
  
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

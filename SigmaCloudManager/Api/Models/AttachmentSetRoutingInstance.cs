@@ -61,7 +61,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>An instance of RoutingInstance</value>
         [DataMember(Name = "routingInstance")]
-        public RoutingInstance RoutingInstance { get; private set; }
+        public ProviderDomainRoutingInstance RoutingInstance { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

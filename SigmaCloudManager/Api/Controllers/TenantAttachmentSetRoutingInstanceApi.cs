@@ -203,6 +203,7 @@ namespace Mind.Api.Controllers
         /// <remarks>Returns a single attachment set routing instance</remarks>
         /// <param name="attachmentSetId">ID of the attachment set</param>
         /// <param name="routingInstanceId">ID of the routing instance</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="304">The resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>

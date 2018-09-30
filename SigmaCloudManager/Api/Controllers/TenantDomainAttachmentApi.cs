@@ -62,9 +62,9 @@ namespace Mind.Api.Controllers
         /// <response code="404">The specified resource was not found</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPost]
-        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/attachments")]
+        [Route("/v{version:apiVersion}/tenant-domain-devices/{deviceId}/attachments")]
         [ValidateModelState]
-        [ValidateTenantDeviceExists]
+        [ValidateTenantDomainDeviceExists]
         [SwaggerOperation("CreateTenantDomainAttachment")]
         [SwaggerResponse(statusCode: 201, type: typeof(TenantDomainAttachment), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
@@ -112,9 +112,9 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/attachments/{attachmentId}")]
-        [ValidateTenantDomainAttachmentExists]
+        [Route("/v{version:apiVersion}/tenant-domain-devices/{deviceId}/attachments/{attachmentId}")]
         [ValidateModelState]
+        [ValidateTenantDomainAttachmentExists]
         [SwaggerOperation("DeleteTenantDomainAttachment")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
@@ -150,7 +150,7 @@ namespace Mind.Api.Controllers
         /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/attachments/{attachmentId}", Name = "GetTenantDomainAttachment")]
+        [Route("/v{version:apiVersion}/tenant-domain-devices/{deviceId}/attachments/{attachmentId}", Name = "GetTenantDomainAttachment")]
         [ValidateModelState]
         [ValidateTenantDomainAttachmentExists]
         [SwaggerOperation("GetTenantDomainAttachmentById")]
@@ -182,9 +182,9 @@ namespace Mind.Api.Controllers
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/attachments")]
+        [Route("/v{version:apiVersion}/tenant-domain-devices/{deviceId}/attachments")]
         [ValidateModelState]
-        [ValidateTenantDeviceExists]
+        [ValidateTenantDomainDeviceExists]
         [SwaggerOperation("GetTenantDomainAttachmentsByTenantId")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<TenantDomainAttachment>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
@@ -207,7 +207,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPatch]
-        [Route("/v{version:apiVersion}/tenant-devices/{deviceId}/attachments/{attachmentId}")]
+        [Route("/v{version:apiVersion}/tenant-domain-devices/{deviceId}/attachments/{attachmentId}")]
         [ValidateModelState]
         [ValidateTenantDomainAttachmentExists]
         [SwaggerOperation("UpdateTenantDomainAttachment")]

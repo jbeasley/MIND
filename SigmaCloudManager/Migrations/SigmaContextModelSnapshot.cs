@@ -1887,7 +1887,9 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<bool>("AddToAllBgpPeersInAttachmentSet");
 
-                    b.Property<int>("AttachmentSetID");
+                    b.Property<int?>("AttachmentSetID");
+
+                    b.Property<int?>("AttachmentSetID1");
 
                     b.Property<int?>("BgpPeerID");
 
@@ -1904,6 +1906,8 @@ namespace SigmaCloudManager.Migrations
                     b.HasKey("VpnTenantIpNetworkInID");
 
                     b.HasIndex("AttachmentSetID");
+
+                    b.HasIndex("AttachmentSetID1");
 
                     b.HasIndex("BgpPeerID");
 
@@ -1922,7 +1926,9 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("AdvertisedIpRoutingPreference");
 
-                    b.Property<int>("AttachmentSetID");
+                    b.Property<int?>("AttachmentSetID");
+
+                    b.Property<int?>("AttachmentSetID1");
 
                     b.Property<int>("BgpPeerID");
 
@@ -1937,6 +1943,8 @@ namespace SigmaCloudManager.Migrations
                     b.HasKey("VpnTenantIpNetworkOutID");
 
                     b.HasIndex("AttachmentSetID");
+
+                    b.HasIndex("AttachmentSetID1");
 
                     b.HasIndex("BgpPeerID");
 
@@ -2681,9 +2689,13 @@ namespace SigmaCloudManager.Migrations
             modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkIn", b =>
                 {
                     b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
-                        .WithMany("VpnTenantIpNetworksIn")
+                        .WithMany()
                         .HasForeignKey("AttachmentSetID")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SCM.Models.AttachmentSet")
+                        .WithMany("VpnTenantIpNetworksIn")
+                        .HasForeignKey("AttachmentSetID1");
 
                     b.HasOne("SCM.Models.BgpPeer", "BgpPeer")
                         .WithMany("VpnTenantIpNetworksIn")
@@ -2702,9 +2714,13 @@ namespace SigmaCloudManager.Migrations
             modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkOut", b =>
                 {
                     b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
-                        .WithMany("VpnTenantIpNetworksOut")
+                        .WithMany()
                         .HasForeignKey("AttachmentSetID")
                         .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SCM.Models.AttachmentSet")
+                        .WithMany("VpnTenantIpNetworksOut")
+                        .HasForeignKey("AttachmentSetID1");
 
                     b.HasOne("SCM.Models.BgpPeer", "BgpPeer")
                         .WithMany("VpnTenantIpNetworksOut")

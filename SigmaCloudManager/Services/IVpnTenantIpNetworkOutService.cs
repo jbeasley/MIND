@@ -14,9 +14,7 @@ namespace SCM.Services
         Task<IEnumerable<VpnTenantIpNetworkOut>> GetAllByVpnIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<VpnTenantIpNetworkOut> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<VpnTenantIpNetworkOut> AddAsync(VpnTenantIpNetworkOut vpnTenantNetworkOut);
-        Task<VpnTenantIpNetworkOut> AddAsync(int attachmentSetId, VpnTenantIpNetworkOutRequest request);
         Task<VpnTenantIpNetworkOut> UpdateAsync(VpnTenantIpNetworkOut vpnTenantNetworkOut);
-        Task<VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutUpdate update);
         Task DeleteAsync(int vpnTenantNetworkOutId);
     }
 }

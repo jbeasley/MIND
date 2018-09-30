@@ -149,9 +149,9 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Returns true if ProviderDomainVifRequest instances are equal
+        /// Returns true if ProviderDomainVifUpdate instances are equal
         /// </summary>
-        /// <param name="other">Instance of TenantAttachmentRequest to be compared</param>
+        /// <param name="other">Instance of ProviderDomainVifUpdate to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(ProviderDomainVifUpdate other)
         {

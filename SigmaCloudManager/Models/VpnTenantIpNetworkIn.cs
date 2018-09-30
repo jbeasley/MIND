@@ -18,8 +18,9 @@ namespace SCM.Models
                         .ThenInclude(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksIn)
                         .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
                         .Include(x => x.TenantIpNetwork)
-                        .Include(x => x.BgpPeer)
+                        .Include(x => x.BgpPeer.RoutingInstance.Device.DeviceRole)
                         .Include(x => x.AttachmentSet.VpnAttachmentSets)
                         .ThenInclude(x => x.Vpn)
                         .Include(x => x.AttachmentSet.VpnTenantIpNetworksIn)
@@ -40,7 +41,7 @@ namespace SCM.Models
     {
         public int VpnTenantIpNetworkInID { get; private set; }
         public int TenantIpNetworkID { get; set; }
-        public int AttachmentSetID { get; set; }
+        public int? AttachmentSetID { get; set; }
         public bool AddToAllBgpPeersInAttachmentSet { get; set; }
         public int? BgpPeerID { get; set; }
         public int? LocalIpRoutingPreference { get; set; }
@@ -48,6 +49,7 @@ namespace SCM.Models
         public byte[] RowVersion { get; set; }
         [ForeignKey("TenantIpNetworkID")]
         public virtual TenantIpNetwork TenantIpNetwork { get; set; }
+        [ForeignKey("AttachmentSetID")]
         public virtual AttachmentSet AttachmentSet { get; set; }
         public virtual BgpPeer BgpPeer { get; set; }
         public virtual ICollection<VpnTenantIpNetworkCommunityIn> VpnTenantIpNetworkCommunitiesIn { get; set; }
@@ -59,11 +61,33 @@ namespace SCM.Models
         /// </summary>
         public void Validate()
         {
-            if (this.AttachmentSet == null) throw new IllegalStateException("An attachment set association with the " +
-                "tenant IP network is required but was not found.");
-
             if (this.TenantIpNetwork == null)
                 throw new IllegalStateException("A tenant IP network is required but was not found.");
+
+            if (this.BgpPeer != null)
+            {
+                if (this.BgpPeer.RoutingInstance.Device.DeviceRole.IsProviderDomainRole)
+                {
+                    if (this.AttachmentSet == null)
+                    {
+                        throw new IllegalStateException("An attachment set association with the " +
+                            "tenant IP network is required but was not found.");
+                    }
+                }
+                else if (this.BgpPeer.RoutingInstance.Device.DeviceRole.IsTenantDomainRole)
+                {
+                    if (this.AttachmentSet != null)
+                    {
+                        throw new IllegalStateException("An attachment set association was found but is not required.");
+                    }
+                }
+            }
+
+            if (this.AttachmentSet == null && this.BgpPeer == null)
+            {
+                throw new IllegalStateException("The tenant IP network must be associated with an existing attachment set, " +
+                    "an existing BGP peer, or both.");
+            }
 
             if (this.AddToAllBgpPeersInAttachmentSet)
             {
@@ -95,31 +119,37 @@ namespace SCM.Models
                         $"is required but was not found. A BGP peer which belongs to attachment set '{this.AttachmentSet.Name}' is required.");
                 }
 
-                // Cannot associate the tenant IP netwokr with a specific BGP peer and also also BGP peer in the attachment set concurrently
-                if (this.AttachmentSet.VpnTenantIpNetworksIn
-                                      .Where(x => x.TenantIpNetwork.TenantIpNetworkID == this.TenantIpNetwork.TenantIpNetworkID)
-                                      .Any())
+                if (this.BgpPeer.RoutingInstance.Device.DeviceRole.IsProviderDomainRole)
                 {
-                    throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is " +
-                        $"already associated with all BGP peers of attachment set '{this.AttachmentSet.Name}'.");
+                    // Cannot associate the tenant IP netwokr with a specific BGP peer and also also BGP peer in the attachment set concurrently
+                    if (this.AttachmentSet.VpnTenantIpNetworksIn
+                                          .Where(x => x.TenantIpNetwork.TenantIpNetworkID == this.TenantIpNetwork.TenantIpNetworkID)
+                                          .Any())
+                    {
+                        throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is " +
+                            $"already associated with all BGP peers of attachment set '{this.AttachmentSet.Name}'.");
+                    }
                 }
             }
 
-            var sb = new StringBuilder();
-            (from result in this.AttachmentSet.VpnAttachmentSets.Where(
-             q =>
-             q.AttachmentSetID == this.AttachmentSetID && q.Vpn.IsExtranet)
-             select result.Vpn)
-             .ToList()
-             .ForEach(
-                x => 
-                    sb.Append($"Tenant IP network '{this.TenantIpNetwork.CidrName}' " +
-                               $"cannot be added to the inbound policy of attachment set '{this.AttachmentSet.Name}' because the attachment set " +
-                               $"is associated with extranet vpn '{x.Name}' and the tenant IP network is not enabled for extranet. Update the tenant " +
-                               $"IP network to enable it for extranet services first.").Append("\r\n")
-                    );
+            if (this.AttachmentSet != null)
+            {
+                var sb = new StringBuilder();
+                (from result in this.AttachmentSet.VpnAttachmentSets.Where(
+                 q =>
+                 q.AttachmentSetID == this.AttachmentSetID && q.Vpn.IsExtranet)
+                 select result.Vpn)
+                 .ToList()
+                 .ForEach(
+                    x =>
+                        sb.Append($"Tenant IP network '{this.TenantIpNetwork.CidrName}' " +
+                                   $"cannot be added to the inbound policy of attachment set '{this.AttachmentSet.Name}' because the attachment set " +
+                                   $"is associated with extranet vpn '{x.Name}' and the tenant IP network is not enabled for extranet. Update the tenant " +
+                                   $"IP network to enable it for extranet services first.").Append("\r\n")
+                        );
 
-            if (sb.Length > 0) throw new IllegalStateException(sb.ToString());
+                if (sb.Length > 0) throw new IllegalStateException(sb.ToString());
+            }
         }
     }
 }

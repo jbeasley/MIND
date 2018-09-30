@@ -30,14 +30,16 @@ namespace Mind.Api.Models
         /// <summary>
         /// The ID of the vlan
         /// </summary>
-        /// <value>The ID of the vlan</value>
+        /// <value>Integer value denoting the ID of the vlan</value>
+        /// <example>88781</example>
         [DataMember(Name="vlanID")]
         public int? VlanID { get; private set; }
 
         /// <summary>
         /// The vlan tag
         /// </summary>
-        /// <value>The vlan tag</value>
+        /// <value>Integer value denoting the vlan tag</value>
+        /// <example>100</example>
         [DataMember(Name="vlanTag")]
         public int? VlanTag { get; private set; }
 
@@ -45,6 +47,7 @@ namespace Mind.Api.Models
         /// IPv4 address assigned to the vlan
         /// </summary>
         /// <value>String value representing the IPv4 address assigned to the vlan</value>
+        /// <example>192.168.0.1</example>
         [DataMember(Name = "ipAddress")]
         public string IpAddress { get; private set; }
 
@@ -52,6 +55,7 @@ namespace Mind.Api.Models
         /// IPv4 subnet mask assigned to the vlan
         /// </summary>
         /// <value>String value representing the IPv4 subnet mask assigned to the vlan</value>
+        /// <example>255.255.255.252</example>
         [DataMember(Name = "subnetMask")]
         public string SubnetMask { get; private set; }
 

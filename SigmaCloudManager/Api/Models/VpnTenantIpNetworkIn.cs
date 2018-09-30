@@ -66,7 +66,7 @@ namespace Mind.Api.Models
         /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
         /// <example>true</example>
         [DataMember(Name = "associatedWithAllBgpPeersInAttachmentSet")]
-        public bool? AssociatedWithAllBgpPeersInAttachmentSet { get; private set; } = true;
+        public bool? AssociatedWithAllBgpPeersInAttachmentSet { get; private set; }
 
         /// <summary>
         /// An IPv4 BGP peer address from which the tenant IP network should be learned

@@ -15,7 +15,7 @@ namespace SCM.Models
         {
             return query.Include(x => x.AttachmentSet)
                         .Include(x => x.TenantIpNetwork)
-                        .Include(x => x.BgpPeer);
+                        .Include(x => x.BgpPeer.RoutingInstance.Device.DeviceRole);
         }
 
         public static IQueryable<VpnTenantIpNetworkOut> IncludeDeepProperties(this IQueryable<VpnTenantIpNetworkOut> query)
@@ -30,13 +30,14 @@ namespace SCM.Models
     {
         public int VpnTenantIpNetworkOutID { get; private set; }
         public int TenantIpNetworkID { get; set; }
-        public int AttachmentSetID { get; set; }
+        public int? AttachmentSetID { get; set; }
         public int BgpPeerID { get; set; }
         public int AdvertisedIpRoutingPreference { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
         [ForeignKey("TenantIpNetworkID")]
         public virtual TenantIpNetwork TenantIpNetwork { get; set; }
+        [ForeignKey("AttachmentSetID")]
         public virtual AttachmentSet AttachmentSet { get; set; }
         public virtual BgpPeer BgpPeer { get; set; }
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
@@ -47,21 +48,34 @@ namespace SCM.Models
         /// </summary>
         public virtual void Validate()
         {
-            if (this.AttachmentSet == null) throw new IllegalStateException("An attachment set association with the " +
-                "tenant IP network is required but was not found.");
-
-            if (this.TenantIpNetwork == null)
-                throw new IllegalStateException("A tenant IP network is required but was not found.");
-
             if (this.BgpPeer == null)
                 throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is required but " +
                     "was not found.");
 
-            if (this.TenantIpNetwork.TenantID != this.AttachmentSet.TenantID)
+            if (this.TenantIpNetwork == null)
+                throw new IllegalStateException("A tenant IP network is required but was not found.");
+
+            if (this.BgpPeer.RoutingInstance.Device.DeviceRole.IsProviderDomainRole)
             {
-                throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' cannot " +
-                    $"be added to the outbound policy of attachment set '{this.AttachmentSet.Name}' because the tenant owner of the IP network and " +
-                    $"the tenant owner of the attachment set are not the same.");
+                if (this.AttachmentSet == null) throw new IllegalStateException("An attachment set association with the " +
+                    "tenant IP network is required but was not found.");
+
+                if (this.TenantIpNetwork.TenantID != this.AttachmentSet.TenantID)
+                {
+                    throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' cannot " +
+                        $"be added to the outbound policy of attachment set '{this.AttachmentSet.Name}' because the tenant owner of the IP network and " +
+                        $"the tenant owner of the attachment set are not the same.");
+                }
+            }
+
+            if (this.BgpPeer.RoutingInstance.Device.DeviceRole.IsTenantDomainRole)
+            {
+                if (this.TenantIpNetwork.TenantID != this.BgpPeer.RoutingInstance.Device.TenantID)
+                {
+                    throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' cannot " +
+                        $"be added to the outbound policy of BGP peer '{this.BgpPeer.Ipv4PeerAddress}' because the tenant owner of the IP network and " +
+                        $"the tenant owner of the BGP peer are not the same.");
+                }
             }
         }
     }

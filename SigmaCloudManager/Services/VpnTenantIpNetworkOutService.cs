@@ -12,14 +12,9 @@ namespace SCM.Services
 {
     public class VpnTenantIpNetworkOutService : BaseService, IVpnTenantIpNetworkOutService
     {
-        private readonly IVpnTenantIpNetworkOutDirector _director;
-        private readonly IVpnTenantIpNetworkOutUpdateDirector _updateDirector;
 
-        public VpnTenantIpNetworkOutService(IUnitOfWork unitOfWork, IVpnTenantIpNetworkOutDirector director,
-            IVpnTenantIpNetworkOutUpdateDirector updateDirector) : base(unitOfWork)
+        public VpnTenantIpNetworkOutService(IUnitOfWork unitOfWork) : base(unitOfWork)
         {
-            _director = director;
-            _updateDirector = updateDirector;
         }
 
         /// <summary>
@@ -85,14 +80,6 @@ namespace SCM.Services
             return await GetByIDAsync(vpnTenantIpNetworkOut.VpnTenantIpNetworkOutID, deep: true, asTrackable: false);
         }
 
-        public async Task<VpnTenantIpNetworkOut> AddAsync(int attachmentSetId, VpnTenantIpNetworkOutRequest request)
-        {
-            var vpnTenantIpNetworkOut = await _director.BuildAsync(attachmentSetId, request);
-            this.UnitOfWork.VpnTenantIpNetworkOutRepository.Insert(vpnTenantIpNetworkOut);
-            await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(vpnTenantIpNetworkOut.VpnTenantIpNetworkOutID, deep: true, asTrackable: false);
-        }
-
         /// <summary>
         /// TO-BE-REMOVED
         /// </summary>
@@ -103,13 +90,6 @@ namespace SCM.Services
             this.UnitOfWork.VpnTenantIpNetworkOutRepository.Update(vpnTenantIpNetworkOut);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(vpnTenantIpNetworkOut.VpnTenantIpNetworkOutID, deep: true, asTrackable: false);
-        }
-
-        public async Task<VpnTenantIpNetworkOut> UpdateAsync(int vpnTenantIpNetworkOutId, VpnTenantIpNetworkOutUpdate update)
-        {
-            await _updateDirector.UpdateAsync(vpnTenantIpNetworkOutId, update);
-            await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(vpnTenantIpNetworkOutId, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int vpnTenantIpNetworkOutId)

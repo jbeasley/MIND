@@ -128,8 +128,8 @@ namespace Mind.Api.Controllers
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
         [Route("v{version:apiVersion}/tenants/{tenantId}")]
-        [ValidateTenantExists]
         [ValidateModelState]
+        [ValidateTenantExists]
         [SwaggerOperation("DeleteTenant")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]

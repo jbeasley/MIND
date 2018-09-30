@@ -72,9 +72,15 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVifBuilder WithExistingRoutingInstance(string existingRoutingInstanceName)
+        public virtual IVifBuilder UseExistingRoutingInstance(string existingRoutingInstanceName)
         {
-            if (!string.IsNullOrEmpty(existingRoutingInstanceName)) _args.Add(nameof(WithExistingRoutingInstance), existingRoutingInstanceName);
+            if (!string.IsNullOrEmpty(existingRoutingInstanceName)) _args.Add(nameof(UseExistingRoutingInstance), existingRoutingInstanceName);
+            return this;
+        }
+
+        public virtual IVifBuilder UseDefaultRoutingInstance(bool? useDefaultRoutingInstance)
+        {
+            if (useDefaultRoutingInstance.HasValue) _args.Add(nameof(UseDefaultRoutingInstance), useDefaultRoutingInstance);
             return this;
         }
 
@@ -98,9 +104,9 @@ namespace Mind.Builders
 
         public async virtual Task<Vif> BuildAsync()
         {
-            await SetAttachmentAsync();
-            await SetTenantAsync();
-            await SetVifRoleAsync();
+            if (_args.ContainsKey(nameof(ForAttachment))) await SetAttachmentAsync();
+            if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
+            if (_args.ContainsKey(nameof(WithVifRole))) await SetVifRoleAsync();
             if (_args.ContainsKey(nameof(WithContractBandwidth)))
             {
                 await CreateContractBandwidthPoolAsync();
@@ -122,7 +128,11 @@ namespace Mind.Builders
                 await AutoAllocateVlanTagAsync();
             }
 
-            if (_args.ContainsKey(nameof(WithExistingRoutingInstance))) 
+            if (_args.ContainsKey(nameof(UseDefaultRoutingInstance)))
+            {
+                await AssociateDefaultRoutingInstanceAsync();
+            }
+            else if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
             {
                 await AssociateExistingRoutingInstanceAsync();
             }
@@ -236,7 +246,9 @@ namespace Mind.Builders
             var contractBandwidthPool = new ContractBandwidthPool
             {
                 ContractBandwidthID = contractBandwidth.ContractBandwidthID,
-                TenantID = _vif.Tenant.TenantID,
+
+                // Tenant may not be present if, for example, the vif is for a tenant domain attachment
+                TenantID = _vif.Tenant?.TenantID,
                 Name = Guid.NewGuid().ToString("N")         
             };
 
@@ -295,7 +307,7 @@ namespace Mind.Builders
 
         protected internal virtual async Task AssociateExistingRoutingInstanceAsync()
         {
-            var routingInstanceName = _args[nameof(WithExistingRoutingInstance)].ToString();
+            var routingInstanceName = _args[nameof(UseExistingRoutingInstance)].ToString();
 
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                                         x => 
@@ -311,17 +323,32 @@ namespace Mind.Builders
             _vif.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }
 
+        protected internal virtual async Task AssociateDefaultRoutingInstanceAsync()
+        {
+            var defaultRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                                    x =>
+                                           x.DeviceID == _vif.Attachment.Device.DeviceID &&
+                                           x.RoutingInstanceType.IsDefault,
+                                           AsTrackable: true)
+                                          select routingInstances)
+                                           .SingleOrDefault();
+
+            _vif.RoutingInstance = defaultRoutingInstance ?? throw new BuilderUnableToCompleteException("Could not find the default routing " +
+                $"instance for device '{_vif.Attachment.Device.Name}'. Please report this issue to your system administrator.");
+        }
+
         protected internal virtual void CreateVlans()
         {
-            var ipv4AddressesAndMasks = (List<Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
+            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses = null;
+            if (_args.ContainsKey(nameof(WithIpv4))) ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
 
-           (from iface in _vif.Attachment.Interfaces
+            (from iface in _vif.Attachment.Interfaces
             select iface)
             .ToList()
             .ForEach(
                x =>
                 {
-                    var ipv4AddressAndMask = ipv4AddressesAndMasks.FirstOrDefault();
+                    var ipv4AddressAndMask = ipv4Addresses?.FirstOrDefault();
                     _vif.Vlans.Add(new Vlan
                     {
                         Interface = x,
@@ -329,7 +356,7 @@ namespace Mind.Builders
                         SubnetMask = ipv4AddressAndMask?.SubnetMask                   
                     });
 
-                    if (ipv4AddressAndMask != null) ipv4AddressesAndMasks.Remove(ipv4AddressAndMask);
+                    if (ipv4AddressAndMask != null) ipv4Addresses.Remove(ipv4AddressAndMask);
                 });
         }
 

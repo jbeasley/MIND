@@ -91,7 +91,7 @@ namespace Mind.Api.Models
         /// Denotes whether the static route is associated with all routing instances which belong to the attachment set instead of a 
         /// specific routing instance.
         /// </summary>
-        /// <value>Boolean value denoting whether the static route is associated with all routing instances in the attachment set./value>
+        /// <value>Boolean value denoting whether the static route is associated with all routing instances in the attachment set</value>
         /// <example>200</example>
         [DataMember(Name = "associatedWithAllRoutingInstances")]
         public bool? AssociatedWithAllRoutingInstances { get; private set; }

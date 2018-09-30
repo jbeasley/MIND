@@ -188,7 +188,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(this.ModelState);
             }
 
-            catch (DbUpdateException)
+            catch (DbUpdateException ex)
             {
                 return new DatabaseUpdateFailedResult();
             }
@@ -199,6 +199,7 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <remarks>Returns a single attachment set</remarks>
         /// <param name="attachmentSetId">ID of the attachment set</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]

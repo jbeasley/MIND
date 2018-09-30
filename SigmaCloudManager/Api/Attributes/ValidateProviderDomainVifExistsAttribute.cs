@@ -40,7 +40,8 @@ namespace Mind.Api.Attributes
                 var vifId = context.ActionArguments["vifId"] as int?;
                
                 if ((from result in await _unitOfWork.VifRepository.GetAsync(q =>
-                        q.VifID == vifId,
+                        q.VifID == vifId &&
+                        q.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing,
                         AsTrackable: false)
                         select result)
                        .SingleOrDefault() == null)

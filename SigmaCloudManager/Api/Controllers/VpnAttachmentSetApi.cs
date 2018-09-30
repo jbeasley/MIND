@@ -232,6 +232,7 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <remarks>Returns all vpn attachment sets for a given vpn</remarks>
         /// <param name="vpnId">ID of the vpn</param>
+        /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]

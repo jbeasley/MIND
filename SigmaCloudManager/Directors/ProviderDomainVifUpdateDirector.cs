@@ -7,20 +7,18 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class ProviderDomainVifUpdateDirector : IProviderDomainVifUpdateDirector
+    public class TenantDomainVifUpdateDirector : ITenantDomainVifUpdateDirector
     {
         private readonly IVifUpdateBuilder _builder;
 
-        public ProviderDomainVifUpdateDirector(IVifUpdateBuilder builder)
+        public TenantDomainVifUpdateDirector(IVifUpdateBuilder builder)
         {
             _builder = builder;
         }
 
-        public async Task<SCM.Models.Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.ProviderDomainVifUpdate update)
+        public async Task<SCM.Models.Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.TenantDomainVifUpdate update)
         {
             return await _builder.ForVif(vifId)
-                                 .WithNewRoutingInstance(update.CreateNewRoutingInstance)
-                                 .WithExistingRoutingInstance(update.ExistingRoutingInstanceName)
                                  .WithContractBandwidth(update.ContractBandwidthMbps)
                                  .WithExistingContractBandwidthPool(update.ExistingContractBandwidthPoolName)
                                  .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)

@@ -100,9 +100,8 @@ namespace Mind.Builders
             var routingInstance = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(q =>
                                   q.Name == routingInstanceName
                                   && q.RoutingInstanceType.IsTenantFacingVrf,
-                                  query: q => 
-                                         q.Include(x => x.RoutingInstanceType)
-                                          .Include(x => x.Device.Location.SubRegion.Region))
+                                  query: q => q.IncludeValidationProperties(),
+                                  AsTrackable: true)
                                    select result)
                                   .SingleOrDefault();
 

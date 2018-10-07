@@ -15,6 +15,8 @@ namespace SCM.Models
         public static IQueryable<TenantIpNetwork> IncludeValidationProperties(this IQueryable<TenantIpNetwork> query)
         {
             return query.Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.AttachmentSet.VpnAttachmentSets)
+                        .ThenInclude(x => x.Vpn.ExtranetVpns)
                         .Include(x => x.VpnTenantIpNetworksOut)
                         .Include(x => x.VpnTenantIpNetworkRoutingInstancePoliciesIn)
                         .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes);
@@ -145,7 +147,7 @@ namespace SCM.Models
             .ToList()
             .ForEach(
                 x =>
-                    sb.Append($"Tenant IP network '{x.TenantIpNetwork.CidrName}' " +
+                    sb.Append($"Tenant IP network '{this.CidrName}' " +
                     $"cannot be deleted because it is used in the inbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
                 );
 
@@ -154,7 +156,7 @@ namespace SCM.Models
             .ToList()
             .ForEach(
                 x =>
-                    sb.Append($"Tenant IP network '{x.TenantIpNetwork.CidrName}' " +
+                    sb.Append($"Tenant IP network '{this.CidrName}' " +
                     $"cannot be deleted because it is used in the outbound policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
                 );
 
@@ -163,7 +165,7 @@ namespace SCM.Models
             .ToList()
             .ForEach(
                 x =>
-                    sb.Append($"Tenant IP network '{x.TenantIpNetwork.CidrName}' " +
+                    sb.Append($"Tenant IP network '{this.CidrName}' " +
                     $"cannot be deleted because it is used in the routing instance policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
                 );
 
@@ -172,7 +174,7 @@ namespace SCM.Models
             .ToList()
             .ForEach(
                 x =>
-                    sb.Append($"Tenant IP network '{x.TenantIpNetwork.CidrName}' " +
+                    sb.Append($"Tenant IP network '{this.CidrName}' " +
                     $"cannot be deleted because it is used in the static routing policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
                 );
         }

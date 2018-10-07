@@ -57,7 +57,7 @@ namespace Mind.Api.Models
         /// The role of the device
         /// </summary>
         /// <value>A string denoting the role of the device</value>
-        /// <example>PE</example>
+        /// <example>CPE</example>
         [DataMember(Name = "deviceRole")]
         [Required]
         public string DeviceRole { get; set; }
@@ -66,7 +66,7 @@ namespace Mind.Api.Models
         /// The location of the device
         /// </summary>
         /// <value>A string denoting the location of the device</value>
-        /// <example>UK2</example>
+        /// <example>DTC</example>
         [Required]
         [DataMember(Name="locationName")]
         public string LocationName { get; set; }

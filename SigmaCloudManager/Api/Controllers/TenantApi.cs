@@ -37,7 +37,7 @@ namespace Mind.Api.Controllers
     /// API for creating and managing the lifecycle of tenants.
     /// </summary>
     [ApiVersion("1.0")]
-    [ApiExplorerSettings(GroupName = "Tenant API")]
+    [ApiExplorerSettings(GroupName = "Tenants")]
     public class TenantApiController : BaseApiController
     {
         private readonly ITenantService _tenantService;
@@ -63,6 +63,7 @@ namespace Mind.Api.Controllers
         [Route("v{version:apiVersion}/tenants")]
         [ValidateModelState]
         [ValidateTenantNotExists]
+        [SwaggerOperation(Tags = new[] { "Tenant API"})]
         [SwaggerResponse(statusCode: 201, type: typeof(Tenant), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]

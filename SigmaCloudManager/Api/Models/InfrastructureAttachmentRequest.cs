@@ -22,109 +22,70 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for requesting an infrastructure attachment
     /// </summary>
     [DataContract]
     public partial class InfrastructureAttachmentRequest : IEquatable<InfrastructureAttachmentRequest>
     { 
         /// <summary>
-        /// Determines if the attachment is enabled for layer 3
-        /// </summary>
-        /// <value>Determines if the attachment is enabled for layer 3</value>
-        [DataMember(Name="isLayer3")]
-        public bool? IsLayer3 { get; set; }
-
-        /// <summary>
         /// Determines if a bundle style of attachment is required
         /// </summary>
-        /// <value>Determines if a bundle style of attachment is required</value>
+        /// <value>Boolean value which denotes if a bundle style of attachment is required</value>
+        /// <example>true</example>
         [DataMember(Name="bundleRequired")]
         public bool? BundleRequired { get; set; }
 
         /// <summary>
-        /// Determines if a multi port style of attachment is required
+        /// The minimum number of active links in a bundle attachment
         /// </summary>
-        /// <value>Determines if a multi port style of attachment is required</value>
-        [DataMember(Name="multiportRequired")]
-        public bool? MultiportRequired { get; set; }
+        /// <value>Integer value which specifies the minimum links in the bundle</value>
+        /// <example>2</example>
+        [DataMember(Name = "bundleMinLinks")]
+        [Range(1,8)]
+        public int? BundleMinLinks { get; set; }
 
         /// <summary>
-        /// Determines if the attachment should be enabled for tagging
+        /// The maximum number of active links in a bundle attachment
         /// </summary>
-        /// <value>Determines if the attachment should be enabled for tagging</value>
-        [DataMember(Name="isTagged")]
-        public bool? IsTagged { get; set; }
+        /// <value>Integer value which specifies the maximum links in the bundle</value>
+        /// <example>2</example>
+        [DataMember(Name = "bundleMaxLinks")]
+        [Range(1, 8)]
+        public int? BundleMaxLinks { get; set; }
 
         /// <summary>
-        /// Name of the device to which the attachment will be assigned
+        /// The name of a port pool from which ports for the new attachment will be allocated from
         /// </summary>
-        /// <value>Name of the device to which the attachment will be assigned</value>
+        /// <value>String value denoting the name of a port pool</value>
+        /// <example>Core</example>
         [Required]
-        [DataMember(Name="deviceName")]
-        public string DeviceName { get; set; }
+        [DataMember(Name = "portPoolName")]
+        public string PortPoolName { get; set; }
+
+        /// <summary>
+        /// The name of an attachment role which sets certain constraints on how the attachment must be configuted
+        /// </summary>
+        /// <value>String value denoting the name of an attachment role</value>
+        /// <example>PE-P</example>
+        [Required]
+        [DataMember(Name = "attachmentRoleName")]
+        public string AttachmentRoleName { get; set; }
 
         /// <summary>
         /// The required bandwidth of the attachment in Gbps
         /// </summary>
-        /// <value>The required bandwidth of the attachment in Gbps</value>
+        /// <value>Integer value denoting the required attachment bandwidth in Gbps</value>
+        /// <example>10</example>
         [DataMember(Name="attachmentBandwidthGbps")]
+        [Required]
         public int? AttachmentBandwidthGbps { get; set; }
 
         /// <summary>
-        /// IPv4 address assigned to the first connection in the attachment
+        /// A list of IPv4 addresses to be assigned to the interfaces of the attachment.
         /// </summary>
-        /// <value>IPv4 address assigned to the first connection in the attachment</value>
-        [DataMember(Name="IpAddress1")]
-        public string IpAddress1 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the first connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the first connection in the attachment</value>
-        [DataMember(Name="SubnetMask1")]
-        public string SubnetMask1 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the second connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the second connection in the attachment</value>
-        [DataMember(Name="IpAddress2")]
-        public string IpAddress2 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the second connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the second connection in the attachment</value>
-        [DataMember(Name="SubnetMask2")]
-        public string SubnetMask2 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the third connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the third connection in the attachment</value>
-        [DataMember(Name="IpAddress3")]
-        public string IpAddress3 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the third connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the third connection in the attachment</value>
-        [DataMember(Name="SubnetMask3")]
-        public string SubnetMask3 { get; set; }
-
-        /// <summary>
-        /// IPv4 address assigned to the fourth connection in the attachment
-        /// </summary>
-        /// <value>IPv4 address assigned to the fourth connection in the attachment</value>
-        [DataMember(Name="IpAddress4")]
-        public string IpAddress4 { get; set; }
-
-        /// <summary>
-        /// IPv4 subnet mask assigned to the fourth connection in the attachment
-        /// </summary>
-        /// <value>IPv4 subnet mask assigned to the fourth connection in the attachment</value>
-        [DataMember(Name="SubnetMask4")]
-        public string SubnetMask4 { get; set; }
+        /// <value>A list of Ipv4AddressAndMask objcets</value>
+        [DataMember(Name="ipv4Addresses")]
+        public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -133,21 +94,14 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class InfrastructureAttachmentRequest {\n");
-            sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
+            sb.Append("class InfrastructureAtachmentRequest {\n");
             sb.Append("  BundleRequired: ").Append(BundleRequired).Append("\n");
-            sb.Append("  MultiportRequired: ").Append(MultiportRequired).Append("\n");
-            sb.Append("  IsTagged: ").Append(IsTagged).Append("\n");
-            sb.Append("  DeviceName: ").Append(DeviceName).Append("\n");
+            sb.Append("  BundleMinLinks: ").Append(BundleMinLinks).Append("\n");
+            sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
+            sb.Append("  PortPoolName: ").Append(PortPoolName).Append("\n");
+            sb.Append("  AttachmentRoleName: ").Append(AttachmentRoleName).Append("\n");
             sb.Append("  AttachmentBandwidthGbps: ").Append(AttachmentBandwidthGbps).Append("\n");
-            sb.Append("  IpAddress1: ").Append(IpAddress1).Append("\n");
-            sb.Append("  SubnetMask1: ").Append(SubnetMask1).Append("\n");
-            sb.Append("  IpAddress2: ").Append(IpAddress2).Append("\n");
-            sb.Append("  SubnetMask2: ").Append(SubnetMask2).Append("\n");
-            sb.Append("  IpAddress3: ").Append(IpAddress3).Append("\n");
-            sb.Append("  SubnetMask3: ").Append(SubnetMask3).Append("\n");
-            sb.Append("  IpAddress4: ").Append(IpAddress4).Append("\n");
-            sb.Append("  SubnetMask4: ").Append(SubnetMask4).Append("\n");
+            sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -183,76 +137,41 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
-                (
-                    IsLayer3 == other.IsLayer3 ||
-                    IsLayer3 != null &&
-                    IsLayer3.Equals(other.IsLayer3)
-                ) && 
+            return
                 (
                     BundleRequired == other.BundleRequired ||
                     BundleRequired != null &&
                     BundleRequired.Equals(other.BundleRequired)
-                ) && 
+                ) &&
                 (
-                    MultiportRequired == other.MultiportRequired ||
-                    MultiportRequired != null &&
-                    MultiportRequired.Equals(other.MultiportRequired)
-                ) && 
+                    BundleMinLinks == other.BundleMinLinks ||
+                    BundleMinLinks != null &&
+                    BundleMinLinks.Equals(other.BundleMinLinks)
+                ) &&
                 (
-                    IsTagged == other.IsTagged ||
-                    IsTagged != null &&
-                    IsTagged.Equals(other.IsTagged)
-                ) && 
+                    BundleMaxLinks == other.BundleMaxLinks ||
+                    BundleMaxLinks != null &&
+                    BundleMaxLinks.Equals(other.BundleMaxLinks)
+                ) &&
                 (
-                    DeviceName == other.DeviceName ||
-                    DeviceName != null &&
-                    DeviceName.Equals(other.DeviceName)
-                ) && 
+                    PortPoolName == other.PortPoolName ||
+                    PortPoolName != null &&
+                    PortPoolName.Equals(other.PortPoolName)
+                ) &&
+                (
+                    AttachmentRoleName == other.AttachmentRoleName ||
+                    AttachmentRoleName != null &&
+                    AttachmentRoleName.Equals(other.AttachmentRoleName)
+                ) &&
                 (
                     AttachmentBandwidthGbps == other.AttachmentBandwidthGbps ||
                     AttachmentBandwidthGbps != null &&
                     AttachmentBandwidthGbps.Equals(other.AttachmentBandwidthGbps)
-                ) && 
+                ) &&
                 (
-                    IpAddress1 == other.IpAddress1 ||
-                    IpAddress1 != null &&
-                    IpAddress1.Equals(other.IpAddress1)
-                ) && 
-                (
-                    SubnetMask1 == other.SubnetMask1 ||
-                    SubnetMask1 != null &&
-                    SubnetMask1.Equals(other.SubnetMask1)
-                ) && 
-                (
-                    IpAddress2 == other.IpAddress2 ||
-                    IpAddress2 != null &&
-                    IpAddress2.Equals(other.IpAddress2)
-                ) && 
-                (
-                    SubnetMask2 == other.SubnetMask2 ||
-                    SubnetMask2 != null &&
-                    SubnetMask2.Equals(other.SubnetMask2)
-                ) && 
-                (
-                    IpAddress3 == other.IpAddress3 ||
-                    IpAddress3 != null &&
-                    IpAddress3.Equals(other.IpAddress3)
-                ) && 
-                (
-                    SubnetMask3 == other.SubnetMask3 ||
-                    SubnetMask3 != null &&
-                    SubnetMask3.Equals(other.SubnetMask3)
-                ) && 
-                (
-                    IpAddress4 == other.IpAddress4 ||
-                    IpAddress4 != null &&
-                    IpAddress4.Equals(other.IpAddress4)
-                ) && 
-                (
-                    SubnetMask4 == other.SubnetMask4 ||
-                    SubnetMask4 != null &&
-                    SubnetMask4.Equals(other.SubnetMask4)
+                    Ipv4Addresses == other.Ipv4Addresses ||
+                    Ipv4Addresses != null &&
+                    Ipv4Addresses.Equals(other.Ipv4Addresses)
                 );
         }
 
@@ -266,34 +185,20 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (IsLayer3 != null)
-                    hashCode = hashCode * 59 + IsLayer3.GetHashCode();
                     if (BundleRequired != null)
                     hashCode = hashCode * 59 + BundleRequired.GetHashCode();
-                    if (MultiportRequired != null)
-                    hashCode = hashCode * 59 + MultiportRequired.GetHashCode();
-                    if (IsTagged != null)
-                    hashCode = hashCode * 59 + IsTagged.GetHashCode();
-                    if (DeviceName != null)
-                    hashCode = hashCode * 59 + DeviceName.GetHashCode();
+                    if (BundleMinLinks != null)
+                    hashCode = hashCode * 59 + BundleMinLinks.GetHashCode();
+                    if (BundleMaxLinks != null)
+                    hashCode = hashCode * 59 + BundleMaxLinks.GetHashCode();
+                    if (PortPoolName != null)
+                    hashCode = hashCode * 59 + PortPoolName.GetHashCode();
+                    if (AttachmentRoleName != null)
+                    hashCode = hashCode * 59 + AttachmentRoleName.GetHashCode();
                     if (AttachmentBandwidthGbps != null)
                     hashCode = hashCode * 59 + AttachmentBandwidthGbps.GetHashCode();
-                    if (IpAddress1 != null)
-                    hashCode = hashCode * 59 + IpAddress1.GetHashCode();
-                    if (SubnetMask1 != null)
-                    hashCode = hashCode * 59 + SubnetMask1.GetHashCode();
-                    if (IpAddress2 != null)
-                    hashCode = hashCode * 59 + IpAddress2.GetHashCode();
-                    if (SubnetMask2 != null)
-                    hashCode = hashCode * 59 + SubnetMask2.GetHashCode();
-                    if (IpAddress3 != null)
-                    hashCode = hashCode * 59 + IpAddress3.GetHashCode();
-                    if (SubnetMask3 != null)
-                    hashCode = hashCode * 59 + SubnetMask3.GetHashCode();
-                    if (IpAddress4 != null)
-                    hashCode = hashCode * 59 + IpAddress4.GetHashCode();
-                    if (SubnetMask4 != null)
-                    hashCode = hashCode * 59 + SubnetMask4.GetHashCode();
+                    if (Ipv4Addresses != null)
+                    hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
                 return hashCode;
             }
         }

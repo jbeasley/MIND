@@ -17,7 +17,11 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 {
+    /// <summary>
+    /// Create and manage the lifecycle of attachment set static routes
+    /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Provider Domain Tenant IP Network Static Routing")]
     public class TenantAttachmentSetIpNetworkStaticRouteApiController : BaseApiController
     {
         private readonly IVpnTenantIpNetworkRoutingInstanceStaticRouteService _vpnTenantIpNetworkRoutingInstanceStaticRouteService;

@@ -271,7 +271,7 @@ namespace SCM.Controllers
 
                 if (TenantCommunityValidator.ValidationDictionary.IsValid)
                 {
-                    await TenantCommunityService.DeleteAsync(Mapper.Map<TenantCommunity>(tenantCommunityModel));
+                    await TenantCommunityService.DeleteAsync(tenantCommunityModel.TenantCommunityID);
                     return RedirectToAction("GetAllByTenantID", new
                     {
                         id = tenantCommunityModel.TenantID

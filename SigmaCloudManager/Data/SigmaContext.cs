@@ -438,10 +438,10 @@ namespace SCM.Data
             .HasIndex(p => new { p.TenantIpNetworkID, p.AttachmentSetID }).IsUnique();
 
             builder.Entity<VpnTenantCommunityIn>()
-            .HasIndex(p => new { p.TenantCommunityID, p.AttachmentSetID }).IsUnique();
+            .HasIndex(p => new { p.TenantCommunityID, p.AttachmentSetID, p.AddToAllBgpPeersInAttachmentSet, p.BgpPeerID }).IsUnique().HasFilter(null);
 
             builder.Entity<VpnTenantCommunityOut>()
-            .HasIndex(p => new { p.TenantCommunityID, p.AttachmentSetID }).IsUnique();
+            .HasIndex(p => new { p.TenantCommunityID, p.AttachmentSetID, p.BgpPeerID }).IsUnique().HasFilter(null);
 
             builder.Entity<VpnTenantCommunityRoutingInstance>()
             .HasIndex(p => new { p.TenantCommunityID, p.AttachmentSetID }).IsUnique();

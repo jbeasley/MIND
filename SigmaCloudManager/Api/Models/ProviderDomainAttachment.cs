@@ -152,6 +152,16 @@ namespace Mind.Api.Models
         public int? Mtu { get; private set; }
 
         /// <summary>
+        /// The name of an attachment role
+        /// </summary>
+        /// <value>String value denoting the name of an attachment role</value>
+        /// <example>PE-CE-UNTAGGED</example>
+        [Required]
+        [DataMember(Name = "AttachmentRoleName")]
+        public string AttachmentRoleName { get; set; }
+
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -174,6 +184,7 @@ namespace Mind.Api.Models
             sb.Append("  ContractBandwidthPool: ").Append(ContractBandwidthPool).Append("\n");
             sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
             sb.Append("  Mtu: ").Append(Mtu).Append("\n");
+            sb.Append("  AttachmentRoleName: ").Append(AttachmentRoleName).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -284,6 +295,11 @@ namespace Mind.Api.Models
                     Mtu == other.Mtu ||
                     Mtu != null &&
                     Mtu.Equals(other.Mtu)
+                ) &&
+                (
+                    AttachmentRoleName == other.AttachmentRoleName ||
+                    AttachmentRoleName != null &&
+                    AttachmentRoleName.Equals(other.AttachmentRoleName)
                 );
         }
 
@@ -327,6 +343,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + RoutingInstance.GetHashCode();
                     if (Mtu != null)
                     hashCode = hashCode * 59 + Mtu.GetHashCode();
+                    if (AttachmentRoleName != null)
+                    hashCode = hashCode * 59 + AttachmentRoleName.GetHashCode();
                 return hashCode;
             }
         }

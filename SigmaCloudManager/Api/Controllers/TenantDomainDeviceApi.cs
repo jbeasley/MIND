@@ -38,6 +38,7 @@ namespace Mind.Api.Controllers
     /// i.e. devices which exist within the tenant domain
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Tenant Domain Devices")]
     public class TenantDomainDeviceApiController : BaseApiController
     { 
         private readonly ITenantDomainDeviceService _tenantDomainDeviceService;
@@ -144,7 +145,7 @@ namespace Mind.Api.Controllers
         /// Find a tenant domain device by ID
         /// </summary>
         /// <remarks>Returns a single tenant domain device</remarks>
-        /// <param name="tenantId">ID of the tenant/param>
+        /// <param name="tenantId">ID of the tenant</param>
         /// <param name="deviceId">ID of the device</param>
         /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>

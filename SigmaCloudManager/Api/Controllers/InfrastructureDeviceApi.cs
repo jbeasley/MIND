@@ -37,6 +37,7 @@ namespace Mind.Api.Controllers
     /// Create and manage the lifecycle of infrastructure devices
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Infrastructure Devices")]
     public class InfrastructureDeviceApiController : BaseApiController
     { 
         private readonly IInfrastructureDeviceService _infrastructureDeviceService;

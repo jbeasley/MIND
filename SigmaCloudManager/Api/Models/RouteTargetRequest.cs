@@ -40,7 +40,7 @@ namespace Mind.Api.Models
         /// A requested assigned-number subfield value. The route target will be assigned this value if it is available within the specified range.
         /// </summary>
         /// <value>Integer value for the requested value of the assigned number subfield</value>
-        /// <example></example>
+        /// <example>9991</example>
         [Range(1, 4294967295)]
         [DataMember(Name ="assignedNumberSubField")]
         public int? AssignedNumberSubField { get; set; }

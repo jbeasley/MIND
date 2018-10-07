@@ -17,7 +17,11 @@ using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
 {
+    /// <summary>
+    /// Create and manage the lifecycle of attachment set inbound policy for IP networks
+    /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Provider Domain Tenant IP Network Inbound Policy")]
     public class TenantAttachmentSetInboundPolicyIpNetworkApiController : BaseApiController
     {
         private readonly IProviderDomainIpNetworkInboundPolicyService _providerDomainIpNetworkInboundPolicyService;

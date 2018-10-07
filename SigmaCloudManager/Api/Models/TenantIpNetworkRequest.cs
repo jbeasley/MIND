@@ -61,6 +61,7 @@ namespace Mind.Api.Models
         /// The required IP routing behavior for traffic forwarding towards the tenant IP network
         /// </summary>
         /// <value>Enum member value denoting the required tenant ip routing behavior</value>
+        /// <example>BluePlane</example>
         [DataMember(Name = "tenantIpRoutingBehaviour")]
         [Required]
         public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; } = TenantIpRoutingBehaviourEnum.AnyPlane;
@@ -96,6 +97,7 @@ namespace Mind.Api.Models
             sb.Append("  Ipv4Prefix: ").Append(Ipv4Prefix).Append("\n");
             sb.Append("  Ipv4Length: ").Append(Ipv4Length).Append("\n");
             sb.Append("  Ipv4LessThanOrEqualToLength: ").Append(Ipv4LessThanOrEqualToLength).Append("\n");
+            sb.Append("  IpRoutingBehaviour: ").Append(IpRoutingBehaviour).Append("\n");
             sb.Append("  AllowExtranet: ").Append(AllowExtranet).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -132,12 +134,12 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     Ipv4Prefix == other.Ipv4Prefix ||
                     Ipv4Prefix != null &&
                     Ipv4Prefix.Equals(other.Ipv4Prefix)
-                ) && 
+                ) &&
                 (
                     Ipv4Length == other.Ipv4Length ||
                     Ipv4Length != null &&
@@ -152,6 +154,11 @@ namespace Mind.Api.Models
                     AllowExtranet == other.AllowExtranet ||
                     AllowExtranet != null &&
                     AllowExtranet.Equals(other.AllowExtranet)
+                ) &&
+                (
+                    IpRoutingBehaviour == other.IpRoutingBehaviour ||
+                    IpRoutingBehaviour != null &&
+                    IpRoutingBehaviour.Equals(other.IpRoutingBehaviour)
                 );
         }
 
@@ -173,6 +180,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Ipv4LessThanOrEqualToLength.GetHashCode();
                     if (AllowExtranet != null)
                     hashCode = hashCode * 59 + AllowExtranet.GetHashCode();
+                    if (IpRoutingBehaviour != null)
+                    hashCode = hashCode * 59 + IpRoutingBehaviour.GetHashCode();
                 return hashCode;
             }
         }

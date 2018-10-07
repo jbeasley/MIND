@@ -21,9 +21,10 @@ namespace Mind.Models.RequestModels
         public string TenantIpNetworkCidrName { get; set; }
 
         /// <summary>
-        /// Gets or Sets AddToAllBgpPeersInAttachmentSet
+        /// Denotes whether the tenant IP network should be added to the inbound policy of all BGP peers in the attachment set
         /// </summary>
-        /// <value>Boolean denoting whether the tenant IP network should be registered against all BGP peers that exist within the attachment set</value>
+        /// <value>Boolean denoting whether the tenant IP network should be registered against all BGP peers that exist within 
+        /// the attachment set</value>
         public bool? AddToAllBgpPeersInAttachmentSet { get; set; }
 
         /// <summary>

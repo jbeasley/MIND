@@ -8,8 +8,8 @@ namespace Mind.Builders
 {
     public class TenantIpNetworkUpdateDirector : ITenantIpNetworkUpdateDirector
     {
-        private readonly ITenantIpNetworkUpdateBuilder _builder;
-        public TenantIpNetworkUpdateDirector(ITenantIpNetworkUpdateBuilder builder)
+        private readonly ITenantIpNetworkBuilder _builder;
+        public TenantIpNetworkUpdateDirector(ITenantIpNetworkBuilder builder)
         {
             _builder = builder;
         }
@@ -22,7 +22,7 @@ namespace Mind.Builders
                                  .WithIpv4LessThanOrEqualToLength(request.Ipv4LessThanOrEqualToLength)
                                  .WithAllowExtranet(request.AllowExtranet)
                                  .WithIpRoutingBehaviour(request.IpRoutingBehaviour.ToString())
-                                 .UpdateAsync();
+                                 .BuildAsync();
         }
     }
 }

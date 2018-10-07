@@ -71,23 +71,23 @@ namespace Mind
             services.AddSignalR();
 
             // Add framework services.
-            services.AddMvc()
-                .AddJsonOptions(o =>
-                {
-                    o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
-                    o.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
-                    o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
-                    o.SerializerSettings.Converters.Add(new StringEnumConverter
-                    {
-                        CamelCaseText = true
-                    });
-                });
+            services.AddMvc();
 
             services.AddMvcCore()
                     .AddVersionedApiExplorer(o =>
                     {
                         o.GroupNameFormat = "'v'VVV";
                         o.SubstituteApiVersionInUrl = true;
+                    })
+                    .AddJsonOptions(o =>
+                    {
+                        o.SerializerSettings.ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore;
+                        o.SerializerSettings.NullValueHandling = NullValueHandling.Ignore;
+                        o.SerializerSettings.ContractResolver = new CamelCasePropertyNamesContractResolver();
+                        o.SerializerSettings.Converters.Add(new StringEnumConverter
+                        {
+                            CamelCaseText = true
+                        });
                     });
 
             services.AddApiVersioning(o =>
@@ -104,6 +104,7 @@ namespace Mind
                   var provider = services.BuildServiceProvider()
                                 .GetRequiredService<IApiVersionDescriptionProvider>();
 
+                  options.TagActionsBy(api => api.GroupName);
                   foreach ( var description in provider.ApiVersionDescriptions)
                   {
                       options.SwaggerDoc(
@@ -123,9 +124,10 @@ namespace Mind
                       });
                   }
 
-                  options.OperationFilter<SwaggerDefaultValues>();
                   var filePath = Path.Combine(System.AppContext.BaseDirectory, "Mind.xml");
                   options.IncludeXmlComments(filePath, true);
+                  options.OperationFilter<TagByApiExplorerSettingsOperationFilter>();
+                  options.DocumentFilter<TagDescriptionsDocumentFilter>();
               }
             );
 
@@ -264,15 +266,26 @@ namespace Mind
             builder.RegisterType<ProviderDomainBgpPeerService>().As<IProviderDomainBgpPeerService>();
             builder.RegisterType<TenantDomainBgpPeerService>().As<ITenantDomainBgpPeerService>();
             builder.RegisterType<ProviderDomainIpNetworkInboundPolicyService>().As<IProviderDomainIpNetworkInboundPolicyService>();
+            builder.RegisterType<ProviderDomainCommunityInboundPolicyService>().As<IProviderDomainCommunityInboundPolicyService>();
             builder.RegisterType<TenantDomainIpNetworkInboundPolicyService>().As<ITenantDomainIpNetworkInboundPolicyService>();
+            builder.RegisterType<TenantDomainCommunityInboundPolicyService>().As<ITenantDomainCommunityInboundPolicyService>();
             builder.RegisterType<ProviderDomainIpNetworkOutboundPolicyService>().As<IProviderDomainIpNetworkOutboundPolicyService>();
+            builder.RegisterType<TenantDomainCommunityOutboundPolicyService>().As<ITenantDomainCommunityOutboundPolicyService>();
             builder.RegisterType<TenantDomainIpNetworkOutboundPolicyService>().As<ITenantDomainIpNetworkOutboundPolicyService>();
+            builder.RegisterType<ProviderDomainCommunityOutboundPolicyService>().As<IProviderDomainCommunityOutboundPolicyService>();
+            builder.RegisterType<InfrastructureAttachmentService>().As<IInfrastructureAttachmentService>();
 
             // Provider domain single attachment directors
             builder.RegisterType<ProviderDomainUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
                 .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedSingleAttachmentDirector");
             builder.RegisterType<ProviderDomainTaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
                 .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedSingleAttachmentDirector");
+
+            // Infrastructure single attachment directors
+            builder.RegisterType<InfrastructureUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IInfrastructureAttachmentDirector>()
+                .Keyed<IInfrastructureAttachmentDirector>("InfrastructureUntaggedSingleAttachmentDirector");
+            builder.RegisterType<InfrastructureTaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IInfrastructureAttachmentDirector>()
+                .Keyed<IInfrastructureAttachmentDirector>("InfrastructureTaggedSingleAttachmentDirector");
 
             // Provider domain bundle attachment directors
             builder.RegisterType<ProviderDomainUntaggedBundleAttachmentDirector>().As<IProviderDomainAttachmentDirector>()
@@ -291,6 +304,12 @@ namespace Mind
                 .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedSingleAttachmentUpdateDirector");
             builder.RegisterType<ProviderDomainTaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
                 .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedSingleAttachmentUpdateDirector");
+
+            //Infrastructure single attachment update directors
+            builder.RegisterType<InfrastructureUntaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IInfrastructureAttachmentUpdateDirector>()
+                .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedSingleAttachmentUpdateDirector");
+            builder.RegisterType<InfrastructureTaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IInfrastructureAttachmentUpdateDirector>()
+                .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedSingleAttachmentUpdateDirector");
 
             //Provider domain bundle attachment update directors
             builder.RegisterType<ProviderDomainUntaggedBundleAttachmentUpdateDirector>().As<IProviderDomainAttachmentUpdateDirector>()
@@ -344,18 +363,26 @@ namespace Mind
             // Provider domain inbound policy directors
             builder.RegisterType<ProviderDomainIpNetworkInboundPolicyDirector>().As<IProviderDomainIpNetworkInboundPolicyDirector>();
             builder.RegisterType<ProviderDomainIpNetworkInboundPolicyUpdateDirector>().As<IProviderDomainIpNetworkInboundPolicyUpdateDirector>();
+            builder.RegisterType<ProviderDomainCommunityInboundPolicyDirector>().As<IProviderDomainCommunityInboundPolicyDirector>();
+            builder.RegisterType<ProviderDomainCommunityInboundPolicyUpdateDirector>().As<IProviderDomainCommunityInboundPolicyUpdateDirector>();
 
             // Tenant domain inbound policy directors
             builder.RegisterType<TenantDomainIpNetworkInboundPolicyDirector>().As<ITenantDomainIpNetworkInboundPolicyDirector>();
             builder.RegisterType<TenantDomainIpNetworkInboundPolicyUpdateDirector>().As<ITenantDomainIpNetworkInboundPolicyUpdateDirector>();
+            builder.RegisterType<TenantDomainCommunityInboundPolicyDirector>().As<ITenantDomainCommunityInboundPolicyDirector>();
+            builder.RegisterType<TenantDomainCommunityInboundPolicyUpdateDirector>().As<ITenantDomainCommunityInboundPolicyUpdateDirector>();
 
             // Provider domain outbound policy directors
             builder.RegisterType<ProviderDomainIpNetworkOutboundPolicyDirector>().As<IProviderDomainIpNetworkOutboundPolicyDirector>();
             builder.RegisterType<ProviderDomainIpNetworkOutboundPolicyUpdateDirector>().As<IProviderDomainIpNetworkOutboundPolicyUpdateDirector>();
+            builder.RegisterType<ProviderDomainCommunityOutboundPolicyDirector>().As<IProviderDomainCommunityOutboundPolicyDirector>();
+            builder.RegisterType<ProviderDomainCommunityOutboundPolicyUpdateDirector>().As<IProviderDomainCommunityOutboundPolicyUpdateDirector>();
 
             // Tenant domain outbound policy directors
             builder.RegisterType<TenantDomainIpNetworkOutboundPolicyDirector>().As<ITenantDomainIpNetworkOutboundPolicyDirector>();
             builder.RegisterType<TenantDomainIpNetworkOutboundPolicyUpdateDirector>().As<ITenantDomainIpNetworkOutboundPolicyUpdateDirector>();
+            builder.RegisterType<TenantDomainCommunityOutboundPolicyDirector>().As<ITenantDomainCommunityOutboundPolicyDirector>();
+            builder.RegisterType<TenantDomainCommunityOutboundPolicyUpdateDirector>().As<ITenantDomainCommunityOutboundPolicyUpdateDirector>();
 
             // Provider domain vif directors
             builder.RegisterType<ProviderDomainVifDirector>().As<IProviderDomainVifDirector>();
@@ -385,6 +412,10 @@ namespace Mind
             builder.RegisterType<TenantIpNetworkDirector>().As<ITenantIpNetworkDirector>();
             builder.RegisterType<TenantIpNetworkUpdateDirector>().As<ITenantIpNetworkUpdateDirector>();
 
+            // Tenant community directors
+            builder.RegisterType<TenantCommunityDirector>().As<ITenantCommunityDirector>();
+            builder.RegisterType<TenantCommunityUpdateDirector>().As<ITenantCommunityUpdateDirector>();
+
             // VPN attachment set directors
             builder.RegisterType<VpnAttachmentSetDirector>().As<IVpnAttachmentSetDirector>();
             builder.RegisterType<VpnAttachmentSetUpdateDirector>().As<IVpnAttachmentSetUpdateDirector>();
@@ -406,6 +437,8 @@ namespace Mind
             builder.RegisterType<TenantDomainDeviceUpdateDirector>().As<ITenantDomainDeviceUpdateDirector>();
 
             // Director Factories
+
+            // Provider Domain Attachment Director Factory
             builder.Register<Func<SCM.Models.RequestModels.ProviderDomainAttachmentRequest, SCM.Models.AttachmentRole, IProviderDomainAttachmentDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -444,6 +477,38 @@ namespace Mind
                 };
             });
 
+            // Infrastructure Attachment Director Factory
+            builder.Register<Func<SCM.Models.RequestModels.InfrastructureAttachmentRequest, SCM.Models.AttachmentRole, IInfrastructureAttachmentDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (request, role) =>
+                {
+                    if (role.IsTaggedRole)
+                    {
+                        if (request.BundleRequired.HasValue && request.BundleRequired.Value)
+                        {
+                            return context.ResolveKeyed<IInfrastructureAttachmentDirector>("InfrastructureTaggedBundleAttachmentDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<IInfrastructureAttachmentDirector>("InfrastructureTaggedSingleAttachmentDirector");
+                        }
+                    }
+                    else
+                    {
+                        if (request.BundleRequired.HasValue && request.BundleRequired.Value)
+                        {
+                            return context.ResolveKeyed<IInfrastructureAttachmentDirector>("InfrastructureUntaggedBundleAttachmentDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<IInfrastructureAttachmentDirector>("InfrastructureUntaggedSingleAttachmentDirector");
+                        }
+                    }
+                };
+            });
+
+            // Tenant Domain Attachment Director Factory
             builder.Register<Func<SCM.Models.RequestModels.TenantDomainAttachmentRequest, SCM.Models.AttachmentRole, ITenantDomainAttachmentDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -482,7 +547,7 @@ namespace Mind
                 };
             });
 
-
+            // Routing Instance Director Factory
             builder.Register<Func<SCM.Models.RoutingInstanceType, IVrfRoutingInstanceDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -497,6 +562,7 @@ namespace Mind
                 };
             });
 
+            // Provider Domain Attachment Update Director Factory
             builder.Register<Func<SCM.Models.Attachment, IProviderDomainAttachmentUpdateDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -535,6 +601,8 @@ namespace Mind
                 };
             });
 
+
+            // Tenant Domain Attachment Update Director Factory
             builder.Register<Func<SCM.Models.Attachment, ITenantDomainAttachmentUpdateDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -573,6 +641,7 @@ namespace Mind
                 };
             });
 
+            // VPN Director Factory
             builder.Register<Func<Mind.Models.RequestModels.VpnRequest, IVpnDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -587,6 +656,7 @@ namespace Mind
                 };
             });
 
+            // VPN Update Director Factory
             builder.Register<Func<SCM.Models.Vpn, IVpnUpdateDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -621,6 +691,8 @@ namespace Mind
             builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();
             builder.RegisterType<TenantIpNetworkInboundPolicyBuilder>().As<ITenantIpNetworkInboundPolicyBuilder>();
             builder.RegisterType<TenantIpNetworkOutboundPolicyBuilder>().As<ITenantIpNetworkOutboundPolicyBuilder>();
+            builder.RegisterType<TenantCommunityInboundPolicyBuilder>().As<ITenantCommunityInboundPolicyBuilder>();
+            builder.RegisterType<TenantCommunityOutboundPolicyBuilder>().As<ITenantCommunityOutboundPolicyBuilder>();
             builder.RegisterType<VifBuilder>().As<IVifBuilder>();
             builder.RegisterType<VifUpdateBuilder>().As<IVifUpdateBuilder>();
             builder.RegisterType<IpVpnBuilder>().As<IIpVpnBuilder>();
@@ -628,7 +700,7 @@ namespace Mind
             builder.RegisterType<BgpPeerBuilder>().As<IBgpPeerBuilder>();
             builder.RegisterType<BgpPeerUpdateBuilder>().As<IBgpPeerUpdateBuilder>();
             builder.RegisterType<TenantIpNetworkBuilder>().As<ITenantIpNetworkBuilder>();
-            builder.RegisterType<TenantIpNetworkUpdateBuilder>().As<ITenantIpNetworkUpdateBuilder>();
+            builder.RegisterType<TenantCommunityBuilder>().As<ITenantCommunityBuilder>();
             builder.RegisterType<VpnAttachmentSetBuilder>().As<IVpnAttachmentSetBuilder>();
             builder.RegisterType<VpnAttachmentSetUpdateBuilder>().As<IVpnAttachmentSetUpdateBuilder>();
             builder.RegisterType<RoutingInstanceStaticRouteBuilder>().As<IRoutingInstanceStaticRouteBuilder>();

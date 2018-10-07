@@ -30,6 +30,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual ITenantIpNetworkBuilder ForTenantIpNetwork(int? tenantIpNetworkId)
+        {
+            if (tenantIpNetworkId.HasValue) _args.Add(nameof(ForTenantIpNetwork), tenantIpNetworkId);
+            return this;
+        }
+
         public virtual ITenantIpNetworkBuilder WithAllowExtranet(bool? allowExtranet)
         {
             if (allowExtranet.HasValue) _args.Add(nameof(WithAllowExtranet), allowExtranet);
@@ -63,6 +69,7 @@ namespace Mind.Builders
         public virtual async Task<TenantIpNetwork> BuildAsync()
         {
             if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
+            if (_args.ContainsKey(nameof(ForTenantIpNetwork))) await SetTenantIpNetworkAsync();
             if (_args.ContainsKey(nameof(WithIpv4Prefix)) && _args.ContainsKey(nameof(WithIpv4Length))) SetPrefixAndLength();
             if (_args.ContainsKey(nameof(WithIpv4Length))) _tenantIpNetwork.Ipv4Length = (int)_args[nameof(WithIpv4Length)];
             if (_args.ContainsKey(nameof(WithIpv4LessThanOrEqualToLength))) 
@@ -102,6 +109,21 @@ namespace Mind.Builders
             // e.g. - 10.1.1.0/16 becomes 10.1.0.0/16
             var network = IPNetwork.Parse($"{ipv4Prefix}/{ipv4Length}");
             _tenantIpNetwork.Ipv4Prefix = network.Network.ToString();
+        }
+
+        protected internal virtual async Task SetTenantIpNetworkAsync()
+        {
+            var tenantIpNetworkId = (int)_args[nameof(ForTenantIpNetwork)];
+            var tenantIpNetwork = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
+                                q =>
+                                   q.TenantIpNetworkID == tenantIpNetworkId,
+                                   query: x => x.IncludeValidationProperties(),
+                                   AsTrackable: true)
+                                   select result)
+                                   .SingleOrDefault();
+
+            _tenantIpNetwork = tenantIpNetwork ?? throw new BuilderBadArgumentsException($"The tenant IP network with ID '{tenantIpNetworkId}' " +
+                $"was not found.");
         }
     }
 }

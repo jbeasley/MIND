@@ -6,17 +6,16 @@ using SCM.Models;
 using SCM.Models.RequestModels;
 using SCM.Data;
 using System.Linq.Expressions;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
-    public interface IInfrastructureAttachmentService
+    public interface IInfrastructureAttachmentService: IBaseService
     {
-        IUnitOfWork UnitOfWork { get; }
-        Task<Attachment> GetByIDAsync(int id, bool includeProperties = true);
-        Task<IEnumerable<Attachment>> GetAllAsync(string searchString = "", bool includeProperties = true);
-        Task<ServiceResult> AddAsync(AttachmentRequest attachmentRequest);
-        Task<ServiceResult> UpdateAttachmentAsync(AttachmentUpdate update);
-        Task<ServiceResult> UpdateAttachmentPortAsync(AttachmentPortUpdate update);
-        Task<ServiceResult> DeleteAsync(Attachment attachment);
+        Task<Attachment> GetByIDAsync(int attachmentId, bool? deep = false, bool asTrackable = false);
+        Task<List<Attachment>> GetAllByDeviceIDAsync(int deviceId, bool? deep = false, bool asTrackable = false);
+        Task<Attachment> AddAsync(int deviceId, InfrastructureAttachmentRequest request);
+        Task<Attachment> UpdateAsync(int attachmentId, InfrastructureAttachmentUpdate update);
+        Task DeleteAsync(int attachmentId);
     }
 }

@@ -22,43 +22,41 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// 
+    /// Model for updating an infrastructure attachment
     /// </summary>
     [DataContract]
     public partial class InfrastructureAttachmentUpdate : IEquatable<InfrastructureAttachmentUpdate>
-    {
+    { 
         /// <summary>
-        /// The required contract bandwidth in Mbps
+        /// The minimum number of active links in a bundle attachment
         /// </summary>
-        /// <value>A bandwidth value in Mbps</value>
-        [DataMember(Name = "contractBandwidthMbps")]
-        public int? ContractBandwidthMbps { get; set; }
+        /// <value>Integer value which specifies the minimum links in the bundle</value>
+        /// <example>2</example>
+        [DataMember(Name = "bundleMinLinks")]
+        [Range(1,8)]
+        public int? BundleMinLinks { get; set; }
 
         /// <summary>
-        /// Determines whether DSCP and COS markings of packets should be trusted by the provider
+        /// The maximum number of active links in a bundle attachment
         /// </summary>
-        /// <value>A boolean to set the required trust</value>
-        [DataMember(Name="trustReceivedCosAndDscp")]
-        public bool? TrustReceivedCosAndDscp { get; set; }
+        /// <value>Integer value which specifies the maximum links in the bundle</value>
+        /// <example>2</example>
+        [DataMember(Name = "bundleMaxLinks")]
+        [Range(1, 8)]
+        public int? BundleMaxLinks { get; set; }
 
         /// <summary>
-        /// Determines if the updated attachment should be associated with an existing routing instance
+        /// A list of IPv4 addresses to be assigned to the interfaces of the attachment.
         /// </summary>
-        /// <value>A string value of the name of an existing routing instance</value>
-        [DataMember(Name = "existingRoutingInstanceName")]
-        public string ExistingRoutingInstanceName { get; set; }
-
-        /// <summary>
-        /// Determines if the updated attachment should be associated with a new routing instance.
-        /// </summary>
-        /// <value>A boolean which when set to true indicates a new routing instance is required</value>
-        [DataMember(Name = "createNewRoutingInstance")]
-        public bool? CreateNewRoutingInstance { get; set; }
+        /// <value>A list of Ipv4AddressAndMask objcets</value>
+        [DataMember(Name="ipv4Addresses")]
+        public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 
         /// <summary>
         /// Determines if the updated attachment should use jumbo MTU
         /// </summary>
         /// <value>A boolean which when set to true indicates jumbo MTU is required</value>
+        /// <example>true</example>
         [DataMember(Name = "useJumboMtu")]
         public bool? UseJumboMtu { get; set; }
 
@@ -69,11 +67,10 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class ProviderDomainAttachmentUpdate {\n");
-            sb.Append("  TrustReceivedCosAndDscp: ").Append(TrustReceivedCosAndDscp).Append("\n");
-            sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
-            sb.Append("  ExistingRoutingInstanceName: ").Append(ExistingRoutingInstanceName).Append("\n");
-            sb.Append("  CreateNewRoutingInstance: ").Append(CreateNewRoutingInstance).Append("\n");
+            sb.Append("class InfrastructureAtachmentRequest {\n");
+            sb.Append("  BundleMinLinks: ").Append(BundleMinLinks).Append("\n");
+            sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
+            sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
             sb.Append("  UseJumboMtu: ").Append(UseJumboMtu).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -112,29 +109,24 @@ namespace Mind.Api.Models
 
             return
                 (
-                    TrustReceivedCosAndDscp == other.TrustReceivedCosAndDscp ||
-                    TrustReceivedCosAndDscp != null &&
-                    TrustReceivedCosAndDscp.Equals(other.TrustReceivedCosAndDscp)
+                    BundleMinLinks == other.BundleMinLinks ||
+                    BundleMinLinks != null &&
+                    BundleMinLinks.Equals(other.BundleMinLinks)
                 ) &&
                 (
-                    ContractBandwidthMbps == other.ContractBandwidthMbps ||
-                    ContractBandwidthMbps != null &&
-                    ContractBandwidthMbps.Equals(other.ContractBandwidthMbps)
-                ) &&
-                (
-                    ExistingRoutingInstanceName == other.ExistingRoutingInstanceName ||
-                    ExistingRoutingInstanceName != null &&
-                    ExistingRoutingInstanceName.Equals(other.ExistingRoutingInstanceName)
-                ) &&
-                (
-                    CreateNewRoutingInstance == other.CreateNewRoutingInstance ||
-                    CreateNewRoutingInstance != null &&
-                    CreateNewRoutingInstance.Equals(other.CreateNewRoutingInstance)
+                    BundleMaxLinks == other.BundleMaxLinks ||
+                    BundleMaxLinks != null &&
+                    BundleMaxLinks.Equals(other.BundleMaxLinks)
                 ) &&
                 (
                     UseJumboMtu == other.UseJumboMtu ||
                     UseJumboMtu != null &&
                     UseJumboMtu.Equals(other.UseJumboMtu)
+                ) &&
+                (
+                    Ipv4Addresses == other.Ipv4Addresses ||
+                    Ipv4Addresses != null &&
+                    Ipv4Addresses.Equals(other.Ipv4Addresses)
                 );
         }
 
@@ -148,14 +140,12 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (TrustReceivedCosAndDscp != null)
-                    hashCode = hashCode * 59 + TrustReceivedCosAndDscp.GetHashCode();
-                    if (ContractBandwidthMbps != null)
-                    hashCode = hashCode * 59 + ContractBandwidthMbps.GetHashCode();
-                    if (ExistingRoutingInstanceName != null)
-                    hashCode = hashCode * 59 + ExistingRoutingInstanceName.GetHashCode();
-                    if (CreateNewRoutingInstance != null)
-                    hashCode = hashCode * 59 + CreateNewRoutingInstance.GetHashCode();
+                    if (BundleMinLinks != null)
+                    hashCode = hashCode * 59 + BundleMinLinks.GetHashCode();
+                    if (BundleMaxLinks != null)
+                    hashCode = hashCode * 59 + BundleMaxLinks.GetHashCode();
+                    if (Ipv4Addresses != null)
+                    hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
                     if (UseJumboMtu != null)
                     hashCode = hashCode * 59 + UseJumboMtu.GetHashCode();
                 return hashCode;

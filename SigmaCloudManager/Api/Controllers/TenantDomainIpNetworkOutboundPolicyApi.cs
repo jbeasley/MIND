@@ -18,6 +18,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Mind.Api.Controllers
 {
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Tenant Domain IP Network Outbound Policy")]
     public class TenantDomainIpNetworkOutboundPolicyApiController : BaseApiController
     {
         private readonly ITenantDomainIpNetworkOutboundPolicyService _tenantDomainIpNetworkOutboundPolicyService;
@@ -180,7 +181,7 @@ namespace Mind.Api.Controllers
         /// Find a tenant IP network which is associated with the outbound policy of a tenant domain device
         /// </summary>
         /// <remarks>Returns a single tenant IP network outbound policy</remarks>
-        /// <param name="deviceId">ID of the tenant dommain device</param>
+        /// <param name="deviceId">ID of the tenant domain device</param>
         /// <param name="vpnTenantIpNetworkOutId">ID of the outbound policy</param>
         /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>

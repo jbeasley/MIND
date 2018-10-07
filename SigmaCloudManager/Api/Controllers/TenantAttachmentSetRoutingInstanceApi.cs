@@ -31,11 +31,12 @@ using Mind.Models;
 using Swashbuckle.AspNetCore.Annotations;
 
 namespace Mind.Api.Controllers
-{ 
+{
     /// <summary>
-    /// 
+    /// Manage routing instance associations with attachment sets
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Provider Domain Tenant Attachment Set Routing Instances")]
     public class TenantAttachmentSetRoutingInstanceApiController : BaseApiController
     {
         private readonly IAttachmentSetRoutingInstanceService _attachmentSetRoutingInstanceService;

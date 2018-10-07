@@ -37,6 +37,7 @@ namespace Mind.Api.Controllers
     /// Create and manage the lifecycle of attachments for devices within the tenant domain
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Tenant Domain Attachments")]
     public class TenantDomainAttachmentApiController : BaseApiController
     { 
         private readonly ITenantDomainAttachmentService _attachmentService;
@@ -185,10 +186,10 @@ namespace Mind.Api.Controllers
         [Route("/v{version:apiVersion}/tenant-domain-devices/{deviceId}/attachments")]
         [ValidateModelState]
         [ValidateTenantDomainDeviceExists]
-        [SwaggerOperation("GetTenantDomainAttachmentsByTenantId")]
+        [SwaggerOperation("GetTenantDomainAttachmentsByDeviceId")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<TenantDomainAttachment>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public async virtual Task<IActionResult> GetTenantDomainAttachmentsByTenantId([FromRoute][Required]int? deviceId,[FromQuery]bool? deep)
+        public async virtual Task<IActionResult> GetTenantDomainAttachmentsByDeviceId([FromRoute][Required]int? deviceId,[FromQuery]bool? deep)
         {
             var attachments = await _attachmentService.GetAllByDeviceIDAsync(deviceId.Value, deep);
             return Ok(Mapper.Map<List<TenantDomainAttachment>>(attachments));

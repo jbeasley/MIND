@@ -18,6 +18,7 @@ using Swashbuckle.AspNetCore.Annotations;
 namespace Mind.Api.Controllers
 {
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Tenant Domain IP Network Inbound Policy")]
     public class TenantDomainIpNetworkInboundPolicyApiController : BaseApiController
     {
         private readonly ITenantDomainIpNetworkInboundPolicyService _tenantDomainIpNetworkInboundPolicyService;

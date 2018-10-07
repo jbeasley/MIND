@@ -38,7 +38,7 @@ namespace Mind.Api.Models
         public string TenantIpNetworkCidrName { get; set; }
 
         /// <summary>
-        /// An IPv4 BGP peer address from which the tenant IP network should advertised. THe specified BGP peer must be configured and exist
+        /// An IPv4 BGP peer address from which the tenant IP network should be advertised. THe specified BGP peer must be configured and exist
         /// within the tenant domain device.
         /// </summary>
         /// <value>string representing the address of an existing configured IPv4 BGP peer</value>
@@ -95,7 +95,7 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Returns true if VpnTenantIpv4NetworkOut instances are equal
+        /// Returns true if TenantDomainIpNetworkOutboundPolicyRequest instances are equal
         /// </summary>
         /// <param name="other">Instance of VpnTenantIpv4NetworkOut to be compared</param>
         /// <returns>Boolean</returns>

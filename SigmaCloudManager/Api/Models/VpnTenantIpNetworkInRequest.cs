@@ -48,7 +48,7 @@ namespace Mind.Api.Models
 
         /// <summary>
         /// Denotes whether the tenant IP network should be learned from all BGP peers that are configured within the attachment set. This property 
-        /// caanot be used concurrently with the 'Ipv4PeerAddress' property.
+        /// cannot be used concurrently with the 'Ipv4PeerAddress' property.
         /// </summary>
         /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
         /// <example>true</example>

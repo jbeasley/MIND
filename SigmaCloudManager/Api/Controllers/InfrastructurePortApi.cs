@@ -37,6 +37,7 @@ namespace Mind.Api.Controllers
     /// Create and manage the lifecycle of infrastructure device ports
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Infrastructure Ports")]
     public class InfrastructurePortApiController : BaseApiController
     { 
         private readonly IInfrastructurePortService _infrastructurePortService;

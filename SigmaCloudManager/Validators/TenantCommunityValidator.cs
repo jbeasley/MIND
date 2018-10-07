@@ -72,7 +72,7 @@ namespace SCM.Validators
                     + $"cannot be deleted because it is used for outbound policy in attachment set '{x.AttachmentSet.Name}'.")
             );
 
-            (from vpnTenantCommunitiesRoutingInstance in tenantCommunity.VpnTenantCommunitiesRoutingInstance
+            (from vpnTenantCommunitiesRoutingInstance in tenantCommunity.VpnTenantCommunityRoutingInstancePoliciesIn
              select vpnTenantCommunitiesRoutingInstance)
              .ToList()
              .ForEach(x =>

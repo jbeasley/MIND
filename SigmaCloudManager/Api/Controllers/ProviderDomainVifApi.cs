@@ -31,10 +31,12 @@ using Microsoft.EntityFrameworkCore;
 using Mind.Models;
 
 namespace Mind.Api.Controllers
-{ 
+{
     /// <summary>
     /// 
     /// </summary>
+    [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Provider Domain Tenant Virtual Interfaces")]
     public class ProviderDomainVifApiController : BaseApiController
     {
         private readonly IProviderDomainVifService _vifService;

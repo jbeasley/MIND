@@ -79,6 +79,7 @@ namespace Mind.Api.Models
         /// The IP routing behavior for traffic forwarding towards the tenant IP network
         /// </summary>
         /// <value>Enum member value denoting the tenant ip routing behavior</value>
+        /// <example>BluePlane</example>
         [DataMember(Name = "tenantIpRoutingBehaviour")]
         public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; private set; }
 
@@ -89,7 +90,7 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class TenantIpv4Network {\n");
+            sb.Append("class TenantIpNetwork {\n");
             sb.Append("  TenantIpNetworkId: ").Append(TenantIpNetworkId).Append("\n");
             sb.Append("  Ipv4Prefix: ").Append(Ipv4Prefix).Append("\n");
             sb.Append("  Ipv4Length: ").Append(Ipv4Length).Append("\n");

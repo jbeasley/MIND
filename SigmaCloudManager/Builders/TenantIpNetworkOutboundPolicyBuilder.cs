@@ -57,8 +57,9 @@ namespace Mind.Builders
             return this;
         }
 
-        public async Task<VpnTenantIpNetworkOut> BuildAsync()
+        public virtual async Task<VpnTenantIpNetworkOut> BuildAsync()
         {
+            // Check to build components for an attachment set
             if (_args.ContainsKey(nameof(ForAttachmentSet)))
             {
                 await SetAttachmentSetAsync();
@@ -66,6 +67,21 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(WithTenantIpNetworkCidrName))) await SetTenantIpNetworkForAttachmentSetAsync();
             }
 
+            // Check to update components for an existing outbound policy
+            if (_args.ContainsKey(nameof(ForTenantIpNetworkOutboundPolicy)))
+            {
+                await SetTenantIpNetworkOutboundPolicyAsync();
+                if (_vpnTenantIpNetworkOut.AttachmentSet == null)
+                {
+                    if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await SetIpv4BgpPeerForDeviceAsync();
+                }
+                else
+                {
+                    if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await SetIpv4BgpPeerForAttachmentSetAsync();
+                }
+            }
+
+            // Check to build components for a device - i.e. there should be no attachment set association
             if (_args.ContainsKey(nameof(ForDevice)))
             {
                 if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) await SetIpv4BgpPeerForDeviceAsync();
@@ -163,7 +179,10 @@ namespace Mind.Builders
 
         protected virtual internal async Task SetIpv4BgpPeerForDeviceAsync()
         {
-            var deviceId = (int)_args[nameof(ForDevice)];
+            // Try to find the device ID, first from supplied args, then from an existing BGP peer
+            var deviceId = _args.ContainsKey(nameof(ForDevice)) ? (int)_args[nameof(ForDevice)] : _vpnTenantIpNetworkOut.BgpPeer?.RoutingInstance?.DeviceID;
+            if (!deviceId.HasValue) throw new BuilderBadArgumentsException("Unable to complete creating the outbound policy. A device was not found.");
+
             var ipv4PeerAddress = _args[nameof(WithIpv4PeerAddress)].ToString();
             var bgpPeer = (from result in await _unitOfWork.BgpPeerRepository.GetAsync(
                                    q =>
@@ -174,7 +193,9 @@ namespace Mind.Builders
                            select result)
                            .SingleOrDefault();
 
-            _vpnTenantIpNetworkOut.BgpPeer = bgpPeer;
+            _vpnTenantIpNetworkOut.BgpPeer = bgpPeer ?? throw new BuilderBadArgumentsException("Unable to create a tenant IP network association with " +
+              $"the given arguments. The BGP peer address '{ipv4PeerAddress}' does not exist within any routing instance which belongs to " +
+              "the given device.");
         }
     }
 }

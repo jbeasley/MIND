@@ -84,7 +84,8 @@ namespace Mind.Builders
             var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
             var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
                             q => 
-                                 q.AttachmentSetID == attachmentSetId, 
+                                 q.AttachmentSetID == attachmentSetId,
+                                 query: q => q.IncludeValidationProperties(),
                                  AsTrackable: true)
                                  select result)
                                  .SingleOrDefault();

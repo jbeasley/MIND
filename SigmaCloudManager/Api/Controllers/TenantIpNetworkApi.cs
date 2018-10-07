@@ -37,6 +37,7 @@ namespace Mind.Api.Controllers
     /// 
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Tenant IP Networks")]
     public class TenantIpNetworkApiController : BaseApiController
     {
         private readonly ITenantIpNetworkService _tenantIpNetworkService;
@@ -217,10 +218,10 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <remarks>Returns a single tenant IP network</remarks>
         /// <param name="tenantId">ID of the tenant</param>
-        /// <param name="tenantIpNetworkId">ID of the tenant IPv4 network</param>
+        /// <param name="tenantIpNetworkId">ID of the tenant IP network</param>
         /// <param name="deep">Perform a deep query on the resource</param>
         /// <response code="200">Successful operation</response>
-        /// <response code="304">The specifie resource has not been modified</response>
+        /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/ip-networks/{tenantIpNetworkId}", Name ="GetTenantIpNetwork")]

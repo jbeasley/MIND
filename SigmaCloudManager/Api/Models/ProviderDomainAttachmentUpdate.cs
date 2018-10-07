@@ -211,7 +211,7 @@ namespace Mind.Api.Models
                     if (CreateNewRoutingInstance != null)
                     hashCode = hashCode * 59 + CreateNewRoutingInstance.GetHashCode();
                     if (UseJumboMtu != null)
-                    hashCode = hashCode * 59 + UseJumboMtu.GetHashCode(); hashCode = hashCode * 59 + CreateNewRoutingInstance.GetHashCode();
+                    hashCode = hashCode * 59 + UseJumboMtu.GetHashCode();
                     if (BundleMinLinks != null)
                     hashCode = hashCode * 59 + BundleMinLinks.GetHashCode();
                     if (BundleMaxLinks != null)

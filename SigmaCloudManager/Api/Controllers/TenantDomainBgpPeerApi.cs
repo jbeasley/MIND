@@ -37,6 +37,7 @@ namespace Mind.Api.Controllers
     /// API for creating and managing the lifecycle of tenant-facing BGP peers in the provider domain. 
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Tenant Domain BGP Peering")]
     public class TenantDomainBgpPeerApiController : BaseApiController
     {
         private readonly ITenantDomainBgpPeerService _bgpPeerService;

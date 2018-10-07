@@ -37,6 +37,7 @@ namespace Mind.Api.Controllers
     /// Create and manage the lifecycle of tenant domain ports
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Tenant Domain Ports")]
     public class TenantDomainPortApiController : BaseApiController
     { 
         private readonly ITenantDomainPortService _tenantDomainPortService;

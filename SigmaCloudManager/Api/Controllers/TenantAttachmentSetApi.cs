@@ -36,6 +36,7 @@ namespace Mind.Api.Controllers
     /// API for creating and managing the lifecycle of attachment sets
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Provider Domain Tenant Attachment Sets")]
     public class TenantAttachmentSetApiController : BaseApiController
     {
         private readonly IAttachmentSetService _attachmentSetService;
@@ -222,6 +223,44 @@ namespace Mind.Api.Controllers
             }
 
             return Ok(Mapper.Map<AttachmentSet>(attachmentSet));
+        }
+
+        /// <summary>
+        /// Validate the redundancy configuration of an attachment set
+        /// </summary>
+        /// <remarks>Returns an ApiResponse object with a message indicating the current state of the redundancy configuration
+        /// of the attachment set </remarks>
+        /// <param name="attachmentSetId">ID of the attachment set</param>
+        /// <response code="200">Successful operation</response>
+        /// <response code="404">The specified resource was not found</response>
+        [HttpGet]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/attachment-sets/{attachmentSetId}/validate-redundancy")]
+        [ValidateModelState]
+        [ValidateAttachmentSetExists]
+        [SwaggerOperation("ValidateAttachmenSet")]
+        [SwaggerResponse(statusCode: 200, type: typeof(ApiResponse), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        public virtual async Task<IActionResult> ValidateAttachmentSetRedundancy([FromRoute][Required]int? attachmentSetId)
+        {
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value, deep: true);
+
+            try
+            {
+                attachmentSet.ValidateAttachmentRedundancy();
+                return Ok(new ApiResponse {
+                    Code = "ValidationSuccess",
+                    Message = "The attachment set redundancy is configured correctly."
+                });
+            }
+
+            catch (IllegalStateException ex)
+            {
+                return Ok(new ApiResponse
+                {
+                    Code = "ValidationFailure",
+                    Message = ex.Message
+                });
+            }
         }
 
         /// <summary>

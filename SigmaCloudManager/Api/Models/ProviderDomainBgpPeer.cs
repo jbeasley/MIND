@@ -99,11 +99,25 @@ namespace Mind.Api.Models
         public List<VpnTenantIpNetworkIn> BgpIpNetworkInboundPolicy { get; private set; }
 
         /// <summary>
-        /// A list of tenant IP network associations with the bgp outbound policyt
+        /// A list of tenant IP network associations with the bgp outbound policy
         /// </summary>
         /// <value>A list of vpn tenant IP network out objects</value>
         [DataMember(Name = "bgpIpNetworkOutboundPolicy")]
         public List<VpnTenantIpNetworkOut> BgpIpNetworkOutboundPolicy { get; private set; }
+
+        /// <summary>
+        /// A list of tenant community associations with the bgp inbound policy
+        /// </summary>
+        /// <value>A list of vpn tenant community in objects</value>
+        [DataMember(Name = "bgpCommunityInboundPolicy")]
+        public List<VpnTenantCommunityIn> BgpCommunityInboundPolicy { get; private set; }
+
+        /// <summary>
+        /// A list of tenant community associations with the bgp outbound policy
+        /// </summary>
+        /// <value>A list of vpn tenant community out objects</value>
+        [DataMember(Name = "bgpCommunityOutboundPolicy")]
+        public List<VpnTenantCommunityOut> BgpCommunityOutboundPolicy { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -123,6 +137,8 @@ namespace Mind.Api.Models
             sb.Append("  RoutingInstanceName: ").Append(RoutingInstanceName).Append("\n");
             sb.Append("  BgpIpNetworkInboundPolicy: ").Append(BgpIpNetworkInboundPolicy).Append("\n");
             sb.Append("  BgpIpNetworkOutboundPolicy: ").Append(BgpIpNetworkOutboundPolicy).Append("\n");
+            sb.Append("  BgpCommunityInboundPolicy: ").Append(BgpCommunityInboundPolicy).Append("\n");
+            sb.Append("  BgpCommunityOutboundPolicy: ").Append(BgpCommunityOutboundPolicy).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -198,7 +214,7 @@ namespace Mind.Api.Models
                     RoutingInstanceName == other.RoutingInstanceName ||
                     RoutingInstanceName != null &&
                     RoutingInstanceName.Equals(other.RoutingInstanceName)
-                ) && 
+                ) &&
                 (
                     BgpIpNetworkInboundPolicy == other.BgpIpNetworkInboundPolicy ||
                     BgpIpNetworkInboundPolicy != null &&
@@ -208,6 +224,16 @@ namespace Mind.Api.Models
                     BgpIpNetworkOutboundPolicy == other.BgpIpNetworkOutboundPolicy ||
                     BgpIpNetworkOutboundPolicy != null &&
                     BgpIpNetworkOutboundPolicy.Equals(other.BgpIpNetworkOutboundPolicy)
+                ) &&
+                (
+                    BgpCommunityInboundPolicy == other.BgpCommunityInboundPolicy ||
+                    BgpCommunityInboundPolicy != null &&
+                    BgpCommunityInboundPolicy.Equals(other.BgpCommunityInboundPolicy)
+                ) &&
+                (
+                    BgpCommunityOutboundPolicy == other.BgpCommunityOutboundPolicy ||
+                    BgpCommunityOutboundPolicy != null &&
+                    BgpCommunityOutboundPolicy.Equals(other.BgpCommunityOutboundPolicy)
                 );
         }
 
@@ -241,6 +267,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + BgpIpNetworkInboundPolicy.GetHashCode();
                     if (BgpIpNetworkOutboundPolicy != null)
                     hashCode = hashCode * 59 + BgpIpNetworkOutboundPolicy.GetHashCode();
+                    if (BgpCommunityInboundPolicy != null)
+                    hashCode = hashCode * 59 + BgpCommunityInboundPolicy.GetHashCode();
+                    if (BgpCommunityOutboundPolicy != null)
+                    hashCode = hashCode * 59 + BgpCommunityOutboundPolicy.GetHashCode();
                 return hashCode;
             }
         }

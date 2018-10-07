@@ -121,9 +121,13 @@ namespace SCM.Models
 
                 if (this.BgpPeer.RoutingInstance.Device.DeviceRole.IsProviderDomainRole)
                 {
-                    // Cannot associate the tenant IP netwokr with a specific BGP peer and also also BGP peer in the attachment set concurrently
+                    // Cannot associate the tenant IP network with a specific BGP peer and also all BGP peers in the attachment set concurrently
                     if (this.AttachmentSet.VpnTenantIpNetworksIn
-                                          .Where(x => x.TenantIpNetwork.TenantIpNetworkID == this.TenantIpNetwork.TenantIpNetworkID)
+                                          .Where(
+                                            x =>
+                                               // Ignore the current item - we're only looking for other items for the same tenant IP network ID
+                                               x.VpnTenantIpNetworkInID != this.VpnTenantIpNetworkInID &&
+                                               x.TenantIpNetwork.TenantIpNetworkID == this.TenantIpNetwork.TenantIpNetworkID)
                                           .Any())
                     {
                         throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is " +

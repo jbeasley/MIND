@@ -19,6 +19,7 @@ namespace SCM.Models
                         .Include(x => x.Region)
                         .Include(x => x.AttachmentRedundancy)
                         .Include(x => x.SubRegion)
+                        .Include(x => x.Tenant)
                         .Include(x => x.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.Attachments)
                         .ThenInclude(x => x.Interfaces)
@@ -75,6 +76,10 @@ namespace SCM.Models
                         .ThenInclude(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksOut)
                         .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
                         .Include(x => x.VpnAttachmentSets)
                         .Include(x => x.VpnTenantMulticastGroups)
                         .Include(x => x.VpnTenantCommunitiesIn)
@@ -105,13 +110,13 @@ namespace SCM.Models
                             Tenant = x.Tenant,
                             TenantID = x.TenantID,
                             VpnAttachmentSets = x.VpnAttachmentSets,
-                            // The following gives us a result set with tenant IP netwokrs which are to be added to 
+                            // The following gives us a result set with tenant communities which are to be added to 
                             // the inbound policy of all BGP peers in the attachment set
                             VpnTenantCommunitiesIn = x.VpnTenantCommunitiesIn
                                                       .Where(q => q.AddToAllBgpPeersInAttachmentSet).ToList(),
                             VpnTenantCommunitiesOut = x.VpnTenantCommunitiesOut,
                             VpnTenantCommunitiesRoutingInstance = x.VpnTenantCommunitiesRoutingInstance,
-                            // The following gives us a result set with tenant communities which are to be added to 
+                            // The following gives us a result set with tenant IP networks which are to be added to 
                             // the inbound policy of all BGP peers in the attachment set
                             VpnTenantIpNetworksIn = x.VpnTenantIpNetworksIn
                                                      .Where(q => q.AddToAllBgpPeersInAttachmentSet).ToList(),

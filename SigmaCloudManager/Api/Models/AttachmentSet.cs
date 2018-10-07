@@ -98,6 +98,13 @@ namespace Mind.Api.Models
         public List<VpnTenantIpNetworkIn> BgpIpNetworkInboundPolicy { get; private set; }
 
         /// <summary>
+        /// A list of tenant community sociations with the bgp inbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of vpn tenant ommunity in objects</value>
+        [DataMember(Name = "bgpCommunityInboundPolicy")]
+        public List<VpnTenantCommunityIn> BgpCommunityInboundPolicy { get; private set; }
+
+        /// <summary>
         /// A list of tenant IP network static route associations with the attachment set
         /// </summary>
         /// <value>A list of vpn tenant IP network routing instance static route objects</value>
@@ -117,7 +124,11 @@ namespace Mind.Api.Models
             sb.Append("  SubRegion: ").Append(SubRegion).Append("\n");
             sb.Append("  AttachmentRedundancy: ").Append(AttachmentRedundancy).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
+            sb.Append("  AttachmentSetRoutingInstances: ").Append(AttachmentSetRoutingInstances).Append("\n");
+            sb.Append("  MulticastVpnDomainType: ").Append(MulticastVpnDomainType).Append("\n");
             sb.Append("  BgpIpNetworkInboundPolicy: ").Append(BgpIpNetworkInboundPolicy).Append("\n");
+            sb.Append("  BgpCommunityInboundPolicy: ").Append(BgpCommunityInboundPolicy).Append("\n");
+            sb.Append("  StaticRoutes: ").Append(StaticRoutes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -183,6 +194,26 @@ namespace Mind.Api.Models
                     BgpIpNetworkInboundPolicy == other.BgpIpNetworkInboundPolicy ||
                     BgpIpNetworkInboundPolicy != null &&
                     BgpIpNetworkInboundPolicy.Equals(other.BgpIpNetworkInboundPolicy)
+                ) &&
+                (
+                    BgpCommunityInboundPolicy == other.BgpCommunityInboundPolicy ||
+                    BgpCommunityInboundPolicy != null &&
+                    BgpCommunityInboundPolicy.Equals(other.BgpCommunityInboundPolicy)
+                ) &&
+                (
+                    MulticastVpnDomainType == other.MulticastVpnDomainType ||
+                    MulticastVpnDomainType != null &&
+                    MulticastVpnDomainType.Equals(other.MulticastVpnDomainType)
+                ) &&
+                (
+                    AttachmentSetRoutingInstances == other.AttachmentSetRoutingInstances ||
+                    AttachmentSetRoutingInstances != null &&
+                    AttachmentSetRoutingInstances.Equals(other.AttachmentSetRoutingInstances)
+                ) &&
+                (
+                    StaticRoutes == other.StaticRoutes ||
+                    StaticRoutes != null &&
+                    StaticRoutes.Equals(other.StaticRoutes)
                 );
         }
 
@@ -208,6 +239,14 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsLayer3.GetHashCode();
                     if (BgpIpNetworkInboundPolicy != null)
                     hashCode = hashCode * 59 + BgpIpNetworkInboundPolicy.GetHashCode();
+                    if (BgpCommunityInboundPolicy != null)
+                    hashCode = hashCode * 59 + BgpCommunityInboundPolicy.GetHashCode();
+                    if (MulticastVpnDomainType != null)
+                    hashCode = hashCode * 59 + MulticastVpnDomainType.GetHashCode();
+                    if (StaticRoutes != null)
+                    hashCode = hashCode * 59 + StaticRoutes.GetHashCode();
+                    if (AttachmentSetRoutingInstances != null)
+                    hashCode = hashCode * 59 + AttachmentSetRoutingInstances.GetHashCode();
                 return hashCode;
             }
         }

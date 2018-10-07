@@ -37,6 +37,7 @@ namespace Mind.Api.Controllers
     /// Create and manage the lifecycle of tenant domain attachments to the provider domain
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Provider Domain Tenant Attachments")]
     public class ProviderDomainAttachmentApiController : BaseApiController
     { 
         private readonly IProviderDomainAttachmentService _attachmentService;

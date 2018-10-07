@@ -8,9 +8,10 @@ namespace Mind.Models.RequestModels
     public partial class VpnTenantIpNetworkInUpdate
     {
         /// <summary>
-        /// Gets or Sets AddToAllBgpPeersInAttachmentSet
+        /// Denotes whether the policy for the tenant IP network should be registed for all BGP peers in the attachment set
         /// </summary>
-        /// <value>Boolean denoting whether the tenant IP network should be registered against all BGP peers that exist within the attachment set</value>
+        /// <value>Boolean denoting whether the tenant IP network should be registered against 
+        /// all BGP peers that exist within the attachment set</value>
         public bool? AddToAllBgpPeersInAttachmentSet { get; set; }
 
         /// <summary>

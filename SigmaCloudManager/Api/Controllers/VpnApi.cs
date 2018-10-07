@@ -37,7 +37,7 @@ namespace Mind.Api.Controllers
     /// 
     /// </summary>
     [ApiVersion("1.0")]
-    [ApiExplorerSettings(GroupName = "VPN API")]
+    [ApiExplorerSettings(GroupName = "Virtual Private Networks")]
     public class VpnApiController : BaseApiController
     {
         private readonly IVpnService _vpnService;

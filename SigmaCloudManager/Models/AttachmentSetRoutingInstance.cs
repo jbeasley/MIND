@@ -11,6 +11,15 @@ namespace SCM.Models
 {
     public static class AttachmentSetRoutingInstanceQueryableExtensions
     {
+        public static IQueryable<AttachmentSetRoutingInstance> IncludeValidationProperties(this IQueryable<AttachmentSetRoutingInstance> query)
+        {
+            return query.Include(x => x.AttachmentSet.Tenant)
+                        .Include(x => x.RoutingInstance.RoutingInstanceType)
+                        .Include(x => x.RoutingInstance.Device.Location.SubRegion.Region)
+                        .Include(x => x.RoutingInstance.Device.DeviceRole)
+                        .Include(x => x.AttachmentSet.Region);
+        }
+
         public static IQueryable<AttachmentSetRoutingInstance> IncludeDeepProperties(this IQueryable<AttachmentSetRoutingInstance> query)
         {
             return query.Include(x => x.AttachmentSet)

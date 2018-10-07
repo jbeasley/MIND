@@ -12,6 +12,7 @@ using Mind.Api.Models;
 using Mind.Services;
 using SCM.Data;
 using Mind.Api.Controllers;
+using Microsoft.EntityFrameworkCore;
 
 namespace Mind.Api.Attributes
 {
@@ -41,9 +42,11 @@ namespace Mind.Api.Attributes
                 var attachmentSetId = context.ActionArguments.ContainsKey("attachmentSetId") ? context.ActionArguments["attachmentSetId"] as int? : null;
                 var tenantIpNetworkId = context.ActionArguments["tenantIpNetworkId"] as int?;
 
-                var query = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(q =>
-                    q.TenantIpNetworkID == tenantIpNetworkId.Value, includeProperties:"Tenant.AttachmentSets",
-                    AsTrackable: false)
+                var query = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
+                          q =>
+                             q.TenantIpNetworkID == tenantIpNetworkId.Value,
+                             query: q => q.Include(x => x.Tenant.AttachmentSets),
+                             AsTrackable: false)
                              select result);
 
                 if (attachmentSetId != null)

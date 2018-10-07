@@ -13,6 +13,7 @@ using SCM.Services;
 using SCM.Validators;
 using SCM.Models;
 using SCM.Factories;
+using Mind.Services;
 
 namespace SCM.Controllers
 {
@@ -55,26 +56,27 @@ namespace SCM.Controllers
 
         private IInfrastructureAttachmentService InfrastructureAttachmentService { get; }
 
-        [HttpGet]
-        public async Task<IActionResult> GetAll(string searchString)
-        {
-            var attachments = await InfrastructureAttachmentService.GetAllAsync(searchString);
-            var messages = attachments.Where(q => q.Created).Select(x => $"{x.Name} has been created.").ToList();
+        
+        //[HttpGet]
+        //public async Task<IActionResult> GetAll(string searchString)
+        //{
+        //  var attachments = await InfrastructureAttachmentService.GetAllAsync(searchString);
+        //    var messages = attachments.Where(q => q.Created).Select(x => $"{x.Name} has been created.").ToList();
 
-            if (messages.Any())
-            {
-                ViewData["SuccessMessage"] = FormatAsHtmlList(messages);
-            }
+        //    if (messages.Any())
+        //    {
+        //        ViewData["SuccessMessage"] = FormatAsHtmlList(messages);
+        //    }
 
-            // Display errors if any Attachment Ports are mis-configured
+        //    // Display errors if any Attachment Ports are mis-configured
 
-            foreach (var attachment in attachments)
-            {
-                await AttachmentValidator.ValidateAttachmentPortsConfiguredCorrectlyAsync(attachment);
-            }
+        //    foreach (var attachment in attachments)
+        //    {
+        //        await AttachmentValidator.ValidateAttachmentPortsConfiguredCorrectlyAsync(attachment);
+        //    }
 
-            return View(Mapper.Map<List<AttachmentViewModel>>(attachments));
-        }
+        //    return View(Mapper.Map<List<AttachmentViewModel>>(attachments));
+        //}
 
         [HttpGet]
         public async Task<IActionResult> Details(int? id)
@@ -115,62 +117,62 @@ namespace SCM.Controllers
             return await base.BaseCreateAttachment();
         }
 
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("DeviceID,IpAddress1,SubnetMask1,IpAddress2,SubnetMask2,"
-            + "IpAddress3,SubnetMask3,IpAddress4,SubnetMask4,BandwidthID,RegionID,SubRegionID,LocationID,"
-            + "IsLayer3,IsTagged,BundleRequired,MultiPortRequired,"
-            + "PortPoolID,AttachmentRoleID,Description,Notes")] InfrastructureAttachmentRequestViewModel requestModel,
-            AttachmentNavigationViewModel nav)
-        {
-            try
-            {
-                if (ModelState.IsValid)
-                {
-                    var request = Mapper.Map<AttachmentRequest>(requestModel);
-                    await AttachmentValidator.ValidateNewAsync(request);
+        //[HttpPost]
+        //[ValidateAntiForgeryToken]
+        //public async Task<IActionResult> Create([Bind("DeviceID,IpAddress1,SubnetMask1,IpAddress2,SubnetMask2,"
+        //    + "IpAddress3,SubnetMask3,IpAddress4,SubnetMask4,BandwidthID,RegionID,SubRegionID,LocationID,"
+        //    + "IsLayer3,IsTagged,BundleRequired,MultiPortRequired,"
+        //    + "PortPoolID,AttachmentRoleID,Description,Notes")] InfrastructureAttachmentRequestViewModel requestModel,
+        //    AttachmentNavigationViewModel nav)
+        //{
+        //    try
+        //    {
+        //        if (ModelState.IsValid)
+        //        {
+        //            var request = Mapper.Map<AttachmentRequest>(requestModel);
+        //            await AttachmentValidator.ValidateNewAsync(request);
 
-                    if (AttachmentValidator.ValidationDictionary.IsValid)
-                    {
-                        var result = await InfrastructureAttachmentService.AddAsync(request);
-                        if (result.IsSuccess)
-                        {
-                            return RedirectToAction("GetAll", nav);
-                        }
-                        else
-                        {
-                            result.GetMessageList().ForEach(message => ModelState.AddModelError(string.Empty, message));
-                        }
-                    }
-                }
-            }
+        //            if (AttachmentValidator.ValidationDictionary.IsValid)
+        //            {
+        //                var result = await InfrastructureAttachmentService.AddAsync(request);
+        //                if (result.IsSuccess)
+        //                {
+        //                    return RedirectToAction("GetAll", nav);
+        //                }
+        //                else
+        //                {
+        //                    result.GetMessageList().ForEach(message => ModelState.AddModelError(string.Empty, message));
+        //                }
+        //            }
+        //        }
+        //    }
 
-            catch (DbUpdateException /** ex **/ )
-            {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError(string.Empty, "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator.");
-            }
+        //    catch (DbUpdateException /** ex **/ )
+        //    {
+        //        //Log the error (uncomment ex variable name and write a log.
+        //        ModelState.AddModelError(string.Empty, "Unable to save changes. " +
+        //            "Try again, and if the problem persists " +
+        //            "see your system administrator.");
+        //    }
 
-            catch (FactoryFailureException ex)
-            {
+        //    catch (FactoryFailureException ex)
+        //    {
 
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+        //        ModelState.AddModelError(string.Empty, ex.Message);
+        //    }
 
-            await PopulateRegionsDropDownList(requestModel.RegionID);
-            await PopulateSubRegionsDropDownList(requestModel.RegionID, requestModel.SubRegionID);
-            await PopulateLocationsDropDownList(requestModel.SubRegionID, requestModel.LocationID);
-            var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleTypeEnum.ProviderInfrastructure);
-            await base.PopulatePortPoolsDropDownList(portRole.PortRoleID, requestModel.PortPoolID);
-            var device = await DeviceService.GetByIDAsync(requestModel.DeviceID);
-            await PopulateAttachmentRolesDropDownList(requestModel.PortPoolID, device.DeviceRoleID, requestModel.AttachmentRoleID);
-            await base.PopulateDevicesByLocationDropDownList(requestModel.LocationID, selectedDevice: requestModel.DeviceID);
-            await base.PopulateBandwidthsDropDownList();
+        //    await PopulateRegionsDropDownList(requestModel.RegionID);
+        //    await PopulateSubRegionsDropDownList(requestModel.RegionID, requestModel.SubRegionID);
+        //    await PopulateLocationsDropDownList(requestModel.SubRegionID, requestModel.LocationID);
+        //    var portRole = await PortRoleService.GetByPortRoleTypeAsync(Models.PortRoleTypeEnum.ProviderInfrastructure);
+        //    await base.PopulatePortPoolsDropDownList(portRole.PortRoleID, requestModel.PortPoolID);
+        //    var device = await DeviceService.GetByIDAsync(requestModel.DeviceID);
+        //    await PopulateAttachmentRolesDropDownList(requestModel.PortPoolID, device.DeviceRoleID, requestModel.AttachmentRoleID);
+        //    await base.PopulateDevicesByLocationDropDownList(requestModel.LocationID, selectedDevice: requestModel.DeviceID);
+        //    await base.PopulateBandwidthsDropDownList();
 
-            return View(requestModel);
-        }
+        //    return View(requestModel);
+        //}
 
         [HttpGet]
         public async Task<ActionResult> Edit(int? id)

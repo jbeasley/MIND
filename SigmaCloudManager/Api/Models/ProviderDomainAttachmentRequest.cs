@@ -79,7 +79,7 @@ namespace Mind.Api.Models
         public string PortPoolName { get; set; }
 
         /// <summary>
-        /// The name of an attachment role which sets certain constrains on how the attachment must be configuted
+        /// The name of an attachment role which sets certain constraints on how the attachment must be configuted
         /// </summary>
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>PE-CE-UNTAGGED</example>

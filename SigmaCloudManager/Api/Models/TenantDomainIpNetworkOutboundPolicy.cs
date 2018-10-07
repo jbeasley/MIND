@@ -47,7 +47,7 @@ namespace Mind.Api.Models
         /// The CIDR block representation of the tenant IP network
         /// </summary>
         /// <value>String representing the CIDR notation of the tenant IP network</value>
-        /// <exampel>10.1.1.0/24 le 32</exampel>
+        /// <example>10.1.1.0/24 le 32</example>
         [DataMember(Name = "cidrName")]
         public string CidrName { get; private set; }
 
@@ -108,7 +108,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// Returns true if TenantDomainIpNetworkOutboundPolicy instances are equal
         /// </summary>
-        /// <param name="other">Instance of VpnTenantIpv4NetworkOut to be compared</param>
+        /// <param name="other">Instance of TenantDomainIpNetworkOutboundPolicy to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(TenantDomainIpNetworkOutboundPolicy other)
         {

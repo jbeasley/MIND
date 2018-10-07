@@ -44,8 +44,10 @@ namespace SCM.Models
                         .Include(x => x.ContractBandwidthPool)
                         .Include(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.Vlans)
                         .Include(x => x.Tenant);
         }

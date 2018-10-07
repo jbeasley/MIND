@@ -36,6 +36,7 @@ namespace Mind.Api.Controllers
     /// API for creating and managing the lifecycle of vpn attachment sets, i.e. attachment set associations with a vpn
     /// </summary>
     [ApiVersion("1.0")]
+    [ApiExplorerSettings(GroupName = "Provider Domain Attachment Set To VPN Bindings")]
     public class VpnAttachmentSetApiController : BaseApiController
     {
         private readonly IVpnAttachmentSetService _vpnAttachmentSetService;

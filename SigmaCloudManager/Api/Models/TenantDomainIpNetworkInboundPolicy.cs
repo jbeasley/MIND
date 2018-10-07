@@ -116,9 +116,9 @@ namespace Mind.Api.Models
         }
 
         /// <summary>
-        /// Returns true if VpnTenantIpv4NetworkIn instances are equal
+        /// Returns true if TenantDomainIpNetworkinboundPolicy instances are equal
         /// </summary>
-        /// <param name="other">Instance of VpnTenantIpv4NetworkIn to be compared</param>
+        /// <param name="other">Instance of TenantDomainIpNetworkinboundPolicy to be compared</param>
         /// <returns>Boolean</returns>
         public bool Equals(TenantDomainIpNetworkInboundPolicy other)
         {

@@ -26,13 +26,13 @@ namespace Mind.Models.RequestModels
         public Int32? TenantId { get; set; }
 
         /// <summary>
-        /// The name of an vif role which sets certain constrains on how the vif must be configuted
+        /// The name of an vif role which sets certain constraints on how the vif must be configured
         /// </summary>
         /// <value>String value denoting the name of a vif role</value>
         public string VifRoleName { get; set; }
 
         /// <summary>
-        /// The requested vlan tag to be assigned to the vif. This property is optional, If a requested vlan tag is not specified
+        /// The requested vlan tag to be assigned to the vif. This property is optional. If a requested vlan tag is not specified
         /// then MIND will automatically allocate one.
         /// </summary>
         /// <value>An integer denoting the requested vlan tag</value>

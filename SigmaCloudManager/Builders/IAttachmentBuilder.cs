@@ -11,6 +11,7 @@ namespace Mind.Builders
     {
         IAttachmentBuilder<TAttachmentBuilder> ForTenant(int? tenantId);
         IAttachmentBuilder<TAttachmentBuilder> ForDevice(int? deviceId);
+        IAttachmentBuilder<TAttachmentBuilder> ForAttachment(int? attachmentId);
         IAttachmentBuilder<TAttachmentBuilder> WithIpv4(List<Ipv4AddressAndMask> ipv4Addresses);
         IAttachmentBuilder<TAttachmentBuilder> WithAttachmentRole(string attachmentRoleName);
         IAttachmentBuilder<TAttachmentBuilder> WithPortPool(string portPoolName);
@@ -21,6 +22,7 @@ namespace Mind.Builders
         IAttachmentBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false);
         IAttachmentBuilder<TAttachmentBuilder> UseExistingRoutingInstance(string routingInstanceName);
+        IAttachmentBuilder<TAttachmentBuilder> WithNewRoutingInstance(bool? newRoutingInstance = false);
         IAttachmentBuilder<TAttachmentBuilder> UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
         Task<Attachment> BuildAsync();
     }

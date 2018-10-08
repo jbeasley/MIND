@@ -52,9 +52,9 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps))
                 .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
                 .ForMember(dst => dst.AttachmentRoleName, conf => conf.MapFrom(src => src.AttachmentRole.Name));
-            CreateMap<SCM.Models.Vif, Mind.Api.Models.ProviderVif>()
+            CreateMap<SCM.Models.Vif, Mind.Api.Models.ProviderDomainVif>()
                 .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
-            CreateMap<SCM.Models.Vif, Mind.Api.Models.TenantVif>()
+            CreateMap<SCM.Models.Vif, Mind.Api.Models.TenantDomainVif>()
                 .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
             CreateMap<SCM.Models.Vlan, Mind.Api.Models.Vlan>();
             CreateMap<SCM.Models.Interface, Mind.Api.Models.Interface>();

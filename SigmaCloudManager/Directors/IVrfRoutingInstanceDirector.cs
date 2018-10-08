@@ -8,7 +8,7 @@ namespace Mind.Builders
 {
     public interface IVrfRoutingInstanceDirector
     {
-        Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int tenantId, 
+        Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int? tenantId, 
             RouteDistinguisherRangeTypeEnum rdRangeType = RouteDistinguisherRangeTypeEnum.Default);
     }
 }

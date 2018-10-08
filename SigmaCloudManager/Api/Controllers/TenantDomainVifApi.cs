@@ -63,7 +63,7 @@ namespace Mind.Api.Controllers
         [Route("/v{version:apiVersion}/tenant-domain-attachments/{attachmentId}/vifs")]
         [ValidateModelState]
         [ValidateTenantDomainAttachmentExists]
-        [SwaggerResponse(statusCode: 201, type: typeof(TenantVif), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 201, type: typeof(TenantDomainVif), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> CreateTenantDomainVif([FromRoute][Required]int? attachmentId, [FromBody]TenantDomainVifRequest body)
@@ -72,7 +72,7 @@ namespace Mind.Api.Controllers
             {
                 var request = Mapper.Map<Mind.Models.RequestModels.TenantDomainVifRequest>(body);
                 var vif = await _vifService.AddAsync(attachmentId.Value, request);
-                var vifApiModel = Mapper.Map<Mind.Api.Models.TenantVif>(vif);
+                var vifApiModel = Mapper.Map<Mind.Api.Models.TenantDomainVif>(vif);
                 return CreatedAtRoute("GetTenantDomainVif", new { vifId = vif.VifID }, vifApiModel);
             }
 
@@ -147,12 +147,12 @@ namespace Mind.Api.Controllers
         [ValidateModelState]
         [ValidateTenantDomainAttachmentExists]
         [SwaggerOperation("GetTenantDomainVifsByAttachmentId")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<TenantVif>), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<TenantDomainVif>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetTenantDomainVifsByAttachmentId([FromRoute][Required]int? attachmentId, [FromQuery]bool? deep)
         {
             var vifs = await _vifService.GetAllByAttachmentIDAsync(attachmentId.Value, deep);
-            return Ok(Mapper.Map<List<TenantVif>>(vifs));
+            return Ok(Mapper.Map<List<TenantDomainVif>>(vifs));
         }
 
         /// <summary>
@@ -170,7 +170,7 @@ namespace Mind.Api.Controllers
         [ValidateModelState]
         [ValidateTenantDomainVifExists]
         [SwaggerOperation("GetTenantDomainVifById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(TenantVif), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 200, type: typeof(TenantDomainVif), description: "Successful operation")]
         [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public async virtual Task<IActionResult> GetTenantDomainDomainVifById([FromRoute][Required]int? attachmentId, [FromRoute][Required]int? vifId,[FromQuery]bool? deep)
@@ -185,7 +185,7 @@ namespace Mind.Api.Controllers
                 return StatusCode(StatusCodes.Status304NotModified);
             }
 
-            return Ok(Mapper.Map<TenantVif>(vif));
+            return Ok(Mapper.Map<TenantDomainVif>(vif));
         }
 
         /// <summary>

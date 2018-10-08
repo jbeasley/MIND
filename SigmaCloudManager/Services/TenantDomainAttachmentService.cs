@@ -90,7 +90,8 @@ namespace Mind.Services
                             q =>
                               q.AttachmentID == attachmentId,
                              query: q => q.Include(x => x.ContractBandwidthPool.Attachments)
-                                          .Include(x => x.ContractBandwidthPool.Vifs),
+                                          .Include(x => x.ContractBandwidthPool.Vifs)
+                                          .Include(x => x.AttachmentRole),
                               AsTrackable: true)
                               select result)
                               .Single();

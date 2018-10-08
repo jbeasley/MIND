@@ -300,7 +300,7 @@ namespace Mind.Builders
 
             var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
             var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _vif.Attachment.DeviceID,
-                                                                           tenantId: _vif.Tenant.TenantID);
+                                                                           tenantId: _vif.Tenant?.TenantID);
 
             _vif.RoutingInstance = routingInstance;
         }

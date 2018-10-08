@@ -10,9 +10,9 @@ namespace Mind.Builders
 {
     public class TenantDomainTaggedBundleAttachmentUpdateDirector: ITenantDomainAttachmentUpdateDirector
     {
-        private readonly Func<Attachment, IBundleAttachmentUpdateBuilder> _builderFactory;
+        private readonly Func<Attachment, IBundleAttachmentBuilder> _builderFactory;
 
-        public TenantDomainTaggedBundleAttachmentUpdateDirector(Func<Attachment, IBundleAttachmentUpdateBuilder> builderFactory)
+        public TenantDomainTaggedBundleAttachmentUpdateDirector(Func<Attachment, IBundleAttachmentBuilder> builderFactory)
         {
             _builderFactory = builderFactory;
         }
@@ -23,7 +23,7 @@ namespace Mind.Builders
             return await builder.ForAttachment(attachment.AttachmentID)
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
-                                .UpdateAsync();
+                                .BuildAsync();
         }
     }
 }

@@ -274,6 +274,7 @@ namespace Mind
             builder.RegisterType<TenantDomainIpNetworkOutboundPolicyService>().As<ITenantDomainIpNetworkOutboundPolicyService>();
             builder.RegisterType<ProviderDomainCommunityOutboundPolicyService>().As<IProviderDomainCommunityOutboundPolicyService>();
             builder.RegisterType<InfrastructureAttachmentService>().As<IInfrastructureAttachmentService>();
+            builder.RegisterType<InfrastructureVifService>().As<IInfrastructureVifService>();
 
             // Provider domain single attachment directors
             builder.RegisterType<ProviderDomainUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
@@ -300,16 +301,22 @@ namespace Mind
             .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedMultiPortAttachmentDirector");
 
             //Provider domain single attachment update directors
-            builder.RegisterType<ProviderDomainUntaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+            builder.RegisterType<ProviderDomainUntaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
                 .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedSingleAttachmentUpdateDirector");
-            builder.RegisterType<ProviderDomainTaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+            builder.RegisterType<ProviderDomainTaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
                 .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedSingleAttachmentUpdateDirector");
 
             //Infrastructure single attachment update directors
-            builder.RegisterType<InfrastructureUntaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IInfrastructureAttachmentUpdateDirector>()
+            builder.RegisterType<InfrastructureUntaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<IInfrastructureAttachmentUpdateDirector>()
                 .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedSingleAttachmentUpdateDirector");
-            builder.RegisterType<InfrastructureTaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<IInfrastructureAttachmentUpdateDirector>()
+            builder.RegisterType<InfrastructureTaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<IInfrastructureAttachmentUpdateDirector>()
                 .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedSingleAttachmentUpdateDirector");
+
+            // Infrastructure bundle attachment directors
+            builder.RegisterType<InfrastructureUntaggedBundleAttachmentDirector>().As<IInfrastructureAttachmentDirector>()
+                .Keyed<IInfrastructureAttachmentDirector>("InfrastructureUntaggedBundleAttachmentDirector");
+            builder.RegisterType<InfrastructureTaggedBundleAttachmentDirector>().As<IInfrastructureAttachmentDirector>()
+                .Keyed<IInfrastructureAttachmentDirector>("InfrastructureTaggedBundleAttachmentDirector");
 
             //Provider domain bundle attachment update directors
             builder.RegisterType<ProviderDomainUntaggedBundleAttachmentUpdateDirector>().As<IProviderDomainAttachmentUpdateDirector>()
@@ -317,10 +324,16 @@ namespace Mind
             builder.RegisterType<ProviderDomainTaggedBundleAttachmentUpdateDirector>().As<IProviderDomainAttachmentUpdateDirector>()
                 .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedBundleAttachmentUpdateDirector");
 
+            //Infrastructure bundle attachment update directors
+            builder.RegisterType<InfrastructureUntaggedBundleAttachmentUpdateDirector>().As<IInfrastructureAttachmentUpdateDirector>()
+                .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedBundleAttachmentUpdateDirector");
+            builder.RegisterType<InfrastructureTaggedBundleAttachmentUpdateDirector>().As<IInfrastructureAttachmentUpdateDirector>()
+                .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedBundleAttachmentUpdateDirector");
+
             //Provider domain multiport attachment update directors
-            builder.RegisterType<ProviderDomainUntaggedAttachmentUpdateDirector<MultiPortAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+            builder.RegisterType<ProviderDomainUntaggedAttachmentUpdateDirector<MultiPortAttachmentBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
                 .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainUntaggedMultiPortAttachmentUpdateDirector");
-            builder.RegisterType<ProviderDomainTaggedAttachmentUpdateDirector<MultiPortAttachmentUpdateBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
+            builder.RegisterType<ProviderDomainTaggedAttachmentUpdateDirector<MultiPortAttachmentBuilder>>().As<IProviderDomainAttachmentUpdateDirector>()
                 .Keyed<IProviderDomainAttachmentUpdateDirector>("ProviderDomainTaggedMultiPortAttachmentUpdateDirector");
 
             // Tenant domain single attachment directors
@@ -342,9 +355,9 @@ namespace Mind
                 .Keyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedMultiPortAttachmentDirector");
 
             // Tenant domain single attachment update directors
-            builder.RegisterType<TenantDomainUntaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<ITenantDomainAttachmentUpdateDirector>()
+            builder.RegisterType<TenantDomainUntaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<ITenantDomainAttachmentUpdateDirector>()
                 .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedSingleAttachmentUpdateDirector");
-            builder.RegisterType<TenantDomainTaggedAttachmentUpdateDirector<SingleAttachmentUpdateBuilder>>().As<ITenantDomainAttachmentUpdateDirector>()
+            builder.RegisterType<TenantDomainTaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<ITenantDomainAttachmentUpdateDirector>()
                 .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedSingleAttachmentUpdateDirector");
 
             // Tenant domain bundle attachment update directors
@@ -388,13 +401,19 @@ namespace Mind
             builder.RegisterType<ProviderDomainVifDirector>().As<IProviderDomainVifDirector>();
             builder.RegisterType<ProviderDomainVifUpdateDirector>().As<IProviderDomainVifUpdateDirector>();
 
+            // Infrastructure vif directors
+            builder.RegisterType<InfrastructureVifDirector>().As<IInfrastructureVifDirector>();
+            builder.RegisterType<InfrastructureVifUpdateDirector>().As<IInfrastructureVifUpdateDirector>();
+
             // Tenant domain vif directors
             builder.RegisterType<TenantDomainVifDirector>().As<ITenantDomainVifDirector>();
             builder.RegisterType<TenantDomainVifUpdateDirector>().As<ITenantDomainVifUpdateDirector>();
 
-            // VRF routing instance director
+            // VRF routing instance directors
             builder.RegisterType<TenantFacingVrfRoutingInstanceDirector>().As<IVrfRoutingInstanceDirector>()
                 .Keyed<IVrfRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
+            builder.RegisterType<InfrastructureVrfRoutingInstanceDirector>().As<IVrfRoutingInstanceDirector>()
+                .Keyed<IVrfRoutingInstanceDirector>("InfrastructureVrfRoutingInstanceDirector");
 
             // Default routing instance director 
             builder.RegisterType<DefaultRoutingInstanceDirector>().As<IRoutingInstanceDirector>();
@@ -557,6 +576,10 @@ namespace Mind
                     {
                         return context.ResolveKeyed<IVrfRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
                     }
+                    else if (routingInstanceType.Type == SCM.Models.RoutingInstanceTypeEnum.InfrastructureVrf)
+                    {
+                        return context.ResolveKeyed<IVrfRoutingInstanceDirector>("InfrastructureVrfRoutingInstanceDirector");
+                    }
 
                     return null;
                 };
@@ -601,6 +624,36 @@ namespace Mind
                 };
             });
 
+            // Infrastructure Attachment Update Director Factory
+            builder.Register<Func<SCM.Models.Attachment, IInfrastructureAttachmentUpdateDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (attachment) =>
+                {
+                    if (attachment.AttachmentRole.IsTaggedRole)
+                    {
+                        if (attachment.IsBundle)
+                        {
+                            return context.ResolveKeyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedBundleAttachmentUpdateDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedSingleAttachmentUpdateDirector");
+                        }
+                    }
+                    else
+                    {
+                        if (attachment.IsBundle)
+                        {
+                            return context.ResolveKeyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedBundleAttachmentUpdateDirector");
+                        }
+                        else
+                        {
+                            return context.ResolveKeyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedSingleAttachmentUpdateDirector");
+                        }
+                    }
+                };
+            });
 
             // Tenant Domain Attachment Update Director Factory
             builder.Register<Func<SCM.Models.Attachment, ITenantDomainAttachmentUpdateDirector>>((c, p) =>
@@ -683,9 +736,6 @@ namespace Mind
             builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
             builder.RegisterType<VrfRoutingInstanceBuilder>().As<IVrfRoutingInstanceBuilder>();
             builder.RegisterType<DefaultRoutingInstanceBuilder>().As<IDefaultRoutingInstanceBuilder>();
-            builder.RegisterType<SingleAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<SingleAttachmentUpdateBuilder>>();
-            builder.RegisterType<MultiPortAttachmentUpdateBuilder>().As<IAttachmentUpdateBuilder<MultiPortAttachmentUpdateBuilder>>();
-            builder.RegisterType<BundleAttachmentUpdateBuilder>().As<IBundleAttachmentUpdateBuilder>();
             builder.RegisterType<AttachmentSetBuilder>().As<IAttachmentSetBuilder>();
             builder.RegisterType<AttachmentSetUpdateBuilder>().As<IAttachmentSetUpdateBuilder>();
             builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();

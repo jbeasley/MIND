@@ -25,9 +25,21 @@ namespace Mind.Builders
             return this;
         }
 
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.ForAttachment(int? attachmentId)
+        {
+            base.ForAttachment(attachmentId);
+            return this;
+        }
+
         IBundleAttachmentBuilder IBundleAttachmentBuilder.UseExistingRoutingInstance(string routingInstanceName)
         {
             base.UseExistingRoutingInstance(routingInstanceName);
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithNewRoutingInstance(bool? newRoutingInstance)
+        {
+            base.WithNewRoutingInstance(newRoutingInstance);
             return this;
         }
 

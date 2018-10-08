@@ -93,7 +93,8 @@ namespace Mind.Services
                               query: q => q.Include(x => x.RoutingInstance.Attachments)
                                            .Include(x => x.RoutingInstance.Vifs)
                                            .Include(x => x.ContractBandwidthPool.Attachments)
-                                           .Include(x => x.ContractBandwidthPool.Vifs),
+                                           .Include(x => x.ContractBandwidthPool.Vifs)
+                                           .Include(x => x.AttachmentRole),
                                             AsTrackable: true)
                                             select result)
                                             .Single();

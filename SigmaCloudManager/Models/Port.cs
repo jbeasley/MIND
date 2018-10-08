@@ -18,7 +18,8 @@ namespace SCM.Models
                         .Include(x => x.PortPool.PortRole.DeviceRolePortRoles)
                         .Include(x => x.PortSfp)
                         .Include(x => x.PortStatus)
-                        .Include(x => x.Tenant);
+                        .Include(x => x.Tenant)
+                        .Include(x => x.Interface.Attachment);
         }
 
         public static IQueryable<Port> IncludeDeleteValidationProperties(this IQueryable<Port> query)
@@ -118,10 +119,18 @@ namespace SCM.Models
 
             if (this.PortStatus.PortStatusType == PortStatusTypeEnum.Assigned)
             {
-                if (this.Device.DeviceRole.IsProviderDomainRole)
+                if (this.Interface?.Attachment == null)
                 {
-                    if (this.Tenant == null) throw new IllegalStateException($"Port '{this.FullName}' must be assigned to a tenant in order for the port status " +
-                        $"to be set to 'Assigned'.");
+                    throw new IllegalStateException($"The port status for port '{this.FullName}' cannot be set to 'Assigned' without an allocated " +
+                        $"attachment ");
+                }
+            }
+            else
+            {
+                if (this.Interface?.Attachment != null)
+                {
+                    throw new IllegalStateException($"The port status for port '{this.FullName}' must be set to 'Assigned' because an allocated " +
+                        $"attachment exists which is bound to the port.");
                 }
             }
 

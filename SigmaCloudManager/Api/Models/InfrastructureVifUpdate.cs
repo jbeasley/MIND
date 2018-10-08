@@ -22,29 +22,28 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// Model for requesting an infrastructure vif
+    /// Model for updating an infrastructure vif
     /// </summary>
     [DataContract]
-    public partial class InfrastructureVifRequest : IEquatable<InfrastructureVifRequest>, IValidatableObject
+    public partial class InfrastructureVifUpdate : IEquatable<InfrastructureVifUpdate>, IValidatableObject
     {
         /// <summary>
-        /// The name of an vif role which sets certain constrains on how the vif must be configuted
+        /// Determines if the updated vif should be associated with a new routing instance. If the value of this property is true
+        /// then the value of the ExistingRoutingInstanceName property must be null.
         /// </summary>
-        /// <value>String value denoting the name of a vif role</value>
-        /// <example>PE-LBA-SERVICE</example>
-        [Required]
-        [DataMember(Name = "vifRoleName")]
-        public string VifRoleName { get; set; }
+        /// <value>A boolean which when set to true indicates a new routing instance is required</value>
+        /// <example>true</example>
+        [DataMember(Name = "createNewRoutingInstance")]
+        public bool? CreateNewRoutingInstance { get; set; }
 
         /// <summary>
-        /// The requested vlan tag to be assigned to the vif. This property is optional. If a requested vlan tag is not specified
-        /// then MIND will automatically allocate one.
+        /// If specified, the vif should be associated with an existing routing instance
+        /// of the given name.
         /// </summary>
-        /// <value>An integer denoting the requested vlan tag</value>
-        /// <example>100</example>
-        [DataMember(Name = "RequestedVlanTag")]
-        [Range(2,4094)]
-        public int? RequestedVlanTag { get; set; }
+        /// <value>A string value of the name of an existing routing instance</value>
+        /// <exanple>db7c48eaa9864cd0b3aa6af08c8370d6</exanple>
+        [DataMember(Name = "existingRoutingInstanceName")]
+        public string ExistingRoutingInstanceName { get; set; }
 
         /// <summary>
         /// The required contract bandwidth in Mbps
@@ -64,22 +63,19 @@ namespace Mind.Api.Models
         public string ExistingContractBandwidthPoolName { get; set; }
 
         /// <summary>
-        /// If specified, the vif should be associated with an existing routing instance
-        /// of the given name.
-        /// If an existing routing instance is not specified then MIND will automatically create a new routing
-        /// instance for the vif.
-        /// </summary>
-        /// <value>A string value of the name of an existing routing instance</value>
-        /// <exanple>db7c48eaa9864cd0b3aa6af08c8370d6</exanple>
-        [DataMember(Name = "existingRoutingInstanceName")]
-        public string ExistingRoutingInstanceName { get; set; }
-
-        /// <summary>
         /// A list of IPv4 addresses to be assigned to the vlans of the vif
         /// </summary>
         /// <value>A list of Ipv4AddressAndMask objcets</value>
         [DataMember(Name="ipv4Addresses")]
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
+
+        /// <summary>
+        /// Determines if the updated vif should use jumbo MTU
+        /// </summary>
+        /// <value>A boolean which when set to true indicates jumbo MTU is required</value>
+        /// <example>true</example>
+        [DataMember(Name = "useJumboMtu")]
+        public bool? UseJumboMtu { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -102,9 +98,7 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class InfrastructureVifRequest {\n");
-            sb.Append("  RequestedVlanTag: ").Append(RequestedVlanTag).Append("\n");
-            sb.Append("  VifRoleName: ").Append(VifRoleName).Append("\n");
+            sb.Append("class InfrastructureVifUpdate {\n");
             sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
             sb.Append("  ExistingContractBandwidthPoolName: ").Append(ExistingContractBandwidthPoolName).Append("\n");
@@ -130,15 +124,15 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((InfrastructureVifRequest)obj);
+            return obj.GetType() == GetType() && Equals((InfrastructureVifUpdate)obj);
         }
 
         /// <summary>
-        /// Returns true if InfrastructureVifRequest instances are equal
+        /// Returns true if InfrastructureVifUpdate instances are equal
         /// </summary>
-        /// <param name="other">Instance of InfrastructureVifRequest to be compared</param>
+        /// <param name="other">Instance of InfrastructureVifUpdate to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(InfrastructureVifRequest other)
+        public bool Equals(InfrastructureVifUpdate other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -148,15 +142,6 @@ namespace Mind.Api.Models
                     ExistingContractBandwidthPoolName == other.ExistingContractBandwidthPoolName ||
                     ExistingContractBandwidthPoolName != null &&
                     ExistingContractBandwidthPoolName.Equals(other.ExistingContractBandwidthPoolName)
-                ) &&
-                (
-                    VifRoleName == other.VifRoleName ||
-                    VifRoleName != null &&
-                    VifRoleName.Equals(other.VifRoleName)
-                ) &&
-                (   RequestedVlanTag == other.RequestedVlanTag ||
-                    RequestedVlanTag != null &&
-                    RequestedVlanTag.Equals(other.RequestedVlanTag)
                 ) &&
                 (
                     ContractBandwidthMbps == other.ContractBandwidthMbps ||
@@ -180,10 +165,6 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (RequestedVlanTag != null)
-                    hashCode = hashCode * 59 + RequestedVlanTag.GetHashCode();
-                    if (VifRoleName != null)
-                    hashCode = hashCode * 59 + VifRoleName.GetHashCode();
                     if (ContractBandwidthMbps != null)
                     hashCode = hashCode * 59 + ContractBandwidthMbps.GetHashCode();
                     if (Ipv4Addresses != null)
@@ -197,12 +178,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(InfrastructureVifRequest left, InfrastructureVifRequest right)
+        public static bool operator ==(InfrastructureVifUpdate left, InfrastructureVifUpdate right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(InfrastructureVifRequest left, InfrastructureVifRequest right)
+        public static bool operator !=(InfrastructureVifUpdate left, InfrastructureVifUpdate right)
         {
             return !Equals(left, right);
         }

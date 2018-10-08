@@ -22,11 +22,11 @@ using Newtonsoft.Json;
 namespace Mind.Api.Models
 { 
     /// <summary>
-    /// Model of a provicer vif - a virtual attachment which is configured under a tenant-facing 
+    /// Model of a provider domain vif - a virtual attachment which is configured under a tenant-facing 
     /// tagged attachment in the provider domain
     /// </summary>
     [DataContract]
-    public partial class ProviderVif : IEquatable<ProviderVif>
+    public partial class ProviderDomainVif : IEquatable<ProviderDomainVif>
     { 
         /// <summary>
         /// The ID of the vif
@@ -70,6 +70,15 @@ namespace Mind.Api.Models
         public int? AttachmentId { get; private set; }
 
         /// <summary>
+        /// The name of the vif role
+        /// </summary>
+        /// <value>String value denoting the name of a vif role</value>
+        /// <example>PE-CE-SERVICE</example>
+        [Required]
+        [DataMember(Name = "VifRoleName")]
+        public string VifRoleName { get; private set; }
+
+        /// <summary>
         /// The ID of the owning tenant
         /// </summary>
         /// <value>Integer value denoting the ID of the owning tenant</value>
@@ -78,9 +87,9 @@ namespace Mind.Api.Models
         public int? TenantId { get; private set; }
 
         /// <summary>
-        /// THe routing instance to which teh vif belongs
+        /// THe routing instance to which the vif belongs
         /// </summary>
-        /// <value>An instance of RoutingInstance</value>
+        /// <value>An instance of ProviderDomainRoutingInstance</value>
         [DataMember(Name="routingInstance")]
         public ProviderDomainRoutingInstance RoutingInstance { get; private set; }
 
@@ -113,7 +122,7 @@ namespace Mind.Api.Models
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class ProviderVif {\n");
+            sb.Append("class ProviderDomainVif {\n");
             sb.Append("  VifId: ").Append(VifId).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  IsLayer3: ").Append(IsLayer3).Append("\n");
@@ -124,6 +133,7 @@ namespace Mind.Api.Models
             sb.Append("  Vlans: ").Append(Vlans).Append("\n");
             sb.Append("  ContractBandwidthPool: ").Append(ContractBandwidthPool).Append("\n");
             sb.Append("  Mtu: ").Append(Mtu).Append("\n");
+            sb.Append("  VifRoleName: ").Append(VifRoleName).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -146,15 +156,15 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((ProviderVif)obj);
+            return obj.GetType() == GetType() && Equals((ProviderDomainVif)obj);
         }
 
         /// <summary>
-        /// Returns true if ProviderVif instances are equal
+        /// Returns true if ProviderDomainVif instances are equal
         /// </summary>
-        /// <param name="other">Instance of ProviderVif to be compared</param>
+        /// <param name="other">Instance of ProviderDomainVif to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(ProviderVif other)
+        public bool Equals(ProviderDomainVif other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -169,7 +179,12 @@ namespace Mind.Api.Models
                     Name == other.Name ||
                     Name != null &&
                     Name.Equals(other.Name)
-                ) && 
+                ) &&
+                (
+                    VifRoleName == other.VifRoleName ||
+                    VifRoleName != null &&
+                    VifRoleName.Equals(other.VifRoleName)
+                ) &&
                 (
                     IsLayer3 == other.IsLayer3 ||
                     IsLayer3 != null &&
@@ -242,6 +257,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + ContractBandwidthPool.GetHashCode();
                     if (Mtu != null)
                     hashCode = hashCode * 59 + Mtu.GetHashCode();
+                    if (VifRoleName != null)
+                    hashCode = hashCode * 59 + VifRoleName.GetHashCode();
                 return hashCode;
             }
         }
@@ -249,12 +266,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(ProviderVif left, ProviderVif right)
+        public static bool operator ==(ProviderDomainVif left, ProviderDomainVif right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(ProviderVif left, ProviderVif right)
+        public static bool operator !=(ProviderDomainVif left, ProviderDomainVif right)
         {
             return !Equals(left, right);
         }

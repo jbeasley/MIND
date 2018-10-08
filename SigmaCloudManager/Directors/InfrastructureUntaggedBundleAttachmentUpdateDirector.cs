@@ -8,12 +8,11 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class InfrastructureUntaggedAttachmentUpdateDirector<TAttachmentBuilder> : IInfrastructureAttachmentUpdateDirector 
-        where TAttachmentBuilder: IAttachmentBuilder<TAttachmentBuilder>
+    public class InfrastructureUntaggedBundleAttachmentUpdateDirector : IInfrastructureAttachmentUpdateDirector
     {
-        private readonly Func<Attachment, IAttachmentBuilder<TAttachmentBuilder>> _builderFactory;
+        private readonly Func<Attachment, IBundleAttachmentBuilder> _builderFactory;
 
-        public InfrastructureUntaggedAttachmentUpdateDirector(Func<Attachment, IAttachmentBuilder<TAttachmentBuilder>> builderFactory)
+        public InfrastructureUntaggedBundleAttachmentUpdateDirector(Func<Attachment, IBundleAttachmentBuilder> builderFactory)
         {
             _builderFactory = builderFactory;
         }
@@ -23,6 +22,7 @@ namespace Mind.Builders
             var builder = _builderFactory(attachment);
             return await builder.ForAttachment(attachment.AttachmentID)
                                 .WithJumboMtu(update.UseJumboMtu)
+                                .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
                                 .BuildAsync();
         }
     }

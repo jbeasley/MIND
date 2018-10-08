@@ -33,20 +33,19 @@ using Mind.Models;
 namespace Mind.Api.Controllers
 {
     /// <summary>
-    /// 
+    /// Create and manage the lifecycle of infrastructure virtual interfaces
     /// </summary>
-    [ApiVersion("1.0")]
-    [ApiExplorerSettings(GroupName = "Provider Domain Tenant Virtual Interfaces")]
-    public class ProviderDomainVifApiController : BaseApiController
+    [ApiExplorerSettings(GroupName = "Infrastructure Virtual Interfaces")]
+    public class InfrastructureVifApiController : BaseApiController
     {
-        private readonly IProviderDomainVifService _vifService;
+        private readonly IInfrastructureVifService _vifService;
 
         /// <summary>
         /// 
         /// </summary>
         /// <param name="vifService"></param>
         /// <param name="mapper"></param>
-        public ProviderDomainVifApiController(IProviderDomainVifService vifService, IMapper mapper) : base(vifService, mapper)
+        public InfrastructureVifApiController(IInfrastructureVifService vifService, IMapper mapper) : base(vifService, mapper)
         {
             _vifService = vifService;
         }
@@ -61,20 +60,20 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs")]
+        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs")]
         [ValidateModelState]
-        [ValidateProviderDomainAttachmentExists]
-        [SwaggerResponse(statusCode: 201, type: typeof(ProviderDomainVif), description: "Successful operation")]
+        [ValidateInfrastructureAttachmentExists]
+        [SwaggerResponse(statusCode: 201, type: typeof(InfrastructureVif), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual async Task<IActionResult> CreateTenantProviderDomainVif([FromRoute][Required]int? attachmentId, [FromBody]ProviderDomainVifRequest body)
+        public virtual async Task<IActionResult> CreateInfrastructureVif([FromRoute][Required]int? attachmentId, [FromBody]InfrastructureVifRequest body)
         {
             try
             {
-                var request = Mapper.Map<Mind.Models.RequestModels.ProviderDomainVifRequest>(body);
+                var request = Mapper.Map<Mind.Models.RequestModels.InfrastructureVifRequest>(body);
                 var vif = await _vifService.AddAsync(attachmentId.Value, request);
-                var vifApiModel = Mapper.Map<Mind.Api.Models.ProviderDomainVif>(vif);
-                return CreatedAtRoute("GetProviderDomainVif", new { vifId = vif.VifID }, vifApiModel);
+                var vifApiModel = Mapper.Map<Mind.Api.Models.InfrastructureVif>(vif);
+                return CreatedAtRoute("GetInfrastructureVif", new { vifId = vif.VifID }, vifApiModel);
             }
 
             catch (BuilderBadArgumentsException ex)
@@ -109,14 +108,14 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}")]
+        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs/{vifId}")]
         [ValidateModelState]
-        [ValidateProviderDomainVifExists]
+        [ValidateInfrastructureVifExists]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation failed")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> DeleteProviderDomainVif([FromRoute][Required]int attachmentId, [FromRoute][Required]int? vifId)
+        public virtual async Task<IActionResult> DeleteInfrastructureVif([FromRoute][Required]int attachmentId, [FromRoute][Required]int? vifId)
         {
             try
             {
@@ -136,7 +135,7 @@ namespace Mind.Api.Controllers
         }
 
         /// <summary>
-        /// Find all provider domain vifs for a given attachment
+        /// Find all vifs for a given infrastructure attachment
         /// </summary>
         /// <remarks>Returns all vifs for a given attachment</remarks>
         /// <param name="attachmentId">ID of the attachment</param>
@@ -144,16 +143,16 @@ namespace Mind.Api.Controllers
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs")]
+        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs")]
         [ValidateModelState]
-        [ValidateProviderDomainAttachmentExists]
-        [SwaggerOperation("GetProviderDomainVifsByAttachmentId")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<ProviderDomainVif>), description: "Successful operation")]
+        [ValidateInfrastructureAttachmentExists]
+        [SwaggerOperation("GetInfrastructureVifsByAttachmentId")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<InfrastructureVif>), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual async Task<IActionResult> GetProviderDomainVifsByAttachmentId([FromRoute][Required]int? attachmentId, [FromQuery]bool? deep)
+        public virtual async Task<IActionResult> GetInfrastructureVifsByAttachmentId([FromRoute][Required]int? attachmentId, [FromQuery]bool? deep)
         {
             var vifs = await _vifService.GetAllByAttachmentIDAsync(attachmentId.Value, deep);
-            return Ok(Mapper.Map<List<ProviderDomainVif>>(vifs));
+            return Ok(Mapper.Map<List<InfrastructureVif>>(vifs));
         }
 
         /// <summary>
@@ -167,14 +166,14 @@ namespace Mind.Api.Controllers
         /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}", Name ="GetProviderDomainVif")]
+        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs/{vifId}", Name ="GetInfrastructureVif")]
         [ValidateModelState]
-        [ValidateProviderDomainVifExists]
-        [SwaggerOperation("GetProviderDomainVifById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(ProviderDomainVif), description: "Successful operation")]
+        [ValidateInfrastructureVifExists]
+        [SwaggerOperation("GetInfrastructureVifById")]
+        [SwaggerResponse(statusCode: 200, type: typeof(InfrastructureVif), description: "Successful operation")]
         [SwaggerResponse(statusCode: 304, description: "The specified resource has not been modified")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public async virtual Task<IActionResult> GetProvideDomainVifById([FromRoute][Required]int? attachmentId, [FromRoute][Required]int? vifId,[FromQuery]bool? deep)
+        public async virtual Task<IActionResult> GetInfrastructureDomainVifById([FromRoute][Required]int? attachmentId, [FromRoute][Required]int? vifId,[FromQuery]bool? deep)
         {
             var vif = await _vifService.GetByIDAsync(vifId.Value, deep);
             if (vif.HasBeenModified(Request))
@@ -186,7 +185,7 @@ namespace Mind.Api.Controllers
                 return StatusCode(StatusCodes.Status304NotModified);
             }
 
-            return Ok(Mapper.Map<ProviderDomainVif>(vif));
+            return Ok(Mapper.Map<InfrastructureVif>(vif));
         }
 
         /// <summary>
@@ -202,24 +201,24 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPatch]
-        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}")]
+        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs/{vifId}")]
         [ValidateModelState]
-        [ValidateProviderDomainVifExists]
-        [SwaggerOperation("UpdateProviderDomainVif")]
+        [ValidateInfrastructureVifExists]
+        [SwaggerOperation("UpdateInfrastructureVif")]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> UpdateProviderDomainVif([FromRoute][Required]int? attachmentId,
-            [FromRoute][Required]int? vifId, [FromBody]Mind.Api.Models.ProviderDomainVifUpdate body)
+        public virtual async Task<IActionResult> UpdateInfrastructureVif([FromRoute][Required]int? attachmentId,
+            [FromRoute][Required]int? vifId, [FromBody]Mind.Api.Models.InfrastructureVifUpdate body)
         { 
             try
             {
                 var item = await _vifService.GetByIDAsync(vifId.Value, asTrackable: false);
                 if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
 
-                var update = Mapper.Map<Mind.Models.RequestModels.ProviderDomainVifUpdate>(body);
+                var update = Mapper.Map<Mind.Models.RequestModels.InfrastructureVifUpdate>(body);
                 var vif = await _vifService.UpdateAsync(vifId.Value, update);
                 vif.SetModifiedHttpHeaders(Response);
 

@@ -46,6 +46,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public IAttachmentBuilder<TAttachmentBuilder> ForAttachment(int? attachmentId)
+        {
+            if (attachmentId.HasValue) _args.Add(nameof(ForAttachment), attachmentId);
+            return this;
+        }
+
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithAttachmentBandwidth(int? attachmentBandwidthGbps)
         {
             if (attachmentBandwidthGbps.HasValue) _args.Add(nameof(WithAttachmentBandwidth), attachmentBandwidthGbps);
@@ -100,6 +106,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithNewRoutingInstance(bool? newRoutingInstance)
+        {
+            if (newRoutingInstance.HasValue) _args.Add(nameof(WithNewRoutingInstance), newRoutingInstance);
+            return this;
+        }
+
         public virtual IAttachmentBuilder<TAttachmentBuilder> UseDefaultRoutingInstance(bool? useDefaultRoutingInstance)
         {
             if (useDefaultRoutingInstance.HasValue) _args.Add(nameof(UseDefaultRoutingInstance), useDefaultRoutingInstance);
@@ -118,23 +130,33 @@ namespace Mind.Builders
         /// <returns></returns>
         public virtual async Task<Attachment> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(WithAttachmentBandwidth))) await CreateAttachmentBandwidthAsync();
-            if (_args.ContainsKey(nameof(WithAttachmentRole)) && _args.ContainsKey(nameof(WithPortPool))) await CreateAttachmentRoleAsync();
-            if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
-            SetNumberOfPortsRequired();
-            SetPortBandwidthRequired();
-
-            if (_args.ContainsKey(nameof(ForDevice)))
+            if (_args.ContainsKey(nameof(ForAttachment)))
             {
-                await SetDeviceAsync();
+                // Find an existing attachment
+                await SetAttachmentAsync();
             }
             else
             {
-                await FindDeviceFromConstraintsAsync();
+                // Create a new attachment
+                if (_args.ContainsKey(nameof(WithAttachmentBandwidth))) await CreateAttachmentBandwidthAsync();
+                if (_args.ContainsKey(nameof(WithAttachmentRole)) && _args.ContainsKey(nameof(WithPortPool))) await CreateAttachmentRoleAsync();
+                if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
+                SetNumberOfPortsRequired();
+                SetPortBandwidthRequired();
+
+                if (_args.ContainsKey(nameof(ForDevice)))
+                {
+                    await SetDeviceAsync();
+                }
+                else
+                {
+                    await FindDeviceFromConstraintsAsync();
+                }
+
+                await AllocatePortsAsync();
+                CreateInterfaces();
             }
 
-            await AllocatePortsAsync();
-            CreateInterfaces();
             await SetMtuAsync();
 
             if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
@@ -384,6 +406,20 @@ namespace Mind.Builders
                           .SingleOrDefault();
 
             _attachment.Device = device ?? throw new BuilderBadArgumentsException($"The device with ID '{deviceId}' was not found.");
+        }
+
+        private async Task SetAttachmentAsync()
+        {
+            var attachmentId = (int)_args[nameof(ForAttachment)];
+            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q =>
+                            q.AttachmentID == attachmentId,
+                            query: x => x.IncludeValidationProperties(),
+                            AsTrackable: true)
+                              select attachments)
+                             .SingleOrDefault();
+
+            _attachment = attachment ?? throw new BuilderBadArgumentsException($"Could not find the attachment with ID '{attachmentId}'.");
         }
 
         /// <summary>

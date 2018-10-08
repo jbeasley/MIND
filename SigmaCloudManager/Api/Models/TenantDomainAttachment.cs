@@ -122,13 +122,13 @@ namespace Mind.Api.Models
         public TenantDomainRoutingInstance RoutingInstance { get; private set; }
 
         /// <summary>
-        /// The name of an attachment role
+        /// The name of the attachment role
         /// </summary>
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>CE-LAN-UNTAGGED</example>
         [Required]
         [DataMember(Name = "AttachmentRoleName")]
-        public string AttachmentRoleName { get; set; }
+        public string AttachmentRoleName { get; private set; }
 
         /// <summary>
         /// A list of interfaces created for the attachment

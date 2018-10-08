@@ -89,6 +89,7 @@ namespace Mind.Services
             var attachment = (from result in await UnitOfWork.AttachmentRepository.GetAsync(
                             q =>
                               q.AttachmentID == attachmentId,
+                              query: q => q.Include(x => x.AttachmentRole),
                               AsTrackable: true)
                               select result)
                               .Single();

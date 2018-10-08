@@ -47,7 +47,10 @@ namespace Mind
                 new Tag { Name = "Tenant Domain IP Network Static Routing", Description = "" },
 
                 new Tag { Name = "Provider Domain Tenant Attachments", Description = "Manage network attachments for connecting the tenant domain " +
-                "do the provider domain, such as the attachment of a CPE to a PE." },
+                "to the provider domain, such as the attachment of a CPE to a PE." },
+
+                new Tag { Name = "Provider Domain Tenant Virtual Interfaces", Description = "Manage virtual interfaces (VIFs) for connecting the tenant domain " +
+                "to the provider domain, such as vlans between a PE and a CPE." },
 
                 new Tag { Name = "Provider Domain Tenant Attachment Sets", Description = "Manage attachment sets for the resilient attachment of a tenant domain to the provider domain." },
 

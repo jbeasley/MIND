@@ -9,11 +9,11 @@ using System.Threading.Tasks;
 namespace Mind.Builders
 {
     public class ProviderDomainTaggedAttachmentUpdateDirector<TAttachmentBuilder> : IProviderDomainAttachmentUpdateDirector 
-        where TAttachmentBuilder: IAttachmentUpdateBuilder<TAttachmentBuilder>
+        where TAttachmentBuilder: IAttachmentBuilder<TAttachmentBuilder>
     {
-        private readonly Func<Attachment, IAttachmentUpdateBuilder<TAttachmentBuilder>> _builderFactory;
+        private readonly Func<Attachment, IAttachmentBuilder<TAttachmentBuilder>> _builderFactory;
 
-        public ProviderDomainTaggedAttachmentUpdateDirector(Func<Attachment, IAttachmentUpdateBuilder<TAttachmentBuilder>> builderFactory)
+        public ProviderDomainTaggedAttachmentUpdateDirector(Func<Attachment, IAttachmentBuilder<TAttachmentBuilder>> builderFactory)
         {
             _builderFactory = builderFactory;
         }
@@ -24,7 +24,7 @@ namespace Mind.Builders
             return await builder.ForAttachment(attachment.AttachmentID)
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
-                                .UpdateAsync();
+                                .BuildAsync();
         }
     }
 }

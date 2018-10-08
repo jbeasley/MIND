@@ -59,6 +59,7 @@ namespace Mind.Models.RequestModels
         /// <summary>
         /// Determines if the updated vif should use jumbo MTU
         /// </summary>
+        /// <value>Boolean value denoting whether jumbo MTU should be enabled</value>
         public bool? UseJumboMtu { get; set; }
     }
 }

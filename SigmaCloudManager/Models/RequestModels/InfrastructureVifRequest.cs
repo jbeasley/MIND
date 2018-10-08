@@ -14,10 +14,23 @@ using SCM.Models.RequestModels;
 namespace Mind.Models.RequestModels
 {
     /// <summary>
-    /// Model for updating an existing vif which belongs to a tenant domain attachment
+    /// Model for requesting an infrastructure vif
     /// </summary>
-    public class TenantDomainVifUpdate
+    public class InfrastructureVifRequest
     {
+        /// <summary>
+        /// The name of an vif role which sets certain constraints on how the vif must be configured
+        /// </summary>
+        /// <value>String value denoting the name of a vif role</value>
+        public string VifRoleName { get; set; }
+
+        /// <summary>
+        /// The requested vlan tag to be assigned to the vif. This property is optional. If a requested vlan tag is not specified
+        /// then MIND will automatically allocate one.
+        /// </summary>
+        /// <value>An integer denoting the requested vlan tag</value>
+        public int? RequestedVlanTag { get; set; }
+
         /// <summary>
         /// The required contract bandwidth in Mbps
         /// </summary>
@@ -32,22 +45,18 @@ namespace Mind.Models.RequestModels
         public string ExistingContractBandwidthPoolName { get; set; }
 
         /// <summary>
-        /// Determines whether DSCP and COS markings of packets received from the provider domain should 
-        /// be trusted by the tenant domain device.
+        /// If specified, the vif should be associated with an existing routing instance
+        /// of the given name.
+        /// If an existing routing instance is not specified then MIND will automatically create a new routing
+        /// instance for the vif.
         /// </summary>
-        /// <value>Boolean value denoting the required trust state</value>
-        public bool? TrustReceivedCosAndDscp { get; set; }
+        /// <value>A string value of the name of an existing routing instance</value>
+        public string ExistingRoutingInstanceName { get; set; }
 
         /// <summary>
-        /// A list of IPv4 addresses to be assigned to the vlans of the vif
+        /// A list of IPv4 addresses to be assigned to the interfaces of the vif
         /// </summary>
         /// <value>A list of Ipv4AddressAndMask objcets</value>
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
-
-        /// <summary>
-        /// Determines if the updated vif should use jumbo MTU
-        /// </summary>
-        /// <value>Boolean value denoting whether jumbo MTU should be enabled</value>
-        public bool? UseJumboMtu { get; set; }
     }
 }

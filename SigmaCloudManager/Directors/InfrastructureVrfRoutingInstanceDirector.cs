@@ -6,11 +6,11 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class TenantFacingVrfRoutingInstanceDirector : IVrfRoutingInstanceDirector
+    public class InfrastructureVrfRoutingInstanceDirector : IVrfRoutingInstanceDirector
     {
         private readonly IVrfRoutingInstanceBuilder _builder;
 
-        public TenantFacingVrfRoutingInstanceDirector(IVrfRoutingInstanceBuilder builder)
+        public InfrastructureVrfRoutingInstanceDirector(IVrfRoutingInstanceBuilder builder)
         {
             _builder = builder;
         }
@@ -18,9 +18,8 @@ namespace Mind.Builders
         public async Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int? tenantId, RouteDistinguisherRangeTypeEnum rdRangeType = RouteDistinguisherRangeTypeEnum.Default)
         {
             return await _builder.ForDevice(deviceId)
-                                 .WithTenant(tenantId)
                                  .WithRouteDistinguisherRange(rdRangeType)
-                                 .WithRoutingInstanceType(RoutingInstanceTypeEnum.TenantFacingVrf)
+                                 .WithRoutingInstanceType(RoutingInstanceTypeEnum.InfrastructureVrf)
                                  .BuildAsync();
         }
     }

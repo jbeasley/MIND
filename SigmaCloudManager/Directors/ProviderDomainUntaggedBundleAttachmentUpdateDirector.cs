@@ -10,9 +10,9 @@ namespace Mind.Builders
 {
     public class ProviderDomainUntaggedBundleAttachmentUpdateDirector : IProviderDomainAttachmentUpdateDirector
     {
-        private readonly Func<Attachment, IBundleAttachmentUpdateBuilder> _builderFactory;
+        private readonly Func<Attachment, IBundleAttachmentBuilder> _builderFactory;
 
-        public ProviderDomainUntaggedBundleAttachmentUpdateDirector(Func<Attachment, IBundleAttachmentUpdateBuilder> builderFactory)
+        public ProviderDomainUntaggedBundleAttachmentUpdateDirector(Func<Attachment, IBundleAttachmentBuilder> builderFactory)
         {
             _builderFactory = builderFactory;
         }
@@ -27,7 +27,7 @@ namespace Mind.Builders
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                 .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
-                                .UpdateAsync();
+                                .BuildAsync();
         }
     }
 }

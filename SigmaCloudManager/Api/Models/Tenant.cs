@@ -58,11 +58,11 @@ namespace Mind.Api.Models
         public List<ProviderDomainAttachment> Attachments { get; private set; }
 
         /// <summary>
-        /// A list of provider vifs which are assigned to the tenant.
+        /// A list of provider domain vifs which are assigned to the tenant.
         /// </summary>
         /// <value>A list of Vif objects</value>
         [DataMember(Name = "vifs")]
-        public List<ProviderVif> Vifs { get; private set; }
+        public List<ProviderDomainVif> Vifs { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object

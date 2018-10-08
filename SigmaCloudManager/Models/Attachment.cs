@@ -61,7 +61,9 @@ namespace SCM.Models
                         .ThenInclude(x => x.Ports)
                         .Include(x => x.Mtu)
                         .Include(x => x.RoutingInstance.BgpPeers)
-                        .Include(x => x.Tenant);
+                        .Include(x => x.Tenant)
+                        .Include(x => x.AttachmentRole)
+                        .Include(x => x.AttachmentBandwidth);
         }
      }
 

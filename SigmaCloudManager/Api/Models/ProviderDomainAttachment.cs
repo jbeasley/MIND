@@ -152,13 +152,13 @@ namespace Mind.Api.Models
         public int? Mtu { get; private set; }
 
         /// <summary>
-        /// The name of an attachment role
+        /// The name of the attachment role
         /// </summary>
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>PE-CE-UNTAGGED</example>
         [Required]
         [DataMember(Name = "AttachmentRoleName")]
-        public string AttachmentRoleName { get; set; }
+        public string AttachmentRoleName { get; private set; }
 
 
         /// <summary>

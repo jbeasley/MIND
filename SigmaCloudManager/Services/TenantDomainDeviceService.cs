@@ -15,13 +15,10 @@ namespace Mind.Services
     public class TenantDomainDeviceService : BaseDeviceService, ITenantDomainDeviceService
     {
         private readonly ITenantDomainDeviceDirector _director;
-        private readonly ITenantDomainDeviceUpdateDirector _updateDirector;
 
-        public TenantDomainDeviceService(IUnitOfWork unitOfWork, IMapper mapper, ITenantDomainDeviceDirector director, 
-            ITenantDomainDeviceUpdateDirector updateDirector) : base (unitOfWork, mapper)
+        public TenantDomainDeviceService(IUnitOfWork unitOfWork, IMapper mapper, ITenantDomainDeviceDirector director) : base (unitOfWork, mapper)
         {
             _director = director;
-            _updateDirector = updateDirector;
         }
 
         public async Task<IEnumerable<Device>> GetAllByTenantIDAsync(int tenantId, bool? created = null, 
@@ -83,7 +80,7 @@ namespace Mind.Services
 
         public async Task<Device> UpdateAsync(int deviceId, TenantDomainDeviceUpdate update)
         {
-            await _updateDirector.UpdateAsync(deviceId, update);
+            await _director.UpdateAsync(deviceId, update);
             await UnitOfWork.SaveAsync();
             return await GetByIDAsync(deviceId, deep: true, asTrackable: false);
         }

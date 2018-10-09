@@ -56,6 +56,8 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
             CreateMap<SCM.Models.Vif, Mind.Api.Models.TenantDomainVif>()
                 .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
+            CreateMap<SCM.Models.Vif, Mind.Api.Models.InfrastructureVif>()
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
             CreateMap<SCM.Models.Vlan, Mind.Api.Models.Vlan>();
             CreateMap<SCM.Models.Interface, Mind.Api.Models.Interface>();
             CreateMap<SCM.Models.Port, Mind.Api.Models.Port>()

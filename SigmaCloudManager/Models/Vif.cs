@@ -17,8 +17,10 @@ namespace SCM.Models
                         .ThenInclude(x => x.ContractBandwidthPool.ContractBandwidth)
                         .Include(x => x.Attachment.AttachmentBandwidth)
                         .Include(x => x.Attachment.Device)
+                        .Include(x => x.Attachment.Interfaces)
                         .Include(x => x.Vlans)
                         .Include(x => x.VifRole.AttachmentRole.PortPool.PortRole)
+                        .Include(x => x.VifRole.RoutingInstanceType)
                         .Include(x => x.Tenant)
                         .Include(x => x.ContractBandwidthPool)
                         .Include(x => x.Mtu);
@@ -41,7 +43,7 @@ namespace SCM.Models
             return query.Include(x => x.VifRole)
                         .Include(x => x.Attachment.Interfaces)
                         .ThenInclude(x => x.Ports)
-                        .Include(x => x.ContractBandwidthPool)
+                        .Include(x => x.ContractBandwidthPool.ContractBandwidth)
                         .Include(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksIn)
                         .ThenInclude(x => x.TenantIpNetwork)
@@ -49,7 +51,8 @@ namespace SCM.Models
                         .ThenInclude(x => x.VpnTenantIpNetworksOut)
                         .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.Vlans)
-                        .Include(x => x.Tenant);
+                        .Include(x => x.Tenant)
+                        .Include(x => x.Mtu);
         }
     }
 

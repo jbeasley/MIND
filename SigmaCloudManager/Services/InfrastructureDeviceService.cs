@@ -14,13 +14,10 @@ namespace Mind.Services
     public class InfrastructureDeviceService : BaseDeviceService, IInfrastructureDeviceService
     {
         private readonly IInfrastructureDeviceDirector _director;
-        private readonly IInfrastructureDeviceUpdateDirector _updateDirector;
 
-        public InfrastructureDeviceService(IUnitOfWork unitOfWork, IMapper mapper, IInfrastructureDeviceDirector director, 
-            IInfrastructureDeviceUpdateDirector updateDirector) : base (unitOfWork, mapper)
+        public InfrastructureDeviceService(IUnitOfWork unitOfWork, IMapper mapper, IInfrastructureDeviceDirector director) : base (unitOfWork, mapper)
         {
             _director = director;
-            _updateDirector = updateDirector;
         }
 
         public Task<IEnumerable<Device>> GetAllAsync(bool? created = null, bool? showCreatedAlert = null, string searchString = "", bool? deep = false, bool asTrackable = false)
@@ -55,6 +52,25 @@ namespace Mind.Services
             return await GetByIDAsync(device.DeviceID, deep: true, asTrackable: false);
         }
 
+        public async Task<List<Device>> AddAsync(List<InfrastructureDeviceRequest> requests)
+        {
+            var devices = await _director.BuildAsync(requests);
+            UnitOfWork.DeviceRepository.Insert(devices);
+            await UnitOfWork.SaveAsync();
+
+            return (from result in await UnitOfWork.DeviceRepository.GetAsync(
+                q =>
+                    devices
+                    .Where(
+                        x => 
+                        x.DeviceID == q.DeviceID)
+                    .Any(),
+                    query: q => q.IncludeDeepProperties(),
+                    AsTrackable: false)
+                    select result)
+                    .ToList();
+        }
+
         public async Task DeleteAsync(int deviceId)
         {
             var device = (from devices in await UnitOfWork.DeviceRepository.GetAsync(
@@ -72,9 +88,27 @@ namespace Mind.Services
 
         public async Task<Device> UpdateAsync(int deviceId, InfrastructureDeviceUpdate update)
         {
-            await _updateDirector.UpdateAsync(deviceId, update);
+            await _director.UpdateAsync(deviceId, update);
             await UnitOfWork.SaveAsync();
             return await GetByIDAsync(deviceId, deep: true, asTrackable: false);
+        }
+
+        public async Task<List<Device>> UpdateAsync(List<InfrastructureDeviceUpdate> updates)
+        {
+            var devices = await _director.UpdateAsync(updates);
+            await UnitOfWork.SaveAsync();
+
+            return (from result in await UnitOfWork.DeviceRepository.GetAsync(
+                q =>
+                    devices
+                    .Where(
+                        x =>
+                        x.DeviceID == q.DeviceID)
+                    .Any(),
+                    query: q => q.IncludeDeepProperties(),
+                    AsTrackable: false)
+                    select result)
+                    .ToList();
         }
     }
 }

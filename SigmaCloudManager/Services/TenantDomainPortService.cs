@@ -14,13 +14,11 @@ namespace Mind.Services
     public class TenantDomainPortService : BasePortService, ITenantDomainPortService
     {
         private readonly IPortDirector _director;
-        private readonly IPortUpdateDirector _updateDirector;
 
         public TenantDomainPortService(IUnitOfWork unitOfWork, IMapper mapper, 
-            IPortDirector director, IPortUpdateDirector updateDirector) : base (unitOfWork, mapper)
+            IPortDirector director) : base (unitOfWork, mapper)
         {
             _director = director;
-            _updateDirector = updateDirector;
         }
 
         public Task<IEnumerable<Port>> GetAllByAttachmentIDAsync(int attachmentId, bool? deep = false, bool asTrackable = false)
@@ -69,7 +67,7 @@ namespace Mind.Services
 
         public async Task<Port> UpdateAsync(int portId, PortUpdate update)
         {
-            await _updateDirector.UpdateAsync(portId, update);
+            await _director.UpdateAsync(portId, update);
             await UnitOfWork.SaveAsync();
 
             return await GetByIDAsync(portId, deep: true, asTrackable: false);

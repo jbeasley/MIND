@@ -8,6 +8,7 @@ namespace Mind.Builders
 {
     public interface IPortBuilder
     {
+        IPortBuilder ForPort(int? portId);
         IPortBuilder ForDevice(Device device);
         IPortBuilder ForDevice(int? deviceId);
         IPortBuilder WithType(string type);

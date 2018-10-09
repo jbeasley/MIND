@@ -41,19 +41,20 @@ namespace Mind.Services
                        q.VifID == vifId,
                        query: q => q.Include(x => x.ContractBandwidthPool.Attachments)
                                     .Include(x => x.ContractBandwidthPool.Vifs),
-                       AsTrackable: true)
+                       AsTrackable: false)
                        select result)
                        .Single();
 
             var updatedVif = await _updateDirector.UpdateAsync(vifId, update);
 
             // Cleanup old contract bandwidth pool is there are no attachments or vifs (other than the current vif) which are using it
-            if (vif.ContractBandwidthPoolID != null && vif.ContractBandwidthPoolID != updatedVif.ContractBandwidthPoolID)
+            if (vif.ContractBandwidthPool != null && 
+                vif.ContractBandwidthPool.ContractBandwidthPoolID != updatedVif.ContractBandwidthPool.ContractBandwidthPoolID)
             {
                 if (!vif.ContractBandwidthPool.Attachments.Any() &&
                     !vif.ContractBandwidthPool.Vifs.Any(x => x.VifID != vifId))
                 {
-                    UnitOfWork.ContractBandwidthPoolRepository.Delete(vif.ContractBandwidthPool);
+                    await UnitOfWork.ContractBandwidthPoolRepository.DeleteAsync(vif.ContractBandwidthPoolID);
                 }
             }
 

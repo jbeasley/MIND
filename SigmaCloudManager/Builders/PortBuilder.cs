@@ -17,6 +17,12 @@ namespace Mind.Builders
 
         public PortBuilder(IUnitOfWork unitOfWork) : base(unitOfWork) => _port = new Port();
 
+        public virtual IPortBuilder ForPort(int? portId)
+        {
+            if (portId.HasValue) _args.Add(nameof(ForPort), portId);
+            return this;
+        }
+
         public virtual IPortBuilder AssignToTenant(int? tenantId)
         {
             if (tenantId.HasValue) _args.Add(nameof(AssignToTenant), tenantId);
@@ -85,18 +91,44 @@ namespace Mind.Builders
 
         public virtual async Task<Port> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
-            if (_args.ContainsKey(nameof(WithType))) SetType();
-            if (_args.ContainsKey(nameof(WithName))) SetName();
-            if (_args.ContainsKey(nameof(WithConnector))) await SetConnectorAsync();
-            if (_args.ContainsKey(nameof(WithPortRole)) && _args.ContainsKey(nameof(WithPortPool))) await SetPortPoolAsync();
-            if (_args.ContainsKey(nameof(WithPortBandwidth))) await SetPortBandwidthAsync();
-            if (_args.ContainsKey(nameof(WithSfp))) await SetSfpAsync();
-            if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
-            if (_args.ContainsKey(nameof(AssignToTenant))) await SetTenantAsync();
+            if (_args.ContainsKey(nameof(ForPort)))
+            {
+                await SetPortAsync();
+                if (_args.ContainsKey(nameof(ForPort))) await SetPortAsync();
+                if (_args.ContainsKey(nameof(WithConnector))) await SetConnectorAsync();
+                if (_args.ContainsKey(nameof(WithSfp))) await SetSfpAsync();
+                if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
+                if (_args.ContainsKey(nameof(AssignToTenant))) await SetTenantAsync();
+            }
+            else
+            {
+                if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
+                if (_args.ContainsKey(nameof(WithType))) SetType();
+                if (_args.ContainsKey(nameof(WithName))) SetName();
+                if (_args.ContainsKey(nameof(WithConnector))) await SetConnectorAsync();
+                if (_args.ContainsKey(nameof(WithPortRole)) && _args.ContainsKey(nameof(WithPortPool))) await SetPortPoolAsync();
+                if (_args.ContainsKey(nameof(WithPortBandwidth))) await SetPortBandwidthAsync();
+                if (_args.ContainsKey(nameof(WithSfp))) await SetSfpAsync();
+                if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
+                if (_args.ContainsKey(nameof(AssignToTenant))) await SetTenantAsync();
+            }
 
             _port.Validate();
             return _port;
+        }
+
+        protected internal virtual async Task SetPortAsync()
+        {
+            var portId = (int)_args[nameof(ForPort)];
+            var port = (from result in await _unitOfWork.PortRepository.GetAsync(
+                     q =>
+                       q.ID == portId,
+                       query: q => q.IncludeValidationProperties(),
+                       AsTrackable: true)
+                        select result)
+                       .SingleOrDefault();
+
+            _port = port ?? throw new BuilderBadArgumentsException($"Could not find the port with ID '{portId}'.");
         }
 
         protected internal virtual async Task SetDeviceAsync()
@@ -173,6 +205,13 @@ namespace Mind.Builders
                           .SingleOrDefault();
 
             _port.PortStatus = status;
+
+            // If the port status is free ensure that any tenant assignment is cleared
+            if (status.PortStatusType == PortStatusTypeEnum.Free)
+            {
+                this._port.Tenant = null;
+                this._port.TenantID = null;
+            }
         }
 
         protected internal virtual async Task SetSfpAsync()

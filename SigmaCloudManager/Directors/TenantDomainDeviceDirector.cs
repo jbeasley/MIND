@@ -15,6 +15,7 @@ namespace Mind.Builders
         {
             _builder = builder;
         }
+
         public async Task<Device> BuildAsync(int tenantId, TenantDomainDeviceRequest request)
         {
             return await _builder.ForTenant(tenantId)
@@ -26,6 +27,17 @@ namespace Mind.Builders
                                  .WithStatus(request.DeviceStatus.ToString())
                                  .UseLayer2InterfaceMtu(request.UseLayer2InterfaceMtu)
                                  .WithPorts(request.Ports)
+                                 .BuildAsync();
+        }
+
+        public async Task<Device> UpdateAsync(int deviceId, TenantDomainDeviceUpdate update)
+        {
+            return await _builder.ForDevice(deviceId)
+                                 .WithName(update.Name)
+                                 .WithDescription(update.Description)
+                                 .WithStatus(update.DeviceStatus.ToString())
+                                 .UseLayer2InterfaceMtu(update.UseLayer2InterfaceMtu)
+                                 .WithPorts(update.Ports)
                                  .BuildAsync();
         }
     }

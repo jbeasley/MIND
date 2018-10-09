@@ -9,9 +9,9 @@ namespace Mind.Builders
 {
     public class TenantDomainVifUpdateDirector : ITenantDomainVifUpdateDirector
     {
-        private readonly IVifUpdateBuilder _builder;
+        private readonly IVifBuilder _builder;
 
-        public TenantDomainVifUpdateDirector(IVifUpdateBuilder builder)
+        public TenantDomainVifUpdateDirector(IVifBuilder builder)
         {
             _builder = builder;
         }
@@ -24,7 +24,7 @@ namespace Mind.Builders
                                  .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                  .WithIpv4(update.Ipv4Addresses)
                                  .WithJumboMtu(update.UseJumboMtu)
-                                 .UpdateAsync();
+                                 .BuildAsync();
         }
     }
 }

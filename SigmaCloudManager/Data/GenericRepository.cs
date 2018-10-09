@@ -75,6 +75,11 @@ namespace SCM.Data
             dbSet.Add(entity);
         }
 
+        public virtual void Insert(IList<TEntity> entities)
+        {
+            dbSet.AddRange(entities);
+        }
+
         public virtual async Task DeleteAsync(object id)
         {
             TEntity entityToDelete = await dbSet.FindAsync(id);

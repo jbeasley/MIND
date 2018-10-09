@@ -9,9 +9,9 @@ namespace Mind.Builders
 {
     public class InfrastructureVifUpdateDirector : IInfrastructureVifUpdateDirector
     {
-        private readonly IVifUpdateBuilder _builder;
+        private readonly IVifBuilder _builder;
 
-        public InfrastructureVifUpdateDirector(IVifUpdateBuilder builder)
+        public InfrastructureVifUpdateDirector(IVifBuilder builder)
         {
             _builder = builder;
         }
@@ -25,7 +25,7 @@ namespace Mind.Builders
                                  .WithExistingContractBandwidthPool(update.ExistingContractBandwidthPoolName)
                                  .WithIpv4(update.Ipv4Addresses)
                                  .WithJumboMtu(update.UseJumboMtu)
-                                 .UpdateAsync();
+                                 .BuildAsync();
         }
     }
 }

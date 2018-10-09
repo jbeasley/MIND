@@ -28,6 +28,14 @@ namespace Mind.Api.Models
     public partial class InfrastructureDeviceUpdate : IEquatable<InfrastructureDeviceUpdate>
     {
         /// <summary>
+        /// The ID of the device
+        /// </summary>
+        /// <value>Integer denoting the ID of the device</value>
+        /// <example>90991</example>
+        [DataMember(Name = "deviceId")]
+        public int? DeviceId { get; set; }
+
+        /// <summary>
         /// The name of the device
         /// </summary>
         /// <value>String denoting the name of the device</value>

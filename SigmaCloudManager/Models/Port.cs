@@ -88,32 +88,38 @@ namespace SCM.Models
             if (string.IsNullOrEmpty(this.Type)) throw new IllegalStateException("The port requires a type to be defined.");
             if (string.IsNullOrEmpty(this.Name)) throw new IllegalStateException("The port requires a name to be defined.");
             if (this.Device == null) throw new IllegalStateException($"Port '{this.FullName}' requires a device association but a device was not found.");
-            if (this.PortSfp == null) throw new IllegalStateException($"Port '{this.FullName}' requires a sfp association but a sfp was not found.");
-            if (this.PortBandwidth == null) throw new IllegalStateException($"Port '{this.FullName}' requires a bandwidth association but a bandwidth was not found.");
-            if (this.PortConnector == null) throw new IllegalStateException($"Port '{this.FullName}' requires a connector but a connector was not found.");
-            if (this.PortPool == null) throw new IllegalStateException($"Port '{this.FullName}' requires a port pool association but a port pool was not found.");
-            if (this.PortStatus == null) throw new IllegalStateException($"Port '{this.FullName}' requires a status association but a status was not found.");
+            if (this.PortSfp == null) throw new IllegalStateException($"Port '{this.FullName}' for device '{this.Device.Name}' requires a sfp " +
+                $"association but a sfp was not found.");
+            if (this.PortBandwidth == null) throw new IllegalStateException($"Port '{this.FullName}' for device '{this.Device.Name}' requires a " +
+                $"bandwidth association but a bandwidth was not found.");
+            if (this.PortConnector == null) throw new IllegalStateException($"Port '{this.FullName}' for device '{this.Device.Name}' requires a " +
+                $"connector but a connector was not found.");
+            if (this.PortPool == null) throw new IllegalStateException($"Port '{this.FullName}' for device '{this.Device.Name}' requires a port pool " +
+                $"association but a port pool was not found.");
+            if (this.PortStatus == null) throw new IllegalStateException($"Port '{this.FullName}' for device '{this.Device.Name}' requires a " +
+                $"status association but a status was not found.");
             if (!this.PortPool.PortRole.DeviceRolePortRoles
                                        .Where(x =>
                                                 x.DeviceRoleID == this.Device.DeviceRole.DeviceRoleID)
                                        .Any())
             {
-                throw new IllegalStateException($"The port pool of '{this.PortPool.Name}' assigned to port '{this.FullName}' is not valid for the " +
-                    $"device with device role '{this.Device.DeviceRole.Name}'.");
+                throw new IllegalStateException($"The port pool of '{this.PortPool.Name}' assigned to port '{this.FullName}' for device '{this.Device.Name}' " +
+                    $"is not valid for the device with device role '{this.Device.DeviceRole.Name}'.");
             }
 
             if (this.Tenant != null)
             {
                 if (this.PortPool.PortRole.PortRoleType != PortRoleTypeEnum.TenantFacing)
                 {
-                    throw new IllegalStateException($"A tenant cannot be assigned to port '{this.FullName}' because the port role of " +
-                        $"'{this.PortPool.PortRole.Name}' does not support the allocation of the port to a tenant. The port role must be 'tenant-facing'.");
+                    throw new IllegalStateException($"A tenant cannot be assigned to port '{this.FullName}' for device '{this.Device.Name}' because the " +
+                        $"port role of '{this.PortPool.PortRole.Name}' does not support the allocation of the port to a tenant. " +
+                        $"The port role must be 'tenant-facing'.");
                 }
 
                 if (this.PortStatus.PortStatusType != PortStatusTypeEnum.Assigned)
                 {
-                    throw new IllegalStateException($"The port status for port '{this.FullName}' must be 'Assigned' in order to allocate the port " +
-                        $"to a tenant.");
+                    throw new IllegalStateException($"The port status for port '{this.FullName}' for device '{this.Device.Name}' must be 'Assigned' " +
+                        $"in order to allocate the port to a tenant.");
                 }
             }
 
@@ -121,16 +127,16 @@ namespace SCM.Models
             {
                 if (this.Interface?.Attachment == null)
                 {
-                    throw new IllegalStateException($"The port status for port '{this.FullName}' cannot be set to 'Assigned' without an allocated " +
-                        $"attachment ");
+                    throw new IllegalStateException($"The port status for port '{this.FullName}' for device '{this.Device.Name}' cannot be set to " +
+                        $"'Assigned' without an allocated attachment ");
                 }
             }
             else
             {
                 if (this.Interface?.Attachment != null)
                 {
-                    throw new IllegalStateException($"The port status for port '{this.FullName}' must be set to 'Assigned' because an allocated " +
-                        $"attachment exists which is bound to the port.");
+                    throw new IllegalStateException($"The port status for port '{this.FullName}' for device '{this.Device.Name}' must be set to " +
+                        $"'Assigned' because an allocated attachment exists which is bound to the port.");
                 }
             }
 
@@ -138,8 +144,8 @@ namespace SCM.Models
             {
                 if (this.Interface != null)
                 {
-                    if (this.Tenant == null) throw new IllegalStateException($"Port '{this.FullName}' must be assigned to a tenant but a tenant " +
-                        $"was not found.");
+                    if (this.Tenant == null) throw new IllegalStateException($"Port '{this.FullName}' for device '{this.Device.Name}' must be assigned " +
+                        $"to a tenant but a tenant was not found.");
                 }
             }
         }
@@ -149,10 +155,11 @@ namespace SCM.Models
         /// </summary>
         public virtual void ValidateDelete()
         {
-            if (this.Tenant != null) throw new IllegalDeleteAttemptException($"Port '{this.FullName}' cannot be deleted because it is assigned to tenant " +
-                $"'{this.Tenant.Name}'.");
+            if (this.Tenant != null) throw new IllegalDeleteAttemptException($"Port '{this.FullName}' for device '{this.Device.Name}' cannot be " +
+                $"deleted because it is assigned to tenant '{this.Tenant.Name}'.");
+
             if (this.PortStatus.PortStatusType == PortStatusTypeEnum.Assigned) throw new IllegalDeleteAttemptException($"Port '{this.FullName}' " +
-                $"cannot be deleted because the port status is 'Assigned'");
+                $"for device '{this.Device.Name}' cannot be deleted because the port status is 'Assigned'");
         }
     }
 }

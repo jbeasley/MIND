@@ -27,6 +27,12 @@ namespace Mind.Builders
             return this;
         }
 
+        IInfrastructureDeviceBuilder IInfrastructureDeviceBuilder.ForDevice(int? deviceId)
+        {
+            base.ForDevice(deviceId);
+            return this;
+        }
+
         IInfrastructureDeviceBuilder IInfrastructureDeviceBuilder.UseLayer2InterfaceMtu(bool? useLayer2InterfaceMtu)
         {
             base.UseLayer2InterfaceMtu(useLayer2InterfaceMtu);
@@ -58,6 +64,12 @@ namespace Mind.Builders
         }
 
         IInfrastructureDeviceBuilder IInfrastructureDeviceBuilder.WithPorts(List<PortRequest> ports)
+        {
+            base.WithPorts(ports);
+            return this;
+        }
+
+        IInfrastructureDeviceBuilder IInfrastructureDeviceBuilder.WithPorts(List<PortUpdate> ports)
         {
             base.WithPorts(ports);
             return this;

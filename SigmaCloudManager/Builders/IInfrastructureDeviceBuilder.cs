@@ -10,6 +10,7 @@ namespace Mind.Builders
 {
     public interface IInfrastructureDeviceBuilder
     {
+        IInfrastructureDeviceBuilder ForDevice(int? deviceId);
         IInfrastructureDeviceBuilder WithName(string name);
         IInfrastructureDeviceBuilder WithDescription(string description);
         IInfrastructureDeviceBuilder WithLocation(string locationName);
@@ -18,6 +19,7 @@ namespace Mind.Builders
         IInfrastructureDeviceBuilder WithStatus(string status);
         IInfrastructureDeviceBuilder UseLayer2InterfaceMtu(bool? useLayer2InterfaceMtu);
         IInfrastructureDeviceBuilder WithPorts(List<PortRequest> ports);
+        IInfrastructureDeviceBuilder WithPorts(List<PortUpdate> ports);
         IInfrastructureDeviceBuilder WithPlane(string planeName);
         Task<Device> BuildAsync();
     }

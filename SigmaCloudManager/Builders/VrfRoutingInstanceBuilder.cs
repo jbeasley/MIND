@@ -35,15 +35,27 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVrfRoutingInstanceBuilder WithRoutingInstanceType(RoutingInstanceTypeEnum routingInstanceTypeEnum)
+        public virtual IVrfRoutingInstanceBuilder WithRoutingInstanceType(RoutingInstanceTypeEnum? routingInstanceTypeEnum)
         {
-            _args.Add(nameof(WithRoutingInstanceType), routingInstanceTypeEnum);
+            if (routingInstanceTypeEnum.HasValue) _args.Add(nameof(WithRoutingInstanceType), routingInstanceTypeEnum);
             return this;
         }
 
         public virtual IVrfRoutingInstanceBuilder WithRouteDistinguisherRange(RouteDistinguisherRangeTypeEnum? rdRangeType)
         {
-            _args.Add(nameof(WithRouteDistinguisherRange), rdRangeType);
+            if (rdRangeType.HasValue) _args.Add(nameof(WithRouteDistinguisherRange), rdRangeType);
+            return this;
+        }
+
+        public virtual IVrfRoutingInstanceBuilder WithRouteDistinguisherAdministratorNumberSubField(int? rdAdministratorNumberSubField)
+        {
+            if (rdAdministratorNumberSubField.HasValue) _args.Add(nameof(WithRouteDistinguisherAdministratorNumberSubField), rdAdministratorNumberSubField);
+            return this;
+        }
+
+        public virtual IVrfRoutingInstanceBuilder WithRouteDistinguisherAssignedNumberSubField(int? rdAssignedNumberSubField)
+        {
+            if (rdAssignedNumberSubField.HasValue) _args.Add(nameof(WithRouteDistinguisherAssignedNumberSubField), rdAssignedNumberSubField);
             return this;
         }
 
@@ -51,8 +63,13 @@ namespace Mind.Builders
         {
             if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
             if (_args.ContainsKey(nameof(WithTenant))) await SetTenantAsync();
-            await SetRoutingInstanceTypeAsync();
-            await SetRouteDistinguisherAsync();
+            if (_args.ContainsKey(nameof(WithRoutingInstanceType))) await SetRoutingInstanceTypeAsync();
+            if (_args.ContainsKey(nameof(WithRouteDistinguisherRange))) await AssignRouteDistinguisherAsync();
+            if (_args.ContainsKey(nameof(WithRouteDistinguisherAdministratorNumberSubField)) &&
+                _args.ContainsKey(nameof(WithRouteDistinguisherAssignedNumberSubField)))
+            {
+                await SetRouteDistinguisherAsync();
+            }
 
             _routingInstance.Validate();
             return _routingInstance;
@@ -97,7 +114,7 @@ namespace Mind.Builders
             _routingInstance.RoutingInstanceType = routingInstanceType;
         }
 
-        protected internal virtual async Task SetRouteDistinguisherAsync()
+        protected internal virtual async Task AssignRouteDistinguisherAsync()
         {
             var rdRangeType = (RouteDistinguisherRangeTypeEnum)_args[nameof(WithRouteDistinguisherRange)];
             var rdRange = (from result in await _unitOfWork.RouteDistinguisherRangeRepository.GetAsync(
@@ -116,6 +133,45 @@ namespace Mind.Builders
             var usedRDs = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                         q =>
                            q.RouteDistinguisherRange.Type == rdRangeType,
+                           AsTrackable: true)
+                           select result.AssignedNumberSubField.Value)
+                           .ToList();
+
+            // Allocate a new unused RD from the RD range
+
+            int? newRdAssignedNumberSubField = Enumerable.Range(rdRange.AssignedNumberSubFieldStart, rdRange.AssignedNumberSubFieldCount)
+                           .Except(usedRDs).FirstOrDefault();
+
+            if (newRdAssignedNumberSubField == null) throw new BuilderUnableToCompleteException("Failed to allocate a free route distinguisher. "
+                    + "Please contact your system administrator, or try another range.");
+
+            _routingInstance.AdministratorSubField = rdRange.AdministratorSubField;
+            _routingInstance.AssignedNumberSubField = newRdAssignedNumberSubField.Value;
+            _routingInstance.RouteDistinguisherRange = rdRange;
+        }
+
+        protected internal virtual async Task SetRouteDistinguisherAsync()
+        {
+            var rdAdministratorSubField = (int)_args[nameof(WithRouteDistinguisherAdministratorNumberSubField)];
+            var rdAssignedNumberSubField = (int)_args[nameof(WithRouteDistinguisherAssignedNumberSubField)];
+            var rdRange = (from result in await _unitOfWork.RouteDistinguisherRangeRepository.GetAsync(
+                    q =>
+                        q.AdministratorSubField == rdAssignedNumberSubField &&
+                        rdAssignedNumberSubField >= q.AssignedNumberSubFieldStart && 
+                        rdAssignedNumberSubField < q.AssignedNumberSubFieldStart + q.AssignedNumberSubFieldCount,
+                        AsTrackable: true)
+                           select result)
+                        .SingleOrDefault();
+
+            if (rdRange == null)
+            {
+                throw new BuilderUnableToCompleteException($"A valid route distinguisher range was not found from the supplied administrator subfield " +
+                    $"'{rdAdministratorSubField}' and assigned number subfield '{rdAssignedNumberSubField}' arguments.");
+            }
+
+            var usedRDs = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                        q =>
+                           q.RouteDistinguisherRange.Type == rdRange.Type,
                            AsTrackable: true)
                            select result.AssignedNumberSubField.Value)
                            .ToList();

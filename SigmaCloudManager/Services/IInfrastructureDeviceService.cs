@@ -16,7 +16,9 @@ namespace Mind.Services
         Task<Device> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<Device> GetByNameAsync(string name, bool? deep = false, bool asTrackable = false);
         Task<Device> AddAsync(InfrastructureDeviceRequest request);
+        Task<List<Device>> AddAsync(List<InfrastructureDeviceRequest> requests);
         Task<Device> UpdateAsync(int deviceId, InfrastructureDeviceUpdate update);
+        Task<List<Device>> UpdateAsync(List<InfrastructureDeviceUpdate> updates);
         Task DeleteAsync(int deviceId);
     }
 }

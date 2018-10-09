@@ -83,5 +83,40 @@ namespace Mind.Builders
 
             return ports;
         }
+
+        /// <summary>
+        /// Update a single port
+        /// </summary>
+        /// <param name="portId"></param>
+        /// <param name="update"></param>
+        /// <returns></returns>
+        public async Task<Port> UpdateAsync(int portId, PortUpdate update)
+        {
+            var builder = _builderFactory();
+            return await builder.ForPort(portId)
+                                 .WithConnector(update.PortConnector)
+                                 .WithSfp(update.PortSfp)
+                                 .WithStatus(update.PortStatus.ToString())
+                                 .AssignToTenant(update.TenantId)
+                                 .BuildAsync();
+        }
+
+        /// <summary>
+        /// Update a collection of ports
+        /// </summary>
+        /// <param name="updates"></param>
+        /// <returns></returns>
+        public async Task<List<Port>> UpdateAsync(List<PortUpdate> updates)
+        {
+            var ports = new List<Port>();
+            var tasks = updates.Select(
+                                    async update =>
+                                    {
+                                        if (update.PortId.HasValue) ports.Add(await UpdateAsync(update.PortId.Value, update));
+                                    });
+
+            await Task.WhenAll(tasks);
+            return ports;
+        }
     }
 }

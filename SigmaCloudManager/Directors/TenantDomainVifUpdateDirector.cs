@@ -9,9 +9,9 @@ namespace Mind.Builders
 {
     public class ProviderDomainVifUpdateDirector : IProviderDomainVifUpdateDirector
     {
-        private readonly IVifUpdateBuilder _builder;
+        private readonly IVifBuilder _builder;
 
-        public ProviderDomainVifUpdateDirector(IVifUpdateBuilder builder)
+        public ProviderDomainVifUpdateDirector(IVifBuilder builder)
         {
             _builder = builder;
         }
@@ -26,7 +26,7 @@ namespace Mind.Builders
                                  .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                  .WithIpv4(update.Ipv4Addresses)
                                  .WithJumboMtu(update.UseJumboMtu)
-                                 .UpdateAsync();
+                                 .BuildAsync();
         }
     }
 }

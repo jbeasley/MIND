@@ -11,6 +11,8 @@ namespace Mind.Builders
         IVrfRoutingInstanceBuilder ForDevice(int? deviceId);
         IVrfRoutingInstanceBuilder WithTenant(int? tenantId);
         IVrfRoutingInstanceBuilder WithRouteDistinguisherRange(RouteDistinguisherRangeTypeEnum? rdRangeType);
-        IVrfRoutingInstanceBuilder WithRoutingInstanceType(RoutingInstanceTypeEnum routingInstanceTypeEnum);
+        IVrfRoutingInstanceBuilder WithRouteDistinguisherAdministratorNumberSubField(int? rdAdministratorNumberSubField);
+        IVrfRoutingInstanceBuilder WithRouteDistinguisherAssignedNumberSubField(int? rdAssignedNumberSubField);
+        IVrfRoutingInstanceBuilder WithRoutingInstanceType(RoutingInstanceTypeEnum? routingInstanceTypeEnum);
     }
 }

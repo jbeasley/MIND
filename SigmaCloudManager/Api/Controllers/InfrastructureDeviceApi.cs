@@ -59,7 +59,6 @@ namespace Mind.Api.Controllers
         /// <param name="body">infrastructure device request object that generates a new infrastructure device</param>
         /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
-        /// <response code="404">The specified resource was not found</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPost]
         [Route("/v{version:apiVersion}/infrastructure-devices")]
@@ -67,7 +66,6 @@ namespace Mind.Api.Controllers
         [SwaggerOperation("CreateInfrastructureDevice")]
         [SwaggerResponse(statusCode: 201, type: typeof(InfrastructureDevice), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
-        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> CreateInfrastructureDevice([FromBody]Mind.Api.Models.InfrastructureDeviceRequest body)
         {
@@ -80,6 +78,52 @@ namespace Mind.Api.Controllers
             }
 
             catch (BuilderBadArgumentsException ex) 
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (IllegalStateException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (DbUpdateException)
+            {
+                return new DatabaseUpdateFailedResult();
+            }
+        }
+
+        /// <summary>
+        /// Bulk create new infrastructure devices
+        /// </summary>
+
+        /// <param name="body">A collection of infrastructure device request objects that generate a collection of new infrastructure devices</param>
+        /// <response code="200">Successful operation</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpPost]
+        [Route("/v{version:apiVersion}/infrastructure-devices/bulk")]
+        [ValidateModelState]
+        [SwaggerOperation("BulkCreateInfrastructureDevice")]
+        [SwaggerResponse(statusCode: 200, type: typeof(List<InfrastructureDevice>), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public virtual async Task<IActionResult> BulkCreateInfrastructureDevices([FromBody]List<Mind.Api.Models.InfrastructureDeviceRequest> body)
+        {
+            try
+            {
+                var requests = Mapper.Map<List<Mind.Models.RequestModels.InfrastructureDeviceRequest>>(body);
+                var devices = await _infrastructureDeviceService.AddAsync(requests);
+                var deviceApiModels = Mapper.Map<List<Mind.Api.Models.InfrastructureDevice>>(devices);
+                return Ok(deviceApiModels);
+            }
+
+            catch (BuilderBadArgumentsException ex)
             {
                 return new BadArgumentsResult(ex.Message);
             }

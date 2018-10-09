@@ -9,15 +9,16 @@ namespace Mind.Builders
 {
     public interface IVifBuilder
     {
-        IVifBuilder ForAttachment(int attachmentId);
-        IVifBuilder ForTenant(int tenantId);
+        IVifBuilder ForAttachment(int? attachmentId);
+        IVifBuilder ForTenant(int? tenantId);
+        IVifBuilder ForVif(int? vifId);
         IVifBuilder WithVifRole(string roleName);
         IVifBuilder AutoAllocateVlanTag(bool? autoAllocateVlanTag, string vlanTagRangeName = "Default");
         IVifBuilder WithRequestedVlanTag(int? vlanTag);
         IVifBuilder WithContractBandwidth(int? contractBandwidthMbps);
         IVifBuilder WithExistingContractBandwidthPool(string existingContractBandwidthPoolName);
         IVifBuilder UseExistingRoutingInstance(string existingRoutingInstanceName);
-        IVifBuilder UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
+        IVifBuilder WithNewRoutingInstance(bool? createNewRoutingInstanceName);
         IVifBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IVifBuilder WithIpv4(List<Ipv4AddressAndMask> ipv4AddressesAndMask);
         IVifBuilder WithJumboMtu(bool? useJumboMtu);

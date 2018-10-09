@@ -445,15 +445,12 @@ namespace Mind
 
             // Infrastructure device directors
             builder.RegisterType<InfrastructureDeviceDirector>().As<IInfrastructureDeviceDirector>();
-            builder.RegisterType<InfrastructureDeviceUpdateDirector>().As<IInfrastructureDeviceUpdateDirector>();
 
             // Port director
             builder.RegisterType<PortDirector>().As<IPortDirector>();
-            builder.RegisterType<PortUpdateDirector>().As<IPortUpdateDirector>();
 
             // Tenant device director
             builder.RegisterType<TenantDomainDeviceDirector>().As<ITenantDomainDeviceDirector>();
-            builder.RegisterType<TenantDomainDeviceUpdateDirector>().As<ITenantDomainDeviceUpdateDirector>();
 
             // Director Factories
 
@@ -726,11 +723,8 @@ namespace Mind
 
             //Builders
             builder.RegisterType<InfrastructureDeviceBuilder>().As<IInfrastructureDeviceBuilder>();
-            builder.RegisterType<InfrastructureDeviceUpdateBuilder>().As<IInfrastructureDeviceUpdateBuilder>();
             builder.RegisterType<TenantDomainDeviceBuilder>().As<ITenantDomainDeviceBuilder>();
-            builder.RegisterType<TenantDomainDeviceUpdateBuilder>().As<ITenantDomainDeviceUpdateBuilder>();
             builder.RegisterType<PortBuilder>().As<IPortBuilder>();
-            builder.RegisterType<PortUpdateBuilder>().As<IPortUpdateBuilder>();
             builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
             builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
             builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
@@ -744,7 +738,6 @@ namespace Mind
             builder.RegisterType<TenantCommunityInboundPolicyBuilder>().As<ITenantCommunityInboundPolicyBuilder>();
             builder.RegisterType<TenantCommunityOutboundPolicyBuilder>().As<ITenantCommunityOutboundPolicyBuilder>();
             builder.RegisterType<VifBuilder>().As<IVifBuilder>();
-            builder.RegisterType<VifUpdateBuilder>().As<IVifUpdateBuilder>();
             builder.RegisterType<IpVpnBuilder>().As<IIpVpnBuilder>();
             builder.RegisterType<IpVpnUpdateBuilder>().As<IIpVpnUpdateBuilder>();
             builder.RegisterType<BgpPeerBuilder>().As<IBgpPeerBuilder>();

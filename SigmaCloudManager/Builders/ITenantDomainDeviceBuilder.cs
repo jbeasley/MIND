@@ -11,6 +11,7 @@ namespace Mind.Builders
     public interface ITenantDomainDeviceBuilder
     {
         ITenantDomainDeviceBuilder ForTenant(int? tenantId);
+        ITenantDomainDeviceBuilder ForDevice(int? deviceId);
         ITenantDomainDeviceBuilder WithName(string name);
         ITenantDomainDeviceBuilder WithDescription(string description);
         ITenantDomainDeviceBuilder WithLocation(string locationName);
@@ -19,6 +20,7 @@ namespace Mind.Builders
         ITenantDomainDeviceBuilder WithStatus(string status);
         ITenantDomainDeviceBuilder UseLayer2InterfaceMtu(bool? useLayer2InterfaceMtu);
         ITenantDomainDeviceBuilder WithPorts(List<PortRequest> ports);
+        ITenantDomainDeviceBuilder WithPorts(List<PortUpdate> ports);
         Task<Device> BuildAsync();
     }
 }

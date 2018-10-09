@@ -9,6 +9,12 @@ namespace Mind.Models.RequestModels
     public class InfrastructureDeviceUpdate
     {
         /// <summary>
+        /// The ID of the device
+        /// </summary>
+        /// <value>Integer value denoting the ID of the device</value>
+        public int? DeviceId { get; set; }
+
+        /// <summary>
         /// The name of the device
         /// </summary>
         /// <value>String denoting the name of the device</value>

@@ -41,33 +41,35 @@ namespace Mind.Services
                        q.VifID == vifId,
                        query: q => q.Include(x => x.RoutingInstance.Attachments)
                                     .Include(x => x.RoutingInstance.Vifs)
+                                    .Include(x => x.RoutingInstance.RoutingInstanceType)
                                     .Include(x => x.ContractBandwidthPool.Attachments)
                                     .Include(x => x.ContractBandwidthPool.Vifs),
-                       AsTrackable: true)
+                       AsTrackable: false)
                        select result)
                        .Single();
 
             var updatedVif = await _updateDirector.UpdateAsync(vifId, update);
 
             // Cleanup old contract bandwidth pool is there are no attachments or vifs (other than the current vif) which are using it
-            if (vif.ContractBandwidthPoolID != null && vif.ContractBandwidthPoolID != updatedVif.ContractBandwidthPoolID)
+            if (vif.ContractBandwidthPool != null && 
+                vif.ContractBandwidthPool.ContractBandwidthPoolID != updatedVif.ContractBandwidthPool.ContractBandwidthPoolID)
             {
                 if (!vif.ContractBandwidthPool.Attachments.Any() &&
                     !vif.ContractBandwidthPool.Vifs.Any(x => x.VifID != vifId))
                 {
-                    UnitOfWork.ContractBandwidthPoolRepository.Delete(vif.ContractBandwidthPool);
+                    await UnitOfWork.ContractBandwidthPoolRepository.DeleteAsync(vif.ContractBandwidthPool.ContractBandwidthPoolID);
                 }
             }
 
             // Cleanup old routing instance if there are no attachment or vifs (other than the current vif) which are using it.
-            if (vif.RoutingInstanceID != null && 
-                vif.RoutingInstanceID != updatedVif.RoutingInstanceID && 
+            if (vif.RoutingInstance != null && 
+                vif.RoutingInstance.RoutingInstanceID != updatedVif.RoutingInstance.RoutingInstanceID && 
                 vif.RoutingInstance.RoutingInstanceType.IsInfrastructureVrf)
             {
                 if (!vif.RoutingInstance.Attachments.Any() &&
                     !vif.RoutingInstance.Vifs.Any(x => x.VifID != vifId))
                 {
-                    UnitOfWork.RoutingInstanceRepository.Delete(vif.RoutingInstance);
+                    await UnitOfWork.RoutingInstanceRepository.DeleteAsync(vif.RoutingInstance.RoutingInstanceID);
                 }
             }
 

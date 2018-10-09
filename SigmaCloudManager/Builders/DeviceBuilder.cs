@@ -33,6 +33,12 @@ namespace Mind.Builders
             _portDirector = portDirector;
         }
 
+        public DeviceBuilder ForDevice(int? deviceId)
+        {
+            if (deviceId.HasValue) _args.Add(nameof(ForDevice), deviceId);
+            return this;
+        }
+
         public virtual DeviceBuilder WithName(string name)
         {
             if (!string.IsNullOrEmpty(name)) _args.Add(nameof(WithName), name);
@@ -81,21 +87,39 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual DeviceBuilder WithPorts(List<PortUpdate> ports)
+        {
+            if (ports != null) _args.Add(nameof(WithPorts), ports);
+            return this;
+        }
+
         /// <summary>
         /// Build the device
         /// </summary>
         /// <returns></returns>
         public virtual async Task<Device> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(WithName)))  SetName();
-            if (_args.ContainsKey(nameof(WithLocation))) await SetLocationAsync();
-            if (_args.ContainsKey(nameof(WithRole))) await SetRoleAsync();
-            if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
-            if (_args.ContainsKey(nameof(WithModel))) await SetModelAsync();
-            if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
-            if (_args.ContainsKey(nameof(UseLayer2InterfaceMtu))) SetUseLayer2InterfaceMtu();
-            if (_args.ContainsKey(nameof(WithPorts))) await SetPortsAsync();
-            await CreateRoutingInstanceAsync();
+            if (_args.ContainsKey(nameof(ForDevice)))
+            {
+                await SetDeviceAsync();
+                if (_args.ContainsKey(nameof(WithName))) SetName();
+                if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
+                if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
+                if (_args.ContainsKey(nameof(UseLayer2InterfaceMtu))) SetUseLayer2InterfaceMtu();
+                if (_args.ContainsKey(nameof(WithPorts))) await UpdatePortsAsync();
+            }
+            else
+            {
+                if (_args.ContainsKey(nameof(WithName))) SetName();
+                if (_args.ContainsKey(nameof(WithLocation))) await SetLocationAsync();
+                if (_args.ContainsKey(nameof(WithRole))) await SetRoleAsync();
+                if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
+                if (_args.ContainsKey(nameof(WithModel))) await SetModelAsync();
+                if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
+                if (_args.ContainsKey(nameof(UseLayer2InterfaceMtu))) SetUseLayer2InterfaceMtu();
+                if (_args.ContainsKey(nameof(WithPorts))) await SetPortsAsync();
+                await CreateRoutingInstanceAsync();
+            }
 
             return _device;
         }
@@ -170,6 +194,26 @@ namespace Mind.Builders
             var portRequests = (List<PortRequest>)_args[nameof(WithPorts)];
             var ports = await _portDirector.BuildAsync(this._device, portRequests);
             this._device.Ports = ports;
+        }
+
+        protected internal virtual async Task SetDeviceAsync()
+        {
+            var deviceId = (int)_args[nameof(ForDevice)];
+            var device = (from result in await _unitOfWork.DeviceRepository.GetAsync(
+                        q =>
+                          q.DeviceID == deviceId,
+                          query: q => q.IncludeValidationProperties(),
+                          AsTrackable: true)
+                          select result)
+                          .SingleOrDefault();
+
+            _device = device ?? throw new BuilderBadArgumentsException($"The device with ID '{deviceId}' was not found.");
+        }
+
+        protected internal virtual async Task UpdatePortsAsync()
+        {
+            var ports = (List<PortUpdate>)_args[nameof(WithPorts)];
+            await _portDirector.UpdateAsync(ports);
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using SCM.Models;
+﻿using Mind.Models.RequestModels;
+using SCM.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,7 +9,6 @@ namespace Mind.Builders
 {
     public interface IVrfRoutingInstanceDirector
     {
-        Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int? tenantId, 
-            RouteDistinguisherRangeTypeEnum rdRangeType = RouteDistinguisherRangeTypeEnum.Default);
+        Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int? tenantId, RoutingInstanceRequest request = null);
     }
 }

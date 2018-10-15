@@ -46,6 +46,10 @@ namespace Mind
 
                 new Tag { Name = "Tenant Domain IP Network Static Routing", Description = "" },
 
+                new Tag { Name = "Provider Domain Locations", Description = "Find locations available in the provider domain." },
+
+                new Tag { Name = "Provider Domain Tenant Routing Instances", Description = "Find routing instances for tenants in the provider domain." },
+
                 new Tag { Name = "Provider Domain Tenant Attachments", Description = "Manage network attachments for connecting the tenant domain " +
                 "to the provider domain, such as the attachment of a CPE to a PE." },
 
@@ -86,8 +90,14 @@ namespace Mind
                 new Tag {Name = "Virtual Private Networks", Description = "Manage virtual private networks which can be used to provide either private or shared " +
                 "network connectivity between tenant domains."},
 
-                 new Tag {Name = "Provider Domain Attachment Set To VPN Bindings", Description = "Manage bindings of attachment sets to virtual private networks. " +
-                 "Bindings of attachment sets to vpns allows network communication between attached tenant domains."}
+                new Tag {Name = "Provider Domain Attachment Set To VPN Bindings", Description = "Manage bindings of attachment sets to virtual private networks. " +
+                 "Bindings of attachment sets to vpns allows network communication between attached tenant domains."},
+
+                new Tag {Name = "Infrastructure Logical Interfaces", Description = "Manage logical interfaces such as loopback and tunnel interfaces for provider " +
+                "domain infrastructure."},
+
+                new Tag {Name = "Provider Domain Tenant Logical Interfaces", Description = "Manage logical interfaces such as loopback and tunnel interfaces for tenant-facing " +
+                "routing instance in the provider domain."}
 
             };
         }

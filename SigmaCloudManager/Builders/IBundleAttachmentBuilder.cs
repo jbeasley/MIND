@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mind.Models.RequestModels;
 using SCM.Models;
 using SCM.Models.RequestModels;
 
@@ -24,6 +25,7 @@ namespace Mind.Builders
         IBundleAttachmentBuilder WithBundleLinks(int? minLinks, int? maxLinks);
         IBundleAttachmentBuilder UseExistingRoutingInstance(string routingInstanceName);
         IBundleAttachmentBuilder WithNewRoutingInstance(bool? newRoutingInstance = false);
+        IBundleAttachmentBuilder WithRoutingInstance(RoutingInstanceRequest routingInstanceRequest);
         IBundleAttachmentBuilder UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
         Task<Attachment> BuildAsync();
     }

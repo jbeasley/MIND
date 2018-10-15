@@ -38,7 +38,7 @@ namespace Mind.Api.Models
         public Int32? TenantId { get; set; }
 
         /// <summary>
-        /// The name of an vif role which sets certain constrains on how the vif must be configuted
+        /// The name of an vif role which sets certain constrains on how the vif must be configured
         /// </summary>
         /// <value>String value denoting the name of a vif role</value>
         /// <example>PE-CE-SERVICE</example>
@@ -52,7 +52,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>An integer denoting the requested vlan tag</value>
         /// <example>100</example>
-        [DataMember(Name = "RequestedVlanTag")]
+        [DataMember(Name = "requestedVlanTag")]
         [Range(2,4094)]
         public int? RequestedVlanTag { get; set; }
 
@@ -66,6 +66,13 @@ namespace Mind.Api.Models
         /// <exanple>db7c48eaa9864cd0b3aa6af08c8370d6</exanple>
         [DataMember(Name = "existingRoutingInstanceName")]
         public string ExistingRoutingInstanceName { get; set; }
+
+        /// <summary>
+        /// Optional parameters for creating a routing instances to be associated with the new attachment.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        [DataMember(Name = "routingInstance")]
+        public RoutingInstanceRequest RoutingInstance { get; set; }
 
         /// <summary>
         /// The required contract bandwidth in Mbps
@@ -94,7 +101,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// A list of IPv4 addresses to be assigned to the vlans of the vif
         /// </summary>
-        /// <value>A list of Ipv4AddressAndMask objcets</value>
+        /// <value>A list of Ipv4AddressAndMask objects</value>
         [DataMember(Name="ipv4Addresses")]
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 
@@ -128,6 +135,7 @@ namespace Mind.Api.Models
             sb.Append("  TrustReceivedCosAndDscp: ").Append(TrustReceivedCosAndDscp).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
             sb.Append("  ExistingContractBandwidthPoolName: ").Append(ExistingContractBandwidthPoolName).Append("\n");
+            sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -202,6 +210,11 @@ namespace Mind.Api.Models
                     Ipv4Addresses == other.Ipv4Addresses ||
                     Ipv4Addresses != null &&
                     Ipv4Addresses.Equals(other.Ipv4Addresses)
+                ) &&
+                (
+                    RoutingInstance == other.RoutingInstance ||
+                    RoutingInstance != null &&
+                    RoutingInstance.Equals(other.RoutingInstance)
                 );
         }
 
@@ -231,6 +244,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
                     if (ExistingContractBandwidthPoolName != null)
                     hashCode = hashCode * 59 + ExistingContractBandwidthPoolName.GetHashCode();
+                    if (RoutingInstance != null)
+                    hashCode = hashCode * 59 + RoutingInstance.GetHashCode();
                 return hashCode;
             }
         }

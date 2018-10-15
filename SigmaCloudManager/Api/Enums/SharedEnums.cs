@@ -170,6 +170,19 @@ namespace Mind.Api
     }
 
     /// <summary>
+    /// Enum for route distinguisher ranges
+    /// </summary>
+    /// <value>Enumerated list of route distinguisher range options</value>
+    public enum RouteDistinguisherRangeTypeEnum
+    {
+        /// <summary>
+        /// Enum for Default
+        /// </summary>
+        [EnumMember(Value = "default")]
+        Default = 0
+    }
+
+    /// <summary>
     /// Enum for the multicast vpn direction type options of a vpn.
     /// </summary>
     /// <value>Enumerated list of multicast vpn direction type options</value>
@@ -296,5 +309,23 @@ namespace Mind.Api
         /// </summary>
         [EnumMember(Value = "Reserved")]
         Reserved = 4
+    }
+
+    /// <summary>
+    /// Enumeration for logical interface type options
+    /// </summary>
+    public enum LogicalInterfaceTypeEnum
+    {
+        /// <summary>
+        /// Enum for Loopback
+        /// </summary>
+        [EnumMember(Value = "Loopback")]
+        Loopback = 0,
+
+        /// <summary>
+        /// Enum for Tunnel
+        /// </summary>
+        [EnumMember(Value = "Tunnel")]
+        Tunnel = 1
     }
 }

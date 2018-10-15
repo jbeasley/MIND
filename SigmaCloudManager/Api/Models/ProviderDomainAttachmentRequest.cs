@@ -127,6 +127,13 @@ namespace Mind.Api.Models
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 
         /// <summary>
+        /// Optional parameters for creating a routing instances to be associated with the new attachment.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        [DataMember(Name = "routingInstance")]
+        public RoutingInstanceRequest RoutingInstance { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -146,6 +153,7 @@ namespace Mind.Api.Models
             sb.Append("  ContractBandwidthMbps: ").Append(ContractBandwidthMbps).Append("\n");
             sb.Append("  TrustReceivedCosAndDscp: ").Append(TrustReceivedCosAndDscp).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
+            sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -239,6 +247,11 @@ namespace Mind.Api.Models
                     Ipv4Addresses == other.Ipv4Addresses ||
                     Ipv4Addresses != null &&
                     Ipv4Addresses.Equals(other.Ipv4Addresses)
+                ) &&
+                (
+                    RoutingInstance == other.RoutingInstance ||
+                    RoutingInstance != null &&
+                    RoutingInstance.Equals(other.RoutingInstance)
                 );
         }
 
@@ -276,6 +289,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + TrustReceivedCosAndDscp.GetHashCode();
                     if (Ipv4Addresses != null)
                     hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
+                    if (RoutingInstance != null)
+                    hashCode = hashCode * 59 + RoutingInstance.GetHashCode();
                 return hashCode;
             }
         }

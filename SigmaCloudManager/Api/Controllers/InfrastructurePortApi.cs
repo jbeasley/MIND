@@ -201,7 +201,7 @@ namespace Mind.Api.Controllers
 
         /// <param name="deviceId">ID of the device</param>
         /// <param name="portId">ID of the infrastructure port</param>
-        /// <param name="body">Infrastructure device update object that updates an existing device</param>
+        /// <param name="body">Port update object that updates an existing infrastructure port</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>

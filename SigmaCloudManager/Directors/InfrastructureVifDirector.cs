@@ -23,6 +23,8 @@ namespace Mind.Builders
                                  .WithVifRole(request.VifRoleName)
                                  .WithContractBandwidth(request.ContractBandwidthMbps)
                                  .WithExistingContractBandwidthPool(request.ExistingContractBandwidthPoolName)
+                                 .UseExistingRoutingInstance(request.ExistingRoutingInstanceName)
+                                 .WithRoutingInstance(request.RoutingInstance)
                                  .WithIpv4(request.Ipv4Addresses)
                                  .BuildAsync();
         }

@@ -101,6 +101,7 @@ namespace Mind.Builders
         {
             if (_args.ContainsKey(nameof(ForDevice)))
             {
+                // Apply updates to an existing device
                 await SetDeviceAsync();
                 if (_args.ContainsKey(nameof(WithName))) SetName();
                 if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
@@ -110,6 +111,7 @@ namespace Mind.Builders
             }
             else
             {
+                // Create a new device
                 if (_args.ContainsKey(nameof(WithName))) SetName();
                 if (_args.ContainsKey(nameof(WithLocation))) await SetLocationAsync();
                 if (_args.ContainsKey(nameof(WithRole))) await SetRoleAsync();

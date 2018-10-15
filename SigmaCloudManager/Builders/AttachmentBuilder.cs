@@ -6,6 +6,7 @@ using SCM.Models;
 using SCM.Services;
 using SCM.Data;
 using Microsoft.EntityFrameworkCore;
+using Mind.Models.RequestModels;
 
 namespace Mind.Builders
 {
@@ -118,6 +119,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithRoutingInstance(RoutingInstanceRequest routingInstanceRequest)
+        {
+            if (routingInstanceRequest != null) _args.Add(nameof(WithRoutingInstance), routingInstanceRequest);
+            return this;
+        }
+
         public virtual IAttachmentBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp)
         {
             if (trustReceivedCosAndDscp.HasValue) _args.Add(nameof(WithTrustReceivedCosAndDscp), trustReceivedCosAndDscp);
@@ -209,7 +216,7 @@ namespace Mind.Builders
         {
             _ports = _attachment.Device.Ports.Where(
                                                q =>
-                                               q.PortStatus.PortStatusType == PortStatusTypeEnum.Free &&
+                                               q.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free &&
                                                q.PortBandwidth.BandwidthGbps == _portBandwidthRequired &&
                                                q.PortPoolID == _attachment.AttachmentRole.PortPoolID)
                                                .Take(_numPortsRequired);
@@ -221,7 +228,7 @@ namespace Mind.Builders
 
             var assignedPortStatus = (from portStatus in await _unitOfWork.PortStatusRepository.GetAsync(
                                       q => 
-                                      q.PortStatusType == PortStatusTypeEnum.Assigned)
+                                      q.PortStatusType == SCM.Models.PortStatusTypeEnum.Assigned)
                                       select portStatus)
                                       .Single();
 
@@ -341,9 +348,11 @@ namespace Mind.Builders
                                            select routingInstanceTypes)
                                            .Single();
 
+                var routingInstanceRequest = _args.ContainsKey(nameof(WithRoutingInstance)) ? (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)] : null;
                 var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
                 var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _attachment.Device.DeviceID,
-                                                                               tenantId: _attachment.Tenant.TenantID);
+                                                                               tenantId: _attachment.Tenant?.TenantID,
+                                                                               request: routingInstanceRequest);
 
                 _attachment.RoutingInstance = routingInstance;
             }
@@ -449,7 +458,7 @@ namespace Mind.Builders
 
             var query = from d in await _unitOfWork.DeviceRepository.GetAsync(
                         q => 
-                        q.DeviceStatus.DeviceStatusType == DeviceStatusTypeEnum.Production
+                        q.DeviceStatus.DeviceStatusType == SCM.Models.DeviceStatusTypeEnum.Production
                         && q.LocationID == location.LocationID
                         && q.DeviceRole.DeviceRoleAttachmentRoles
                        .Where(
@@ -478,7 +487,7 @@ namespace Mind.Builders
             // Filter devices collection to only those devices which have the required number of free ports
             // of the required bandwidth and which belong to the requested Port Pool
 
-            devices = devices.Where(q => q.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
+            devices = devices.Where(q => q.Ports.Where(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
                 && p.PortPoolID == _attachment.AttachmentRole.PortPoolID
                 && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired).Count() >= _numPortsRequired).ToList();
 
@@ -494,10 +503,10 @@ namespace Mind.Builders
                 // Get device with the most free ports of the required Port Bandwidth
                 _attachment.Device = devices.Aggregate(
                     (current, x) =>
-                        (x.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
+                        (x.Ports.Where(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
                         && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
                         .Count() >
-                        current.Ports.Where(p => p.PortStatus.PortStatusType == PortStatusTypeEnum.Free
+                        current.Ports.Where(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
                         && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
                         .Count() ? x : current));
             }

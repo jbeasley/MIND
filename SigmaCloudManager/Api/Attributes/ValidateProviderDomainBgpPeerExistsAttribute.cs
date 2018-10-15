@@ -44,12 +44,12 @@ namespace Mind.Api.Attributes
                 if ((from result in await _unitOfWork.BgpPeerRepository.GetAsync(q => 
                     q.BgpPeerID == bgpPeerId &&
                     q.RoutingInstanceID == routingInstanceId.Value &&
-                    q.RoutingInstance.Device.DeviceRole.IsProviderDomainRole,
+                    q.RoutingInstance.RoutingInstanceType.IsTenantFacingVrf,
                     AsTrackable: false)
                     select result)
                     .SingleOrDefault() == null)
                 {
-                    context.ModelState.AddModelError(string.Empty, "Could not find the BGP peer with the specified arguments.");
+                    context.ModelState.AddModelError(string.Empty, "Could not find the BGP peer in the provider domain with the specified arguments.");
                     context.Result = new ResourceNotFoundResult(context.ModelState);
                     return;
                 }

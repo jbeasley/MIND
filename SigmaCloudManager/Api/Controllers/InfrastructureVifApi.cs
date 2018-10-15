@@ -60,7 +60,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs")]
+        [Route("/v{version:apiVersion}/infrastructure-attachments/{attachmentId}/vifs")]
         [ValidateModelState]
         [ValidateInfrastructureAttachmentExists]
         [SwaggerResponse(statusCode: 201, type: typeof(InfrastructureVif), description: "Successful operation")]
@@ -108,7 +108,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation failed</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs/{vifId}")]
+        [Route("/v{version:apiVersion}/infrastructure-attachments/{attachmentId}/vifs/{vifId}")]
         [ValidateModelState]
         [ValidateInfrastructureVifExists]
         [SwaggerResponse(statusCode: 204, description: "Successful operation")]
@@ -143,7 +143,7 @@ namespace Mind.Api.Controllers
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs")]
+        [Route("/v{version:apiVersion}/infrastructure-attachments/{attachmentId}/vifs")]
         [ValidateModelState]
         [ValidateInfrastructureAttachmentExists]
         [SwaggerOperation("GetInfrastructureVifsByAttachmentId")]
@@ -166,7 +166,7 @@ namespace Mind.Api.Controllers
         /// <response code="304">The specified resource has not been modified</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs/{vifId}", Name ="GetInfrastructureVif")]
+        [Route("/v{version:apiVersion}/infrastructure-attachments/{attachmentId}/vifs/{vifId}", Name ="GetInfrastructureVif")]
         [ValidateModelState]
         [ValidateInfrastructureVifExists]
         [SwaggerOperation("GetInfrastructureVifById")]
@@ -201,7 +201,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPatch]
-        [Route("/v{version:apiVersion}/Infrastructure-attachments/{attachmentId}/vifs/{vifId}")]
+        [Route("/v{version:apiVersion}/infrastructure-attachments/{attachmentId}/vifs/{vifId}")]
         [ValidateModelState]
         [ValidateInfrastructureVifExists]
         [SwaggerOperation("UpdateInfrastructureVif")]

@@ -48,7 +48,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>An integer value denoting the assigned-number sub-field of the routing instance</value>
         /// <example>8718</example>
-        [DataMember(Name = "administrator-sub-field")]
+        [DataMember(Name = "administratorSubField")]
         public int? AdministratorSubField { get; private set; }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>An integer value denoting the assigned-number sub-field of the routing instance</value>
         /// <example>10000</example>
-        [DataMember(Name = "assigned-number-sub-field")]
+        [DataMember(Name = "assignedNumberSubField")]
         public int? AssignedNumberSubField { get; private set; }
 
         /// <summary>
@@ -65,6 +65,13 @@ namespace Mind.Api.Models
         /// <value>A list of BgpPeer objects</value>
         [DataMember(Name = "bgpPeers")]
         public List<InfrastructureBgpPeer> BgpPeers { get; private set; }
+
+        /// <summary>
+        /// A list of logical interfaces which are configured for the routing instance
+        /// </summary>
+        /// <value>A list of BgpPeer objects</value>
+        [DataMember(Name = "logicalInterfaces")]
+        public List<LogicalInterface> LogicalInterfaces { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -79,6 +86,7 @@ namespace Mind.Api.Models
             sb.Append("  AdministratorSubField: ").Append(AdministratorSubField).Append("\n");
             sb.Append("  AssignedNumberSubField: ").Append(AssignedNumberSubField).Append("\n");
             sb.Append("  BgpPeers: ").Append(BgpPeers).Append("\n");
+            sb.Append("  LogicalInterfaces: ").Append(LogicalInterfaces).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -114,7 +122,7 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     RoutingInstanceId == other.RoutingInstanceId ||
                     RoutingInstanceId != null &&
@@ -139,6 +147,11 @@ namespace Mind.Api.Models
                     BgpPeers == other.BgpPeers ||
                     BgpPeers != null &&
                     BgpPeers.Equals(other.BgpPeers)
+                ) &&
+                (
+                    LogicalInterfaces == other.LogicalInterfaces ||
+                    LogicalInterfaces != null &&
+                    LogicalInterfaces.Equals(other.LogicalInterfaces)
                 );
         }
 
@@ -162,6 +175,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AssignedNumberSubField.GetHashCode();
                 if (BgpPeers != null)
                     hashCode = hashCode * 59 + BgpPeers.GetHashCode();
+                if (LogicalInterfaces != null)
+                    hashCode = hashCode * 59 + LogicalInterfaces.GetHashCode();
                 return hashCode;
             }
         }

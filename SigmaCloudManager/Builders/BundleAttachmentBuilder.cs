@@ -6,6 +6,7 @@ using SCM.Data;
 using SCM.Services;
 using SCM.Models;
 using SCM.Models.RequestModels;
+using Mind.Models.RequestModels;
 
 namespace Mind.Builders
 {
@@ -40,6 +41,12 @@ namespace Mind.Builders
         IBundleAttachmentBuilder IBundleAttachmentBuilder.WithNewRoutingInstance(bool? newRoutingInstance)
         {
             base.WithNewRoutingInstance(newRoutingInstance);
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithRoutingInstance(RoutingInstanceRequest routingInstanceRequest)
+        {
+            base.WithRoutingInstance(routingInstanceRequest);
             return this;
         }
 

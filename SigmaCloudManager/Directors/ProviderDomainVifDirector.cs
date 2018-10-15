@@ -24,6 +24,7 @@ namespace Mind.Builders
                                  .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
                                  .WithVifRole(request.VifRoleName)
                                  .UseExistingRoutingInstance(request.ExistingRoutingInstanceName)
+                                 .WithRoutingInstance(request.RoutingInstance)
                                  .WithContractBandwidth(request.ContractBandwidthMbps)
                                  .WithExistingContractBandwidthPool(request.ExistingContractBandwidthPoolName)
                                  .WithIpv4(request.Ipv4Addresses)

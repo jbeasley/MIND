@@ -128,8 +128,9 @@ namespace Mind.Api.Models
                   .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name))
                   .ForMember(dst => dst.VpnName, conf => conf.MapFrom(src => src.Vpn.Name));
             CreateMap<SCM.Models.RoutingInstance, Mind.Api.Models.ProviderDomainRoutingInstance>()
-                   // Static routes which belong only to a specific routing instance within the attachment set
-                  .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes));
+                  // Static routes which belong only to a specific routing instance within the attachment set
+                  .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes))
+                  .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName));
             CreateMap<SCM.Models.RoutingInstance, Mind.Api.Models.TenantDomainRoutingInstance>()
                    // Static routes which belong only to a specific routing instance within the tenant domain device
                    .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes));
@@ -143,6 +144,11 @@ namespace Mind.Api.Models
                   .ForMember(dst => dst.RoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
                   .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksIn))
                   .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksOut));
+            CreateMap<SCM.Models.LogicalInterface, Mind.Api.Models.LogicalInterface>()
+                  .ForMember(dst => dst.RoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name));
+            CreateMap<SCM.Models.Location, Mind.Api.Models.ProviderDomainLocation>()
+                  .ForMember(dst => dst.SubRegionName, conf => conf.MapFrom(src => src.SubRegion.Name))
+                  .ForMember(dst => dst.RegionName, conf => conf.MapFrom(src => src.SubRegion.Region.Name));
 
             // API model to entity model mappings
 

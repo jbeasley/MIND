@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mind.Models.RequestModels;
 using SCM.Models;
 using SCM.Models.RequestModels;
 
@@ -19,6 +20,7 @@ namespace Mind.Builders
         IVifBuilder WithExistingContractBandwidthPool(string existingContractBandwidthPoolName);
         IVifBuilder UseExistingRoutingInstance(string existingRoutingInstanceName);
         IVifBuilder WithNewRoutingInstance(bool? createNewRoutingInstanceName);
+        IVifBuilder WithRoutingInstance(RoutingInstanceRequest routingInstanceRequest);
         IVifBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IVifBuilder WithIpv4(List<Ipv4AddressAndMask> ipv4AddressesAndMask);
         IVifBuilder WithJumboMtu(bool? useJumboMtu);

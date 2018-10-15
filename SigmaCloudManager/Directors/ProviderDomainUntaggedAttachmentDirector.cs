@@ -29,6 +29,7 @@ namespace Mind.Builders
                                 .WithIpv4(request.Ipv4Addresses)
                                 .WithContractBandwidth(request.ContractBandwidthMbps)
                                 .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
+                                .WithRoutingInstance(request.RoutingInstance)
                                 .BuildAsync();
         }
     }

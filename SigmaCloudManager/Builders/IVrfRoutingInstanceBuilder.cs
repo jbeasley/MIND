@@ -10,9 +10,10 @@ namespace Mind.Builders
     {
         IVrfRoutingInstanceBuilder ForDevice(int? deviceId);
         IVrfRoutingInstanceBuilder WithTenant(int? tenantId);
-        IVrfRoutingInstanceBuilder WithRouteDistinguisherRange(RouteDistinguisherRangeTypeEnum? rdRangeType);
-        IVrfRoutingInstanceBuilder WithRouteDistinguisherAdministratorNumberSubField(int? rdAdministratorNumberSubField);
-        IVrfRoutingInstanceBuilder WithRouteDistinguisherAssignedNumberSubField(int? rdAssignedNumberSubField);
-        IVrfRoutingInstanceBuilder WithRoutingInstanceType(RoutingInstanceTypeEnum? routingInstanceTypeEnum);
+        IVrfRoutingInstanceBuilder WithRangeType(string rdRangeType);
+        IVrfRoutingInstanceBuilder WithName(string name);
+        IVrfRoutingInstanceBuilder WithAdministratorSubField(int? rdAdministratorNumberSubField);
+        IVrfRoutingInstanceBuilder WithAssignedNumberSubField(int? rdAssignedNumberSubField);
+        IVrfRoutingInstanceBuilder WithRoutingInstanceType(string routingInstanceTypeEnum);
     }
 }

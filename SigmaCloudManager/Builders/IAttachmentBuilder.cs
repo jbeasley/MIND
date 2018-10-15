@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mind.Models.RequestModels;
 using SCM.Models;
 using SCM.Models.RequestModels;
 
@@ -22,6 +23,7 @@ namespace Mind.Builders
         IAttachmentBuilder<TAttachmentBuilder> WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IAttachmentBuilder<TAttachmentBuilder> WithJumboMtu(bool? useJumboMtu = false);
         IAttachmentBuilder<TAttachmentBuilder> UseExistingRoutingInstance(string routingInstanceName);
+        IAttachmentBuilder<TAttachmentBuilder> WithRoutingInstance(RoutingInstanceRequest routingInstanceRequest);
         IAttachmentBuilder<TAttachmentBuilder> WithNewRoutingInstance(bool? newRoutingInstance = false);
         IAttachmentBuilder<TAttachmentBuilder> UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
         Task<Attachment> BuildAsync();

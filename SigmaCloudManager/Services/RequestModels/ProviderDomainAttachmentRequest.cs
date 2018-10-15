@@ -83,6 +83,11 @@ namespace SCM.Models.RequestModels
         /// <value>Determines whether DSCP and COS markings of packets sent from the tenant network should be trusted by the provider</value>
         public bool? TrustReceivedCosAndDscp { get; set; }
 
+        /// <summary>
+        /// Optional parameters for creating a routing instances to be associated with the new attachment.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        public RoutingInstanceRequest RoutingInstance { get; set; }
 
         /// <summary>
         /// IPv4 addresses to be assigned to the interfaces of the attachment.

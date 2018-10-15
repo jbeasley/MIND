@@ -191,6 +191,18 @@ namespace Mind.Models.RequestModels
     }
 
     /// <summary>
+    /// Enum for route distinguisher ranges
+    /// </summary>
+    /// <value>Enumerated list of route distinguisher range options</value>
+    public enum RouteDistinguisherRangeTypeEnum
+    {
+        /// <summary>
+        /// Enum for Default
+        /// </summary>
+        Default = 0
+    }
+
+    /// <summary>
     /// Enumeration of tenant IP routing behaviour options
     /// </summary>
     /// <value>Enumerated list of tenant ip routing behaviour options</value>
@@ -262,5 +274,21 @@ namespace Mind.Models.RequestModels
         /// Enum for Reserved
         /// </summary>
         Reserved = 4
+    }
+
+    /// <summary>
+    /// Enumeration for logical interface type options
+    /// </summary>
+    public enum LogicalInterfaceTypeEnum
+    {
+        /// <summary>
+        /// Enum for Loopback
+        /// </summary>
+        Loopback = 0,
+
+        /// <summary>
+        /// Enum for Tunnel
+        /// </summary>
+        Tunnel = 1
     }
 }

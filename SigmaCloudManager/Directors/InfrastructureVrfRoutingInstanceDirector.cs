@@ -1,4 +1,5 @@
-﻿using SCM.Models;
+﻿using Mind.Models.RequestModels;
+using SCM.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,11 +16,14 @@ namespace Mind.Builders
             _builder = builder;
         }
 
-        public async Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int? tenantId, RouteDistinguisherRangeTypeEnum rdRangeType = RouteDistinguisherRangeTypeEnum.Default)
+        public async Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int? tenantId, RoutingInstanceRequest request)
         {
             return await _builder.ForDevice(deviceId)
-                                 .WithRouteDistinguisherRange(rdRangeType)
-                                 .WithRoutingInstanceType(RoutingInstanceTypeEnum.InfrastructureVrf)
+                                 .WithRangeType(request?.RangeType?.ToString())
+                                 .WithAdministratorSubField(request?.AdministratorSubField)
+                                 .WithAssignedNumberSubField(request?.AssignedNumberSubField)
+                                 .WithRoutingInstanceType(RoutingInstanceTypeEnum.InfrastructureVrf.ToString())
+                                 .WithName(request?.Name)
                                  .BuildAsync();
         }
     }

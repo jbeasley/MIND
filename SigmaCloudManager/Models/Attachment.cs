@@ -61,6 +61,7 @@ namespace SCM.Models
                         .ThenInclude(x => x.Ports)
                         .Include(x => x.Mtu)
                         .Include(x => x.RoutingInstance.BgpPeers)
+                        .Include(x => x.RoutingInstance.LogicalInterfaces)
                         .Include(x => x.Tenant)
                         .Include(x => x.AttachmentRole)
                         .Include(x => x.AttachmentBandwidth);
@@ -261,6 +262,12 @@ namespace SCM.Models
                 if (!this.AttachmentBandwidth.SupportedByMultiPort) throw new IllegalStateException($"The requested attachment " +
                     $"bandwidth '{this.AttachmentBandwidth.BandwidthGbps} Gbps' is not supported with a multiport attachment.");
             }
+
+            // Validate the routing instance if one exists
+            if (this.RoutingInstance != null)
+            {
+                this.RoutingInstance.Validate();
+            }
         }
 
         /// <summary>
@@ -284,6 +291,31 @@ namespace SCM.Models
                     x =>
                     x.ValidateDelete()
                 );
+        }
+
+        /// <summary>
+        /// Validates that the ports of a an attachment are configured correctly.
+        /// </summary>
+        public virtual void ValidatePortsConfiguredCorrectly()
+        {
+            var totalPortBandwidthGbps = (this.Interfaces
+                                              .SelectMany(
+                                                 x => 
+                                                 x.Ports)
+                                               .Where(
+                                                 x => 
+                                                 x.DeviceID == this.DeviceID)
+                                               .Sum(
+                                                 x => 
+                                                 x.PortBandwidth.BandwidthGbps)
+                                         );
+
+            if (totalPortBandwidthGbps < this.AttachmentBandwidth.BandwidthGbps)
+            {
+                throw new IllegalStateException($"Attachment '{this.Name}' is misconfigured. The total port bandwidth "
+                    + $"({totalPortBandwidthGbps} Gbps) is less than the required attachment bandwidth ({this.AttachmentBandwidth.BandwidthGbps} Gbps). "
+                    + "Check that the correct number of ports are configured and that all of the ports are configured for the same device.");
+            }
         }
     }
 }

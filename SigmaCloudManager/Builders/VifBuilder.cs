@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using Mind.Models.RequestModels;
 using SCM.Data;
 using SCM.Models;
 using SCM.Models.RequestModels;
@@ -87,6 +88,12 @@ namespace Mind.Builders
         public virtual IVifBuilder WithNewRoutingInstance(bool? createNewRoutingInstance)
         {
             if (createNewRoutingInstance.HasValue) _args.Add(nameof(WithNewRoutingInstance), createNewRoutingInstance);
+            return this;
+        }
+
+        public virtual IVifBuilder WithRoutingInstance(RoutingInstanceRequest routingInstanceRequest)
+        {
+            if (routingInstanceRequest != null) _args.Add(nameof(WithRoutingInstance), routingInstanceRequest);
             return this;
         }
 
@@ -333,9 +340,11 @@ namespace Mind.Builders
                                        select routingInstanceTypes)
                                        .Single();
 
+            var routingInstanceRequest = _args.ContainsKey(nameof(WithRoutingInstance)) ? (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)] : null;
             var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
             var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _vif.Attachment.DeviceID,
-                                                                           tenantId: _vif.Tenant?.TenantID);
+                                                                           tenantId: _vif.Tenant?.TenantID,
+                                                                           request: routingInstanceRequest);
 
             _vif.RoutingInstance = routingInstance;
         }

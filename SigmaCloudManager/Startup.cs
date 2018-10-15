@@ -275,6 +275,10 @@ namespace Mind
             builder.RegisterType<ProviderDomainCommunityOutboundPolicyService>().As<IProviderDomainCommunityOutboundPolicyService>();
             builder.RegisterType<InfrastructureAttachmentService>().As<IInfrastructureAttachmentService>();
             builder.RegisterType<InfrastructureVifService>().As<IInfrastructureVifService>();
+            builder.RegisterType<InfrastructureLogicalInterfaceService>().As<IInfrastructureLogicalInterfaceService>();
+            builder.RegisterType<ProviderDomainLogicalInterfaceService>().As<IProviderDomainLogicalInterfaceService>();
+            builder.RegisterType<ProviderDomainLocationService>().As<IProviderDomainLocationService>();
+            builder.RegisterType<ProviderDomainRoutingInstanceService>().As<IProviderDomainRoutingInstanceService>();
 
             // Provider domain single attachment directors
             builder.RegisterType<ProviderDomainUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
@@ -404,6 +408,12 @@ namespace Mind
             // Infrastructure vif directors
             builder.RegisterType<InfrastructureVifDirector>().As<IInfrastructureVifDirector>();
             builder.RegisterType<InfrastructureVifUpdateDirector>().As<IInfrastructureVifUpdateDirector>();
+
+            // Infrastructure Logical interface director
+            builder.RegisterType<InfrastructureLogicalInterfaceDirector>().As<IInfrastructureLogicalInterfaceDirector>();
+
+            // Provider Domain Logical interface director
+            builder.RegisterType<ProviderDomainLogicalInterfaceDirector>().As<IProviderDomainLogicalInterfaceDirector>();
 
             // Tenant domain vif directors
             builder.RegisterType<TenantDomainVifDirector>().As<ITenantDomainVifDirector>();
@@ -747,6 +757,7 @@ namespace Mind
             builder.RegisterType<VpnAttachmentSetBuilder>().As<IVpnAttachmentSetBuilder>();
             builder.RegisterType<VpnAttachmentSetUpdateBuilder>().As<IVpnAttachmentSetUpdateBuilder>();
             builder.RegisterType<RoutingInstanceStaticRouteBuilder>().As<IRoutingInstanceStaticRouteBuilder>();
+            builder.RegisterType<LogicalInterfaceBuilder>().As<ILogicalInterfaceBuilder>();
         }
  
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

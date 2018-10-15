@@ -641,9 +641,11 @@ namespace SigmaCloudManager.Migrations
                     b.Property<int>("LocationID")
                         .ValueGeneratedOnAdd();
 
-                    b.Property<int>("AutonomousSystemNumber");
+                    b.Property<int?>("AutonomousSystemNumber");
 
-                    b.Property<int>("Number");
+                    b.Property<int>("LocationType");
+
+                    b.Property<int?>("Number");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -655,7 +657,7 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("SubRegionID");
 
-                    b.Property<int>("Tier");
+                    b.Property<int?>("Tier");
 
                     b.HasKey("LocationID");
 

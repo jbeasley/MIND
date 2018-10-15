@@ -50,6 +50,7 @@ namespace SCM.Models
                         .Include(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksOut)
                         .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.RoutingInstance.LogicalInterfaces)
                         .Include(x => x.Vlans)
                         .Include(x => x.Tenant)
                         .Include(x => x.Mtu);

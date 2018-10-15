@@ -36,7 +36,7 @@ namespace Mind.Api.Models
         public int? RoutingInstanceId { get; private set; }
 
         /// <summary>
-        /// The MIND system-generated name of the routing instance
+        /// The name of the routing instance
         /// </summary>
         /// <value>A string value denoting the name of the routing instance</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
@@ -44,11 +44,19 @@ namespace Mind.Api.Models
         public string Name { get; private set; }
 
         /// <summary>
+        /// The name of the provider domain location within which the routing instance exists
+        /// </summary>
+        /// <value>A string value denoting the name of the provider domain location</value>
+        /// <example>Uk2</example>
+        [DataMember(Name = "providerDomainLocationName")]
+        public string ProviderDomainLocationName { get; private set; }
+
+        /// <summary>
         /// The administrator sub-field of the routing instance
         /// </summary>
         /// <value>An integer value denoting the assigned-number sub-field of the routing instance</value>
         /// <example>8718</example>
-        [DataMember(Name = "administrator-sub-field")]
+        [DataMember(Name = "administratorSubField")]
         public int? AdministratorSubField { get; private set; }
 
         /// <summary>
@@ -56,7 +64,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>An integer value denoting the assigned-number sub-field of the routing instance</value>
         /// <example>10000</example>
-        [DataMember(Name = "assigned-number-sub-field")]
+        [DataMember(Name = "assignedNumberSubField")]
         public int? AssignedNumberSubField { get; private set; }
 
         /// <summary>
@@ -73,6 +81,14 @@ namespace Mind.Api.Models
         [DataMember(Name = "staticRoutes")]
         public List<VpnTenantIpNetworkRoutingInstanceStaticRoute> StaticRoutes { get; private set; }
 
+
+        /// <summary>
+        /// A list of logical interfaces which are configured for the routing instance
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkRoutingInstanceStaticRoute objects</value>
+        [DataMember(Name = "logicalInterfaces")]
+        public List<LogicalInterface> LogicalInterfaces { get; private set; }
+
         /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
@@ -87,6 +103,8 @@ namespace Mind.Api.Models
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  BgpPeers: ").Append(BgpPeers).Append("\n");
             sb.Append("  StaticRoutes: ").Append(StaticRoutes).Append("\n");
+            sb.Append("  ProviderDomainLocationName: ").Append(ProviderDomainLocationName).Append("\n");
+            sb.Append("  LogicalInterfaces: ").Append(LogicalInterfaces).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -122,7 +140,7 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     RoutingInstanceId == other.RoutingInstanceId ||
                     RoutingInstanceId != null &&
@@ -152,6 +170,16 @@ namespace Mind.Api.Models
                     StaticRoutes == other.StaticRoutes ||
                     StaticRoutes != null &&
                     StaticRoutes.Equals(other.StaticRoutes)
+                ) &&
+                (
+                    ProviderDomainLocationName == other.ProviderDomainLocationName ||
+                    ProviderDomainLocationName != null &&
+                    ProviderDomainLocationName.Equals(other.ProviderDomainLocationName)
+                ) &&
+                (
+                    LogicalInterfaces == other.LogicalInterfaces ||
+                    LogicalInterfaces != null &&
+                    LogicalInterfaces.Equals(other.LogicalInterfaces)
                 );
         }
 
@@ -177,6 +205,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + BgpPeers.GetHashCode();
                 if (StaticRoutes != null)
                     hashCode = hashCode * 59 + StaticRoutes.GetHashCode();
+                if (ProviderDomainLocationName != null)
+                    hashCode = hashCode * 59 + ProviderDomainLocationName.GetHashCode();
+                if (LogicalInterfaces != null)
+                    hashCode = hashCode * 59 + LogicalInterfaces.GetHashCode();
                 return hashCode;
             }
         }

@@ -60,6 +60,21 @@ namespace Mind.Models
             return preconditionFailed;
         }
 
+        public static bool HasPreconditionFailed(this IModifiableResource resource, HttpRequest request, string receivedConcurrencyToken)
+        {
+            bool preconditionFailed = false;
+
+            if (HttpMethods.IsPut(request.Method) || HttpMethods.IsPatch(request.Method) || HttpMethods.IsDelete(request.Method))
+            {
+                if (receivedConcurrencyToken != resource.ConcurrencyToken)
+                {
+                    preconditionFailed = true;
+                }
+            }
+
+            return preconditionFailed;
+        }
+
         public static void SetModifiedHttpHeaders(this IModifiableResource resource, HttpResponse response)
         {
             var etag = resource.ConcurrencyToken;

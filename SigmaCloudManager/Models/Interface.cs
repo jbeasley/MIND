@@ -1,11 +1,23 @@
-﻿using System;
+﻿using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 using System.Net;
 
 namespace SCM.Models
 {
+    public static class InterfaceQueryableExtensions
+    {
+        public static IQueryable<Interface> IncludeDeepProperties(this IQueryable<Interface> query)
+        {
+            return query.Include(x => x.Ports)
+                        .Include(x => x.Vlans)
+                        .Include(x => x.Attachment);
+        }
+    }
+
     public class Interface { 
 
         public int InterfaceID { get; private set; }

@@ -46,7 +46,7 @@ namespace Mind.Api.Models
         [DataMember(Name = "subnetMask")]
         [Required(AllowEmptyStrings = false)]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid IPv4 subnet mask must be entered, e.g. 255.255.255.252")]
+            ErrorMessage = "A valid IPv4 subnet mask must be specified, e.g. 255.255.255.252")]
         public string SubnetMask { get; set; }
 
         /// <summary>

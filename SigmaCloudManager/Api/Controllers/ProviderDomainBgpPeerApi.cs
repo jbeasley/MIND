@@ -57,8 +57,9 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpPost]
-        [Route("/v{version:apiVersion}/routing-instances/{routingInstanceId}/bgp-peers")]
+        [Route("/v{version:apiVersion}/provider-domain-routing-instances/{routingInstanceId}/bgp-peers")]
         [ValidateModelState]
+        [ValidateProviderDomainRoutingInstanceExists]
         [SwaggerOperation("CreateRoutingInstanceBgpPeer")]
         [SwaggerResponse(statusCode: 201, type: typeof(ProviderDomainBgpPeer), description: "Successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
@@ -108,7 +109,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpPatch]
-        [Route("/v{version:apiVersion}/routing-instances/{routingInstanceId}/bgp-peers/{bgpPeerId}")]
+        [Route("/v{version:apiVersion}/provider-domain-routing-instances/{routingInstanceId}/bgp-peers/{bgpPeerId}")]
         [ValidateModelState]
         [ValidateProviderDomainBgpPeerExists]
         [SwaggerOperation("UpdateBgpPeer")]
@@ -164,7 +165,7 @@ namespace Mind.Api.Controllers
         /// <response code="422">Validation error</response>
         /// <response code="500">Error while updating the database</response>
         [HttpDelete]
-        [Route("/v{version:apiVersion}/routing-instances/{routingInstanceId}/bgp-peers/{bgpPeerId}")]
+        [Route("/v{version:apiVersion}/provider-domain-routing-instances/{routingInstanceId}/bgp-peers/{bgpPeerId}")]
         [ValidateModelState]
         [ValidateProviderDomainBgpPeerExists]
         [SwaggerOperation("DeleteRoutingInstanceBgpPeer")]
@@ -200,7 +201,7 @@ namespace Mind.Api.Controllers
         /// <response code="200">successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         [HttpGet]
-        [Route("/v{version:apiVersion}/routing-instances/{routingInstanceId}/bgp-peers")]
+        [Route("/v{version:apiVersion}/provider-domain-routing-instances/{routingInstanceId}/bgp-peers")]
         [ValidateModelState]
         [SwaggerOperation("GetAllBgpPeersByRoutingInstance")]
         [SwaggerResponse(statusCode: 200, type: typeof(List<ProviderDomainBgpPeer>), description: "successful operation")]
@@ -223,9 +224,9 @@ namespace Mind.Api.Controllers
         [HttpGet]
         [ValidateModelState]
         [ValidateProviderDomainBgpPeerExists]
-        [Route("/v{version:apiVersion}/routing-instances/{routingInstanceId}/bgp-peers/{bgpPeerId}", Name="GetRoutingInstanceBgpPeer")]
+        [Route("/v{version:apiVersion}/provider-domain-routing-instances/{routingInstanceId}/bgp-peers/{bgpPeerId}", Name="GetRoutingInstanceBgpPeer")]
         [SwaggerOperation("GetRoutingInstanceBgpPeerById")]
-        [SwaggerResponse(statusCode: 200, type: typeof(List<ProviderDomainBgpPeer>), description: "successful operation")]
+        [SwaggerResponse(statusCode: 200, type: typeof(ProviderDomainBgpPeer), description: "successful operation")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         public virtual async Task<IActionResult> GetRoutingInstanceBgpPeerById([FromRoute][Required]int? routingInstanceId, [FromRoute][Required]int? bgpPeerId, [FromQuery]bool? deep)
         {

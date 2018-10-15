@@ -37,7 +37,8 @@ namespace SCM.Models
                         .ThenInclude(x => x.Device.DeviceRole)
                         .Include(x => x.Ports)
                         .ThenInclude(x => x.PortPool.PortRole)
-                        .Include(x => x.Tenant);                     
+                        .Include(x => x.Tenant)
+                        .Include(x => x.RoutingInstances);                     
         }
 
         public static IQueryable<Device> IncludeDeleteValidationProperties(this IQueryable<Device> query)

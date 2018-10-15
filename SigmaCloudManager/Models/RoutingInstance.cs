@@ -22,11 +22,41 @@ namespace SCM.Models
                         .ThenInclude(x => x.Ports)
                         .Include(x => x.Device.DeviceRole)
                         .Include(x => x.RoutingInstanceType)
-                        .Include(x => x.Device.Location.SubRegion.Region);
+                        .Include(x => x.Device.Location.SubRegion.Region)
+                        .Include(x => x.Device.RoutingInstances);
+        }
+
+        public static IQueryable<RoutingInstance> IncludeDeepProperties(this IQueryable<RoutingInstance> query)
+        {
+            return query.Include(x => x.Tenant)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.AttachmentSet)
+                        .Include(x => x.RoutingInstanceType)
+                        .Include(x => x.Device.Location.SubRegion.Region)
+                        .Include(x => x.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.VpnTenantCommunityRoutingInstances)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.VpnTenantIpNetworkRoutingInstances)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.LogicalInterfaces)
+                        .Include(x => x.Device.Location);
         }
     }
 
-    public class RoutingInstance
+    public class RoutingInstance : IModifiableResource
     {
         public int RoutingInstanceID { get; private set; }
         [Required(AllowEmptyStrings = false)]
@@ -51,6 +81,7 @@ namespace SCM.Models
         public virtual ICollection<VpnTenantCommunityRoutingInstance> VpnTenantCommunityRoutingInstances { get; set; }
         public virtual ICollection<VpnTenantIpNetworkRoutingInstance> VpnTenantIpNetworkRoutingInstances { get; set; }
         public virtual ICollection<VpnTenantIpNetworkRoutingInstanceStaticRoute> VpnTenantIpNetworkRoutingInstanceStaticRoutes { get; set; }
+        string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
 
         /// <summary>
         /// Validate the state of the routing instance
@@ -78,6 +109,24 @@ namespace SCM.Models
                         throw new IllegalStateException("A tenant must be defined because the routing instance is defined a a tenant-facing vrf " +
                             "routing instance.");
                     }
+                }
+
+                if (this.Device.RoutingInstances.Where(
+                                                    x => 
+                                                    x.Name == this.Name)
+                                                .Any())
+                {
+                    throw new IllegalStateException($"The name '{this.Name}' for the routing instance is already used.");
+                }
+
+                if (this.Device.RoutingInstances.Where(
+                                                    x => 
+                                                    x.AdministratorSubField == this.AdministratorSubField &&
+                                                    x.AssignedNumberSubField == this.AssignedNumberSubField)
+                                                .Any())
+                {
+                    throw new IllegalStateException($"The administrator subfield '{this.AdministratorSubField}' and " +
+                        $"assigned number subfield '{this.AssignedNumberSubField}' values for the routing instance with name '{this.Name}' are already used.");
                 }
             }
         }

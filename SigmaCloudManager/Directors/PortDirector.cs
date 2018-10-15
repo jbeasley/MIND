@@ -28,16 +28,16 @@ namespace Mind.Builders
         {
             var builder = _builderFactory();
             return await builder.ForDevice(deviceId)
-                                 .WithType(request.Type)
-                                 .WithName(request.Name)
-                                 .WithPortBandwidth(request.PortBandwidthGbps)
-                                 .WithConnector(request.PortConnector)
-                                 .WithPortRole(request.PortRole)
-                                 .WithPortPool(request.PortPool)
-                                 .WithSfp(request.PortSfp)
-                                 .WithStatus(request.PortStatus.ToString())
-                                 .AssignToTenant(request.TenantId)
-                                 .BuildAsync();
+                                .WithType(request.Type)
+                                .WithName(request.Name)
+                                .WithPortBandwidth(request.PortBandwidthGbps)
+                                .WithConnector(request.PortConnector)
+                                .WithPortRole(request.PortRole)
+                                .WithPortPool(request.PortPool)
+                                .WithSfp(request.PortSfp)
+                                .WithStatus(request.PortStatus.ToString())
+                                .AssignToTenant(request.TenantId)
+                                .BuildAsync();
         }
 
         /// <summary>

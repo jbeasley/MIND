@@ -10,6 +10,7 @@ using SCM.Models;
 using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Validators;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {
@@ -100,7 +101,7 @@ namespace SCM.Controllers
                 try
                 {
                     await LocationService.AddAsync(Mapper.Map<Location>(location));
-                    return RedirectToAction("GetAllBySubRegionID", new { id = location.SubRegionID });
+                    return RedirectToAction("GetAllBySubRegionID", new { id = location.SubRegionId });
                 }
 
                 catch (DbUpdateException /** ex **/ )
@@ -112,7 +113,7 @@ namespace SCM.Controllers
                 }
             }
 
-            var subRegion = await SubRegionService.GetByIDAsync(location.SubRegionID);
+            var subRegion = await SubRegionService.GetByIDAsync(location.SubRegionId);
             ViewBag.SubRegion = subRegion;
 
             return View(Mapper.Map<LocationViewModel>(location));
@@ -143,12 +144,12 @@ namespace SCM.Controllers
         public async Task<ActionResult> Edit(int id, [Bind("LocationID,SiteName,AutonomousSystemNumber,Number,SubRegionID,RowVersion")]
             LocationViewModel locationModel)
         {
-            if (id != locationModel.LocationID)
+            if (id != locationModel.LocationId)
             {
                 return NotFound();
             }
 
-            var location = await LocationService.GetByIDAsync(locationModel.LocationID);
+            var location = await LocationService.GetByIDAsync(locationModel.LocationId);
             if (location == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The Location was deleted by another user.");
@@ -250,12 +251,12 @@ namespace SCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Delete(LocationViewModel locationModel)
         {
-            var location = await LocationService.GetByIDAsync(locationModel.LocationID);
+            var location = await LocationService.GetByIDAsync(locationModel.LocationId);
             if (location == null)
             {
                 return RedirectToAction("GetAllBySubRegionID", new
                 {
-                    id = locationModel.SubRegionID
+                    id = locationModel.SubRegionId
                 });
             }
 

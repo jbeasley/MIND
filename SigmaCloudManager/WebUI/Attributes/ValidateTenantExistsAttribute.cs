@@ -34,16 +34,18 @@ namespace Mind.WebUI.Attributes
             }
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-            {             
-                var tenantId = context.ActionArguments["tenantId"] as int?;          
-                if ((await _tenantService.GetByIDAsync(tenantId.Value, asTrackable: false)) == null)
+            {
+                if (context.ActionArguments.TryGetValue("tenantId", out object value) && value is int tenantId)
                 {
-                    context.ModelState.AddModelError(string.Empty, "Could not find the tenant.");
-                    context.Result = new ResourceNotFoundResult(context.ModelState);
-                    return;
+
+                    if ((await _tenantService.GetByIDAsync(tenantId, asTrackable: false)) != null)
+                    {
+                        await next();
+                    }
                 }
 
-                await next();
+                context.Result = new ViewResult { ViewName = "ItemNotFound" };
+                return;
             }
         }
     }

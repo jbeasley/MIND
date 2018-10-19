@@ -1,5 +1,8 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using AutoMapper;
+using Microsoft.AspNetCore.Mvc;
+using Mind.WebUI.Attributes;
 using SCM.Controllers;
+using SCM.Data;
 using SCM.Models;
 using SCM.Models.ViewModels;
 using System;
@@ -11,23 +14,21 @@ namespace Mind.WebUI.Controllers
 {
     public class ProviderDomainRoutingInstanceController : BaseViewController
     {
-        [HttpGet]
-        [ValidateProviderDomainAttachmentExists]
-        public async Task<IActionResult> Details(int? attachmentId, int? routingInstanceId)
+        public ProviderDomainRoutingInstanceController(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
-            var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true);
-            ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
-
-            return View(Mapper.Map<RoutingInstanceViewModel>(attachment.RoutingInstance));
         }
 
-        protected async Task PopulateRoutingInstancesDropDownList(int deviceID, int? tenantID = null,
-            bool? isInfrastructureVrf = null, bool? isTenantFacingVrf = null, object selectedRoutingInstance = null)
+        [HttpGet]
+        [ValidateProviderDomainRoutingInstanceExists]
+        public async Task<IActionResult> Details(int? routingInstanceId)
         {
-            var routingInstances = await RoutingInstanceService.GetAllByDeviceIDAsync(deviceID: deviceID, tenantID: tenantID,
-                isTenantFacingVrf: isTenantFacingVrf, isInfrastructureVrf: isInfrastructureVrf);
-            ViewBag.RoutingInstanceID = new SelectList(Mapper.Map<List<RoutingInstanceViewModel>>(routingInstances),
-                "RoutingInstanceID", "Name", selectedRoutingInstance);
+            var routingInstance = await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                q =>
+                    q.RoutingInstanceID == routingInstanceId &&
+                    q.RoutingInstanceType.IsTenantFacingVrf,
+                    AsTrackable: false);                                     
+
+            return View(Mapper.Map<RoutingInstanceViewModel>(routingInstance));
         }
     }
 }

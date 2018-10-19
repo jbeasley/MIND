@@ -91,7 +91,7 @@ namespace Mind.Api.Models
         public string DeviceStatus { get; private set; }
 
         /// <summary>
-        /// A lit of ports which belong to the device
+        /// A list of ports which belong to the device
         /// </summary>
         /// <value>A list of Port objects</value>
         [DataMember(Name="ports")]

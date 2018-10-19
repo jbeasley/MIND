@@ -12,6 +12,7 @@ using SCM.Services;
 using SCM.Validators;
 using System.Net;
 using Mind.Services;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {

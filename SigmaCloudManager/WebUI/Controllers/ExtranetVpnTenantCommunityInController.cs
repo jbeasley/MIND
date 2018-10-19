@@ -11,6 +11,7 @@ using SCM.Models;
 using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Validators;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {

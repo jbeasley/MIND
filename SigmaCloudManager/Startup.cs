@@ -34,6 +34,8 @@ using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc;
 using Mind;
+using Microsoft.AspNetCore.Mvc.Razor;
+using Mind.WebUI.Models;
 
 namespace Mind
 {
@@ -69,6 +71,12 @@ namespace Mind
             // SignalR - library for async updates to clients. This is used by the API controllers to 
             // update clients on progress during network sync/checksync operations
             services.AddSignalR();
+
+            //register the MyViewLocationExpander into ViewLocationExpanders  
+            services.Configure<RazorViewEngineOptions>(options =>
+            {
+                options.ViewLocationExpanders.Add(new WebUIViewLocationExpander());
+            });
 
             // Add framework services.
             services.AddMvc();

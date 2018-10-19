@@ -1,0 +1,290 @@
+@model Mind.WebUI.Models.ProviderDomainAttachmentRequestViewModel
+
+@{
+    ViewData["Title"] = "Create Attachment";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderAttachment/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">Provider Domain Attachments - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+
+<h2>Create an Attachment to the Provider Domain for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<form asp-action="Create">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="TenantId" value="@ViewBag.Tenant.TenantId" />
+        <div class="form-group">
+            <label asp-for="RegionId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="RegionId" class="form-control" asp-items="ViewBag.Region">
+                    <option value="">-- Select Region --</option>
+                </select>
+                <span asp-validation-for="RegionId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="SubRegionId" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="SubRegionId" class="form-control" asp-items="ViewBag.SubRegion">
+                    <option value="">-- Select Sub-Region --</option>
+                </select>
+                <span asp-validation-for="SubRegionId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="LocationName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="LocationName" class="form-control" asp-items="ViewBag.Location">
+                    <option value="">-- Select Location --</option>
+                </select>
+                <span asp-validation-for="LocationName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PlaneName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="PlaneName" class="form-control" asp-items="ViewBag.Plane">
+                    <option value="">-- Optionally Select a Plane --</option>
+                </select>
+                <span asp-validation-for="PlaneName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AttachmentBandwidthGbps" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="AttachmentBandwidthGbps" class="form-control" asp-items="ViewBag.AttachmentBandwidth">
+                    <option value="">-- Select a Bandwidth --</option>
+                </select>
+                <span asp-validation-for="AttachmentBandwidthGbps" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-2">
+            </div>
+            <div class="col-md-2">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="BundleRequired" data-toggle="tooltip" title="Request a bundle attachment">
+                    <label asp-for="BundleRequired"></label>
+                </label>
+            </div>
+            <div class="col-md-2">
+                <label class="checkbox-inline">
+                    <input type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip" title="Request a multi-port attachment">
+                    <label asp-for="MultiportRequired"></label>
+                </label>
+            </div>
+            <div class="col-md-6">
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="PortPoolName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="PortPoolName" class="form-control" asp-items="ViewBag.PortPool">
+                    <option value="">-- Select a Port Pool --</option>
+                </select>
+                <span asp-validation-for="PortPoolName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AttachmentRoleName" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="AttachmentRoleName" class="form-control" asp-items="ViewBag.AttachmentRole">
+                    <option value="">-- Select a Role --</option>
+                </select>
+                <span asp-validation-for="AttachmentRoleName" class="text-danger"></span>
+            </div>
+        </div>
+        <div id="l3Component">
+        </div>
+        <div class="form-group">
+            <label asp-for="Description" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <input asp-for="Description" class="form-control" />
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="Notes" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
+                <span asp-validation-for="Notes" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Create" class="btn btn-success" asp-action="Create">
+                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
+                </button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            var $region = $('#RegionId'),
+                region = $region[0],
+                $subregion = $('#SubRegionId'),
+                subregion = $subregion[0],
+                $location = $('#LocationName'),
+                location = $location[0],
+                $bundleRequired = $('#BundleRequired'),
+                bundleRequired = $bundleRequired[0],
+                $multiportRequired = $('#MultiportRequired'),
+                multiportRequired = $multiportRequired[0],
+                $portPool = $('#PortPoolName'),
+                portPool = $portPool[0],
+                $attachmentRole = $('#AttachmentRoleName'),
+                attachmentRole = $attachmentRole[0],
+                $attachmentBandwidthGbps = $('#AttachmentBandwidthGbps'),
+                attachmentBandwidthGbps = $attachmentBandwidthGbps[0],
+                $l3Component = $("#l3Component");
+
+            // Initialise all tool-tips
+            $('[data-toggle="tooltip"]').tooltip();
+
+            $attachmentBandwidthGbps.on('change', function (e) {
+
+                attachmentRole.selectedIndex = 0;
+                attachmentRole.disabled = true;
+                portPool.selectedIndex = 0;
+                $l3Component.fadeOut().empty();
+
+                if (attachmentBandwidthGbps.value === null || attachmentBandwidthGbps.value === "") {
+
+                    portPool.disabled = true;
+                }
+                else {
+
+                    portPool.disabled = false;
+                }
+            });
+
+            $portPool.on('change', function (e) {
+
+                $l3Component.fadeOut().empty();
+                var portPoolVal = this.value;
+                if (portPoolVal === null || portPoolVal === "") {
+
+                    attachmentRole.selectedIndex = 0;
+                    attachmentRole.disabled = true;
+                }
+                else {
+
+                    Populate($attachmentRole, "/ProviderDomainAttachment/AttachmentRoles", {
+                        portPoolName: portPoolVal
+                    });
+                }
+            });
+
+            $attachmentRole.on('change', function (e) {
+
+                var attachmentRoleName = this.value;
+                if (attachmentRoleName !== null) {
+
+                    $l3Component.fadeOut().empty();
+
+                    $.get("/ProviderDomainAttachment/AttachmentRoleChange", {
+                        portPoolName: portPool.value,
+                        attachmentRoleName: attachmentRole.value,
+                        attachmentBandwidthGbps: attachmentBandwidthGbps.value,
+                        bundleRequired: bundleRequired.checked,
+                        multiportRequired: multiportRequired.checked
+                    })
+                    .done(function (data) {
+                        $l3Component.html(data).fadeIn();
+                        // Initialise new tool-tips
+                        $('[data-toggle="tooltip"]').tooltip();
+                    });
+                }
+            });
+
+            if (region.value === null || region.value === "") {
+
+                subregion.disabled = true;
+                location.disabled = true;
+            }
+
+            if (subregion.value === null || subregion.value === "") {
+
+                location.disabled = true;
+            }
+
+            if (attachmentBandwidthGbps.value === null || attachmentBandwidthGbps.value === "") {
+
+                portPool.disabled = true;
+            }
+
+            if (portPool.value === null || portPool.value === "") {
+
+                attachmentRole.disabled = true;
+            }
+
+            $region.on('change', function (e) {
+
+                var regionId = this.value;
+                if (regionId === null || regionId === "") {
+
+                    subregion.selectedIndex = 0;
+                    subregion.disabled = true;
+                    location.selectedIndex = 0;
+                    location.disabled = true;
+                }
+                else {
+                    location.selectedIndex = 0;
+                    location.disabled = true;
+
+                    Populate($subregion, "/ProviderDomainAttachment/SubRegions", { regionId : regionId });
+                }
+            });
+
+            $subregion.on('change', function (e) {
+
+                var subRegionId = this.value;
+                Populate($location, "/ProviderDomainAttachment/Locations", { subRegionId: subRegionId });
+            });
+
+            $multiportRequired.on('click', function (e) {
+
+                bundleRequired.checked = false;
+            });
+
+            $bundleRequired.on('click', function (e) {
+
+                multiportRequired.checked = false;
+            });
+
+            function Populate($e, url, data) {
+
+                // Disable the element during loading
+                $e[0].disabled = true;
+
+                $.get(url, data)
+                    .done(function (data) {
+
+                        // Enable the html element to be populated
+                        $e[0].disabled = false;
+
+                        $e.html(data);
+                });
+            }
+
+        }(jQuery));
+    
+    </script>
+}

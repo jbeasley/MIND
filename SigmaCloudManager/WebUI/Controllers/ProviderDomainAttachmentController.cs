@@ -19,6 +19,7 @@ using Mind.Builders;
 using Mind.WebUI.Attributes;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
+using Mind.WebUI.ViewComponents;
 
 namespace Mind.WebUI.Controllers
 {
@@ -32,35 +33,49 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
-        public async Task<PartialViewResult> SubRegions(int? id)
+        public async Task<PartialViewResult> SubRegions(int? regionId)
         {
             var subRegions = await _unitOfWork.SubRegionRepository.GetAsync(
                 q =>
-                q.RegionID == id);
+                q.RegionID == regionId);
 
-            return PartialView(Mapper.Map<List<SubRegionViewModel>>(subRegions));
+            return PartialView(_mapper.Map<List<SubRegionViewModel>>(subRegions));
         }
 
         [HttpGet]
-        public async Task<PartialViewResult> Locations(int? id)
+        public async Task<PartialViewResult> Locations(int? subRegionId)
         {
             var locations = await _unitOfWork.LocationRepository.GetAsync(
                 q =>
-                q.SubRegionID == id,
+                q.SubRegionID == subRegionId,
                 AsTrackable: false);
 
-            return PartialView(Mapper.Map<List<LocationViewModel>>(locations));
+            return PartialView(_mapper.Map<List<LocationViewModel>>(locations));
         }
 
         [HttpGet]
-        public async Task<PartialViewResult> AttachmentRoles(int? portPoolId)
+        public IActionResult AttachmentRoleChange(string portPoolName, string attachmentRoleName, 
+            int? attachmentBandwidthGbps, bool? bundleRequired, bool? multiportRequired)
+        {
+            return ViewComponent("ProviderDomainAttachmentL3", new
+            {
+                portPoolName,
+                attachmentRoleName,
+                attachmentBandwidthGbps,
+                bundleRequired,
+                multiportRequired
+            });
+        }
+
+        [HttpGet]
+        public async Task<PartialViewResult> AttachmentRoles(string portPoolName)
         {
             var attachmentRoles = await _unitOfWork.AttachmentRoleRepository.GetAsync(
                 q =>
-                q.PortPoolID == portPoolId,
+                q.PortPool.Name == portPoolName,
                 AsTrackable: false);
 
-            return PartialView(Mapper.Map<List<AttachmentRoleViewModel>>(attachmentRoles));
+            return PartialView(_mapper.Map<List<AttachmentRoleViewModel>>(attachmentRoles));
         }
 
         [HttpGet]
@@ -68,12 +83,12 @@ namespace Mind.WebUI.Controllers
         public async Task<IActionResult> Details(int? attachmentId)
         {
             var item = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
-            return View(Mapper.Map<ProviderDomainAttachmentViewModel>(item));
+            return View(_mapper.Map<ProviderDomainAttachmentViewModel>(item));
         }
 
         [HttpGet]
         [ValidateTenantExists]
-        public async Task<IActionResult> GetAllByTenantId(int? tenantId)
+        public async Task<IActionResult> GetAllByTenantID(int? tenantId)
         {
             var attachments = await _unitOfWork.AttachmentRepository.GetAsync(
                     q =>
@@ -99,25 +114,20 @@ namespace Mind.WebUI.Controllers
                 ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            var tenant = await _unitOfWork.TenantRepository.GetAsync(
-                q =>
-                    q.TenantID == tenantId,
-                    query: q => q.IncludeDeepProperties(),
-                    AsTrackable: false);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);               
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-            return View(Mapper.Map<List<ProviderDomainAttachmentViewModel>>(attachments));
+            return View(_mapper.Map<List<ProviderDomainAttachmentViewModel>>(attachments));
         }
 
         [HttpGet]
         [ValidateTenantExists]
         public async Task<IActionResult> Create(int? tenantId)
         {
-            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId.Value);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             await PopulateRegionsDropDownList();
             await PopulatePlanesDropDownList();
-            await PopulateContractBandwidthsDropDownList();
             await PopulatePortPoolsDropDownList();
             await PopulateBandwidthsDropDownList();
             return View();
@@ -131,9 +141,9 @@ namespace Mind.WebUI.Controllers
         {
             try
             {
-                var request = Mapper.Map<ProviderDomainAttachmentRequest>(requestModel);
+                var request = _mapper.Map<ProviderDomainAttachmentRequest>(requestModel);
                 var attachment = await _attachmentService.AddAsync(tenantId.Value, request);
-                return RedirectToAction(nameof(GetAllByTenantId), new { tenantId });
+                return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
             }
 
             catch (BuilderBadArgumentsException ex)
@@ -156,19 +166,13 @@ namespace Mind.WebUI.Controllers
                 ModelState.AddDatabaseUpdateExceptionMessage();
             }
 
-            var tenant = await _unitOfWork.TenantRepository.GetAsync(
-                q =>
-                    q.TenantID == tenantId,
-                    query: q => q.IncludeDeepProperties(),
-                    AsTrackable: false);
-
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
             await PopulateRegionsDropDownList(requestModel.RegionId);
             await PopulateSubRegionsDropDownList(requestModel.RegionId.Value, requestModel.SubRegionId);
             await PopulateLocationsDropDownList(requestModel.SubRegionId.Value, requestModel.LocationName);
-            await PopulatePlanesDropDownList(requestModel.PlaneName.ToString());
-            await PopulateContractBandwidthsDropDownList();
+            await PopulatePlanesDropDownList(requestModel.PlaneName?.ToString());
             await PopulatePortPoolsDropDownList(requestModel.PortPoolName);
             await PopulateAttachmentRolesDropDownList(requestModel.PortPoolName, selectedAttachmentRole: requestModel.AttachmentRoleName);
             await PopulateBandwidthsDropDownList();
@@ -181,10 +185,10 @@ namespace Mind.WebUI.Controllers
         public async Task<ActionResult> Edit(int? attachmentId)
         {
             var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
-            ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
-            await PopulateContractBandwidthsDropDownList(attachment.ContractBandwidthPoolID);
+            ViewBag.Attachment = _mapper.Map<AttachmentViewModel>(attachment);
+            await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstanceID);
 
-            return View(Mapper.Map<AttachmentUpdateViewModel>(attachment));
+            return View(_mapper.Map<AttachmentUpdateViewModel>(attachment));
         }
 
         [HttpPost]
@@ -194,18 +198,18 @@ namespace Mind.WebUI.Controllers
         public async Task<ActionResult> Edit(int? attachmentId, ProviderDomainAttachmentUpdateViewModel updateModel)
         {
             var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value);
-            if (attachment.HasPreconditionFailed(Request))
+            if (attachment.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
             {
                 ModelState.PopulateModelState(attachment);
-                return View(Mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
+                return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
             }
 
-            var attachmentUpdate = Mapper.Map<ProviderDomainAttachmentUpdate>(updateModel);
+            var attachmentUpdate = _mapper.Map<ProviderDomainAttachmentUpdate>(updateModel);
 
             try
             {
                 await _attachmentService.UpdateAsync(attachmentId.Value, attachmentUpdate);
-                return RedirectToAction(nameof(GetAllByTenantId), new { tenantId = attachment.TenantID });
+                return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachment.TenantID });
             }
 
             catch (BuilderBadArgumentsException ex)
@@ -228,41 +232,34 @@ namespace Mind.WebUI.Controllers
                 ModelState.AddDatabaseUpdateExceptionMessage();
             }
 
-            await PopulateAttachmentRolesDropDownList(attachment.AttachmentRole.PortPool.Name,
-                attachment.Device.DeviceRoleID, attachment.AttachmentRole.Name);
+            await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstance.Name);
 
-            ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
+            ViewBag.Attachment = _mapper.Map<AttachmentViewModel>(attachment);
 
-            return View(Mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
+            return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
         }
 
         [HttpGet]
-        [ValidateTenantExists]
-        public async Task<IActionResult> Delete(int? tenantId, int? attachmentId, bool? concurrencyError = false)
+        [ValidateProviderDomainAttachmentExists]
+        public async Task<IActionResult> Delete(int? attachmentId, bool? concurrencyError = false)
         {
             var item = await _attachmentService.GetByIDAsync(attachmentId.Value);
-            if (item == null)
-            {
-                return RedirectToAction(nameof(GetAllByTenantId), new { tenantId });
-            }
-
             if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
 
-            return View(Mapper.Map<ProviderDomainAttachmentViewModel>(item));
+            return View(_mapper.Map<ProviderDomainAttachmentViewModel>(item));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(AttachmentViewModel model)
+        public async Task<IActionResult> Delete(ProviderDomainAttachmentViewModel model)
         {
-            var attachment = await _attachmentService.GetByIDAsync(model.AttachmentID);
-            if (attachment == null) return RedirectToAction(nameof(GetAllByTenantId), new { tenantId = model.TenantID });
+            var attachment = await _attachmentService.GetByIDAsync(model.AttachmentId.Value);
+            if (attachment == null) return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = model.TenantId });
 
             if (attachment.HasPreconditionFailed(Request, model.RowVersion.ToString()))
             {
                 return RedirectToAction(nameof(Delete), new
                 {
-                    tenantId = attachment.TenantID,
                     attachmentId = attachment.AttachmentID,
                     concurrencyError = true
                 });
@@ -271,7 +268,7 @@ namespace Mind.WebUI.Controllers
             try
             {
                 await _attachmentService.DeleteAsync(attachment.AttachmentID);
-                return RedirectToAction(nameof(GetAllByTenantId), new { tenantId = attachment.TenantID });
+                return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachment.TenantID });
             }
 
             catch (DbUpdateException)
@@ -279,7 +276,7 @@ namespace Mind.WebUI.Controllers
                 ViewData.AddDatabaseUpdateExceptionMessage();
             }
 
-            return View(Mapper.Map<ProviderDomainAttachmentViewModel>(attachment));
+            return View(_mapper.Map<ProviderDomainAttachmentViewModel>(attachment));
         }
 
         private async Task PopulatePortPoolsDropDownList(object selectedPortPool = null)
@@ -289,7 +286,7 @@ namespace Mind.WebUI.Controllers
                         q.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing,
                         AsTrackable: false);
 
-            ViewBag.PortPoolID = new SelectList(Mapper.Map<List<PortPoolViewModel>>(portPools), "PortPoolID", "Name", selectedPortPool);
+            ViewBag.PortPool = new SelectList(_mapper.Map<List<PortPoolViewModel>>(portPools), "Name", "Name", selectedPortPool);
         }
 
         private async Task PopulateAttachmentRolesDropDownList(string portPoolName, int? deviceRoleId = null, object selectedAttachmentRole = null)
@@ -308,21 +305,21 @@ namespace Mind.WebUI.Controllers
                                                     .Any());
 
             var attachmentRoles = query.ToList();
-            ViewBag.AttachmentRoleID = new SelectList(Mapper.Map<List<AttachmentRoleViewModel>>(attachmentRoles),
+            ViewBag.AttachmentRole = new SelectList(_mapper.Map<List<AttachmentRoleViewModel>>(attachmentRoles),
                 "Name", "Name", selectedAttachmentRole);
         }
 
         private async Task PopulateBandwidthsDropDownList(object selectedBandwidth = null)
         {
             var bandwidths = await _unitOfWork.AttachmentBandwidthRepository.GetAsync();
-            ViewBag.BandwidthID = new SelectList(Mapper.Map<List<AttachmentBandwidthViewModel>>(bandwidths.OrderBy(b => b.BandwidthGbps)), 
-                "AttachmentBandwidthID", "BandwidthGbps", selectedBandwidth);
+            ViewBag.AttachmentBandwidth = new SelectList(_mapper.Map<List<AttachmentBandwidthViewModel>>(bandwidths.OrderBy(b => b.BandwidthGbps)), 
+                "BandwidthGbps", "BandwidthGbps", selectedBandwidth);
         }
 
         private async Task PopulateRegionsDropDownList(object selectedRegion = null)
         {
             var regions = await _unitOfWork.RegionRepository.GetAsync();
-            ViewBag.RegionID = new SelectList(Mapper.Map<List<RegionViewModel>>(regions), "RegionID", "Name", selectedRegion);
+            ViewBag.Region = new SelectList(_mapper.Map<List<RegionViewModel>>(regions), "RegionId", "Name", selectedRegion);
         }
 
         private async Task PopulateSubRegionsDropDownList(int regionId, object selectedSubRegion = null)
@@ -330,29 +327,32 @@ namespace Mind.WebUI.Controllers
             var subRegions = await _unitOfWork.SubRegionRepository.GetAsync(
                              q => 
                                 q.RegionID == regionId);
-            ViewBag.SubRegionID = new SelectList(Mapper.Map<List<SubRegionViewModel>>(subRegions), "SubRegionID", "Name", selectedSubRegion);
+            ViewBag.SubRegion = new SelectList(_mapper.Map<List<SubRegionViewModel>>(subRegions), "SubRegionId", "Name", selectedSubRegion);
         }
 
-        protected async Task PopulateLocationsDropDownList(int subRegionId, object selectedLocation = null)
+        private async Task PopulateLocationsDropDownList(int subRegionId, object selectedLocation = null)
         {
             var locations = await _unitOfWork.LocationRepository.GetAsync(
                             q => 
                                 q.SubRegionID == subRegionId);
-            ViewBag.LocationID = new SelectList(Mapper.Map<List<LocationViewModel>>(locations), "SiteName", "SiteName", selectedLocation);
+            ViewBag.Location = new SelectList(_mapper.Map<List<LocationViewModel>>(locations), "SiteName", "SiteName", selectedLocation);
         }
 
         private async Task PopulatePlanesDropDownList(object selectedPlane = null)
         {
             var planes = await _unitOfWork.PlaneRepository.GetAsync();
-            ViewBag.PlaneID = new SelectList(Mapper.Map<List<PlaneViewModel>>(planes), "Name", "Name", selectedPlane);
+            ViewBag.Plane = new SelectList(_mapper.Map<List<PlaneViewModel>>(planes), "Name", "Name", selectedPlane);
         }
 
-        private async Task PopulateContractBandwidthsDropDownList(object selectedContractBandwidth = null)
+        private async Task PopulateRoutingInstancesDropDownList(int tenantId, object selectedRoutingInstance = null)
         {
-            var contractBandwidths = await _unitOfWork.ContractBandwidthPoolRepository.GetAsync();
-            ViewBag.ContractBandwidthID = new SelectList(Mapper.Map<List<ContractBandwidthViewModel>>(contractBandwidths)
-                .OrderBy(b => b.BandwidthMbps),
-                "BandwidthMbps", "BandwidthMbps", selectedContractBandwidth);
+            var routingInstances = await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                            q =>
+                                q.TenantID == tenantId &&
+                                q.RoutingInstanceType.IsTenantFacingVrf);
+
+            ViewBag.RoutingInstance = new SelectList(_mapper.Map<List<RoutingInstanceViewModel>>(routingInstances),
+                "Name", "Name", selectedRoutingInstance);
         }
     }
 }

@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.TenantViewModel
+@model Mind.WebUI.Models.TenantViewModel
 
 @{
     ViewData["Title"] = "Edit";
@@ -16,7 +16,7 @@
     <div class="form-horizontal">
         <hr />
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-        <input type="hidden" asp-for="TenantID" />
+        <input type="hidden" asp-for="TenantId" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-group">
             <label asp-for="Name" class="col-md-2 control-label"></label>

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Mind.Builders;
 using Mind.Models;
+using Mind.Services;
 using Mind.WebUI.Attributes;
 using Mind.WebUI.Models;
 using SCM.Controllers;
@@ -22,10 +23,23 @@ namespace Mind.WebUI.Controllers
 
         public ProviderDomainInterfaceController(IProviderDomainInterfaceService interfaceService, IUnitOfWork unitOfWork, IMapper mapper) : 
             base(unitOfWork, mapper)
+        {
+        }
+
+        [HttpGet]
+        [ValidateProviderDomainInterfaceExists]
+        public async Task<IActionResult> Details(int? interfaceId)
+        {
+            var iface = await _interfaceService.GetByIDAsync(interfaceId.Value, deep: true, asTrackable: false);
+            var attachment = await _unitOfWork.AttachmentRepository.GetByIDAsync(iface.AttachmentID);
+            ViewBag.Attachment = Mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
+
+            return View(Mapper.Map<InterfaceViewModel>(iface));
+        }
 
         [HttpGet]
         [ValidateProviderDomainAttachmentExists]
-        public async Task<IActionResult> GetAllByAttachmentId(int? attachmentId)
+        public async Task<IActionResult> GetAllByAttachmentID(int? attachmentId)
         {
             var attachment = await _unitOfWork.AttachmentRepository.GetByIDAsync(attachmentId.Value);
             ViewBag.Attachment = Mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
@@ -36,54 +50,7 @@ namespace Mind.WebUI.Controllers
                 query: q => q.IncludeDeepProperties(),
                 AsTrackable: false);
 
-            return View(Mapper.Map<List<ProviderDomainInterfaceViewModel>>(ifaces));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [ValidateModelState]
-        [ValidateProviderDomainInterfaceExists]
-        public async Task<ActionResult> Edit(int? interfaceId, ProviderDomainInterfaceUpdateViewModel updateModel)
-        {
-            var iface = await _interfaceService.GetByIDAsync(interfaceId.Value);
-            if (iface.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
-            {
-                ModelState.PopulateModelState(iface);
-                return View(Mapper.Map<ProviderDomainUpdateViewModel>(iface));
-            }
-
-            var update = Mapper.Map<ProviderDomainInterfaceUpdateViewModel>(updateModel);
-
-            try
-            {
-                await _interfaceService.UpdateAsync(interfaceId.Value, update);
-                return RedirectToAction(nameof(GetAllByAttachmentId), new { attachmentId = iface.AttachmentID });
-            }
-
-            catch (BuilderBadArgumentsException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
-
-            catch (BuilderUnableToCompleteException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
-
-            catch (IllegalStateException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
-
-            catch (DbUpdateException)
-            {
-                ModelState.AddDatabaseUpdateExceptionMessage();
-            }
-
-            var attachment = await _unitOfWork.AttachmentRepository.GetByIDAsync(iface.AttachmentID);
-            ViewBag.Attachment = Mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
-
-            return View(Mapper.Map<ProviderDomainInterfaceUpdateViewModel>(iface));
+            return View(Mapper.Map<List<InterfaceViewModel>>(ifaces));
         }
     }
 }

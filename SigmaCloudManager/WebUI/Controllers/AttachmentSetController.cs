@@ -12,6 +12,7 @@ using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Validators;
 using Mind.Services;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {
@@ -109,7 +110,7 @@ namespace SCM.Controllers
             }
 
             ViewBag.Tenant = tenant;
-            await PopulateSubRegionsDropDownList(region.RegionID);
+            await PopulateSubRegionsDropDownList(region.RegionId);
             await PopulateAttachmentRedundancyDropDownList();
             await PopulateMulticastVpnDomainTypesDropDownList();
             ViewBag.Region = region;

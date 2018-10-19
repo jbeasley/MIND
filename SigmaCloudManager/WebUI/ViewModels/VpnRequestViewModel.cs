@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Mind.WebUI.Models;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 

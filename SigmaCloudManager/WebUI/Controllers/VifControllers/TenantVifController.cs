@@ -14,6 +14,7 @@ using SCM.Validators;
 using SCM.Models.RequestModels;
 using SCM.Factories;
 using SCM.Models;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {
@@ -456,7 +457,7 @@ namespace SCM.Controllers
         public async Task<ActionResult> EditLogicalInterface(int? logicalInterfaceID, int? vifID,
             [Bind("LogicalInterfaceID,RoutingInstanceID,IpAddress,SubnetMask,Description,RowVersion")] LogicalInterfaceViewModel updateModel)
         {
-            if (logicalInterfaceID != updateModel.LogicalInterfaceID)
+            if (logicalInterfaceID != updateModel.LogicalInterfaceId)
             {
                 return NotFound();
             }
@@ -466,7 +467,7 @@ namespace SCM.Controllers
                 return NotFound();
             }
 
-            var currentLogicalInterface = await LogicalInterfaceService.GetByIDAsync(updateModel.LogicalInterfaceID);
+            var currentLogicalInterface = await LogicalInterfaceService.GetByIDAsync(updateModel.LogicalInterfaceId.Value);
             if (currentLogicalInterface == null)
             {
                 ModelState.AddModelError(string.Empty, "Unable to save changes. The item was deleted by another user.");
@@ -603,7 +604,7 @@ namespace SCM.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteLogicalInterface(LogicalInterfaceViewModel logicalInterfaceModel, VifNavigationViewModel nav)
         {
-            var currentLogicalInterface = await LogicalInterfaceService.GetByIDAsync(logicalInterfaceModel.LogicalInterfaceID);
+            var currentLogicalInterface = await LogicalInterfaceService.GetByIDAsync(logicalInterfaceModel.LogicalInterfaceId.Value);
             if (currentLogicalInterface == null)
             {
                 return RedirectToAction("GetAllLogicalInterfacesByVifID", nav);

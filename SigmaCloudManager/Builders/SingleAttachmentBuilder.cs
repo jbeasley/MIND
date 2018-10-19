@@ -31,7 +31,12 @@ namespace Mind.Builders
         /// </summary>
         protected override internal void SetPortBandwidthRequired()
         {
-            _portBandwidthRequired = _attachment.AttachmentBandwidth.BandwidthGbps;
+            var attachmentBandwidth = _attachment.AttachmentBandwidth;
+            if (attachmentBandwidth.MustBeBundleOrMultiPort)
+            {
+                throw new BuilderBadArgumentsException("The requested attachment bandwidth is only supported by a bundle or multiport.");
+            }
+            _portBandwidthRequired = attachmentBandwidth.BandwidthGbps;
         }
 
         /// <summary>

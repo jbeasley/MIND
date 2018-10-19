@@ -138,12 +138,22 @@ namespace Mind.Builders
         protected internal override void SetNumberOfPortsRequired()
         {
             var attachmentBandwidth = _attachment.AttachmentBandwidth;
+            if (!attachmentBandwidth.SupportedByBundle)
+            {
+                throw new BuilderBadArgumentsException("The requested attachment bandwidth is not supported by a bundle.");
+            }
             _numPortsRequired = attachmentBandwidth.BandwidthGbps / attachmentBandwidth.BundleOrMultiPortMemberBandwidthGbps.Value;
         }
 
         protected internal override void SetPortBandwidthRequired()
         {
-            _portBandwidthRequired = _attachment.AttachmentBandwidth.BundleOrMultiPortMemberBandwidthGbps.Value;
+            var attachmentBandwidth = _attachment.AttachmentBandwidth;
+            if (!attachmentBandwidth.SupportedByBundle)
+            {
+                throw new BuilderBadArgumentsException("The requested attachment bandwidth is not supported by a bundle.");
+            }
+
+            _portBandwidthRequired = attachmentBandwidth.BundleOrMultiPortMemberBandwidthGbps.Value;
         }
 
         protected internal virtual void SetBundleLinks()

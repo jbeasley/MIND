@@ -22,6 +22,7 @@ namespace SCM.Models
                             .Include(x => x.AttachmentBandwidth)
                             .Include(x => x.Interfaces)
                             .ThenInclude(x => x.Ports)
+                            .ThenInclude(x => x.PortBandwidth)
                             .Include(x => x.Vifs);
         }
 

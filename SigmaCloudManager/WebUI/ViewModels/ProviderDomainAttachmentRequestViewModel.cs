@@ -17,11 +17,20 @@ namespace Mind.WebUI.Models
     public class ProviderDomainAttachmentRequestViewModel
     {
         /// <summary>
+        /// The ID of the tenant for which the new attachment will be allocated.
+        /// </summary>
+        /// <value>Integer value denoting the ID of the tenant</value>
+        /// <example>9001</example>
+        [Required]
+        public int? TenantId { get; set; }
+
+        /// <summary>
         /// Determines if a bundle style of attachment is required
         /// </summary>
         /// <value>Boolean value which denotes if a bundle style of attachment is required</value>
         /// <example>true</example>
-        public bool? BundleRequired { get; set; }
+        [Display(Name ="Bundle Required")]
+        public bool BundleRequired { get; set; }
 
         /// <summary>
         /// The minimum number of active links in a bundle attachment
@@ -29,6 +38,7 @@ namespace Mind.WebUI.Models
         /// <value>Integer value which specifies the minimum links in the bundle</value>
         /// <example>2</example>
         [Range(1, 8)]
+        [Display(Name = "Bundle Min Links")]
         public int? BundleMinLinks { get; set; }
 
         /// <summary>
@@ -37,13 +47,14 @@ namespace Mind.WebUI.Models
         /// <value>Integer value which specifies the maximum links in the bundle</value>
         /// <example>2</example>
         [Range(1, 8)]
+        [Display(Name = "Bundle Max Links")]
         public int? BundleMaxLinks { get; set; }
 
         /// <summary>
         /// Determines if a multi port style of attachment is required
         /// </summary>
         /// <value>Boolean value which denotes if a multi port style of attachment is required</value>
-        public bool? MultiportRequired { get; set; }
+        public bool MultiportRequired { get; set; }
 
         /// <summary>
         /// The ID of the region within which the new attachment will be provisioned
@@ -51,6 +62,7 @@ namespace Mind.WebUI.Models
         /// <value>Integer value denoting the ID of the region</value>
         /// <example>9001</example>
         [Required(ErrorMessage = "A region must be selected")]
+        [Display(Name = "Region")]
         public int? RegionId { get; set; }
 
         /// <summary>
@@ -59,6 +71,7 @@ namespace Mind.WebUI.Models
         /// <value>Integer value denoting the ID of the subregion</value>
         /// <example>9001</example>
         [Required(ErrorMessage = "A subregion must be selected")]
+        [Display(Name = "SubRegion")]
         public int? SubRegionId { get; set; }
 
         /// <summary>
@@ -66,7 +79,8 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>String value denoting the name of a provider network location</value>
         /// <example>UK2</example>
-        [Required(ErrorMessage = "A location must be selected")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "A location must be selected")]
+        [Display(Name = "Location")]
         public string LocationName { get; set; }
 
         /// <summary>
@@ -74,7 +88,8 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>String value denoting the name of a port pool</value>
         /// <example>General</example>
-        [Required(ErrorMessage = "A port pool must be selected")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "A port pool must be selected")]
+        [Display(Name = "Port Pool")]
         public string PortPoolName { get; set; }
 
         /// <summary>
@@ -82,7 +97,8 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>PE-CE-UNTAGGED</example>
-        [Required(ErrorMessage = "An attachment role must be selected")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "An attachment role must be selected")]
+        [Display(Name = "Attachment Role")]
         public string AttachmentRoleName { get; set; }
 
         /// <summary>
@@ -90,6 +106,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>A member of the PlaneEnum enumeration</value>
         /// <example>Red</example>
+        [Display(Name ="Plane")]
         public PlaneEnum? PlaneName { get; set; }
 
         /// <summary>
@@ -98,6 +115,7 @@ namespace Mind.WebUI.Models
         /// <value>Integer value denoting the required attachment bandwidth in Gbps</value>
         /// <example>10</example>
         [Required(ErrorMessage = "An attachment bandwidth value must be selected")]
+        [Display(Name = "Attachment Bandwidth")]
         public int? AttachmentBandwidthGbps { get; set; }
 
         /// <summary>
@@ -105,6 +123,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Integer value denoting the required contract bandwidth in Mbps</value>
         /// <example>100</example>
+        [Display(Name = "Contract Bandwidth")]
         public int? ContractBandwidthMbps { get; set; }
 
         /// <summary>
@@ -112,7 +131,24 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Boolean value denoting the required trust state</value>
         /// <example>false</example>
-        public bool? TrustReceivedCosAndDscp { get; set; } = false;
+        [Display(Name = "Trust CoS and DSCP")]
+        public bool TrustReceivedCosAndDscp { get; set; }
+
+        /// <summary>
+        /// A description for the new attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        /// <example>Provider connetivity to the DTC data-center</example>
+        [Display(Name = "Description")]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the new attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        /// <example>Some user notes which help explain the purpose of the attachment</example>
+        [Display(Name = "Notes")]
+        public string Notes { get; set; }
 
         /// <summary>
         /// A list of IPv4 addresses to be assigned to the interfaces of the attachment.

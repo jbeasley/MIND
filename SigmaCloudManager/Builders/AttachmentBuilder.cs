@@ -471,7 +471,7 @@ namespace Mind.Builders
 
             // Filter devices collection to include only those devices which belong to the requested plane (if specified)
 
-            var planeName = _args[nameof(WithPlane)] != null ? _args[nameof(WithPlane)].ToString() : "";
+            var planeName = _args.ContainsKey(nameof(WithPlane)) ? _args[nameof(WithPlane)].ToString() : "";
             if (!string.IsNullOrEmpty(planeName))
             {
                 var plane = (from planes in await _unitOfWork.PlaneRepository.GetAsync(q => q.Name == planeName)

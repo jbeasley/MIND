@@ -1,0 +1,41 @@
+﻿@model Mind.WebUI.Models.ProviderDomainAttachmentL3RequestViewModel
+
+<div class="form-group">
+    <label asp-for="ContractBandwidthMbps" class="col-md-2 control-label"></label>
+    <div class="col-md-10">
+        <select asp-for="ContractBandwidthMbps" class="form-control" asp-items="ViewBag.ContractBandwidth">
+            <option value="">Select Contract Bandwidth</option>
+        </select>
+        <span asp-validation-for="ContractBandwidthMbps" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group">
+    <div class="col-md-2">
+    </div>
+    <div class="col-md-10">
+        <label class="checkbox-inline">
+            <input type="checkbox" asp-for="TrustReceivedCosAndDscp" data-toggle="tooltip"
+                   title="Trust the COS and DSCP markings received in packets on this Attachment"> <label asp-for="TrustReceivedCosAndDscp"></label>
+        </label>
+    </div>
+</div>
+@for (var x = 1; x <= Model.NumIpAddressesRequired.Value; x++)
+{
+
+<div class="form-group">
+    <label class="col-md-2 control-label">IP Address</label>
+    <div class="col-md-10">
+        <input id="IpAddress" class="form-control" data-toggle="tooltip" data-placement="right"
+               title="Enter an IP address for the attachment" />
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-md-2 control-label">Subnet Mask</label>
+    <div class="col-md-10">
+        <input id="SubnetMask" class="form-control" data-toggle="tooltip" data-placement="right"
+               title="Enter a subnet mask for the attachment" />
+    </div>
+</div>
+}
+
+

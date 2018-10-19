@@ -14,6 +14,7 @@ using SCM.Validators;
 using SCM.Factories;
 using SCM.Models.RequestModels;
 using Mind.Services;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {

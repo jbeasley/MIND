@@ -11,6 +11,11 @@ using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Controllers;
 using Mind.Services;
+using SCM.Data;
+using Mind.WebUI.Models;
+using Mind.WebUI.Attributes;
+using Mind.Builders;
+using Mind.Models;
 
 namespace Mind.WebUI.Controllers
 {
@@ -18,7 +23,7 @@ namespace Mind.WebUI.Controllers
     {
         private readonly ITenantService _tenantService;
 
-        public TenantController(ITenantService tenantService, IMapper mapper) : base(tenantService, mapper)
+        public TenantController(ITenantService tenantService, IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
             _tenantService = tenantService;
         }
@@ -27,24 +32,15 @@ namespace Mind.WebUI.Controllers
         public async Task<IActionResult> GetAll()
         {
             var tenants = await _tenantService.GetAllAsync();
-            return View(Mapper.Map<List<TenantViewModel>>(tenants));
+            return View(_mapper.Map<List<TenantViewModel>>(tenants));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(int? id)
+        [ValidateTenantExists]
+        public async Task<IActionResult> Details(int? tenantId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var item = await this._tenantService.GetByIDAsync(id.Value);
-            if (item == null)
-            {
-                return NotFound();
-            }
-
-            return View(Mapper.Map<TenantViewModel>(item));
+            var item = await this._tenantService.GetByIDAsync(tenantId.Value);
+            return View(_mapper.Map<TenantViewModel>(item));
         }
 
         [HttpGet]
@@ -55,169 +51,124 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name")] TenantViewModel tenant)
+        [ValidateModelState]
+        public async Task<IActionResult> Create(TenantRequestViewModel tenant)
         {
-            if (ModelState.IsValid)
+            try
             {
-                try
-                {
-                    await _tenantService.AddAsync(Mapper.Map<Tenant>(tenant));
-                    return RedirectToAction("GetAll");
-                }
-
-                catch (DbUpdateException /** ex **/ )
-                {
-                    //Log the error (uncomment ex variable name and write a log.
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                        "Try again, and if the problem persists " +
-                        "see your system administrator.");
-                }
+                await _tenantService.AddAsync(_mapper.Map<Tenant>(tenant));
+                return RedirectToAction(nameof(GetAll));
             }
-       
-            return View(Mapper.Map<TenantViewModel>(tenant));
+
+            catch (BuilderBadArgumentsException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (IllegalStateException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (DbUpdateException)
+            {
+                ModelState.AddDatabaseUpdateExceptionMessage();
+            }
+
+            return View(_mapper.Map<TenantViewModel>(tenant));
         }
 
         [HttpGet]
-        public async Task<ActionResult> Edit(int? id)
+        [ValidateTenantExists]
+        public async Task<ActionResult> Edit(int? tenantId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenant = await _tenantService.GetByIDAsync(id.Value);
-            if (tenant == null)
-            {
-                return NotFound();
-            }
-
-            return View(Mapper.Map<TenantViewModel>(tenant));
+            var tenant = await _tenantService.GetByIDAsync(tenantId.Value);
+            return View(_mapper.Map<TenantViewModel>(tenant));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, [Bind("TenantID,Name,RowVersion")] TenantViewModel tenantModel)
+        [ValidateModelState]
+        [ValidateTenantExists]
+        public async Task<ActionResult> Edit(int tenantId, TenantRequestViewModel tenantModel)
         {
-            if (id != tenantModel.TenantID)
-            {
-                return NotFound();
-            }
 
-            var tenant = await _tenantService.GetByIDAsync(tenantModel.TenantID);
-            if (tenant == null)
-            {
-                ModelState.AddModelError(string.Empty, "Unable to save changes. The Tenant was deleted by another user.");
-            }
+            var tenant = await _tenantService.GetByIDAsync(tenantId);
 
             try
             {
-                if (ModelState.IsValid)
-                {
-                    var updateTenant = Mapper.Map<Tenant>(tenantModel);
-                    await _tenantService.UpdateAsync(updateTenant);
 
-                    return RedirectToAction("GetAll");
-                }
+                var updateTenant = _mapper.Map<Tenant>(tenantModel);
+                await _tenantService.UpdateAsync(updateTenant);
+
+                return RedirectToAction(nameof(GetAll));
             }
 
-            catch (DbUpdateConcurrencyException ex)
-            { 
-                var exceptionEntry = ex.Entries.Single();
-                var clientValues = (Tenant)exceptionEntry.Entity;
-                var databaseEntry = exceptionEntry.GetDatabaseValues();
-                if (databaseEntry == null)
-                {
-                    ModelState.AddModelError(string.Empty,
-                        "Unable to save changes. The item was deleted by another user.");
-                }
-                else
-                {
-                    var databaseValues = (Tenant)databaseEntry.ToObject();
-
-                    if (databaseValues.Name != clientValues.Name)
-                    {
-                        ModelState.AddModelError("Name", $"Current value: {databaseValues.Name}");
-                    }
-
-                    ModelState.AddModelError(string.Empty, "The record you attempted to edit "
-                        + "was modified by another user after you got the original value. The "
-                        + "edit operation was cancelled and the current values in the database "
-                        + "have been displayed. If you still want to edit this record, click "
-                        + "the Save button again. Otherwise click the Back to List hyperlink.");
-
-                    ModelState.Remove("RowVersion");
-                }
-            }
-
-            catch (DbUpdateException /* ex */)
+            catch (BuilderBadArgumentsException ex)
             {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError(string.Empty, "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator.");
-
+                ModelState.AddModelError(string.Empty, ex.Message);
             }
 
-            return View(Mapper.Map<TenantViewModel>(tenant));
+            catch (BuilderUnableToCompleteException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (IllegalStateException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (DbUpdateException)
+            {
+                ModelState.AddDatabaseUpdateExceptionMessage();
+            }
+
+            return View(_mapper.Map<TenantViewModel>(tenant));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int? id, bool? concurrencyError = false)
+        [ValidateTenantExists]
+        public async Task<IActionResult> Delete(int? tenantId, bool? concurrencyError = false)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenant = await _tenantService.GetByIDAsync(id.Value);
-            if (tenant == null)
-            {
-                if (concurrencyError.GetValueOrDefault())
-                {
-                    return RedirectToAction("GetAll");
-                }
-
-                return NotFound();
-            }
-
-            if (concurrencyError.GetValueOrDefault())
-            {
-                ViewData["ErrorMessage"] = "The record you attempted to delete "
-                    + "was modified by another user after you got the original values. "
-                    + "The delete operation was cancelled and the current values in the "
-                    + "database have been displayed. If you still want to delete this "
-                    + "record, click the Delete button again. Otherwise "
-                    + "click the Back to List hyperlink.";
-            }
-
-            return View(Mapper.Map<TenantViewModel>(tenant));
+            var tenant = await _tenantService.GetByIDAsync(tenantId.Value);
+            return View(_mapper.Map<TenantViewModel>(tenant));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(TenantViewModel tenantModel)
+        public async Task<IActionResult> Delete(TenantViewModel model)
         {
+            var tenant = await _tenantService.GetByIDAsync(model.TenantId.Value);
+            if (tenant == null) return RedirectToAction(nameof(GetAll));
+
+            if (tenant.HasPreconditionFailed(Request, model.RowVersion.ToString()))
+            {
+                return RedirectToAction(nameof(Delete), new
+                {
+                    tenantId = tenant.TenantID,
+                    concurrencyError = true
+                });
+            }
+
             try
             {
-                var tenant = await _tenantService.GetByIDAsync(tenantModel.TenantID);
-                if (tenant != null)
-                {
-                    await _tenantService.DeleteAsync(tenantModel.TenantID);
-                }
-
-                return RedirectToAction("GetAll");
+                await _tenantService.DeleteAsync(tenant.TenantID);
+                return RedirectToAction(nameof(GetAll));
             }
 
-            catch (DbUpdateConcurrencyException /* ex */)
+            catch (DbUpdateException)
             {
-                //Log the error (uncomment ex variable name and write a log.)
-                return RedirectToAction("Delete", new { concurrencyError = true, id = tenantModel.TenantID });
+                ViewData.AddDatabaseUpdateExceptionMessage();
             }
 
-            catch (ServiceValidationException)
-            {
-                return View(tenantModel);
-            }
+            return View(_mapper.Map<TenantViewModel>(tenant));
+
         }
     }
 }

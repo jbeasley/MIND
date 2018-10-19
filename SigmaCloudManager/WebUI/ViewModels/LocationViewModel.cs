@@ -4,29 +4,51 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SCM.Models.ViewModels
+namespace Mind.WebUI.Models
 {
+    /// <summary>
+    /// Model of a location
+    /// </summary>
     public class LocationViewModel
     {
-        [Display(AutoGenerateField = false)]
-        public int LocationID { get; set; }
-        [StringLength(50)]
-        [Display(Name ="Site Name")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "A site name must be specified.")]
-        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "The site name must contain letters and numbers only and no whitespace.")]
-        public string SiteName { get; set; }
-        public int? AlternateLocationID { get; set; }
-        [Display(Name = "Locale Community AS Number")]
-        public int AutonomousSystemNumber { get; set; }
-        [Display(Name = "Locale Community Number")]
-        public int Number { get; set; }
-        [Display(Name = "Locale Community")]
-        public string LocaleCommunityName { get; set; }
-        public LocationViewModel AlternateLocation { get; set; }
-        public int SubRegionID { get; set; }
-        [Display(Name = "Sub-Region")]
-        public SubRegionViewModel SubRegion { get; set; }
-        public byte[] RowVersion { get; set; }
+        /// <summary>
+        /// The ID of the location
+        /// </summary>
+        /// <value>Integer value denoting the ID of the location</value>
+        public int LocationId { get; private set; }
 
+        /// <summary>
+        /// The name of the site
+        /// </summary>
+        /// <value>String value denoting the name of the site</value>
+        [Display(Name ="Site Name")]
+        public string SiteName { get; private set; }
+
+        /// <summary>
+        /// The BGP autonomous system number portion of the locale community assigned to the subregion
+        /// </summary>
+        /// <value>Integer value denoting the autonomous system number</value>
+        [Display(Name = "Locale Community AS Number")]
+        public int AutonomousSystemNumber { get; private set; }
+
+        /// <summary>
+        /// The number port of the locale community assigned to the subregion
+        /// </summary>
+        /// <value>Integer value denoting the number portion of the local community</value>
+        [Display(Name = "Locale Community Number")]
+        public int Number { get; private set; }
+
+        /// <summary>
+        /// The name of the locale community assigned to the subregion
+        /// </summary>
+        /// <value>String value denoting the name of the locale community</value>
+        [Display(Name = "Locale Community Name")]
+        public string LocaleCommunityName { get; private set; }
+
+        /// <summary>
+        /// The ID of the parent subregion
+        /// </summary>
+        /// <value>Integer value denoting the ID of the parent subregion</value>
+        public int SubRegionId { get; private set; }
     }
 }

@@ -1,41 +1,81 @@
-﻿using System;
-using System.Collections.Generic;
+
 using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace SCM.Models.ViewModels
-{
-    public enum LogicalInterfaceType
+namespace Mind.WebUI.Models
+{ 
+    /// <summary>
+    /// Model for a logical interface
+    /// </summary>
+    public partial class LogicalInterfaceViewModel
     {
-        Loopback,
-        Tunnel
-    }
+        /// <summary>
+        /// The ID of the logical interface
+        /// </summary>
+        /// <value>Integer value denoting the ID of the logical interface</value>
+        /// <example>91009</example>
+        [Display(Name = "Logical Interface ID")]
+        public int? LogicalInterfaceId { get; private set; }
 
-    public class LogicalInterfaceViewModel
-    {
-        [Display(AutoGenerateField = false)]
-        public int LogicalInterfaceID { get; set; }
-        public string Name { get; set; }
-        public int ID { get; set; }
-        public int RoutingInstanceID { get; set; }
-        [Display(Name = "IP Address")]
-        [Required(ErrorMessage = "An IP address is required")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
-        public string IpAddress { get; set; }
-        [Display(Name = "Subnet Mask")]
-        [Required(ErrorMessage = "A subnet mask is required")]
-        [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$",
-            ErrorMessage = "A valid subnet mask must be entered, e.g. 255.255.255.252")]
-        public string SubnetMask { get; set; }
+        /// <summary>
+        /// The name of the routing instance
+        /// </summary>
+        /// <value>String value denoting the name of the routing instance</value>
+        /// <example>713faafc85ff43db8472b6b9c38033a1</example>
+        [Display(Name = "Routing Instance Name")]
+        public string RoutingInstanceName { get; private set; }
+
+        /// <summary>
+        /// The ID of the routing instance
+        /// </summary>
+        /// <value>Integer value denoting the ID of the routing instance</value>
+        /// <example>44001</example>
+        [Display(Name = "Routing Instance ID")]
+        public string RoutingInstanceId { get; private set; }
+
+        /// <summary>
+        /// The name of the logical interface.
+        /// </summary>
+        /// <value>A string value denoting the name of the logical interface</value>
+        /// <example>Loopback1</example>
+        [Display(Name = "Name")]
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// A description of the logical interface.
+        /// </summary>
+        /// <value>A string value denoting the description of the logical interface</value>
+        /// <example>Loopback interface for multi-hop BGP peering</example>
+        [Display(Name = "Description")]
+        public string Description { get; private set; }
+
+        /// <summary>
+        /// The type of logical interface required.
+        /// </summary>
+        /// <value>Enum value denoting the type of logical interface</value>
+        /// <example>Loopback</example>
+        [Required]
         [Display(Name = "Logical Interface Type")]
-        [Required(ErrorMessage = "A Logical Interface Type selection is required")]
-        public LogicalInterfaceType LogicalInterfaceType { get; set; }
-        [StringLength(250)]
-        public string Description { get; set; }
-        [Display(Name = "VRF")]
-        public RoutingInstanceViewModel RoutingInstance { get; set; }
+        public string LogicalInterfaceType { get; private set; }
+
+        /// <summary>
+        /// IPv4 address assigned to the logical interface
+        /// </summary>
+        /// <value>String value representing the IPv4 address assigned to the logical interface</value>
+        /// <example>192.168.0.1</example>
+        [Display(Name = "IP Address")]
+        public string IpAddress { get; private set; }
+
+        /// <summary>
+        /// IPv4 subnet mask assigned to the logical interface
+        /// </summary>
+        /// <value>String value representing the IPv4 subnet mask assigned to the logical interface</value>
+        /// <example>255.255.255.252</example>
+        [Display(Name = "Subnet Mask")]
+        public string SubnetMask { get; private set; }
+
+        /// <summary>
+        /// Concurrency token for the model
+        /// </summary>
         public byte[] RowVersion { get; set; }
     }
 }

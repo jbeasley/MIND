@@ -49,7 +49,7 @@ namespace Mind.Api.Models
         /// false.
         /// </summary>
         /// <value>A string value of the name of an existing routing instance</value>
-        /// <exanple>db7c48eaa9864cd0b3aa6af08c8370d6</exanple>
+        /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [DataMember(Name = "existingRoutingInstanceName")]
         public string ExistingRoutingInstanceName { get; set; }
 
@@ -58,7 +58,7 @@ namespace Mind.Api.Models
         /// then the value of the ExistingRoutingInstanceName property must be null.
         /// </summary>
         /// <value>A boolean which when set to true indicates a new routing instance is required</value>
-        /// <examople>true</examople>
+        /// <example>true</example>
         [DataMember(Name = "createNewRoutingInstance")]
         public bool? CreateNewRoutingInstance { get; set; }
 

@@ -7,10 +7,16 @@ using SCM.Data;
 using SCM.Models;
 using SCM.Models.ViewModels;
 using SCM.Services;
+using Mind.WebUI.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mind.WebUI.Models;
+using Mind.Builders;
+using Mind.Models;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 
 namespace Mind.WebUI.Controllers
 {
@@ -21,6 +27,22 @@ namespace Mind.WebUI.Controllers
                 base(unitOfWork, mapper)
         {
             _logicalInterfaceService = logicalInterfaceService;
+        }
+
+        [HttpGet]
+        [ValidateProviderDomainAttachmentExists]
+        public async Task<IActionResult> GetAllByRoutingInstanceID(int? routingInstanceId)
+        {
+            var routingInstance = await _unitOfWork.RoutingInstanceRepository.GetByIDAsync(routingInstanceId.Value);
+            ViewBag.RoutingInstance = Mapper.Map<ProviderDomainRoutingInstanceViewModel>(routingInstance);
+
+            var logicalInterfaces = await _unitOfWork.LogicalInterfaceRepository.GetAsync(
+                            q =>
+                            q.RoutingInstanceID == routingInstanceId,
+                            query: q => q.IncludeDeepProperties(),
+                            AsTrackable: false);
+
+            return View(Mapper.Map<List<LogicalInterfaceViewModel>>(logicalInterfaces));
         }
 
         [HttpGet]
@@ -47,15 +69,37 @@ namespace Mind.WebUI.Controllers
         [ValidateAntiForgeryToken]
         [ValidateProviderDomainRoutingInstanceExists]
         [ValidateModelState]
-        public async Task<IActionResult> Create(int? routingInstanceId, LogicalInterfaceViewModel model)
+        public async Task<IActionResult> Create(int? routingInstanceId, ProviderDomainLogicalInterfaceRequestViewModel model)
         {
+            try
+            {
+                var request = Mapper.Map<ProviderDomainLogicalInterfaceRequest>(model);
+                await _logicalInterfaceService.AddAsync(routingInstanceId.Value, request);
+                return RedirectToAction(nameof(GetAllByRoutingInstanceID), new { routingInstanceId });
+            }
 
-            var request = Mapper.Map<ProviderDomainLogicalInterfaceRequest>(model);
-            await _logicalInterfaceService.AddAsync(routingInstanceId.Value, request);
-            return RedirectToAction(nameof(GetAllByRoutingInstanceId), new { routingInstanceId });
+            catch (BuilderBadArgumentsException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
 
-            var attachment = await AttachmentService.GetByIDAsync(nav.AttachmentID.Value);
-            ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
+            catch (BuilderUnableToCompleteException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (IllegalStateException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (DbUpdateException)
+            {
+                ModelState.AddDatabaseUpdateExceptionMessage();
+            }
+
+            var routingInstance = await _unitOfWork.RoutingInstanceRepository.GetByIDAsync(routingInstanceId.Value);
+            ViewBag.RoutingInstance = Mapper.Map<ProviderDomainRoutingInstanceViewModel>(routingInstance);
 
             return View(model);
         }
@@ -64,9 +108,9 @@ namespace Mind.WebUI.Controllers
         [ValidateProviderDomainLogicalInterfaceExists]
         public async Task<ActionResult> Edit(int? logicalInterfaceId)
         {
-            var logicalInterface = await LogicalInterfaceService.GetByIDAsync(logicalInterfaceID);
-            var routingInstance = await _attachmentService.GetByIDAsync(attachmentID);
-            ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
+            var logicalInterface = await _logicalInterfaceService.GetByIDAsync(logicalInterfaceId.Value);
+            var routingInstance = await _unitOfWork.RoutingInstanceRepository.GetByIDAsync(logicalInterface.RoutingInstanceID);
+            ViewBag.RoutingInstance = Mapper.Map<ProviderDomainRoutingInstanceViewModel>(routingInstance);
 
             return View(Mapper.Map<LogicalInterfaceViewModel>(logicalInterface));
         }
@@ -76,89 +120,106 @@ namespace Mind.WebUI.Controllers
         [ValidateProviderDomainLogicalInterfaceExists]
         public async Task<ActionResult> Edit(int? logicalInterfaceId, LogicalInterfaceUpdateViewModel updateModel)
         {
-            var logicalInterfaceUpdate = Mapper.Map<LogicalInterface>(updateModel);
-            await _logicalInterfaceService.UpdateAsync(logicalInterfaceId.Value, logicalInterfaceUpdate);
-            return RedirectToAction(nameof(GetAllByRoutingInstanceID), new { routingInstanceId });
+            var logicalInterface = await _logicalInterfaceService.GetByIDAsync(logicalInterfaceId.Value);
+            if (logicalInterface.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
+            {
+                ModelState.PopulateModelState(logicalInterface);
+                return View(Mapper.Map<LogicalInterfaceUpdateViewModel>(logicalInterface));
+            }
 
-            var attachment = await AttachmentService.GetByIDAsync(attachmentID);
-            ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
+            var update = Mapper.Map<LogicalInterfaceUpdate>(updateModel);
 
-            return View(Mapper.Map<LogicalInterfaceViewModel>(currentLogicalInterface));
+            try
+            {
+                await _logicalInterfaceService.UpdateAsync(logicalInterfaceId.Value, update);
+                return RedirectToAction(nameof(GetAllByRoutingInstanceID), new { routingInstanceId = logicalInterface.RoutingInstanceID });
+            }
+
+            catch (BuilderBadArgumentsException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (IllegalStateException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (DbUpdateException)
+            {
+                ModelState.AddDatabaseUpdateExceptionMessage();
+            }
+
+            var routingInstance = await _unitOfWork.RoutingInstanceRepository.GetByIDAsync(logicalInterface.RoutingInstanceID);
+            ViewBag.RoutingInstance = Mapper.Map<ProviderDomainRoutingInstanceViewModel>(routingInstance);
+
+            return View(Mapper.Map<LogicalInterfaceUpdateViewModel>(logicalInterface));
+
         }
 
         [HttpGet]
-        [ValidateProviderDomainLogicalInterfaceExists]
-        public async Task<IActionResult> Delete(int? logicalInterfaceId, bool? concurrencyError = false)
+        [ValidateProviderDomainRoutingInstanceExists]
+        public async Task<IActionResult> Delete(int? routingInstanceId, int? logicalInterfaceId, bool? concurrencyError = false)
         {
             var item = await _logicalInterfaceService.GetByIDAsync(logicalInterfaceId.Value);
             if (item == null)
             {
-                if (concurrencyError.GetValueOrDefault())
-                {
-                    return RedirectToAction(nav.RedirectAction, nav);
-                }
-
-                return NotFound();
+                return RedirectToAction(nameof(GetAllByRoutingInstanceID), new { routingInstanceId });
             }
 
-            if (concurrencyError.GetValueOrDefault())
-            {
-                ViewData["ErrorMessage"] = "The record you attempted to delete "
-                    + "was modified by another user after you got the original values. "
-                    + "The delete operation was cancelled and the current values in the "
-                    + "database have been displayed. If you still want to delete this "
-                    + "record, click the Delete button again. Otherwise "
-                    + "click the Back to List hyperlink.";
-            }
+            if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
 
-            var attachment = await AttachmentService.GetByIDAsync(nav.AttachmentID.Value);
-            ViewBag.Attachment = Mapper.Map<AttachmentViewModel>(attachment);
-
-            return View(Mapper.Map<LogicalInterfaceViewModel>(item));
+            return View(Mapper.Map<ProviderDomainAttachmentViewModel>(item));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(LogicalInterfaceViewModel logicalInterfaceModel)
+        public async Task<IActionResult> Delete(LogicalInterfaceViewModel model)
         {
+            var logicalInterface = await _logicalInterfaceService.GetByIDAsync(model.LogicalInterfaceId.Value);
+            if (logicalInterface == null) return RedirectToAction(nameof(GetAllByRoutingInstanceID), new { routingInstanceId = model.RoutingInstanceId });
+
+            if (logicalInterface.HasPreconditionFailed(Request, model.RowVersion.ToString()))
+            {
+                return RedirectToAction(nameof(Delete), new
+                {
+                    routingInstanceId = logicalInterface.RoutingInstanceID,
+                    logicalInterfaceId = logicalInterface.LogicalInterfaceID,
+                    concurrencyError = true
+                });
+            }
+
             try
             {
-                await _logicalInterfaceService.DeleteAsync(Mapper.Map<LogicalInterface>(logicalInterfaceModel));
-                return RedirectToAction(nav.RedirectAction, nav);
+                await _logicalInterfaceService.DeleteAsync(logicalInterface.LogicalInterfaceID);
+                return RedirectToAction(nameof(GetAllByRoutingInstanceID), new { routingInstanceId = logicalInterface.RoutingInstanceID });
             }
 
-            catch (DbUpdateConcurrencyException /* ex */)
+            catch (DbUpdateException)
             {
-                //Log the error (uncomment ex variable name and write a log.)
-
-                nav.ConcurrencyError = true;
-                nav.LogicalInterfaceID = currentLogicalInterface.LogicalInterfaceID;
-                return RedirectToAction("DeleteLogicalInterface", nav);
+                ViewData.AddDatabaseUpdateExceptionMessage();
             }
 
-            catch (Exception /** ex **/ )
-            {
-                ViewData["ErrorMessage"] = "Failed to complete this request. "
-                    + "This most likely happened because the network server is not available. "
-                    + "Try again later or contact your system administrator.";
-            }
-
-            return View(Mapper.Map<LogicalInterfaceViewModel>(currentLogicalInterface));
+            return View(Mapper.Map<LogicalInterfaceViewModel>(logicalInterface));
         }
 
         /// <summary>
-        /// Helper to populate the Logical Interface Tyes drop-down list
+        /// Helper to populate a drop-down list of logical interface type options
         /// </summary>
         /// <param name="selectedLogicalInterfaceType"></param>
         private void PopulateLogicalInterfaceTypesDropDownList(object selectedLogicalInterfaceType = null)
         {
             var logicalInterfaceTypesList = new List<SelectListItem>();
-            foreach (var logicalInterfaceType in Enum.GetValues(typeof(Models.ViewModels.LogicalInterfaceType)))
+            foreach (var logicalInterfaceType in Enum.GetValues(typeof(LogicalInterfaceTypeEnum)))
             {
                 logicalInterfaceTypesList.Add(new SelectListItem
                 {
-                    Text = Enum.GetName(typeof(Models.ViewModels.LogicalInterfaceType),
-                    logicalInterfaceType),
+                    Text = Enum.GetName(typeof(LogicalInterfaceTypeEnum), logicalInterfaceType),
                     Value = logicalInterfaceType.ToString()
                 });
             }

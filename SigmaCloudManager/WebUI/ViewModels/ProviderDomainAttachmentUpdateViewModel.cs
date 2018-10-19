@@ -21,6 +21,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Integer value denoting the required contract bandwidth in Mbps</value>
         /// <example>100</example>
+        [Display(Name = "Contract Bandwidth (Mbps)")]
         public int? ContractBandwidthMbps { get; set; }
 
         /// <summary>
@@ -28,6 +29,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Boolean value denoting the required trust state</value>
         /// <example>false</example>
+        [Display(Name = "Trust Received CoS/DSCP")]
         public bool? TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
@@ -36,7 +38,8 @@ namespace Mind.WebUI.Models
         /// false.
         /// </summary>
         /// <value>A string value of the name of an existing routing instance</value>
-        /// <exanple>db7c48eaa9864cd0b3aa6af08c8370d6</exanple>
+        /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
+        [Display(Name = "Existing Routing Instance Name")]
         public string ExistingRoutingInstanceName { get; set; }
 
         /// <summary>
@@ -44,7 +47,8 @@ namespace Mind.WebUI.Models
         /// then the value of the ExistingRoutingInstanceName property must be null.
         /// </summary>
         /// <value>A boolean which when set to true indicates a new routing instance is required</value>
-        /// <examople>true</examople>
+        /// <example>true</example>
+        [Display(Name = "Create a new Routing Instance")]
         public bool? CreateNewRoutingInstance { get; set; }
 
         /// <summary>
@@ -52,6 +56,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>A boolean which when set to true indicates jumbo MTU is required</value>
         /// <example>true</example>
+        [Display(Name = "Use Jumbo MTU")]
         public bool? UseJumboMtu { get; set; }
 
         /// <summary>
@@ -61,6 +66,7 @@ namespace Mind.WebUI.Models
         /// <value>A value which specifies the minimum links in the bundle</value>
         /// <example>2</example>
         [Range(1, 8)]
+        [Display(Name = "Bundle Min Links")]
         public int? BundleMinLinks { get; set; }
 
         /// <summary>
@@ -70,7 +76,13 @@ namespace Mind.WebUI.Models
         /// <value>A value which specifies the maximum links in the bundle</value>
         /// <example>true</example>
         [Range(1, 8)]
+        [Display(Name = "Bundle Max Links")]
         public int? BundleMaxLinks { get; set; }
+
+        /// <summary>
+        /// Concurrency token for the model
+        /// </summary>
+        public byte[] RowVersion { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

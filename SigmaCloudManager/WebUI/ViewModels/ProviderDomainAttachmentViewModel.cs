@@ -14,28 +14,35 @@ namespace Mind.WebUI.Models
     /// <summary>
     /// 
     /// </summary>
-    public partial class ProviderDomainAttachmentViewModel
+    public class ProviderDomainAttachmentViewModel
     {
         /// <summary>
         /// ID of the attachment
         /// </summary>
-        /// <value>Integer valude denoting the ID of the attachment</value>
-        /// <exmple>6001</exmple>
+        /// <value>Integer value denoting the ID of the attachment</value>
+        /// <example>6001</example>
         public int? AttachmentId { get; private set; }
+
+        /// <summary>
+        /// The name of the attachment
+        /// </summary>
+        /// <value>string value denoting the name of the attachment</value>
+        /// <example>TenGigabitEthernet0/0</example>
+        public string Name { get; private set; }
 
         /// <summary>
         /// The attachment is enabled for layer 3
         /// </summary>
         /// <value>Boolean which denotes whether the attachment is enabled for layer 3</value>
         /// <example>true</example>
-        public bool? IsLayer3 { get; private set; }
+        public bool IsLayer3 { get; private set; }
 
         /// <summary>
         /// The attachment is delivered as a bundle
         /// </summary>
         /// <value>Boolean value which denotes if the attachment is delivered as a bundle</value>
         /// <example>true</example>
-        public bool? IsBundle { get; private set; }
+        public bool IsBundle { get; private set; }
 
         /// <summary>
         /// For bundle attachments, the minimum number of active links in the bundle
@@ -56,14 +63,21 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Boolean denoting if the attachment is delivered as a multiport</value>
         /// <example>true</example>
-        public bool? IsMultiport { get; private set; }
+        public bool IsMultiport { get; private set; }
 
         /// <summary>
         /// The attachment is enabled with tagging
         /// </summary>
         /// <value>Boolean value denoting if the attachment is enabled with tagging</value>
         /// <example>true</example>
-        public bool? IsTagged { get; private set; }
+        public bool IsTagged { get; private set; }
+
+        /// <summary>
+        /// ID of the tenant
+        /// </summary>
+        /// <value>Integer valude denoting the ID of the tenant</value>
+        /// <example>6001</example>
+        public int? TenantId { get; private set; }
 
         /// <summary>
         /// The name of the tenant owner of the attachment
@@ -104,19 +118,19 @@ namespace Mind.WebUI.Models
         /// The contract bandwidth pool created for the attachment
         /// </summary>
         /// <value>An object of type ContractBandwidthPool</value>
-        public ContractBandwidthPool ContractBandwidthPool { get; private set; }
+        public ContractBandwidthPoolViewModel ContractBandwidthPool { get; private set; }
 
         /// <summary>
         /// The routing instance created for the attachment
         /// </summary>
         /// <value>An object of type RoutingInstance</value>
-        public ProviderDomainRoutingInstance RoutingInstance { get; private set; }
+        public ProviderDomainRoutingInstanceViewModel RoutingInstance { get; private set; }
 
         /// <summary>
         /// A list of interfaces created for the attachment
         /// </summary>
         /// <value>A list of Interface objects</value>
-        public List<Interface> Interfaces { get; private set; }
+        public List<InterfaceViewModel> Interfaces { get; private set; }
 
         /// <summary>
         /// The maximum transmission unit supported by the attachment
@@ -130,5 +144,10 @@ namespace Mind.WebUI.Models
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>PE-CE-UNTAGGED</example>
         public string AttachmentRoleName { get; private set; }
+
+        /// <summary>
+        /// Concurrency token for the model
+        /// </summary>
+        public byte[] RowVersion { get; private set; }
     }
 }

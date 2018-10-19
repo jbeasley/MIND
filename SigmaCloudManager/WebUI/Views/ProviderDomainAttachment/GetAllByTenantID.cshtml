@@ -1,0 +1,118 @@
+@model IEnumerable<Mind.WebUI.Models.ProviderDomainAttachmentViewModel>
+
+@{
+    ViewData["Title"] = "Provider Domain Attachments";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item active">Provider Domain Attachments - [@ViewBag.Tenant.Name]</li>
+</ol>
+
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+@if (ViewData["SuccessMessage"] != null)
+{
+    @using (Html.BeginForm("ClearCreatedAlerts", "ProviderDomainAttachment", FormMethod.Post))
+    {
+        <input type="hidden" name="tenantId" value="@ViewBag.Tenant.TenantId" />
+        <p>
+            <button type="submit" class="btn btn-info btn-default ">
+                <span class="glyphicon glyphicon-minus-sign"></span>&nbsp;Clear Created Alerts
+            </button>
+        </p>
+    }
+}
+
+<h2>Attachments for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<p>
+    <a asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
+       data-toggle="tooltip" data-placement="right"
+       title="Create an Attachment to connect a Tenant Domain to the Provider Domain
+       For example, create an Attachment on a PE to connect the PE to a data-center.">Create New Provider Domain Attachment</a>
+</p>
+<p>
+
+<table class="table" id="attachmentsTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.InfrastructureDeviceName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AttachmentRoleName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsTagged)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsLayer3)
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.InfrastructureDeviceName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AttachmentRoleName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsTagged)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsLayer3)
+                </td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { attachmentId = item.AttachmentId }) |
+                    @Html.ActionLink("Details", "Details", new { attachmentId = item.AttachmentId }) |
+                    @Html.ActionLink("Delete", "Delete", new { attachmentID = item.AttachmentId }) |
+                    @Html.ActionLink("Interfaces", "GetAllInterfacesByAttachmentID", new { attachmentId = item.AttachmentId })
+                    @if (item.IsTagged)
+                    {
+                        <span>|</span> @Html.ActionLink("VIFs", "GetAllByAttachmentID", "TenantVif", new { ID = item.AttachmentId })
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
+
+<a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+    }
+}

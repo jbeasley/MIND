@@ -16,6 +16,7 @@ using SCM.Hubs;
 using SCM.Validators;
 using SCM.Factories;
 using Microsoft.AspNetCore.Mvc.Filters;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {
@@ -669,11 +670,11 @@ namespace SCM.Controllers
         private void PopulateLogicalInterfaceTypesDropDownList(object selectedLogicalInterfaceType = null)
         {
             var logicalInterfaceTypesList = new List<SelectListItem>();
-            foreach (var logicalInterfaceType in Enum.GetValues(typeof(Models.ViewModels.LogicalInterfaceType)))
+            foreach (var logicalInterfaceType in Enum.GetValues(typeof(LogicalInterfaceTypeEnum)))
             {
                 logicalInterfaceTypesList.Add(new SelectListItem
                 {
-                    Text = Enum.GetName(typeof(Models.ViewModels.LogicalInterfaceType),
+                    Text = Enum.GetName(typeof(LogicalInterfaceTypeEnum),
                     logicalInterfaceType),
                     Value = logicalInterfaceType.ToString()
                 });

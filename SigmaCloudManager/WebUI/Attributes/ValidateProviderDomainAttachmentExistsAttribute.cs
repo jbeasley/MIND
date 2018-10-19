@@ -39,22 +39,23 @@ namespace Mind.WebUI.Attributes
             }
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-            {          
-                var attachmentId = context.ActionArguments["attachmentId"] as int?;
-               
-                if ((from result in await _unitOfWork.AttachmentRepository.GetAsync(q =>
-                        q.AttachmentID == attachmentId 
+            {
+                if (context.ActionArguments.TryGetValue("attachmentId", out object value) && value is int attachmentId)
+                {
+
+                    if ((from result in await _unitOfWork.AttachmentRepository.GetAsync(q =>
+                        q.AttachmentID == attachmentId
                         && q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing,
                         AsTrackable: false)
-                        select result)
-                       .SingleOrDefault() == null)
-                {
+                         select result)
+                       .SingleOrDefault() != null)
+                    {
+                        await next();
+                    }
 
                     context.Result = new ViewResult { ViewName = "ItemNotFound" };
                     return;
                 }
-
-                await next();
             }
         }
     }

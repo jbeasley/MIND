@@ -12,6 +12,7 @@ using SCM.Services;
 using Microsoft.EntityFrameworkCore;
 using SCM.Validators;
 using Mind.Services;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {

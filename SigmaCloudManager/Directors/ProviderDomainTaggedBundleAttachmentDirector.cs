@@ -26,6 +26,8 @@ namespace Mind.Builders
                                 .WithLocation(request.LocationName)
                                 .WithPlane(request.PlaneName.ToString())
                                 .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
+                                .WithDescription(request.Description)
+                                .WithNotes(request.Notes)
                                 .BuildAsync();
         }
     }

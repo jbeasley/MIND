@@ -54,5 +54,17 @@ namespace SCM.Models.RequestModels
         /// </summary>
         /// <value>A value which specifies the maximum links in the bundle</value>
         public int? BundleMaxLinks { get; set; }
+
+        /// <summary>
+        /// A description for the attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        public string Notes { get; set; }
     }
 }

@@ -124,6 +124,18 @@ namespace Mind.Builders
             return this;
         }
 
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithDescription(string description)
+        {
+            base.WithDescription(description);
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.WithNotes(string notes)
+        {
+            base.WithNotes(notes);
+            return this;
+        }
+
         public override async Task<Attachment> BuildAsync()
         {
             await base.BuildAsync();

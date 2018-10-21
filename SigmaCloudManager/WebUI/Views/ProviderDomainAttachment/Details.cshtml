@@ -1,8 +1,4 @@
-@model SCM.Models.ViewModels.AttachmentViewModel
-@using SCM.Models.ViewModels;
-@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
-@using Microsoft.Extensions.Options;
-@using SCM;
+@model Mind.WebUI.Models.ProviderDomainAttachmentViewModel
 
 @{
     ViewData["Title"] = "Attachment Details";
@@ -11,7 +7,7 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@Model.TenantID">Tenant Attachments - [@Model.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantId=@Model.TenantId">Provider Domain Attachments - [@Model.TenantName]</a></li>
     <li class="breadcrumb-item active">Details - [@Model.Name]</li>
 </ol>
 
@@ -29,18 +25,18 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.Device)
+            @Html.DisplayNameFor(model => model.InfrastructureDeviceName)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Device.Name)
+            @Html.DisplayFor(model => model.InfrastructureDeviceName)
         </dd>
-        @if (Model.IsMultiPort)
+        @if (Model.IsMultiport)
         {
             <dt>
-                @Html.DisplayNameFor(model => model.IsMultiPort)
+                @Html.DisplayNameFor(model => model.IsMultiport)
             </dt>
             <dd>
-                @Html.DisplayFor(model => model.IsMultiPort)
+                @Html.DisplayFor(model => model.IsMultiport)
             </dd>
         }
         @if (Model.IsBundle)
@@ -64,35 +60,24 @@
                 @Html.DisplayFor(model => model.BundleMaxLinks)
             </dd>
         }
-        @if (Model.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleType.TenantFacing)
-        {
-            <dt>
-                @Html.DisplayNameFor(model => model.Location)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Location.SiteName)
-            </dd>
-        }
         <dt>
-            @Html.DisplayNameFor(model => model.Device)
+            @Html.DisplayNameFor(model => model.LocationName)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Device.Name)
+            @Html.DisplayFor(model => model.LocationName)
         </dd>
-        @if (Model.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleType.TenantFacing)
-        {
-            <dt>
-                @Html.DisplayNameFor(model => model.Plane)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.Plane.Name)
-            </dd>
-        }
         <dt>
-            @Html.DisplayNameFor(model => model.AttachmentRole)
+            @Html.DisplayNameFor(model => model.PlaneName)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AttachmentRole.Name)
+            @Html.DisplayFor(model => model.PlaneName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentRoleName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentRoleName)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.IsLayer3)
@@ -107,12 +92,12 @@
             @Html.DisplayFor(model => model.IsTagged)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.AttachmentBandwidth)
+            @Html.DisplayNameFor(model => model.AttachmentBandwidthGbps)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AttachmentBandwidth.BandwidthGbps)
+            @Html.DisplayFor(model => model.AttachmentBandwidthGbps)
         </dd>
-        @if (Model.AttachmentRole.RequireContractBandwidth)
+        @if (Model.ContractBandwidthPool != null)
         {
             <dt>
                 @Html.DisplayNameFor(model => model.ContractBandwidthPool)
@@ -121,13 +106,13 @@
                 @Html.DisplayFor(model => model.ContractBandwidthPool.Name)
             </dd>
             <dt>
-                @Html.DisplayNameFor(model => model.ContractBandwidthPool.ContractBandwidth)
+                @Html.DisplayNameFor(model => model.ContractBandwidthPool.ContractBandwidthMbps)
             </dt>
             <dd>
-                @Html.DisplayFor(model => model.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                @Html.DisplayFor(model => model.ContractBandwidthPool.ContractBandwidthMbps)
             </dd>
         }
-        @if (Model.AttachmentRole.RoutingInstanceTypeID != null)
+        @if (Model.RoutingInstance != null)
         {
             <dt>
                 @Html.DisplayNameFor(model => model.RoutingInstance.Name)
@@ -135,42 +120,24 @@
             <dd>
                 @Html.DisplayFor(model => model.RoutingInstance.Name)
             </dd>
-            if (Model.RoutingInstance.RoutingInstanceType.IsVrf)
-            {
-                <dt>
-                    @Html.DisplayNameFor(model => model.RoutingInstance.AdministratorSubField)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.RoutingInstance.AdministratorSubField)
-                </dd>
-                <dt>
-                    @Html.DisplayNameFor(model => model.RoutingInstance.AssignedNumberSubField)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.RoutingInstance.AssignedNumberSubField)
-                </dd>
-            }
-        }
-        @if (Model.IsLayer3)
-        {
             <dt>
-                @Html.DisplayNameFor(model => model.IpAddress)
+                @Html.DisplayNameFor(model => model.RoutingInstance.AdministratorSubField)
             </dt>
             <dd>
-                @Html.DisplayFor(model => model.IpAddress)
+                @Html.DisplayFor(model => model.RoutingInstance.AdministratorSubField)
             </dd>
             <dt>
-                @Html.DisplayNameFor(model => model.SubnetMask)
+                @Html.DisplayNameFor(model => model.RoutingInstance.AssignedNumberSubField)
             </dt>
             <dd>
-                @Html.DisplayFor(model => model.SubnetMask)
+                @Html.DisplayFor(model => model.RoutingInstance.AssignedNumberSubField)
             </dd>
         }
         <dt>
             @Html.DisplayNameFor(model => model.Mtu)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Mtu.MtuValue)
+            @Html.DisplayFor(model => model.Mtu)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Description)
@@ -184,19 +151,10 @@
         <dd>
             @Html.DisplayFor(model => model.Notes)
         </dd>
-        @if (ApplicationConfiguration.Value.EnableNetworkSync)
-        {
-        <dt>
-            @Html.DisplayNameFor(model => model.RequiresSync)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.RequiresSync)
-        </dd>
-        }
     </dl>
 </div>
 <form asp-action="">
     <div class="form-actions no-color">
-        <a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantID">Back to Attachments List</a>
+        <a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Attachments List</a>
     </div>
 </form>

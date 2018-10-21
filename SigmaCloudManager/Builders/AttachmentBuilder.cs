@@ -131,6 +131,18 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithDescription(string description)
+        {
+            if (!string.IsNullOrEmpty(description)) _args.Add(nameof(WithDescription), description);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> WithNotes(string notes)
+        {
+            if (!string.IsNullOrEmpty(notes)) _args.Add(nameof(WithNotes), notes);
+            return this;
+        }
+
         /// <summary>
         /// Build the attachment
         /// </summary>
@@ -181,6 +193,8 @@ namespace Mind.Builders
             {
                 await CreateRoutingInstanceAsync();
             }
+            if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
+            if (_args.ContainsKey(nameof(WithNotes))) SetNotes();
 
             return _attachment;
         }
@@ -515,6 +529,18 @@ namespace Mind.Builders
                 // Only one device found
                 _attachment.Device = devices.Single();
             }
+        }
+
+        protected internal virtual void SetDescription()
+        {
+            var description = _args[nameof(WithDescription)].ToString();
+            _attachment.Description = description;
+        }
+
+        protected internal virtual void SetNotes()
+        {
+            var notes = _args[nameof(WithNotes)].ToString();
+            _attachment.Notes = notes;
         }
     }
 }

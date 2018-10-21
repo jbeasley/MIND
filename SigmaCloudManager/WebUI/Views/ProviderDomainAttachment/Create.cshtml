@@ -7,7 +7,7 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/ProviderAttachment/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">Provider Domain Attachments - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">Provider Domain Attachments - [@ViewBag.Tenant.Name]</a></li>
     <li class="breadcrumb-item active">Create</li>
 </ol>
 
@@ -56,15 +56,6 @@
             </div>
         </div>
         <div class="form-group">
-            <label asp-for="AttachmentBandwidthGbps" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <select asp-for="AttachmentBandwidthGbps" class="form-control" asp-items="ViewBag.AttachmentBandwidth">
-                    <option value="">-- Select a Bandwidth --</option>
-                </select>
-                <span asp-validation-for="AttachmentBandwidthGbps" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group">
             <div class="col-md-2">
             </div>
             <div class="col-md-2">
@@ -80,6 +71,15 @@
                 </label>
             </div>
             <div class="col-md-6">
+            </div>
+        </div>
+        <div class="form-group">
+            <label asp-for="AttachmentBandwidthGbps" class="col-md-2 control-label"></label>
+            <div class="col-md-10">
+                <select asp-for="AttachmentBandwidthGbps" class="form-control" asp-items="ViewBag.AttachmentBandwidth">
+                    <option value="">-- Select a Bandwidth --</option>
+                </select>
+                <span asp-validation-for="AttachmentBandwidthGbps" class="text-danger"></span>
             </div>
         </div>
         <div class="form-group">
@@ -203,7 +203,6 @@
                         portPoolName: portPool.value,
                         attachmentRoleName: attachmentRole.value,
                         attachmentBandwidthGbps: attachmentBandwidthGbps.value,
-                        bundleRequired: bundleRequired.checked,
                         multiportRequired: multiportRequired.checked
                     })
                     .done(function (data) {
@@ -262,11 +261,13 @@
             $multiportRequired.on('click', function (e) {
 
                 bundleRequired.checked = false;
+                Populate($attachmentBandwidthGbps, "/ProviderDomainAttachment/AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
             });
 
             $bundleRequired.on('click', function (e) {
 
                 multiportRequired.checked = false;
+                Populate($attachmentBandwidthGbps, "/ProviderDomainAttachment/AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
             });
 
             function Populate($e, url, data) {

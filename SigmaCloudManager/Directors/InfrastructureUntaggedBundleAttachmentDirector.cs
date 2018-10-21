@@ -26,6 +26,8 @@ namespace Mind.Builders
                                 .WithIpv4(request.Ipv4Addresses)
                                 .UseDefaultRoutingInstance(true)
                                 .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
+                                .WithDescription(request.Description)
+                                .WithNotes(request.Notes)
                                 .BuildAsync();
         }
     }

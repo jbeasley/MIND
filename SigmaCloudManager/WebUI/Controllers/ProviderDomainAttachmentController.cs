@@ -54,15 +54,36 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
+        public async Task<PartialViewResult> AttachmentBandwidths(bool? bundleRequired, bool? multiportRequired)
+        {
+            var query = (from result in await _unitOfWork.AttachmentBandwidthRepository.GetAsync()
+                         select result);
+
+            if (bundleRequired.GetValueOrDefault())
+            {
+                query = query.Where(x => x.SupportedByBundle);
+            }
+            else if (multiportRequired.GetValueOrDefault())
+            {
+                query = query.Where(x => x.SupportedByMultiPort);
+            }
+            else
+            {
+                query = query.Where(x => !x.MustBeBundleOrMultiPort);
+            }
+
+            return PartialView(_mapper.Map<List<AttachmentBandwidthViewModel>>(query.ToList().OrderBy(b => b.BandwidthGbps)));
+        }
+
+        [HttpGet]
         public IActionResult AttachmentRoleChange(string portPoolName, string attachmentRoleName, 
-            int? attachmentBandwidthGbps, bool? bundleRequired, bool? multiportRequired)
+            int? attachmentBandwidthGbps, bool? multiportRequired)
         {
             return ViewComponent("ProviderDomainAttachmentL3", new
             {
                 portPoolName,
                 attachmentRoleName,
                 attachmentBandwidthGbps,
-                bundleRequired,
                 multiportRequired
             });
         }
@@ -135,7 +156,7 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateModelState]
+        [ValidateModelState("Create")]
         [ValidateTenantExists]
         public async Task<IActionResult> Create(int? tenantId, ProviderDomainAttachmentRequestViewModel requestModel)
         {
@@ -175,7 +196,7 @@ namespace Mind.WebUI.Controllers
             await PopulatePlanesDropDownList(requestModel.PlaneName?.ToString());
             await PopulatePortPoolsDropDownList(requestModel.PortPoolName);
             await PopulateAttachmentRolesDropDownList(requestModel.PortPoolName, selectedAttachmentRole: requestModel.AttachmentRoleName);
-            await PopulateBandwidthsDropDownList();
+            await PopulateBandwidthsDropDownList(requestModel.BundleRequired, requestModel.MultiportRequired, requestModel.AttachmentBandwidthGbps);
 
             return View(requestModel);
         }
@@ -185,22 +206,27 @@ namespace Mind.WebUI.Controllers
         public async Task<ActionResult> Edit(int? attachmentId)
         {
             var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
-            ViewBag.Attachment = _mapper.Map<AttachmentViewModel>(attachment);
-            await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstanceID);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachment.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            if (attachment.RoutingInstance != null)
+            {
+                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstanceID);
+            }
 
-            return View(_mapper.Map<AttachmentUpdateViewModel>(attachment));
+
+            return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
         }
 
         [HttpPost]
-        [ValidateModelState]
+        [ValidateModelState("Edit")]
         [ValidateProviderDomainAttachmentExists]
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Edit(int? attachmentId, ProviderDomainAttachmentUpdateViewModel updateModel)
         {
-            var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value);
+            var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
             if (attachment.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
             {
-                ModelState.PopulateModelState(attachment);
+                ModelState.PopulateFromModel(attachment);
                 return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
             }
 
@@ -233,8 +259,8 @@ namespace Mind.WebUI.Controllers
             }
 
             await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstance.Name);
-
-            ViewBag.Attachment = _mapper.Map<AttachmentViewModel>(attachment);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachment.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
             return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
         }
@@ -243,17 +269,17 @@ namespace Mind.WebUI.Controllers
         [ValidateProviderDomainAttachmentExists]
         public async Task<IActionResult> Delete(int? attachmentId, bool? concurrencyError = false)
         {
-            var item = await _attachmentService.GetByIDAsync(attachmentId.Value);
+            var item = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
             if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
 
-            return View(_mapper.Map<ProviderDomainAttachmentViewModel>(item));
+            return View(_mapper.Map<ProviderDomainAttachmentDeleteViewModel>(item));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(ProviderDomainAttachmentViewModel model)
+        public async Task<IActionResult> Delete(ProviderDomainAttachmentDeleteViewModel model)
         {
-            var attachment = await _attachmentService.GetByIDAsync(model.AttachmentId.Value);
+            var attachment = await _attachmentService.GetByIDAsync(model.AttachmentId.Value, deep: true, asTrackable: false);
             if (attachment == null) return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = model.TenantId });
 
             if (attachment.HasPreconditionFailed(Request, model.RowVersion.ToString()))
@@ -271,12 +297,17 @@ namespace Mind.WebUI.Controllers
                 return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachment.TenantID });
             }
 
+            catch (IllegalDeleteAttemptException ex)
+            {
+                ViewData.AddDeleteValidationFailedMessage(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 ViewData.AddDatabaseUpdateExceptionMessage();
             }
 
-            return View(_mapper.Map<ProviderDomainAttachmentViewModel>(attachment));
+            return View(_mapper.Map<ProviderDomainAttachmentDeleteViewModel>(attachment));
         }
 
         private async Task PopulatePortPoolsDropDownList(object selectedPortPool = null)
@@ -309,10 +340,25 @@ namespace Mind.WebUI.Controllers
                 "Name", "Name", selectedAttachmentRole);
         }
 
-        private async Task PopulateBandwidthsDropDownList(object selectedBandwidth = null)
+        private async Task PopulateBandwidthsDropDownList(bool? bundleRequired = null, bool? multiportRequired = null, object selectedBandwidth = null)
         {
-            var bandwidths = await _unitOfWork.AttachmentBandwidthRepository.GetAsync();
-            ViewBag.AttachmentBandwidth = new SelectList(_mapper.Map<List<AttachmentBandwidthViewModel>>(bandwidths.OrderBy(b => b.BandwidthGbps)), 
+            var query = (from result in await _unitOfWork.AttachmentBandwidthRepository.GetAsync()
+                         select result);
+
+            if (bundleRequired.GetValueOrDefault())
+            {
+                query = query.Where(x => x.SupportedByBundle);
+            }
+            else if (multiportRequired.GetValueOrDefault())
+            {
+                query = query.Where(x => x.SupportedByMultiPort);
+            }
+            else
+            {
+                query = query.Where(x => !x.MustBeBundleOrMultiPort);
+            }
+        
+            ViewBag.AttachmentBandwidth = new SelectList(_mapper.Map<List<AttachmentBandwidthViewModel>>(query.ToList().OrderBy(b => b.BandwidthGbps)), 
                 "BandwidthGbps", "BandwidthGbps", selectedBandwidth);
         }
 

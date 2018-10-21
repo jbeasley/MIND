@@ -21,7 +21,7 @@ namespace Mind.WebUI.ViewComponents
         }
 
         public async Task<IViewComponentResult> InvokeAsync(string portPoolName, string attachmentRoleName, 
-            int? attachmentBandwidthGbps, bool? bundleRequired, bool? multiportRequired)
+            int? attachmentBandwidthGbps, bool? multiportRequired)
         {
             var attachmentRole = (from result in await _unitOfWork.AttachmentRoleRepository.GetAsync(
                                   q =>

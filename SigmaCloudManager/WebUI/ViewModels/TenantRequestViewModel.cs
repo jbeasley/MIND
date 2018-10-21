@@ -24,7 +24,6 @@ namespace Mind.WebUI.Models
         [Required(AllowEmptyStrings = false, ErrorMessage = "A tenant name must be specified")]
         [RegularExpression(@"^[a-zA-Z0-9-]+$", ErrorMessage = "The tenant name must contain letters, numbers, and dashes (-) only and no whitespace.")]
         [StringLength(30)]
-        [Display(Name = "Name")]
         public string Name { get; set; }
 
     }

@@ -23,6 +23,8 @@ namespace Mind.Builders
             return await builder.ForAttachment(attachment.AttachmentID)
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
+                                .WithDescription(update.Description)
+                                .WithNotes(update.Notes)
                                 .BuildAsync();
         }
     }

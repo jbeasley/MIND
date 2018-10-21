@@ -24,6 +24,8 @@ namespace Mind.Builders
             return await builder.ForAttachment(attachment.AttachmentID)
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
+                                .WithDescription(update.Description)
+                                .WithNotes(update.Notes)
                                 .BuildAsync();
         }
     }

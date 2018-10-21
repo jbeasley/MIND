@@ -51,7 +51,7 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateModelState]
+        [ValidateModelState("Create")]
         public async Task<IActionResult> Create(TenantRequestViewModel tenant)
         {
             try
@@ -88,22 +88,29 @@ namespace Mind.WebUI.Controllers
         public async Task<ActionResult> Edit(int? tenantId)
         {
             var tenant = await _tenantService.GetByIDAsync(tenantId.Value);
-            return View(_mapper.Map<TenantViewModel>(tenant));
+            return View(_mapper.Map<TenantUpdateViewModel>(tenant));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateModelState]
+        [ValidateModelState("Edit")]
         [ValidateTenantExists]
-        public async Task<ActionResult> Edit(int tenantId, TenantRequestViewModel tenantModel)
+        public async Task<ActionResult> Edit(int tenantId, TenantUpdateViewModel update)
         {
-
             var tenant = await _tenantService.GetByIDAsync(tenantId);
+            if (tenant.HasPreconditionFailed(Request, update.GetConcurrencyToken()))
+            {
+                ModelState.PopulateFromModel(tenant);
+                ModelState.AddUpdatePreconditionFailedMessage();
+                ModelState.RemoveConcurrencyTokenItem();
+                update.UpdateConcurrencyToken(tenant.GetConcurrencyToken());
 
+                return View(_mapper.Map<TenantUpdateViewModel>(update));
+            }
             try
             {
 
-                var updateTenant = _mapper.Map<Tenant>(tenantModel);
+                var updateTenant = _mapper.Map<Tenant>(update);
                 await _tenantService.UpdateAsync(updateTenant);
 
                 return RedirectToAction(nameof(GetAll));
@@ -129,7 +136,7 @@ namespace Mind.WebUI.Controllers
                 ModelState.AddDatabaseUpdateExceptionMessage();
             }
 
-            return View(_mapper.Map<TenantViewModel>(tenant));
+            return View(_mapper.Map<TenantUpdateViewModel>(tenant));
         }
 
         [HttpGet]
@@ -137,17 +144,19 @@ namespace Mind.WebUI.Controllers
         public async Task<IActionResult> Delete(int? tenantId, bool? concurrencyError = false)
         {
             var tenant = await _tenantService.GetByIDAsync(tenantId.Value);
+            if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
             return View(_mapper.Map<TenantViewModel>(tenant));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(TenantViewModel model)
+        [ValidateTenantExists]
+        public async Task<IActionResult> Delete(int? tenantId, TenantViewModel model)
         {
-            var tenant = await _tenantService.GetByIDAsync(model.TenantId.Value);
+            var tenant = await _tenantService.GetByIDAsync(tenantId.Value);
             if (tenant == null) return RedirectToAction(nameof(GetAll));
 
-            if (tenant.HasPreconditionFailed(Request, model.RowVersion.ToString()))
+            if (tenant.HasPreconditionFailed(Request, model.GetConcurrencyToken()))
             {
                 return RedirectToAction(nameof(Delete), new
                 {

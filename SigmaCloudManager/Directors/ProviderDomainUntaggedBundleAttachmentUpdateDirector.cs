@@ -27,6 +27,8 @@ namespace Mind.Builders
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                 .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
+                                .WithDescription(update.Description)
+                                .WithNotes(update.Notes)
                                 .BuildAsync();
         }
     }

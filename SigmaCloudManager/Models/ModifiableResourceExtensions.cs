@@ -16,6 +16,9 @@ namespace Mind.Models
         public static string GetWeakETag(this IModifiableResource resource) =>
             "\"" + Convert.ToBase64String(resource.RowVersion) + "\"";
 
+        public static byte[]  GetConcurrencyToken(this IModifiableResource resource) =>
+            resource.RowVersion;
+
         public static bool HasBeenModified(this IModifiableResource resource, HttpRequest request)
         {
             var modified = true;
@@ -64,7 +67,7 @@ namespace Mind.Models
         {
             bool preconditionFailed = false;
 
-            if (HttpMethods.IsPut(request.Method) || HttpMethods.IsPatch(request.Method) || HttpMethods.IsDelete(request.Method))
+            if (HttpMethods.IsPut(request.Method) || HttpMethods.IsPatch(request.Method) || HttpMethods.IsPost(request.Method))
             {
                 if (receivedConcurrencyToken != resource.ConcurrencyToken)
                 {

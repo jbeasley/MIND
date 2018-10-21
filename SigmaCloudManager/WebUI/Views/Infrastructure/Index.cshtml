@@ -14,10 +14,16 @@
     <thead>
         <tr>
             <td>
-                @Html.ActionLink("Device Roles", "GetAllDeviceRoles")
-            </td>
-            <td>
-                View Device Roles and related profiles such as Port Roles, Port Pools, Attachment Roles, and VIF roles
+                <div class="card">
+                    <div class="card-header">
+                        Roles and Resource Pools
+                    </div>
+                    <div class="card-body">
+                        <h5 class="card-title">Special title treatment</h5>
+                        <p class="card-text"> View roles such as Port Roles, Port Pools, Attachment Roles, and VIF roles</p>
+                        <a href="/Infrastructure/GetAllDeviceRoles" class="btn btn-primary">Go to Roles</a>
+                    </div>
+                </div>
             </td>
         </tr>
         <tr>

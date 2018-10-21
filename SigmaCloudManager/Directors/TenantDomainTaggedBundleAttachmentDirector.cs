@@ -24,6 +24,8 @@ namespace Mind.Builders
                                 .WithPortPool(request.PortPoolName)
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
                                 .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
+                                .WithDescription(request.Description)
+                                .WithNotes(request.Notes)
                                 .BuildAsync();
         }
     }

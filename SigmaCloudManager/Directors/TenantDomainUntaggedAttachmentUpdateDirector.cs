@@ -25,6 +25,8 @@ namespace Mind.Builders
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithContractBandwidth(update.ContractBandwidthMbps)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
+                                .WithDescription(update.Description)
+                                .WithNotes(update.Notes)
                                 .BuildAsync();
         }
     }

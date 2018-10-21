@@ -24,6 +24,8 @@ namespace Mind.Builders
                                 .WithAttachmentRole(request.AttachmentRoleName)
                                 .WithPortPool(request.PortPoolName)
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
+                                .WithDescription(request.Description)
+                                .WithNotes(request.Notes)
                                 .BuildAsync();
         }
     }

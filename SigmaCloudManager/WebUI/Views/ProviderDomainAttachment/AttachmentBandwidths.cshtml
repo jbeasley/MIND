@@ -1,0 +1,8 @@
+@model IEnumerable<Mind.WebUI.Models.AttachmentBandwidthViewModel>
+
+<option value="">-- Select Bandwidth --</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.BandwidthGbps">@item.BandwidthGbps</option>
+}

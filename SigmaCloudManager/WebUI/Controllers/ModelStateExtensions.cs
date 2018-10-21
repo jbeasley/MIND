@@ -15,13 +15,20 @@ namespace Mind.WebUI.Controllers
     /// </summary>
     public static class ModelStateExtensions
     {
-        public static void PopulateModelState(this ModelStateDictionary modelState, object model)
+        public static void PopulateFromModel(this ModelStateDictionary modelState, object model)
         {
             // Add the values of the properties of the current model to the modelstate dictionary
             foreach (var property in model.GetType().GetProperties())
             {
-                modelState.AddModelError(property.Name, property.GetValue(model).ToString());
+                if (property.PropertyType == typeof(int) || property.PropertyType == typeof(string) || property.PropertyType == typeof(bool)) {
+                    modelState.AddModelError(property.Name, "Current value: " + property.GetValue(model).ToString());
+                }
             }
+        }
+
+        public static void RemoveConcurrencyTokenItem(this ModelStateDictionary modelState)
+        {
+            modelState.Remove("RowVersion");
         }
 
         public static void AddUpdatePreconditionFailedMessage(this ModelStateDictionary modelState)

@@ -84,6 +84,18 @@ namespace SCM.Models.RequestModels
         public bool? TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
+        /// A description for the new attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the new attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        public string Notes { get; set; }
+
+        /// <summary>
         /// Optional parameters for creating a routing instances to be associated with the new attachment.
         /// </summary>
         /// <value>An object of type RoutingInstanceRequest</value>

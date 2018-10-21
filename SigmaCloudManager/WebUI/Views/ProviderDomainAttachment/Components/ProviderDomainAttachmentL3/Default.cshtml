@@ -19,23 +19,24 @@
         </label>
     </div>
 </div>
-@for (var x = 1; x <= Model.NumIpAddressesRequired.Value; x++)
+@for (var i = 1; i <= Model.NumIpAddressesRequired.Value; i++)
 {
-
-<div class="form-group">
-    <label class="col-md-2 control-label">IP Address</label>
-    <div class="col-md-10">
-        <input id="IpAddress" class="form-control" data-toggle="tooltip" data-placement="right"
-               title="Enter an IP address for the attachment" />
+    <div class="form-group">
+        <label class="col-md-2 control-label">IP Address</label>
+        <div class="col-md-10">
+            <input asp-for="@Model.Ipv4Addresses[i].IpAddress" class="form-control" data-toggle="tooltip" data-placement="right"
+                   title="Enter an IP address for the attachment" />
+            <span asp-validation-for="Ipv4Addresses[i].IpAddress" class="text-danger" />
+        </div>
     </div>
-</div>
-<div class="form-group">
-    <label class="col-md-2 control-label">Subnet Mask</label>
-    <div class="col-md-10">
-        <input id="SubnetMask" class="form-control" data-toggle="tooltip" data-placement="right"
-               title="Enter a subnet mask for the attachment" />
+    <div class="form-group">
+        <label class="col-md-2 control-label">Subnet Mask</label>
+        <div class="col-md-10">
+            <input asp-for="@Model.Ipv4Addresses[i].SubnetMask" class="form-control" data-toggle="tooltip" data-placement="right"
+                   title="Enter a subnet mask for the attachment" />
+            <span asp-validation-for="Ipv4Addresses[i].SubnetMask" class="text-danger" />
+        </div>
     </div>
-</div>
 }
 
 

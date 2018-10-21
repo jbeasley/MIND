@@ -1,4 +1,4 @@
-@model SCM.Models.ViewModels.AttachmentUpdateViewModel
+@model Mind.WebUI.Models.ProviderDomainAttachmentUpdateViewModel
 
 @{
     ViewData["Title"] = "Edit Attachment";
@@ -7,7 +7,7 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantAttachment/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantID">Tenant Attachments - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantId=@ViewBag.Tenant.TenantId">Provider Domain Attachments - [@ViewBag.Tenant.Name]</a></li>
     <li class="breadcrumb-item active">Edit - [@Model.Name]</li>
 </ol>
 
@@ -17,72 +17,47 @@
     <div class="form-horizontal">
         <hr />
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-        <input type="hidden" asp-for="AttachmentID" />
-        <input type="hidden" asp-for="TenantID" />
-        <input type="hidden" asp-for="LocationID" />
-        <input type="hidden" asp-for="IsTagged" />
+        <input type="hidden" asp-for="AttachmentId" />
         <input type="hidden" asp-for="RowVersion" />
-        <div class="form-group">
-            <label asp-for="Mtu" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <select asp-for="MtuID" class="form-control" asp-items="ViewBag.MtuID"
-                        data-toggle="tooltip" data-placement="right" title="Select a Maximum Transmission Unit (MTU) option">
-                    <option value="">-- Select MTU --</option>
-                </select>
-                <span asp-validation-for="MtuID" class="text-danger"></span>
-            </div>
-        </div>
-        @if (Model.IsBundle)
-    {
-        <div class="form-group">
-            <label asp-for="BundleMinLinks" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="BundleMinLinks" class="form-control" data-toggle="tooltip" data-placement="right"
-                       title="Specify the minimum number of active links in the bundle" />
-                <span asp-validation-for="BundleMinLinks" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group">
-            <label asp-for="BundleMaxLinks" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="BundleMaxLinks" class="form-control" data-toggle="tooltip" data-placement="right"
-                       title="Specify the maximum number of active links in the bundle" />
-                <span asp-validation-for="BundleMaxLinks" class="text-danger"></span>
-            </div>
-        </div>
-}
-        <div class="form-group">
-            <label asp-for="ContractBandwidth" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <select asp-for="ContractBandwidthID" class="form-control" asp-items="ViewBag.ContractBandwidthID">
-                    <option value="">Select Contract Bandwidth</option>
-                </select>
-                <span asp-validation-for="ContractBandwidthID" class="text-danger"></span>
-            </div>
-        </div>
         <div class="form-group">
             <div class="col-md-2">
             </div>
             <div class="col-md-10">
                 <label class="checkbox-inline">
-                    <input type="checkbox" asp-for="TrustReceivedCosDscp" data-toggle="tooltip"
-                           title="Trust the COS and DSCP markings received in packets on this Attachment"> <label asp-for="TrustReceivedCosDscp"></label>
+                    <input type="checkbox" asp-for="UseJumboMtu" data-toggle="tooltip"
+                           title=""> <label asp-for="UseJumboMtu"></label>
                 </label>
-                <span asp-validation-for="TrustReceivedCosDscp" class="text-danger"></span>
+                <span asp-validation-for="UseJumboMtu" class="text-danger"></span>
             </div>
         </div>
-        @if (Model.RoutingInstance != null)
+        @if (Model.IsBundle)
         {
-            if (Model.RoutingInstance.RoutingInstanceType.IsVrf)
-            {
             <div class="form-group">
-                <label asp-for="RoutingInstance" class="col-md-2 control-label"></label>
+                <label asp-for="BundleMinLinks" class="col-md-2 control-label"></label>
                 <div class="col-md-10">
-                    <select asp-for="RoutingInstanceID" class="form-control" asp-items="ViewBag.RoutingInstanceID"
-                            data-toggle="tooltip" data-placement="right" title="Select an existing VRF">
-                        <option value="">-- Select Existing VRF --</option>
+                    <input asp-for="BundleMinLinks" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Specify the minimum number of active links in the bundle" />
+                    <span asp-validation-for="BundleMinLinks" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="BundleMaxLinks" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <input asp-for="BundleMaxLinks" class="form-control" data-toggle="tooltip" data-placement="right"
+                           title="Specify the maximum number of active links in the bundle" />
+                    <span asp-validation-for="BundleMaxLinks" class="text-danger"></span>
+                </div>
+            </div>
+        }
+        @if (Model.ContractBandwidthMbps.HasValue)
+        {
+            <div class="form-group">
+                <label asp-for="ContractBandwidthMbps" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <select asp-for="ContractBandwidthMbps" class="form-control" asp-items="ViewBag.ContractBandwidth">
+                        <option value="">Select Contract Bandwidth</option>
                     </select>
-                    <span asp-validation-for="RoutingInstanceID" class="text-danger"></span>
+                    <span asp-validation-for="ContractBandwidthMbps" class="text-danger"></span>
                 </div>
             </div>
             <div class="form-group">
@@ -90,15 +65,36 @@
                 </div>
                 <div class="col-md-10">
                     <label class="checkbox-inline">
-                        <input type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip" title="Create a new VRF"> <label asp-for="CreateNewRoutingInstance"></label>
+                        <input type="checkbox" asp-for="TrustReceivedCosAndDscp" data-toggle="tooltip"
+                               title="Trust the COS and DSCP markings received in packets on this Attachment"> <label asp-for="TrustReceivedCosAndDscp"></label>
                     </label>
+                    <span asp-validation-for="TrustReceivedCosAndDscp" class="text-danger"></span>
                 </div>
             </div>
-            }
-            else
-            {
-            <input type="hidden" asp-for="RoutingInstanceID" />
-            }
+        }
+        @if (!string.IsNullOrEmpty(Model.ExistingRoutingInstanceName))
+        {
+            <div class="form-group">
+                <label asp-for="ExistingRoutingInstanceName" class="col-md-2 control-label"></label>
+                <div class="col-md-10">
+                    <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
+                            data-toggle="tooltip" data-placement="right" title="Select a routing instance for the attachment">
+                        <option value="">-- Select Routing Instance --</option>
+                    </select>
+                    <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group">
+                <div class="col-md-2">
+                </div>
+                <div class="col-md-10">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
+                               title="Create a new routing instance for the attachment"> <label asp-for="CreateNewRoutingInstance"></label>
+                    </label>
+                    <span asp-validation-for="CreateNewRoutingInstance" class="text-danger"></span>
+                </div>
+            </div>
         }
         <div class="form-group">
             <label asp-for="Description" class="col-md-2 control-label"></label>
@@ -125,7 +121,7 @@
 </form>
 
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantID">Back to Attachments List</a>
+    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments List</a>
 </div>
 
 @section Scripts {
@@ -135,49 +131,33 @@
 
         (function ($) {
 
-            var $attachment = $('#AttachmentID'),
-                attachment = $attachment[0],
-                $isTagged = $('#IsTagged'),
-                isTagged = $isTagged[0],
-                $contractBandwidth = $('#ContractBandwidthID'),
-                contractBandwidth = $contractBandwidth[0],
-                $trustReceivedCosDscp = $('#TrustReceivedCosDscp'),
-                trustReceivedCosDscp = $trustReceivedCosDscp[0],
-                $vrf = $('#RoutingInstanceID'),
-                vrf = $vrf[0],
-                $createNewRoutingInstance = $('#CreateNewRoutingInstance');
+            var $routingInstance = $('#ExistingRoutingInstanceName'),
+                routingInstance = $routingInstance[0],
+                $createNewRoutingInstance = $('#CreateNewRoutingInstance'),
+                createNewRoutingInstance = $createNewRoutingInstance[0];
 
             // Initialise all tool-tips
-
             $('[data-toggle="tooltip"]').tooltip();
 
-            if (isTagged.value == 'True') {
+            if (createNewRoutingInstance.checked) {
 
-                contractBandwidth.disabled = true;
-                trustReceivedCosDscp.disabled = true;
+                routingInstance.selectedIndex = 0;
+                routingInstance.disabled = true;
             }
 
-            if ($createNewRoutingInstance.length) {
+            $createNewRoutingInstance.on('click', function () {
 
-                if ($createNewRoutingInstance[0].checked) {
+                if (this.checked) {
 
-                    vrf.selectedIndex = 0;
-                    vrf.disabled = true;
+                    routingInstance.selectedIndex = 0;
+                    routingInstance.disabled = true;
                 }
+                else {
 
-                $createNewRoutingInstance.on('click', function () {
-
-                    if (this.checked) {
-
-                        vrf.selectedIndex = 0;
-                        vrf.disabled = true;
-                    }
-                    else {
-
-                        vrf.disabled = false;
-                    }
-                });
-            }
+                    routingInstance.disabled = false;
+                }
+            });
+            
 
         }(jQuery));
 

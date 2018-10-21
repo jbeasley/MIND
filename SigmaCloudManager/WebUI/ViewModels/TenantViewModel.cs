@@ -15,7 +15,7 @@ namespace Mind.WebUI.Models
     /// <summary>
     /// Model of a tenant
     /// </summary>
-    public class TenantViewModel
+    public class TenantViewModel : IModifiableResource
     {
         /// <summary>
         /// Gets or Sets TenantId
@@ -23,7 +23,7 @@ namespace Mind.WebUI.Models
         /// <value>An integer denoting the ID of the tenant</value>
         /// <example>1001</example>
         [Display(Name = "Tenant ID")]
-        public int? TenantId { get; private set; }
+        public int? TenantId { get; set; }
 
         /// <summary>
         /// The name of the tenant
@@ -31,12 +31,12 @@ namespace Mind.WebUI.Models
         /// <value>The name of the tenant</value>
         /// <example>product-group-tenant</example>
         [Display(Name = "Name")]
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Concurrency token for the model
         /// </summary>
-        public byte[] RowVersion { get; private set; }
+        public byte[] RowVersion { get; set; }
 
     }
 }

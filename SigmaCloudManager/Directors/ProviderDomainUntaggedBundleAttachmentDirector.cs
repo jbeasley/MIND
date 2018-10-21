@@ -30,6 +30,8 @@ namespace Mind.Builders
                                 .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
                                 .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
                                 .WithRoutingInstance(request.RoutingInstance)
+                                .WithDescription(request.Description)
+                                .WithNotes(request.Notes)
                                 .BuildAsync();
         }
     }

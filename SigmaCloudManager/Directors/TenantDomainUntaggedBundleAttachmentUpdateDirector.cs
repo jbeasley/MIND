@@ -25,6 +25,8 @@ namespace Mind.Builders
                                 .WithContractBandwidth(update.ContractBandwidthMbps)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                 .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
+                                .WithDescription(update.Description)
+                                .WithNotes(update.Notes)
                                 .BuildAsync();
         }
     }

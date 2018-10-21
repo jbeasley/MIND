@@ -3,13 +3,20 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
-namespace SCM.Models.ViewModels
+namespace Mind.WebUI.Models
 {
     public class AttachmentBandwidthViewModel
     {
-        [Display(AutoGenerateField = false)]
+        /// <summary>
+        /// The ID of the attachment bandwidth
+        /// </summary>
+        /// <value>Integer value denoting the ID of the attachment bandwidth</value>
         public int AttachmentBandwidthID { get; set; }
+
+        /// <summary>
+        /// The bandwidth value in Gbps
+        /// </summary>
+        /// <value>Integer denoting the bandwidth value</value>
         public int BandwidthGbps { get; set; }
-        public byte[] RowVersion { get; set; }
     }
 }

@@ -78,7 +78,7 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpPost]
-        [ValidateModelState]
+        [ValidateModelState("Create")]
         [ValidateInfrastructureDeviceExists]
         public async Task<IActionResult> Create(int deviceId, PortRequestViewModel portModel)
         {
@@ -151,7 +151,7 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpPost]
-        [ValidateModelState]
+        [ValidateModelState("Edit")]
         [ValidateInfrastructurePortExists]
         public async Task<ActionResult> Edit(int? portId, PortUpdateViewModel updateModel)
         {
@@ -171,7 +171,7 @@ namespace Mind.WebUI.Controllers
 
             if (port.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
             {
-                ModelState.PopulateModelState(port);
+                ModelState.PopulateFromModel(port);
                 return View(Mapper.Map<PortUpdateViewModel>(port));
             }
 

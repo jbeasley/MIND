@@ -48,6 +48,18 @@ namespace SCM.Models.RequestModels
         public string AttachmentRoleName { get; set; }
 
         /// <summary>
+        /// A description for the new attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the new attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        public string Notes { get; set; }
+
+        /// <summary>
         /// The required bandwidth of the attachment in Gbps
         /// </summary>
         /// <value>Integer value denoting the required bandwidth of the attachment in Gbps</value>

@@ -23,6 +23,8 @@ namespace Mind.Builders
             var builder = _builderFactory(attachment);
             return await builder.ForAttachment(attachment.AttachmentID)
                                 .WithJumboMtu(update.UseJumboMtu)
+                                .WithDescription(update.Description)
+                                .WithNotes(update.Notes)
                                 .BuildAsync();
         }
     }

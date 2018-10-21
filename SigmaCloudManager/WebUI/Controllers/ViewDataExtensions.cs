@@ -24,6 +24,11 @@ namespace Mind.WebUI.Controllers
                     + "the Delete button again.";
         }
 
+        public static void AddDeleteValidationFailedMessage(this ViewDataDictionary viewData, string message)
+        {
+            viewData["ErrorMessage"] = "The record could not be deleted becauase of a validation failure. " + message;
+        }
+
         public static void AddDatabaseUpdateExceptionMessage(this ViewDataDictionary viewData)
         {
             viewData["ErrorMessage"] = "An error occurred while updating the database. " +

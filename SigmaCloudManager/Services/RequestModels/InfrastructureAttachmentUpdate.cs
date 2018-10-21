@@ -36,6 +36,18 @@ namespace SCM.Models.RequestModels
         public int? BundleMaxLinks { get; set; }
 
         /// <summary>
+        /// A description for the attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        public string Notes { get; set; }
+
+        /// <summary>
         /// IPv4 addresses to be assigned to the interfaces of the attachment.
         /// </summary>
         /// <value>A list of IPv4 addresses and subnet masks</value>

@@ -27,6 +27,8 @@ namespace Mind.Builders
         IBundleAttachmentBuilder WithNewRoutingInstance(bool? newRoutingInstance = false);
         IBundleAttachmentBuilder WithRoutingInstance(RoutingInstanceRequest routingInstanceRequest);
         IBundleAttachmentBuilder UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
+        IBundleAttachmentBuilder WithDescription(string description);
+        IBundleAttachmentBuilder WithNotes(string notes);
         Task<Attachment> BuildAsync();
     }
 }

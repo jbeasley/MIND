@@ -22,6 +22,13 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
                 .ForMember(dst => dst.AttachmentRoleName, conf => conf.MapFrom(src => src.AttachmentRole.Name));
 
+            CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.ProviderDomainAttachmentUpdateViewModel>()
+                .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
+                .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name));
+
+            CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.ProviderDomainAttachmentDeleteViewModel>()
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
+
             CreateMap<SCM.Models.Device, Mind.WebUI.Models.InfrastructureDeviceViewModel>()
                 .ForMember(dst => dst.DeviceModel, conf => conf.MapFrom(src => src.DeviceModel.Name))
                 .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
@@ -45,6 +52,11 @@ namespace Mind.WebUI.Models
 
             CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.ProviderDomainRoutingInstanceViewModel>()
                 .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName));
+
+            // View model to entity model mappings
+
+            CreateMap<Mind.WebUI.Models.TenantRequestViewModel, SCM.Models.Tenant>();
+            CreateMap<Mind.WebUI.Models.TenantUpdateViewModel, SCM.Models.Tenant>();
 
         }
     }

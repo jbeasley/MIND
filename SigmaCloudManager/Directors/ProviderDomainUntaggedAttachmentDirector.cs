@@ -30,6 +30,8 @@ namespace Mind.Builders
                                 .WithContractBandwidth(request.ContractBandwidthMbps)
                                 .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
                                 .WithRoutingInstance(request.RoutingInstance)
+                                .WithDescription(request.Description)
+                                .WithNotes(request.Notes)
                                 .BuildAsync();
         }
     }

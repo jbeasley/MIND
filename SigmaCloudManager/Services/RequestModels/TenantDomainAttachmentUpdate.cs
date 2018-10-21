@@ -46,5 +46,17 @@ namespace SCM.Models.RequestModels
         /// </summary>
         /// <value>Boolean value which denotes whether the DSCP and COS markings should be trusted</value>
         public bool? TrustReceivedCosAndDscp { get; set; }
+
+        /// <summary>
+        /// A description for the attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        public string Notes { get; set; }
     }
 }

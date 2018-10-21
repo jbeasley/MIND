@@ -68,7 +68,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateProviderDomainRoutingInstanceExists]
-        [ValidateModelState]
+        [ValidateModelState("Create")]
         public async Task<IActionResult> Create(int? routingInstanceId, ProviderDomainLogicalInterfaceRequestViewModel model)
         {
             try
@@ -123,7 +123,7 @@ namespace Mind.WebUI.Controllers
             var logicalInterface = await _logicalInterfaceService.GetByIDAsync(logicalInterfaceId.Value);
             if (logicalInterface.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
             {
-                ModelState.PopulateModelState(logicalInterface);
+                ModelState.PopulateFromModel(logicalInterface);
                 return View(Mapper.Map<LogicalInterfaceUpdateViewModel>(logicalInterface));
             }
 

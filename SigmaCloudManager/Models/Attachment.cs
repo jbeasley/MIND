@@ -57,6 +57,7 @@ namespace SCM.Models
         public static IQueryable<Attachment> IncludeDeepProperties(this IQueryable<Attachment> query)
         {
             return query.Include(x => x.Device.Location.SubRegion.Region)
+                        .Include(x => x.Device.Plane)
                         .Include(x => x.ContractBandwidthPool.ContractBandwidth)
                         .Include(x => x.Interfaces)
                         .ThenInclude(x => x.Ports)
@@ -280,8 +281,9 @@ namespace SCM.Models
             {
                 if (this.RoutingInstance.AttachmentSetRoutingInstances.Any())
                 {
-                    throw new IllegalDeleteAttemptException("The attachment is a member belongs to one or more attachment sets " +
-                        "and cannot be deleted. Remove the attachment from all attachment sets first.");
+                    throw new IllegalDeleteAttemptException($"The routing instance '{this.RoutingInstance.Name}' for attachment '{this.Name}' " +
+                        $"belongs to one or more attachment sets and cannot be deleted. Remove the routing instance for the attachment from " +
+                        $"all attachment sets first.");
                 }
             }
 

@@ -26,6 +26,8 @@ namespace Mind.Builders
         IAttachmentBuilder<TAttachmentBuilder> WithRoutingInstance(RoutingInstanceRequest routingInstanceRequest);
         IAttachmentBuilder<TAttachmentBuilder> WithNewRoutingInstance(bool? newRoutingInstance = false);
         IAttachmentBuilder<TAttachmentBuilder> UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
+        IAttachmentBuilder<TAttachmentBuilder> WithDescription(string description);
+        IAttachmentBuilder<TAttachmentBuilder> WithNotes(string notes);
         Task<Attachment> BuildAsync();
     }
 }

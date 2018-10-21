@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Mind.Api.Controllers;
 
 namespace Mind.WebUI.Attributes
@@ -13,6 +14,13 @@ namespace Mind.WebUI.Attributes
     /// </summary>
     public class ValidateModelStateAttribute : ActionFilterAttribute
     {
+        private readonly string _viewName;
+
+        public ValidateModelStateAttribute(string viewName)
+        {
+            _viewName = viewName;
+        }
+
         /// <summary>
         /// Called before the action method is invoked
         /// </summary>
@@ -37,7 +45,8 @@ namespace Mind.WebUI.Attributes
 
             if (!context.ModelState.IsValid)
             {
-                context.Result = new ValidationFailedResult(context.ModelState);
+                var controller = context.Controller as Microsoft.AspNetCore.Mvc.Controller;
+                context.Result = new ViewResult { ViewName = _viewName, ViewData = controller.ViewData };
             }
         }
 

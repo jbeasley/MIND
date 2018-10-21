@@ -26,6 +26,8 @@ namespace Mind.Builders
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
                                 .WithLocation(request.LocationName)
                                 .WithPlane(request.PlaneName.ToString())
+                                .WithDescription(request.Description)
+                                .WithNotes(request.Notes)
                                 .BuildAsync();
         }
     }

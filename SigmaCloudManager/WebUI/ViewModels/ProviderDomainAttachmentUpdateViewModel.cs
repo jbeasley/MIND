@@ -17,6 +17,20 @@ namespace Mind.WebUI.Models
     public class ProviderDomainAttachmentUpdateViewModel
     {
         /// <summary>
+        /// ID of the attachment
+        /// </summary>
+        /// <value>Integer value denoting the ID of the attachment</value>
+        /// <example>6001</example>
+        public int? AttachmentId { get; set; }
+
+        /// <summary>
+        /// The name of the attachment
+        /// </summary>
+        /// <value>string value denoting the name of the attachment</value>
+        /// <example>TenGigabitEthernet0/0</example>
+        public string Name { get; private set; }
+
+        /// <summary>
         /// The required contract bandwidth in Mbps
         /// </summary>
         /// <value>Integer value denoting the required contract bandwidth in Mbps</value>
@@ -30,7 +44,7 @@ namespace Mind.WebUI.Models
         /// <value>Boolean value denoting the required trust state</value>
         /// <example>false</example>
         [Display(Name = "Trust Received CoS/DSCP")]
-        public bool? TrustReceivedCosAndDscp { get; set; }
+        public bool TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
         /// If specified, the updated attachment should be associated with an existing routing instance
@@ -49,7 +63,7 @@ namespace Mind.WebUI.Models
         /// <value>A boolean which when set to true indicates a new routing instance is required</value>
         /// <example>true</example>
         [Display(Name = "Create a new Routing Instance")]
-        public bool? CreateNewRoutingInstance { get; set; }
+        public bool CreateNewRoutingInstance { get; set; }
 
         /// <summary>
         /// Determines if the updated attachment should use jumbo MTU
@@ -57,7 +71,14 @@ namespace Mind.WebUI.Models
         /// <value>A boolean which when set to true indicates jumbo MTU is required</value>
         /// <example>true</example>
         [Display(Name = "Use Jumbo MTU")]
-        public bool? UseJumboMtu { get; set; }
+        public bool UseJumboMtu { get; set; }
+
+        /// <summary>
+        /// Denotes whether the attachment is configured as a bundle 
+        /// </summary>
+        /// <value>Boolean value denoting whether the attachment is configured as a bundle</value>
+        /// <example>false</example>
+        public bool IsBundle { get; set; }
 
         /// <summary>
         /// The minimum number of active links in a bundle attachment. A value for this property may only be 
@@ -80,20 +101,32 @@ namespace Mind.WebUI.Models
         public int? BundleMaxLinks { get; set; }
 
         /// <summary>
+        /// The description of the attachment
+        /// </summary>
+        /// <value>String value denoting the description</value>
+        /// <example>A description of the attachment</example>
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the attachment
+        /// </summary>
+        /// <value>String value for the notes for the attachment</value>
+        /// <example>Some notes about the attachment</example>
+        public string Notes { get; set; }
+
+        /// <summary>
         /// Concurrency token for the model
         /// </summary>
         public byte[] RowVersion { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (CreateNewRoutingInstance.HasValue && CreateNewRoutingInstance.Value)
+            if (CreateNewRoutingInstance)
             {
                 if (!string.IsNullOrEmpty(ExistingRoutingInstanceName))
                 {
                     yield return new ValidationResult(
-                        "The 'CreateNewRoutingInstance' option cannot be used concurrently with the 'ExistingRoutingInstanceName' option." +
-                        "Either remove the 'ExistingRoutingInstanceName' property or remove the 'CreateNewRoutingInstance' property from " +
-                        "the request.");
+                        "The 'Create New Routing Instance' option cannot be used concurrently with the 'Existing Routing Instance Name' option.");
                 }
             }
         }

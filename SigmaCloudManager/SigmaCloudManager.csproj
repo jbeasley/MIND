@@ -64,10 +64,16 @@
     <Content Update="WebUI\Views\ProviderDomainAttachment\GetAllByTenantID.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="WebUI\Views\ProviderDomainAttachment\AttachmentBandwidths.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="WebUI\Views\ProviderDomainAttachment\Locations.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\ProviderDomainAttachment\SubRegions.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\ItemNotFound.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
   </ItemGroup>

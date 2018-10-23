@@ -51,36 +51,38 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateModelState("Create")]
         public async Task<IActionResult> Create(TenantRequestViewModel tenant)
         {
-            try
+            if (ModelState.IsValid)
             {
-                await _tenantService.AddAsync(_mapper.Map<Tenant>(tenant));
-                return RedirectToAction(nameof(GetAll));
+                try
+                {
+                    await _tenantService.AddAsync(_mapper.Map<Tenant>(tenant));
+                    return RedirectToAction(nameof(GetAll));
+                }
+
+                catch (BuilderBadArgumentsException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (BuilderUnableToCompleteException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (DbUpdateException)
+                {
+                    ModelState.AddDatabaseUpdateExceptionMessage();
+                }
             }
 
-            catch (BuilderBadArgumentsException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
-
-            catch (BuilderUnableToCompleteException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
-
-            catch (IllegalStateException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
-
-            catch (DbUpdateException)
-            {
-                ModelState.AddDatabaseUpdateExceptionMessage();
-            }
-
-            return View(_mapper.Map<TenantViewModel>(tenant));
+            return View(tenant);
         }
 
         [HttpGet]
@@ -93,47 +95,50 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateModelState("Edit")]
         [ValidateTenantExists]
         public async Task<ActionResult> Edit(int tenantId, TenantUpdateViewModel update)
         {
             var tenant = await _tenantService.GetByIDAsync(tenantId);
-            if (tenant.HasPreconditionFailed(Request, update.GetConcurrencyToken()))
+
+            if (ModelState.IsValid)
             {
-                ModelState.PopulateFromModel(tenant);
-                ModelState.AddUpdatePreconditionFailedMessage();
-                ModelState.RemoveConcurrencyTokenItem();
-                update.UpdateConcurrencyToken(tenant.GetConcurrencyToken());
+                if (tenant.HasPreconditionFailed(Request, update.GetConcurrencyToken()))
+                {
+                    ModelState.PopulateFromModel(tenant);
+                    ModelState.AddUpdatePreconditionFailedMessage();
+                    ModelState.RemoveConcurrencyTokenItem();
+                    update.UpdateConcurrencyToken(tenant.GetConcurrencyToken());
 
-                return View(_mapper.Map<TenantUpdateViewModel>(update));
-            }
-            try
-            {
+                    return View(_mapper.Map<TenantUpdateViewModel>(update));
+                }
+                try
+                {
 
-                var updateTenant = _mapper.Map<Tenant>(update);
-                await _tenantService.UpdateAsync(updateTenant);
+                    var updateTenant = _mapper.Map<Tenant>(update);
+                    await _tenantService.UpdateAsync(updateTenant);
 
-                return RedirectToAction(nameof(GetAll));
-            }
+                    return RedirectToAction(nameof(GetAll));
+                }
 
-            catch (BuilderBadArgumentsException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (BuilderBadArgumentsException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (BuilderUnableToCompleteException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (BuilderUnableToCompleteException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (IllegalStateException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (DbUpdateException)
-            {
-                ModelState.AddDatabaseUpdateExceptionMessage();
+                catch (DbUpdateException)
+                {
+                    ModelState.AddDatabaseUpdateExceptionMessage();
+                }
             }
 
             return View(_mapper.Map<TenantUpdateViewModel>(tenant));
@@ -169,6 +174,11 @@ namespace Mind.WebUI.Controllers
             {
                 await _tenantService.DeleteAsync(tenant.TenantID);
                 return RedirectToAction(nameof(GetAll));
+            }
+
+            catch (IllegalDeleteAttemptException ex)
+            {
+                ViewData.AddDeleteValidationFailedMessage(ex.Message);
             }
 
             catch (DbUpdateException)

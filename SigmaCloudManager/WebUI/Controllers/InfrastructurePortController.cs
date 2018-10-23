@@ -78,35 +78,37 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpPost]
-        [ValidateModelState("Create")]
         [ValidateInfrastructureDeviceExists]
         public async Task<IActionResult> Create(int deviceId, PortRequestViewModel portModel)
         {
-            try
+            if (ModelState.IsValid)
             {
-                var request = Mapper.Map<PortRequest>(portModel);
-                var port = await _portService.AddAsync(deviceId, request);
-                return RedirectToAction(nameof(GetAllByDeviceID), new { deviceId = port.DeviceID });
-            }
+                try
+                {
+                    var request = Mapper.Map<PortRequest>(portModel);
+                    var port = await _portService.AddAsync(deviceId, request);
+                    return RedirectToAction(nameof(GetAllByDeviceID), new { deviceId = port.DeviceID });
+                }
 
-            catch (BuilderBadArgumentsException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (BuilderBadArgumentsException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (BuilderUnableToCompleteException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (BuilderUnableToCompleteException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (IllegalStateException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (DbUpdateException)
-            {
-                ModelState.AddDatabaseUpdateExceptionMessage();
+                catch (DbUpdateException)
+                {
+                    ModelState.AddDatabaseUpdateExceptionMessage();
+                }
             }
 
             var device = await _unitOfWork.DeviceRepository.GetByIDAsync(deviceId);
@@ -151,7 +153,6 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpPost]
-        [ValidateModelState("Edit")]
         [ValidateInfrastructurePortExists]
         public async Task<ActionResult> Edit(int? portId, PortUpdateViewModel updateModel)
         {
@@ -169,38 +170,42 @@ namespace Mind.WebUI.Controllers
                         select result)
                         .Single();
 
-            if (port.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
+            if (ModelState.IsValid)
             {
-                ModelState.PopulateFromModel(port);
-                return View(Mapper.Map<PortUpdateViewModel>(port));
-            }
 
-            var update = Mapper.Map<PortUpdate>(updateModel);
+                if (port.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
+                {
+                    ModelState.PopulateFromModel(port);
+                    return View(Mapper.Map<PortUpdateViewModel>(port));
+                }
 
-            try
-            {
-                await _portService.UpdateAsync(portId.Value, update);
-                return RedirectToAction(nameof(GetAllByDeviceID), new { deviceId = port.DeviceID });
-            }
+                var update = Mapper.Map<PortUpdate>(updateModel);
 
-            catch (BuilderBadArgumentsException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                try
+                {
+                    await _portService.UpdateAsync(portId.Value, update);
+                    return RedirectToAction(nameof(GetAllByDeviceID), new { deviceId = port.DeviceID });
+                }
 
-            catch (BuilderUnableToCompleteException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (BuilderBadArgumentsException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (IllegalStateException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (BuilderUnableToCompleteException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (DbUpdateException)
-            {
-                ModelState.AddDatabaseUpdateExceptionMessage();
+                catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (DbUpdateException)
+                {
+                    ModelState.AddDatabaseUpdateExceptionMessage();
+                }
             }
 
             await PopulatePortBandwidthsDropDownList(port.PortBandwidth.BandwidthGbps);

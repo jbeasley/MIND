@@ -176,6 +176,7 @@ namespace Mind.Builders
                 CreateInterfaces();
             }
 
+            SetIpv4();
             await SetMtuAsync();
 
             if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
@@ -310,13 +311,17 @@ namespace Mind.Builders
                 Ports = _ports.ToList()
             };
 
+            _attachment.Interfaces = new List<Interface> { iface };
+        }
+
+        protected internal virtual void SetIpv4()
+        {
             List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses = null;
             if (_args.ContainsKey(nameof(WithIpv4))) ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
             var ipv4AddressAndMask = ipv4Addresses?.FirstOrDefault();
+            var iface = _attachment.Interfaces.Single();
             iface.IpAddress = ipv4AddressAndMask?.IpAddress;
             iface.SubnetMask = ipv4AddressAndMask?.SubnetMask;
-
-            _attachment.Interfaces = new List<Interface> { iface };
         }
 
         protected internal virtual async Task CreateContractBandwidthPoolAsync()
@@ -377,9 +382,10 @@ namespace Mind.Builders
             var routingInstanceName = _args[nameof(UseExistingRoutingInstance)].ToString();
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                                     x =>
-                                           x.Name == routingInstanceName
-                                           && x.TenantID == _attachment.Tenant.TenantID
-                                           && x.DeviceID == _attachment.Device.DeviceID,
+                                           x.Name == routingInstanceName &&
+                                           x.TenantID == _attachment.Tenant.TenantID &&
+                                           x.DeviceID == _attachment.Device.DeviceID, 
+                                           query: q => q.IncludeValidationProperties(),
                                            AsTrackable: true)
                                            select routingInstances)
                                            .SingleOrDefault();

@@ -32,8 +32,7 @@
         <input type="hidden" asp-for="Name" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
-            <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">
-                <i class="fas fa-minus-circle"></i>&nbsp;Delete
+            <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete" is-delete-button>
             </button> |
             <a asp-action="GetAll">Back to List</a>
         </div>

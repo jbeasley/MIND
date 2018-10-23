@@ -1,3 +1,4 @@
+@using Mind.WebUI.Models;
 @model Mind.WebUI.Models.ProviderDomainAttachmentRequestViewModel
 
 @{
@@ -11,89 +12,82 @@
     <li class="breadcrumb-item active">Create</li>
 </ol>
 
-
 <h2>Create an Attachment to the Provider Domain for Tenant '@ViewBag.Tenant.Name'</h2>
 
-<form asp-action="Create">
-    <div class="form-horizontal">
+<form id="createForm" asp-action="Create">
         <hr />
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
         <input type="hidden" asp-for="TenantId" value="@ViewBag.Tenant.TenantId" />
-        <div class="form-group">
-            <label asp-for="RegionId" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="RegionId" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
                 <select asp-for="RegionId" class="form-control" asp-items="ViewBag.Region">
                     <option value="">-- Select Region --</option>
                 </select>
                 <span asp-validation-for="RegionId" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="SubRegionId" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="SubRegionId" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
                 <select asp-for="SubRegionId" class="form-control" asp-items="ViewBag.SubRegion">
                     <option value="">-- Select Sub-Region --</option>
                 </select>
                 <span asp-validation-for="SubRegionId" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="LocationName" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="LocationName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
                 <select asp-for="LocationName" class="form-control" asp-items="ViewBag.Location">
                     <option value="">-- Select Location --</option>
                 </select>
                 <span asp-validation-for="LocationName" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="PlaneName" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="PlaneName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
                 <select asp-for="PlaneName" class="form-control" asp-items="ViewBag.Plane">
                     <option value="">-- Optionally Select a Plane --</option>
                 </select>
                 <span asp-validation-for="PlaneName" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-2">
-                <label class="checkbox-inline">
-                    <input type="checkbox" asp-for="BundleRequired" data-toggle="tooltip" title="Request a bundle attachment">
-                    <label asp-for="BundleRequired"></label>
-                </label>
-            </div>
-            <div class="col-md-2">
-                <label class="checkbox-inline">
-                    <input type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip" title="Request a multi-port attachment">
-                    <label asp-for="MultiportRequired"></label>
-                </label>
-            </div>
-            <div class="col-md-6">
+        <div class="form-group row">
+            <label class="col-form-label col-sm-2"></label>
+            <div class="col-sm-10">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" asp-for="BundleRequired" data-toggle="tooltip" title="Request a bundle attachment">
+                    <label class="form-check-label" asp-for="BundleRequired"></label>
+                </div>
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip" title="Request a multi-port attachment">
+                    <label class="form-check-label" asp-for="MultiportRequired"></label>
+                </div>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="AttachmentBandwidthGbps" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="AttachmentBandwidthGbps" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
                 <select asp-for="AttachmentBandwidthGbps" class="form-control" asp-items="ViewBag.AttachmentBandwidth">
                     <option value="">-- Select a Bandwidth --</option>
                 </select>
                 <span asp-validation-for="AttachmentBandwidthGbps" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="PortPoolName" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="PortPoolName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
                 <select asp-for="PortPoolName" class="form-control" asp-items="ViewBag.PortPool">
                     <option value="">-- Select a Port Pool --</option>
                 </select>
                 <span asp-validation-for="PortPoolName" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="AttachmentRoleName" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="AttachmentRoleName" class="col-sm-2 col-form-label"></label>
+            <div class="col-sm-10">
                 <select asp-for="AttachmentRoleName" class="form-control" asp-items="ViewBag.AttachmentRole">
                     <option value="">-- Select a Role --</option>
                 </select>
@@ -101,29 +95,44 @@
             </div>
         </div>
         <div id="l3Component">
+
+            @if (Model != null)
+            {
+                @await Component.InvokeAsync("ProviderDomainAttachmentL3", new
+                {
+                    portPoolName = Model.PortPoolName,
+                    attachmentRoleName = Model.AttachmentRoleName,
+                    attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
+                    isMultiport = Model.MultiportRequired,
+                    currentL3Model = new ProviderDomainAttachmentL3RequestViewModel
+                    {
+                        Ipv4Addresses = Model.Ipv4Addresses,
+                        ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                        TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
+                    }
+                });
+            }
+
         </div>
-        <div class="form-group">
-            <label asp-for="Description" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="Description" class="col-sm-2 col-form-label"> </label>
+            <div class="col-sm-10">
                 <input asp-for="Description" class="form-control" />
                 <span asp-validation-for="Description" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="Notes" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
+        <div class="form-group row">
+            <label asp-for="Notes" class="col-sm-2 col-form-label"> </label>
+            <div class="col-sm-10">
                 <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
                 <span asp-validation-for="Notes" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <button type="submit" id="Create" class="btn btn-success" asp-action="Create">
-                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
-                </button>
+        <div class="form-group row">
+            <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" id="Create" class="btn btn-success" asp-action="Create" is-create-button></button>
             </div>
         </div>
-    </div>
 </form>
 
 <div>
@@ -154,6 +163,8 @@
                 $attachmentBandwidthGbps = $('#AttachmentBandwidthGbps'),
                 attachmentBandwidthGbps = $attachmentBandwidthGbps[0],
                 $l3Component = $("#l3Component");
+
+            const uri = "/ProviderDomainAttachment/";
 
             // Initialise all tool-tips
             $('[data-toggle="tooltip"]').tooltip();
@@ -186,7 +197,7 @@
                 }
                 else {
 
-                    Populate($attachmentRole, "/ProviderDomainAttachment/AttachmentRoles", {
+                    Populate($attachmentRole, uri + "AttachmentRoles", {
                         portPoolName: portPoolVal
                     });
                 }
@@ -197,19 +208,7 @@
                 var attachmentRoleName = this.value;
                 if (attachmentRoleName !== null) {
 
-                    $l3Component.fadeOut().empty();
-
-                    $.get("/ProviderDomainAttachment/AttachmentRoleChange", {
-                        portPoolName: portPool.value,
-                        attachmentRoleName: attachmentRole.value,
-                        attachmentBandwidthGbps: attachmentBandwidthGbps.value,
-                        multiportRequired: multiportRequired.checked
-                    })
-                    .done(function (data) {
-                        $l3Component.html(data).fadeIn();
-                        // Initialise new tool-tips
-                        $('[data-toggle="tooltip"]').tooltip();
-                    });
+                    GetL3Component();
                 }
             });
 
@@ -248,26 +247,26 @@
                     location.selectedIndex = 0;
                     location.disabled = true;
 
-                    Populate($subregion, "/ProviderDomainAttachment/SubRegions", { regionId : regionId });
+                    Populate($subregion, uri + "SubRegions", { regionId : regionId });
                 }
             });
 
             $subregion.on('change', function (e) {
 
                 var subRegionId = this.value;
-                Populate($location, "/ProviderDomainAttachment/Locations", { subRegionId: subRegionId });
+                Populate($location, uri + "Locations", { subRegionId: subRegionId });
             });
 
             $multiportRequired.on('click', function (e) {
 
                 bundleRequired.checked = false;
-                Populate($attachmentBandwidthGbps, "/ProviderDomainAttachment/AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
+                Populate($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
             });
 
             $bundleRequired.on('click', function (e) {
 
                 multiportRequired.checked = false;
-                Populate($attachmentBandwidthGbps, "/ProviderDomainAttachment/AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
+                Populate($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
             });
 
             function Populate($e, url, data) {
@@ -283,6 +282,29 @@
 
                         $e.html(data);
                 });
+            }
+
+            function GetL3Component() {
+
+                $l3Component.fadeOut().empty();
+
+                $.get(uri + "AttachmentRoleChange", {
+                    portPoolName: portPool.value,
+                    attachmentRoleName: attachmentRole.value,
+                    attachmentBandwidthGbps: attachmentBandwidthGbps.value,
+                    isMultiport: multiportRequired.checked
+                })
+                    .done(function (data) {
+                        $l3Component.html(data).fadeIn();
+                        // Initialise new tool-tips
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // Re-initialise unobtrusive validation on the form
+                        var $form = $('#createForm')
+                            .removeData("validator")
+                            .removeData("unobtrusiveValidation");
+                        $.validator.unobtrusive.parse($form);
+                    });
             }
 
         }(jQuery));

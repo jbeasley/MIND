@@ -34,8 +34,7 @@
         <input type="hidden" asp-for="TenantId" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
-            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete">
-                <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete
+            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button>
             </button> |
             <a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Attachments List</a>
         </div>

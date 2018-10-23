@@ -68,34 +68,36 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateProviderDomainRoutingInstanceExists]
-        [ValidateModelState("Create")]
         public async Task<IActionResult> Create(int? routingInstanceId, ProviderDomainLogicalInterfaceRequestViewModel model)
         {
-            try
+            if (ModelState.IsValid)
             {
-                var request = Mapper.Map<ProviderDomainLogicalInterfaceRequest>(model);
-                await _logicalInterfaceService.AddAsync(routingInstanceId.Value, request);
-                return RedirectToAction(nameof(GetAllByRoutingInstanceID), new { routingInstanceId });
-            }
+                try
+                {
+                    var request = Mapper.Map<ProviderDomainLogicalInterfaceRequest>(model);
+                    await _logicalInterfaceService.AddAsync(routingInstanceId.Value, request);
+                    return RedirectToAction(nameof(GetAllByRoutingInstanceID), new { routingInstanceId });
+                }
 
-            catch (BuilderBadArgumentsException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (BuilderBadArgumentsException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (BuilderUnableToCompleteException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (BuilderUnableToCompleteException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (IllegalStateException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
+                catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
 
-            catch (DbUpdateException)
-            {
-                ModelState.AddDatabaseUpdateExceptionMessage();
+                catch (DbUpdateException)
+                {
+                    ModelState.AddDatabaseUpdateExceptionMessage();
+                }
             }
 
             var routingInstance = await _unitOfWork.RoutingInstanceRepository.GetByIDAsync(routingInstanceId.Value);

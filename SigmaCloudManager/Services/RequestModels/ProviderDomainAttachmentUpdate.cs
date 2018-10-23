@@ -66,5 +66,11 @@ namespace SCM.Models.RequestModels
         /// </summary>
         /// <value>String value for notes</value>
         public string Notes { get; set; }
+
+        /// <summary>
+        /// IPv4 addresses to be assigned to the interfaces of the attachment.
+        /// </summary>
+        /// <value>A list of IPv4 addresses and subnet masks</value>
+        public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
     }
 }

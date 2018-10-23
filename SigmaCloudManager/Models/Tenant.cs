@@ -66,7 +66,7 @@ namespace SCM.Models
             if (this.Attachments.Any()) sb.Append($"The tenant cannot be deleted because attachments are allocated.").Append("\r\n");
             if (this.Vpns.Any()) sb.Append($"The tenant cannot be deleted because VPNs are allocated.").Append("\r\n");
 
-            if (sb.Length > 0) throw new IllegalStateException(sb.ToString());
+            if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());
         }
     }
 }

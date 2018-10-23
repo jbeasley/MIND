@@ -17,15 +17,29 @@ textarea {
     max-width: 280px;
 }
 
-/* Carousel */
-.carousel-caption p {
-    font-size: 20px;
-    line-height: 1.4;
+/* The following sets the list of items in a details view so that the label in the dt element 
+    is in-line with the dl element
+*/
+dl {
+    width: 100%;
+    overflow: hidden;
+    padding: 0;
+    margin: 0
 }
 
-/* Make .svg files in the carousel display properly in older browsers */
-.carousel-inner .item img[src$=".svg"] {
-    width: 100%;
+dt {
+    clear:left; 
+    float: left;
+    width: 35%;
+    padding: 0;
+    margin: 0
+}
+
+dd {
+    float: left;
+    width: 35%;
+    padding: 0;
+    margin: 0
 }
 
 /* Hide/rearrange for smaller screens */

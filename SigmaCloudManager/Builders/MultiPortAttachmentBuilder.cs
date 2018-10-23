@@ -51,25 +51,31 @@ namespace Mind.Builders
 
         protected internal override void CreateInterfaces()
         {
-            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses = null;
-            if (_args.ContainsKey(nameof(WithIpv4))) ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
-            var isLayer3Role = _attachment.AttachmentRole.IsLayer3Role;
             var ports = _ports.ToList();
             _attachment.Interfaces = new List<Interface>();
             
             for (var i = 0; i < _numPortsRequired; i++)
             {
-                var ipv4AddressAndMask = ipv4Addresses?.FirstOrDefault();
                 var iface = new Interface
                 {
                     DeviceID = _attachment.Device.DeviceID,
-                    Ports = new List<Port> { ports[i] },
-                    IpAddress = ipv4AddressAndMask?.IpAddress,
-                    SubnetMask = ipv4AddressAndMask?.SubnetMask
+                    Ports = new List<Port> { ports[i] }
                 };
 
-                if (ipv4AddressAndMask != null) ipv4Addresses.Remove(ipv4AddressAndMask);
                 _attachment.Interfaces.Add(iface);
+            }
+        }
+
+        protected internal override void SetIpv4()
+        {
+            List<SCM.Models.RequestModels.Ipv4AddressAndMask> ipv4Addresses = null;
+            if (_args.ContainsKey(nameof(WithIpv4))) ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];
+            foreach (var iface in _attachment.Interfaces)
+            {
+                var ipv4AddressAndMask = ipv4Addresses?.FirstOrDefault();
+                iface.IpAddress = ipv4AddressAndMask?.IpAddress;
+                iface.SubnetMask = ipv4AddressAndMask?.SubnetMask;
+                if (ipv4AddressAndMask != null) ipv4Addresses.Remove(ipv4AddressAndMask);
             }
         }
 

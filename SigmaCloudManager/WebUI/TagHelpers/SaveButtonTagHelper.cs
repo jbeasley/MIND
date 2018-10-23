@@ -10,19 +10,19 @@ namespace Mind.WebUI.TagHelpers
 {
     /// <summary>
     /// Extends form action tag helper for a button to add label and image.
-    /// The helper looks for an attribute called 'is-create-button' in the button markup
+    /// The helper looks for an attribute called 'is-save-button' in the button markup
     /// </summary>
-    [HtmlTargetElement("button", Attributes = "is-create-button")]
-    public class CreateButtonTagHelper : FormActionTagHelper
+    [HtmlTargetElement("button", Attributes = "is-save-button")]
+    public class SaveButtonTagHelper : FormActionTagHelper
     {
-        public CreateButtonTagHelper(IUrlHelperFactory urlHelperFactory)  : base(urlHelperFactory)
+        public SaveButtonTagHelper(IUrlHelperFactory urlHelperFactory)  : base(urlHelperFactory)
         {
         }
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            output.Content.SetHtmlContent("<i class='fas fa-plus-circle'></i>&nbsp;Create");
-            output.Attributes.RemoveAll("is-create-button");
+            output.Content.SetHtmlContent("<i class='fas fa-save'></i>&nbsp;Save");
+            output.Attributes.RemoveAll("is-save-button");
         }
     }
 }

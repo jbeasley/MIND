@@ -1,42 +1,47 @@
 ﻿@model Mind.WebUI.Models.ProviderDomainAttachmentL3RequestViewModel
 
-<div class="form-group">
-    <label asp-for="ContractBandwidthMbps" class="col-md-2 control-label"></label>
-    <div class="col-md-10">
+<div class="form-group row">
+    <label asp-for="ContractBandwidthMbps" class="col-sm-2 col-form-label"></label>
+    <div class="col-sm-8">
         <select asp-for="ContractBandwidthMbps" class="form-control" asp-items="ViewBag.ContractBandwidth">
             <option value="">Select Contract Bandwidth</option>
         </select>
         <span asp-validation-for="ContractBandwidthMbps" class="text-danger"></span>
     </div>
 </div>
-<div class="form-group">
-    <div class="col-md-2">
+<div class="form-group row">
+    <div class="col-sm-2">
     </div>
-    <div class="col-md-10">
+    <div class="col-sm-10">
         <label class="checkbox-inline">
             <input type="checkbox" asp-for="TrustReceivedCosAndDscp" data-toggle="tooltip"
                    title="Trust the COS and DSCP markings received in packets on this Attachment"> <label asp-for="TrustReceivedCosAndDscp"></label>
         </label>
     </div>
 </div>
-@for (var i = 1; i <= Model.NumIpAddressesRequired.Value; i++)
-{
-    <div class="form-group">
-        <label class="col-md-2 control-label">IP Address</label>
-        <div class="col-md-10">
-            <input asp-for="@Model.Ipv4Addresses[i].IpAddress" class="form-control" data-toggle="tooltip" data-placement="right"
-                   title="Enter an IP address for the attachment" />
-            <span asp-validation-for="Ipv4Addresses[i].IpAddress" class="text-danger" />
+<fieldset class="form-group">
+    @for (var i = 0; i < Model.NumIpAddressesRequired.Value; i++)
+    {
+        <div class="row">
+            <label class="col-sm-2">IP Addressing Set @i</label>
+            <div class="col-sm-2">
+                <label>IP Address</label>
+                <div>
+                    <input asp-for="@Model.Ipv4Addresses[i].IpAddress" class="form-control" data-toggle="tooltip" data-placement="top"
+                           title="Enter an IP address for the attachment" />
+                    <span asp-validation-for="@Model.Ipv4Addresses[i].IpAddress" class="text-danger" />
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <label>Subnet Mask</label>
+                <div>
+                    <input asp-for="@Model.Ipv4Addresses[i].SubnetMask" class="form-control" data-toggle="tooltip" data-placement="top"
+                           title="Enter a subnet mask for the attachment" />
+                    <span asp-validation-for="@Model.Ipv4Addresses[i].SubnetMask" class="text-danger" />
+                </div>
+            </div>
         </div>
-    </div>
-    <div class="form-group">
-        <label class="col-md-2 control-label">Subnet Mask</label>
-        <div class="col-md-10">
-            <input asp-for="@Model.Ipv4Addresses[i].SubnetMask" class="form-control" data-toggle="tooltip" data-placement="right"
-                   title="Enter a subnet mask for the attachment" />
-            <span asp-validation-for="Ipv4Addresses[i].SubnetMask" class="text-danger" />
-        </div>
-    </div>
-}
+        }
+</fieldset>
 
 

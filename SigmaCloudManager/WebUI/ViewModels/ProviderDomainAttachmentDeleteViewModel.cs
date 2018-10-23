@@ -14,7 +14,7 @@ namespace Mind.WebUI.Models
     /// <summary>
     /// Model of a provider domain attachment for deletion
     /// </summary>
-    public class ProviderDomainAttachmentDeleteViewModel
+    public class ProviderDomainAttachmentDeleteViewModel : IModifiableResource
     {
         /// <summary>
         /// ID of the attachment

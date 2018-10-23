@@ -14,7 +14,7 @@ namespace Mind.WebUI.Models
     /// <summary>
     /// Model for updating a tenant attachment to the provider domain
     /// </summary>
-    public class ProviderDomainAttachmentUpdateViewModel
+    public class ProviderDomainAttachmentUpdateViewModel : IModifiableResource
     {
         /// <summary>
         /// ID of the attachment
@@ -99,6 +99,12 @@ namespace Mind.WebUI.Models
         [Range(1, 8)]
         [Display(Name = "Bundle Max Links")]
         public int? BundleMaxLinks { get; set; }
+
+        /// <summary>
+        /// A list of IPv4 addresses to be assigned to the interfaces of the attachment.
+        /// </summary>
+        /// <value>A list of Ipv4AddressAndMask objcets</value>
+        public List<Ipv4AddressAndMaskViewModel> Ipv4Addresses { get; set; }
 
         /// <summary>
         /// The description of the attachment

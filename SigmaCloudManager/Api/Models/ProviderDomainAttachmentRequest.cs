@@ -26,7 +26,12 @@ namespace Mind.Api.Models
     /// </summary>
     [DataContract]
     public partial class ProviderDomainAttachmentRequest : IEquatable<ProviderDomainAttachmentRequest>
-    { 
+    {
+        public ProviderDomainAttachmentRequest()
+        {
+            RoutingInstance = new RoutingInstanceRequest();
+        }
+
         /// <summary>
         /// Determines if a bundle style of attachment is required
         /// </summary>
@@ -134,6 +139,22 @@ namespace Mind.Api.Models
         public RoutingInstanceRequest RoutingInstance { get; set; }
 
         /// <summary>
+        /// A description for the new attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        /// <example>Provider connectivity to the DTC data-center</example>
+        [DataMember(Name = "description")]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the new attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        /// <example>Some user notes which help explain the purpose of the attachment</example>
+        [DataMember(Name = "notes")]
+        public string Notes { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -154,6 +175,8 @@ namespace Mind.Api.Models
             sb.Append("  TrustReceivedCosAndDscp: ").Append(TrustReceivedCosAndDscp).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
             sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
+            sb.Append("  Description: ").Append(Description).Append("\n");
+            sb.Append("  Notes: ").Append(Notes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -252,6 +275,16 @@ namespace Mind.Api.Models
                     RoutingInstance == other.RoutingInstance ||
                     RoutingInstance != null &&
                     RoutingInstance.Equals(other.RoutingInstance)
+                ) &&
+                (
+                    Description == other.Description ||
+                    Description != null &&
+                    Description.Equals(other.Description)
+                ) &&
+                (
+                    Notes == other.Notes ||
+                    Notes != null &&
+                    Notes.Equals(other.Notes)
                 );
         }
 
@@ -291,6 +324,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
                     if (RoutingInstance != null)
                     hashCode = hashCode * 59 + RoutingInstance.GetHashCode();
+                    if (Description != null)
+                    hashCode = hashCode * 59 + Description.GetHashCode();
+                    if (Notes != null)
+                    hashCode = hashCode * 59 + Notes.GetHashCode();
                 return hashCode;
             }
         }

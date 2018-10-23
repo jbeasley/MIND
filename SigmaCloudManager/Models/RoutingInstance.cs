@@ -22,6 +22,7 @@ namespace SCM.Models
                         .ThenInclude(x => x.Ports)
                         .Include(x => x.Device.DeviceRole)
                         .Include(x => x.RoutingInstanceType)
+                        .Include(x => x.RouteDistinguisherRange)
                         .Include(x => x.Device.Location.SubRegion.Region)
                         .Include(x => x.Device.RoutingInstances);
         }
@@ -113,7 +114,8 @@ namespace SCM.Models
 
                 if (this.Device.RoutingInstances.Where(
                                                     x => 
-                                                    x.Name == this.Name)
+                                                    x.Name == this.Name &&
+                                                    x.RoutingInstanceID != this.RoutingInstanceID)
                                                 .Any())
                 {
                     throw new IllegalStateException($"The name '{this.Name}' for the routing instance is already used.");
@@ -122,7 +124,8 @@ namespace SCM.Models
                 if (this.Device.RoutingInstances.Where(
                                                     x => 
                                                     x.AdministratorSubField == this.AdministratorSubField &&
-                                                    x.AssignedNumberSubField == this.AssignedNumberSubField)
+                                                    x.AssignedNumberSubField == this.AssignedNumberSubField &&
+                                                    x.RoutingInstanceID != this.RoutingInstanceID)
                                                 .Any())
                 {
                     throw new IllegalStateException($"The administrator subfield '{this.AdministratorSubField}' and " +

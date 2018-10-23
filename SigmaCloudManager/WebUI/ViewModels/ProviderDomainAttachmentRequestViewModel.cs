@@ -16,6 +16,11 @@ namespace Mind.WebUI.Models
     /// </summary>
     public class ProviderDomainAttachmentRequestViewModel
     {
+        public ProviderDomainAttachmentRequestViewModel()
+        {
+            RoutingInstance = new RoutingInstanceRequestViewModel();
+        }
+
         /// <summary>
         /// The ID of the tenant for which the new attachment will be allocated.
         /// </summary>
@@ -138,7 +143,7 @@ namespace Mind.WebUI.Models
         /// A description for the new attachment
         /// </summary>
         /// <value>String value for the description</value>
-        /// <example>Provider connetivity to the DTC data-center</example>
+        /// <example>Provider connectivity to the DTC data-center</example>
         [Display(Name = "Description")]
         public string Description { get; set; }
 

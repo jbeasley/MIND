@@ -22,8 +22,12 @@ namespace Mind.Builders
         public override async Task<Attachment> BuildAsync()
         {
             await base.BuildAsync();
-            await CreateMultiPortIdAsync();
-            _attachment.IsMultiPort = true;
+            if (!_args.ContainsKey(nameof(ForAttachment)))
+            {
+                // Create a new attachment
+                await CreateMultiPortIdAsync();
+                _attachment.IsMultiPort = true;
+            }
             _attachment.Validate();
 
             return _attachment;

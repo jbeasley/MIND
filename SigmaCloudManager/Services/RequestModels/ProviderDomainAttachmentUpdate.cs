@@ -8,14 +8,16 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Mind.Models.RequestModels;
 
 namespace SCM.Models.RequestModels
 { 
     /// <summary>
     /// Model for updating an existing tenant attachment to the provider domain
     /// </summary>
-    public partial class ProviderDomainAttachmentUpdate
-    { 
+    public class ProviderDomainAttachmentUpdate
+    {
+
         /// <summary>
         /// The required contract bandwidth in Mbps
         /// </summary>
@@ -72,5 +74,11 @@ namespace SCM.Models.RequestModels
         /// </summary>
         /// <value>A list of IPv4 addresses and subnet masks</value>
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
+
+        /// <summary>
+        /// Optional parameters for creating a new routing instance to be associated with the existing attachment.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        public RoutingInstanceRequest RoutingInstance { get; set; }
     }
 }

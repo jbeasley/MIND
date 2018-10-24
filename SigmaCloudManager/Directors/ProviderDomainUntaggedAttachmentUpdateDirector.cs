@@ -24,6 +24,7 @@ namespace Mind.Builders
             return await builder.ForAttachment(attachment.AttachmentID)
                                 .UseExistingRoutingInstance(update.ExistingRoutingInstanceName)
                                 .WithNewRoutingInstance(update.CreateNewRoutingInstance)
+                                .WithRoutingInstance(update.RoutingInstance)
                                 .WithContractBandwidth(update.ContractBandwidthMbps)
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)

@@ -153,6 +153,15 @@ namespace Mind.Builders
             {
                 // Find an existing attachment
                 await SetAttachmentAsync();
+
+                if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
+                {
+                    await AssociateExistingRoutingInstanceAsync();
+                }
+                else if (_args.ContainsKey(nameof(WithNewRoutingInstance)) && (bool)_args[nameof(WithNewRoutingInstance)])
+                {
+                    await CreateRoutingInstanceAsync();
+                }
             }
             else
             {
@@ -174,6 +183,19 @@ namespace Mind.Builders
 
                 await AllocatePortsAsync();
                 CreateInterfaces();
+
+                if (_args.ContainsKey(nameof(UseDefaultRoutingInstance)))
+                {
+                    await AssociateDefaultRoutingInstanceAsync();
+                }
+                else if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
+                {
+                    await AssociateExistingRoutingInstanceAsync();
+                }
+                else
+                {
+                    await CreateRoutingInstanceAsync();
+                }
             }
 
             SetIpv4();
@@ -181,19 +203,6 @@ namespace Mind.Builders
 
             if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
-            
-            if (_args.ContainsKey(nameof(UseDefaultRoutingInstance)))
-            {
-                await AssociateDefaultRoutingInstanceAsync();
-            }
-            else if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
-            {
-                await AssociateExistingRoutingInstanceAsync();
-            }
-            else
-            {
-                await CreateRoutingInstanceAsync();
-            }
             if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
             if (_args.ContainsKey(nameof(WithNotes))) SetNotes();
 
@@ -353,7 +362,7 @@ namespace Mind.Builders
             if (_attachment.ContractBandwidthPool != null)
             {
                 var trustReceivedCosAndDscp = (bool)_args[nameof(WithTrustReceivedCosAndDscp)];
-                _attachment.ContractBandwidthPool.TrustReceivedCosDscp = trustReceivedCosAndDscp;
+                _attachment.ContractBandwidthPool.TrustReceivedCosAndDscp = trustReceivedCosAndDscp;
             }
         }
 
@@ -373,6 +382,7 @@ namespace Mind.Builders
                                                                                tenantId: _attachment.Tenant?.TenantID,
                                                                                request: routingInstanceRequest);
 
+                _attachment.RoutingInstanceID = null;
                 _attachment.RoutingInstance = routingInstance;
             }
         }
@@ -392,6 +402,7 @@ namespace Mind.Builders
 
             _attachment.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
                 $"instance '{routingInstanceName}' belonging to tenant '{_attachment.Tenant.Name}'.");
+            _attachment.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }
 
         protected internal virtual async Task AssociateDefaultRoutingInstanceAsync()

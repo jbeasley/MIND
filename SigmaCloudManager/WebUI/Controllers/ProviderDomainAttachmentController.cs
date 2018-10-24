@@ -76,15 +76,27 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult AttachmentRoleChange(string portPoolName, string attachmentRoleName, 
+        public IActionResult GetIpAddressingComponent(string portPoolName, string attachmentRoleName, 
             int? attachmentBandwidthGbps, bool? isMultiport)
         {
-            return ViewComponent("ProviderDomainAttachmentL3", new
+            return ViewComponent("AttachmentIpAddressing", new
             {
                 portPoolName,
                 attachmentRoleName,
                 attachmentBandwidthGbps,
                 isMultiport
+            });
+        }
+
+        [HttpGet]
+        public IActionResult GetContractBandwidthPoolComponent(string portPoolName, string attachmentRoleName,
+            int? attachmentBandwidthGbps)
+        {
+            return ViewComponent("AttachmentContractBandwidthPool", new
+            {
+                portPoolName,
+                attachmentRoleName,
+                attachmentBandwidthGbps
             });
         }
 
@@ -212,7 +224,7 @@ namespace Mind.WebUI.Controllers
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             if (attachment.RoutingInstance != null)
             {
-                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstanceID);
+                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstance.Name);
             }
 
             return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
@@ -221,48 +233,55 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateProviderDomainAttachmentExists]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int? attachmentId, ProviderDomainAttachmentUpdateViewModel updateModel)
+        public async Task<ActionResult> Edit(int? attachmentId, ProviderDomainAttachmentUpdateViewModel update)
         {
             var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
 
-            if (ModelState.IsValid) { 
-
-                if (attachment.HasPreconditionFailed(Request, updateModel.GetConcurrencyToken()))
+            if (ModelState.IsValid)
+            {
+                if (attachment.HasPreconditionFailed(Request, update.GetConcurrencyToken()))
                 {
-                    ModelState.PopulateFromModel(attachment);
-                    return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
+                    ModelState.AddUpdatePreconditionFailedMessage();
+                    ModelState.RemoveConcurrencyTokenItem();
+                    update.UpdateConcurrencyToken(attachment.GetConcurrencyToken());
                 }
-
-                var attachmentUpdate = _mapper.Map<ProviderDomainAttachmentUpdate>(updateModel);
-
-                try
+                else
                 {
-                    await _attachmentService.UpdateAsync(attachmentId.Value, attachmentUpdate);
-                    return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachment.TenantID });
-                }
+                    var attachmentUpdate = _mapper.Map<ProviderDomainAttachmentUpdate>(update);
 
-                catch (BuilderBadArgumentsException ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
+                    try
+                    {
+                        await _attachmentService.UpdateAsync(attachmentId.Value, attachmentUpdate);
+                        return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachment.TenantID });
+                    }
 
-                catch (BuilderUnableToCompleteException ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
+                    catch (BuilderBadArgumentsException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
 
-                catch (IllegalStateException ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
+                    catch (BuilderUnableToCompleteException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
 
-                catch (DbUpdateException)
-                {
-                    ModelState.AddDatabaseUpdateExceptionMessage();
+                    catch (IllegalStateException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (DbUpdateException)
+                    {
+                        ModelState.AddDatabaseUpdateExceptionMessage();
+                    }
                 }
             }
 
-            await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstance.Name);
+            if (attachment.RoutingInstance != null)
+            {
+                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstance.Name);
+            }
+
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachment.TenantID);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 

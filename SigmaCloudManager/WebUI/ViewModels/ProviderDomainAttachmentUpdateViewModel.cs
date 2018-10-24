@@ -16,6 +16,11 @@ namespace Mind.WebUI.Models
     /// </summary>
     public class ProviderDomainAttachmentUpdateViewModel : IModifiableResource
     {
+        public ProviderDomainAttachmentUpdateViewModel()
+        {
+            RoutingInstance = new RoutingInstanceRequestViewModel();
+        }
+
         /// <summary>
         /// ID of the attachment
         /// </summary>
@@ -105,6 +110,12 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>A list of Ipv4AddressAndMask objcets</value>
         public List<Ipv4AddressAndMaskViewModel> Ipv4Addresses { get; set; }
+
+        /// <summary>
+        /// Optional parameters for creating a new routing instance to be associated with the existing attachment.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        public RoutingInstanceRequestViewModel RoutingInstance { get; set; }
 
         /// <summary>
         /// The description of the attachment

@@ -96,7 +96,7 @@ namespace SCM.Models.RequestModels
         public string Notes { get; set; }
 
         /// <summary>
-        /// Optional parameters for creating a routing instances to be associated with the new attachment.
+        /// Optional parameters for creating a routing instance to be associated with the new attachment.
         /// </summary>
         /// <value>An object of type RoutingInstanceRequest</value>
         public RoutingInstanceRequest RoutingInstance { get; set; }

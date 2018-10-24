@@ -15,17 +15,6 @@ namespace Mind.WebUI.Controllers
     /// </summary>
     public static class ModelStateExtensions
     {
-        public static void PopulateFromModel(this ModelStateDictionary modelState, object model)
-        {
-            // Add the values of the properties of the current model to the modelstate dictionary
-            foreach (var property in model.GetType().GetProperties())
-            {
-                if (property.PropertyType == typeof(int) || property.PropertyType == typeof(string) || property.PropertyType == typeof(bool)) {
-                    modelState.AddModelError(property.Name, "Current value: " + property.GetValue(model).ToString());
-                }
-            }
-        }
-
         public static void RemoveConcurrencyTokenItem(this ModelStateDictionary modelState)
         {
             modelState.Remove("RowVersion");
@@ -35,9 +24,9 @@ namespace Mind.WebUI.Controllers
         {
             modelState.AddModelError(string.Empty, "The record you attempted to edit " +
                 "was modified by another user after you got the original values. The " +
-                "edit operation was cancelled and the current values in the database " +
-                "have been displayed. If you still want to edit this record, click " +
-                "the Save button again.");
+                "edit operation was cancelled. If you still want to edit this record, click " +
+                "the Save button again. Otherwise refresh the page to see the current values. " +
+                "Any unsaved changes will be lost.");
         }
 
         public static void AddDatabaseUpdateExceptionMessage(this ModelStateDictionary modelState)

@@ -29,7 +29,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>A string value denoting the name of the routing instance</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
-        [Display(Name = "Name")]
+        [Display(Name = "Routing Instance Name")]
         public string Name { get; private set; }
 
         /// <summary>

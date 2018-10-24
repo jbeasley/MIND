@@ -288,9 +288,9 @@ namespace SCM.Services
                     // on the contract bandwidth pool
 
                     var contractBandwidthPool = await ContractBandwidthPoolService.GetByIDAsync(update.ContractBandwidthPoolID.Value);
-                    if (contractBandwidthPool.TrustReceivedCosDscp != update.TrustReceivedCosDscp)
+                    if (contractBandwidthPool.TrustReceivedCosAndDscp != update.TrustReceivedCosDscp)
                     {
-                        contractBandwidthPool.TrustReceivedCosDscp = update.TrustReceivedCosDscp;
+                        contractBandwidthPool.TrustReceivedCosAndDscp = update.TrustReceivedCosDscp;
                         this.UnitOfWork.ContractBandwidthPoolRepository.Update(contractBandwidthPool);
                     }
 

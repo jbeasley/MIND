@@ -87,6 +87,8 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update)
         {
+            // Get the current attachment as a non-tracked entity. This is necessary because we check the 
+            // routing instance ID and contract bandwidth pool ID of the updated attachment later and these may have changed during the update
             var attachment = (from result in await UnitOfWork.AttachmentRepository.GetAsync(
                             q =>
                               q.AttachmentID == attachmentId,
@@ -95,7 +97,7 @@ namespace Mind.Services
                                            .Include(x => x.ContractBandwidthPool.Attachments)
                                            .Include(x => x.ContractBandwidthPool.Vifs)
                                            .Include(x => x.AttachmentRole),
-                                            AsTrackable: true)
+                                            AsTrackable: false)
                                             select result)
                                             .Single();
 
@@ -106,9 +108,9 @@ namespace Mind.Services
             if (attachment.RoutingInstanceID != null && attachment.RoutingInstanceID != updatedAttachment.RoutingInstanceID)
             {
                 if (!attachment.RoutingInstance.Attachments.Any(x => x.AttachmentID != attachmentId) && 
-                    !updatedAttachment.RoutingInstance.Vifs.Any())
+                    !attachment.RoutingInstance.Vifs.Any())
                 {
-                    UnitOfWork.RoutingInstanceRepository.Delete(attachment.RoutingInstance);
+                    await UnitOfWork.RoutingInstanceRepository.DeleteAsync(attachment.RoutingInstanceID);
                 }
             }
 
@@ -116,7 +118,7 @@ namespace Mind.Services
             if (attachment.ContractBandwidthPoolID != null && attachment.ContractBandwidthPoolID != updatedAttachment.ContractBandwidthPoolID)
             {
                 if (!attachment.ContractBandwidthPool.Attachments.Any(x => x.AttachmentID != attachmentId))
-                    UnitOfWork.ContractBandwidthPoolRepository.Delete(attachment.ContractBandwidthPool);
+                    await UnitOfWork.ContractBandwidthPoolRepository.DeleteAsync(attachment.ContractBandwidthPoolID);
             }
 
             await UnitOfWork.SaveAsync();

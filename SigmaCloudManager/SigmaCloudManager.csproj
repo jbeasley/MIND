@@ -43,9 +43,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Update="WebUI\Views\ProviderDomainAttachment\AttachmentDeleted.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
     <Content Update="WebUI\Views\ProviderDomainAttachment\AttachmentRoles.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -71,6 +68,9 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\ProviderDomainAttachment\SubRegions.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\AttachmentContractBandwidthPool\Default.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\Shared\ItemNotFound.cshtml">

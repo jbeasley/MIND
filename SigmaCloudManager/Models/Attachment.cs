@@ -17,6 +17,8 @@ namespace SCM.Models
                             .Include(x => x.Device.DeviceRole.DeviceRoleAttachmentRoles)
                             .Include(x => x.RoutingInstance.Attachments)
                             .Include(x => x.RoutingInstance.Vifs)
+                            .Include(x => x.RoutingInstance.RoutingInstanceType)
+                            .Include(x => x.RoutingInstance.RouteDistinguisherRange)
                             .Include(x => x.ContractBandwidthPool)
                             .Include(x => x.AttachmentRole.PortPool.PortRole)
                             .Include(x => x.AttachmentBandwidth)
@@ -195,7 +197,7 @@ namespace SCM.Models
 
             if (this.AttachmentRole.RequireContractBandwidth)
             {
-                if (this.ContractBandwidthPool == null)
+                if (this.ContractBandwidthPool?.ContractBandwidth == null )
                 {
                     throw new IllegalStateException("A contract bandwidth for the attachment is required in accordance with the attachment role " +
                         $"of '{this.AttachmentRole.Name}' but none is defined.");

@@ -1,27 +1,51 @@
-﻿using Mind.WebUI.Models;
 using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
-using System.Net;
+using System.IO;
+using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
-namespace SCM.Models.ViewModels
+namespace Mind.WebUI.Models
 {
+    /// <summary>
+    /// Model of a vlan
+    /// </summary>
     public class VlanViewModel
     {
-        public int VlanID { get; set; }
-        public string Name { get; set; }
-        [Display(Name = "Layer 3 Enabled")]
-        public bool IsLayer3 { get; set; }
-        [Display(Name = "IP Address")]
-        public string IpAddress { get; set; }
-        [Display(Name = "Subnet Mask")]
-        public string SubnetMask { get; set; }
-        public int InterfaceID { get; set; }
+        /// <summary>
+        /// The ID of the vlan
+        /// </summary>
+        /// <value>Integer value denoting the ID of the vlan</value>
+        /// <example>88781</example>
+        [Display(Name = "Vlan ID")]
+        public int? VlanID { get; private set; }
+
+        /// <summary>
+        /// The vlan tag
+        /// </summary>
+        /// <value>Integer value denoting the vlan tag</value>
+        /// <example>100</example>
         [Display(Name = "Vlan Tag")]
-        public int VlanTag { get; set; }
-        public byte[] RowVersion { get; set; }
-        public InterfaceViewModel Interface { get; set; }
+        public int? VlanTag { get; private set; }
+
+        /// <summary>
+        /// IPv4 address assigned to the vlan
+        /// </summary>
+        /// <value>String value representing the IPv4 address assigned to the vlan</value>
+        /// <example>192.168.0.1</example>
+        [Display(Name = "IP Address")]
+        public string IpAddress { get; private set; }
+
+        /// <summary>
+        /// IPv4 subnet mask assigned to the vlan
+        /// </summary>
+        /// <value>String value representing the IPv4 subnet mask assigned to the vlan</value>
+        /// <example>255.255.255.252</example>
+        [Display(Name = "Subnet Mask")]
+        public string SubnetMask { get; private set; }
     }
 }

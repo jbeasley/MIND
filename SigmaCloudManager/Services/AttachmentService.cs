@@ -346,9 +346,9 @@ namespace SCM.Services
                     {
                         // Check for updates to the existing Contract Bandwidth Pool
 
-                        if (attachment.ContractBandwidthPool.TrustReceivedCosDscp != update.TrustReceivedCosDscp)
+                        if (attachment.ContractBandwidthPool.TrustReceivedCosAndDscp != update.TrustReceivedCosDscp)
                         {
-                            attachment.ContractBandwidthPool.TrustReceivedCosDscp = update.TrustReceivedCosDscp;
+                            attachment.ContractBandwidthPool.TrustReceivedCosAndDscp = update.TrustReceivedCosDscp;
                             this.UnitOfWork.ContractBandwidthPoolRepository.Update(attachment.ContractBandwidthPool);
                         }
                     }

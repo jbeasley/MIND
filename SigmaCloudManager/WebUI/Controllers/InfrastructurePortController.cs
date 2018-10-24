@@ -175,7 +175,6 @@ namespace Mind.WebUI.Controllers
 
                 if (port.HasPreconditionFailed(Request, updateModel.RowVersion.ToString()))
                 {
-                    ModelState.PopulateFromModel(port);
                     return View(Mapper.Map<PortUpdateViewModel>(port));
                 }
 

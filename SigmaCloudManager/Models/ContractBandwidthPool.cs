@@ -13,7 +13,7 @@ namespace SCM.Models
         [Required(AllowEmptyStrings = false)]
         public string Name { get; set; }
         public int ContractBandwidthID { get; set; }
-        public bool TrustReceivedCosDscp { get; set; }
+        public bool TrustReceivedCosAndDscp { get; set; }
         public int? TenantID { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }

@@ -39,22 +39,31 @@
                 </div>
             </div>
         }
-        <div id="l3Component">
+        <div id="ipAddressingComponent">
 
             @if (Model != null)
             {
-                @await Component.InvokeAsync("ProviderDomainAttachmentL3", new
-                {
-                    attachmentId = Model.AttachmentId,
-                    currentL3Model = new ProviderDomainAttachmentL3RequestViewModel
-                    {
-                        Ipv4Addresses = Model.Ipv4Addresses,
-                        ContractBandwidthMbps = Model.ContractBandwidthMbps,
-                        TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
-                    }
-                });
+                @await Component.InvokeAsync("AttachmentIpAddressing", new
+            {
+                attachmentId = Model.AttachmentId,
+                currentModel = Model.Ipv4Addresses
+            });
             }
+        </div>
 
+        <div id="contractBandwidthPoolComponent">
+            @if (Model != null)
+            {
+                @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
+           {
+               attachmentId = Model.AttachmentId,
+               currentModel = new ContractBandwidthPoolViewModel
+               {
+                   ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                   TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
+               }
+           });
+            }
         </div>
         @if (!string.IsNullOrEmpty(Model.ExistingRoutingInstanceName))
         {
@@ -104,8 +113,7 @@
         </div>
         <div class="form-group row">
             <div class="col-md-offset-2 col-md-10">
-                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit" is-save-button>
-                </button>
+                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit" is-save-button></button>
             </div>
         </div>
     </div>

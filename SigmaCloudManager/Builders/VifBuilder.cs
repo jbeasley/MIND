@@ -325,7 +325,7 @@ namespace Mind.Builders
             if (_vif.ContractBandwidthPool != null)
             {
                 var trustReceivedCosAndDscp = (bool)_args[nameof(WithTrustReceivedCosAndDscp)];
-                _vif.ContractBandwidthPool.TrustReceivedCosDscp = trustReceivedCosAndDscp;
+                _vif.ContractBandwidthPool.TrustReceivedCosAndDscp = trustReceivedCosAndDscp;
             }
         }
 
@@ -345,7 +345,8 @@ namespace Mind.Builders
             var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _vif.Attachment.DeviceID,
                                                                            tenantId: _vif.Tenant?.TenantID,
                                                                            request: routingInstanceRequest);
-
+            
+            _vif.RoutingInstanceID = null;
             _vif.RoutingInstance = routingInstance;
         }
 

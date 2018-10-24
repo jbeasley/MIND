@@ -104,40 +104,40 @@ namespace Mind.WebUI.Controllers
             {
                 if (tenant.HasPreconditionFailed(Request, update.GetConcurrencyToken()))
                 {
-                    ModelState.PopulateFromModel(tenant);
                     ModelState.AddUpdatePreconditionFailedMessage();
                     ModelState.RemoveConcurrencyTokenItem();
                     update.UpdateConcurrencyToken(tenant.GetConcurrencyToken());
-
-                    return View(_mapper.Map<TenantUpdateViewModel>(update));
                 }
-                try
+                else
                 {
+                    try
+                    {
 
-                    var updateTenant = _mapper.Map<Tenant>(update);
-                    await _tenantService.UpdateAsync(updateTenant);
+                        var updateTenant = _mapper.Map<Tenant>(update);
+                        await _tenantService.UpdateAsync(updateTenant);
 
-                    return RedirectToAction(nameof(GetAll));
-                }
+                        return RedirectToAction(nameof(GetAll));
+                    }
 
-                catch (BuilderBadArgumentsException ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
+                    catch (BuilderBadArgumentsException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
 
-                catch (BuilderUnableToCompleteException ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
+                    catch (BuilderUnableToCompleteException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
 
-                catch (IllegalStateException ex)
-                {
-                    ModelState.AddModelError(string.Empty, ex.Message);
-                }
+                    catch (IllegalStateException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
 
-                catch (DbUpdateException)
-                {
-                    ModelState.AddDatabaseUpdateExceptionMessage();
+                    catch (DbUpdateException)
+                    {
+                        ModelState.AddDatabaseUpdateExceptionMessage();
+                    }
                 }
             }
 

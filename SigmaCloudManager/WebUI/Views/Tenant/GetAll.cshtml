@@ -40,11 +40,11 @@
                     @Html.ActionLink("Delete", "Delete", new { tenantId = item.TenantId }) |
                     @Html.ActionLink("Devices", "GetAllByTenantID", "TenantDevice", new { tenantId = item.TenantId }) |
                     @Html.ActionLink("Attachments", "GetAllByTenantID", "ProviderDomainAttachment", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Attachment Sets", "GetAllByTenantID", "AttachmentSet", new { id = item.TenantId }) |
-                    @Html.ActionLink("IP Networks", "GetAllByTenantID", "TenantIpNetwork", new { id = item.TenantId }) |
-                    @Html.ActionLink("Communities", "GetAllByTenantID", "TenantCommunity", new { id = item.TenantId }) |
-                    @Html.ActionLink("Community Sets", "GetAllByTenantID", "TenantCommunitySet", new { id = item.TenantId }) |
-                    @Html.ActionLink("Multicast Groups", "GetAllByTenantID", "TenantMulticastGroup", new { id = item.TenantId })
+                    @Html.ActionLink("Attachment Sets", "GetAllByTenantID", "AttachmentSet", new { tenantId = item.TenantId }) |
+                    @Html.ActionLink("IP Networks", "GetAllByTenantID", "TenantIpNetwork", new { tenantId = item.TenantId }) |
+                    @Html.ActionLink("Communities", "GetAllByTenantID", "TenantCommunity", new { tenantId = item.TenantId }) |
+                    @Html.ActionLink("Community Sets", "GetAllByTenantID", "TenantCommunitySet", new { tenantId = item.TenantId }) |
+                    @Html.ActionLink("Multicast Groups", "GetAllByTenantID", "TenantMulticastGroup", new { tenantId = item.TenantId })
                 </td>
             </tr>
         }

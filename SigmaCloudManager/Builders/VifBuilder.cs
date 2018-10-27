@@ -283,7 +283,7 @@ namespace Mind.Builders
             var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(
                                   q =>
                                      q.BandwidthMbps == contractBandwidthMbps, 
-                                     AsTrackable: false)
+                                     AsTrackable: true)
                                      select contractBandwidths)
                                     .SingleOrDefault();
 
@@ -293,6 +293,7 @@ namespace Mind.Builders
             var contractBandwidthPool = new ContractBandwidthPool
             {
                 ContractBandwidthID = contractBandwidth.ContractBandwidthID,
+                ContractBandwidth = contractBandwidth,
 
                 // Tenant may not be present if, for example, the vif is for a tenant domain attachment
                 TenantID = _vif.Tenant?.TenantID,

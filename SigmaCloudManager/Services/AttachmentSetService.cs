@@ -84,6 +84,29 @@ namespace SCM.Services
 
         public async Task<AttachmentSet> UpdateAsync(int attachmentSetId, AttachmentSetUpdate update)
         {
+            var attachmentSet = (from result in await UnitOfWork.AttachmentSetRepository.GetAsync(
+                            q =>
+                            q.AttachmentSetID == attachmentSetId,
+                            query: q => q.IncludeDeleteValidationProperties(),
+                            AsTrackable: false)
+                            select result)
+                            .Single();
+
+             //Get routing instances to delete from the attachment set
+             var routingInstancesToDelete = attachmentSet.AttachmentSetRoutingInstances
+                                                         .Where(
+                                                            routingInstance =>
+                                                            !update.AttachmentSetRoutingInstances
+                                                         .Any(
+                                                            updateRoutingInstance =>
+                                                            updateRoutingInstance.RoutingInstanceName == routingInstance.RoutingInstance.Name));
+
+            foreach (var routingInstance in routingInstancesToDelete)
+            {
+                routingInstance.ValidateDelete();
+                await this.UnitOfWork.AttachmentSetRoutingInstanceRepository.DeleteAsync(routingInstance.AttachmentSetRoutingInstanceID);
+            }
+
             await _updateDirector.UpdateAsync(attachmentSetId, update);
             await this.UnitOfWork.SaveAsync();
 

@@ -1,0 +1,8 @@
+@model IEnumerable<Mind.WebUI.Models.SubRegionViewModel>
+    
+<option value="">-- Select Sub-Region --</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.Name">@item.Name</option>
+}

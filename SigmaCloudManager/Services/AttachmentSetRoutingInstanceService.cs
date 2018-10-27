@@ -55,26 +55,6 @@ namespace Mind.Services
                    .SingleOrDefault();
         }
 
-        /// <summary>
-        /// Get all routing instances which are candidates for satisfying an attachment set routing instance request.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public async Task<IEnumerable<RoutingInstance>> GetCandidateRoutingInstances(AttachmentSetRoutingInstanceRequest request)
-        {
-            var query = (from result in await UnitOfWork.RoutingInstanceRepository.GetAsync(
-                    q =>
-                        q.Device.LocationID == request.LocationID &&
-                        q.TenantID == request.TenantID,
-                        query: q => q.Include(x => x.Device)
-                                     .Include(x => x.Tenant),
-                        AsTrackable: false)
-                        select result);
-
-            if (request.PlaneID != null) query = query.Where(q => q.Device.PlaneID == request.PlaneID);
-            return query.ToList();
-        }
-
         public async Task<AttachmentSetRoutingInstance> AddAsync(int attachmentSetId, RoutingInstanceForAttachmentSetRequest request)
         {
             var attachmentSetRoutingInstance = await _director.BuildAsync(attachmentSetId, request);

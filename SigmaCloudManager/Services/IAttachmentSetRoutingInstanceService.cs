@@ -18,6 +18,5 @@ namespace Mind.Services
         Task<AttachmentSetRoutingInstance> AddAsync(int attachmentSetID, RoutingInstanceForAttachmentSetRequest request);
         Task<AttachmentSetRoutingInstance> UpdateAsync(AttachmentSetRoutingInstance attachmentSetRoutingInstance);
         Task DeleteAsync(int attachmentSetId, int routingInstanceId);
-        Task<IEnumerable<RoutingInstance>> GetCandidateRoutingInstances(AttachmentSetRoutingInstanceRequest request);
     }
 }

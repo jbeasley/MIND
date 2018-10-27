@@ -35,6 +35,8 @@ namespace SCM.Models
                         .Include(x => x.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.RoutingInstance.Device.DeviceRole)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Device.Plane)
                         .Include(x => x.VpnAttachmentSets)
                         .ThenInclude(x => x.Vpn)
                         .Include(x => x.VpnTenantMulticastGroups)
@@ -128,7 +130,12 @@ namespace SCM.Models
                                                                              .Where(q => q.AddToAllRoutingInstancesInAttachmentSet).ToList()
                         });
         }
-                        
+               
+        /// <summary>
+        /// Include all properties required to perform delete validation
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public static IQueryable<AttachmentSet> IncludeDeleteValidationProperties(this IQueryable<AttachmentSet> query)
         {
             return query.Include(x => x.VpnAttachmentSets)
@@ -142,7 +149,35 @@ namespace SCM.Models
                         .Include(x => x.VpnTenantCommunitiesRoutingInstance)
                         .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
                         .Include(x => x.AttachmentSetRoutingInstances)
-                        .Include(x => x.MulticastVpnRps);
+                        .Include(x => x.MulticastVpnRps)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.AttachmentSet.VpnAttachmentSets)
+                        .ThenInclude(x => x.Vpn)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.VpnTenantIpNetworkRoutingInstances)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.VpnTenantCommunityRoutingInstances)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .ThenInclude(x => x.TenantIpNetwork);
         }
     }
 
@@ -244,6 +279,13 @@ namespace SCM.Models
                     throw new IllegalStateException("Routing instance " +
                         $"'{secondSilverRoutingInstance.Name}' does not belong to the same subregion " +
                         $"as attachment set '{this.Name}'.");
+
+                if (firstSilverRoutingInstance.Device.Plane.PlaneID == secondSilverRoutingInstance.Device.Plane.PlaneID)
+                {
+                    throw new IllegalStateException($"Both routing instances in attachment set '{this.Name}' belong to the same provider plane " +
+                        $"({firstSilverRoutingInstance.Device.Plane.Name}). A silver attachment set must be configured with routing instances which " +
+                        $"belongs to different provider planes.");
+                }
             }
             else if (this.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Gold)
             {
@@ -273,6 +315,13 @@ namespace SCM.Models
                 {
                     throw new IllegalStateException($"The location of each routing instance in attachment set '{this.Name}' " +
                         $"must be different because the attachment set is configured for gold-level redundancy.");
+                }
+
+                if (firstGoldRoutingInstance.Device.Plane.PlaneID == secondGoldRoutingInstance.Device.Plane.PlaneID)
+                {
+                    throw new IllegalStateException($"Both routing instances in attachment set '{this.Name}' belong to the same provider plane " +
+                        $"({firstGoldRoutingInstance.Device.Plane.Name}). A gold attachment set must be configured with routing instances which " +
+                        $"belongs to different provider planes.");
                 }
             }
         }

@@ -7,364 +7,351 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper;
-using SCM.Models;
+using SCM.Models.RequestModels;
 using SCM.Models.ViewModels;
-using SCM.Services;
-using SCM.Validators;
+using SCM.Models;
+using Microsoft.AspNetCore.Mvc.Filters;
+using SCM.Controllers;
 using Mind.Services;
+using SCM.Data;
+using Mind.Models;
+using Mind.Builders;
+using Mind.WebUI.Attributes;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
+using Mind.Models.RequestModels;
+using Mind.WebUI.ViewComponents;
 
-namespace SCM.Controllers
+namespace Mind.WebUI.Controllers
 {
     public class AttachmentSetController : BaseViewController
     {
-        public AttachmentSetController(IAttachmentSetService attachmentSetService,
-            IVpnService vpnService,
-            ITenantService tenantService,
-            IRegionService regionService,
-            IMulticastVpnDomainTypeService multicastVpnDomainTypeService,
-            IMapper mapper) : base(attachmentSetService, mapper)
+        private readonly IAttachmentSetService _attachmentSetService;
+        public AttachmentSetController(IAttachmentSetService attachmentSetService, IUnitOfWork unitOfWork, IMapper mapper) :
+            base(unitOfWork, mapper)
         {
-            AttachmentSetService = attachmentSetService;
-            TenantService = tenantService;
-            RegionService = regionService;
-            VpnService = vpnService;
-            MulticastVpnDomainTypeService = multicastVpnDomainTypeService;
-        }
-
-        private IAttachmentSetService AttachmentSetService { get; set; }
-        private IVpnService VpnService { get; set; }
-        private ITenantService TenantService { get; set; }
-        private IRegionService RegionService { get; set; }
-        private IMulticastVpnDomainTypeService MulticastVpnDomainTypeService { get; }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllByTenantID(int? id)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenant = await TenantService.GetByIDAsync(id.Value);
-            if (tenant == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.Tenant = tenant;
-            var attachmentSets = await AttachmentSetService.GetAllByTenantIDAsync(id.Value);
-
-            return View(Mapper.Map<List<AttachmentSetViewModel>>(attachmentSets));
+            _attachmentSetService = attachmentSetService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(int? id)
+        public async Task<PartialViewResult> RoutingInstances(int? tenantId, string region, string subRegion)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var query = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                    q =>
+                        q.TenantID == tenantId &&
+                        q.RoutingInstanceType.IsTenantFacingVrf,
+                        query: q => q.Include(x => x.Device.Location.SubRegion.Region)
+                                     .Include(x => x.Device.Plane))
+                        select result);
 
-            var item = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
-            if (item == null)
-            {
-                return NotFound();
-            }
+            if (!string.IsNullOrEmpty(region)) query = query.Where(q => q.Device.Location.SubRegion.Region.Name == region);
+            if (!string.IsNullOrEmpty(subRegion)) query = query.Where(q => q.Device.Location.SubRegion.Name == subRegion);
 
-            return View(Mapper.Map<AttachmentSetViewModel>(item));
+            var items = query.Select(
+                x => 
+                new ProviderDomainRoutingInstanceViewModel
+                {
+                    Name = x.Name,
+                    DisplayName = $"{x.Name}, {x.Device.Location.SiteName}, {x.Device.Plane.Name}"
+                });
+
+            return PartialView(items);
         }
 
         [HttpGet]
-        public async Task<IActionResult> CreateStep1(int? id)
+        public async Task<PartialViewResult> SubRegions(string region)
         {
-            if (id == null)
+            var subRegions = await _unitOfWork.SubRegionRepository.GetAsync(
+                q =>
+                q.Region.Name == region);
+
+            return PartialView(_mapper.Map<List<SubRegionViewModel>>(subRegions));
+        }
+
+        [HttpGet]
+        [ValidateAttachmentSetExists]
+        public async Task<IActionResult> Details(int? attachmentId)
+        {
+            var item = await _attachmentSetService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
+            return View(_mapper.Map<AttachmentSetViewModel>(item));
+        }
+
+        [HttpGet]
+        [ValidateTenantExists]
+        public async Task<IActionResult> GetAllByTenantID(int? tenantId)
+        {
+            var attachmentSets = await _unitOfWork.AttachmentSetRepository.GetAsync(
+                    q =>
+                    q.TenantID == tenantId.Value,
+                    query: q => q.IncludeValidationProperties(),
+                    AsTrackable: false);
+
+            // Display errors if the redundancy setting of the attachment set is mis-configured
+            try
             {
-                return NotFound();
+                foreach (var attachmentSet in attachmentSets)
+                {
+                    attachmentSet.ValidateAttachmentRedundancy();
+                }
             }
 
-            var tenant = await TenantService.GetByIDAsync(id.Value);
-            if (tenant == null)
+            catch (IllegalStateException ex)
             {
-                return NotFound();
+                ViewData.AddWarningMessage(ex.Message);
             }
 
-            ViewBag.Tenant = tenant;
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);               
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+
+            return View(_mapper.Map<List<AttachmentSetViewModel>>(attachmentSets));
+        }
+
+        [HttpGet]
+        [ValidateTenantExists]
+        public async Task<IActionResult> Create(int? tenantId)
+        {
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             await PopulateRegionsDropDownList();
+            await PopulateAttachmentRedundancyOptionsDropDownList();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> CreateStep2(int? id, [Bind("RegionID")] RegionViewModel region)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenant = await TenantService.GetByIDAsync(id.Value);
-            if (tenant == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.Tenant = tenant;
-            await PopulateSubRegionsDropDownList(region.RegionId);
-            await PopulateAttachmentRedundancyDropDownList();
-            await PopulateMulticastVpnDomainTypesDropDownList();
-            ViewBag.Region = region;
-
-            ModelState.Clear();
-            return View();
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Name,Description,RegionID,SubRegionID,TenantID,AttachmentRedundancyID,"
-            +"MulticastVpnDomainTypeID,IsLayer3")] AttachmentSetViewModel attachmentSetModel)
+        [ValidateTenantExists]
+        public async Task<IActionResult> Create(int? tenantId, AttachmentSetRequestViewModel requestModel)
         {
             if (ModelState.IsValid)
             {
-                var attachmentSet = Mapper.Map<AttachmentSet>(attachmentSetModel);
-
                 try
                 {
-                    await AttachmentSetService.AddAsync(Mapper.Map<AttachmentSet>(attachmentSet));
-                    return RedirectToAction("GetAllByTenantID", new { id = attachmentSet.TenantID });
+                    // Project the list of attachment set routing instance names into a list of AttachmentSetRoutingInstanceRequest objects
+                    // to be passed to the service layer
+                    requestModel.AttachmentSetRoutingInstances = requestModel.AttachmentSetRoutingInstanceNames
+                        .Select(
+                            routingInstanceName => 
+                            new AttachmentSetRoutingInstanceRequestViewModel
+                            {
+                                RoutingInstanceName = routingInstanceName
+                            })
+                        .ToList();
+
+                    var request = _mapper.Map<AttachmentSetRequest>(requestModel);
+
+                    var attachment = await _attachmentSetService.AddAsync(tenantId.Value, request);
+                    return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
                 }
 
-                catch (DbUpdateException /** ex **/ )
+                catch (BuilderBadArgumentsException ex)
                 {
-                    //Log the error (uncomment ex variable name and write a log.
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                        "Try again, and if the problem persists " +
-                        "see your system administrator.");
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (BuilderUnableToCompleteException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (DbUpdateException)
+                {
+                    ModelState.AddDatabaseUpdateExceptionMessage();
                 }
             }
 
-            ViewBag.Tenant = await TenantService.GetByIDAsync(attachmentSetModel.TenantID);
-            ViewBag.Region = await RegionService.GetByIDAsync(attachmentSetModel.RegionID);
-            await PopulateDropDownLists(attachmentSetModel.RegionID);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            await PopulateRegionsDropDownList(requestModel.Region.ToString());
+            await PopulateSubRegionsDropDownList(requestModel.Region?.ToString(), requestModel.SubRegion?.ToString());
+            await PopulateRoutingInstancesDropDownList(tenantId.Value, requestModel.Region?.ToString(), requestModel.SubRegion,
+                requestModel.AttachmentSetRoutingInstanceNames);
+            await PopulateAttachmentRedundancyOptionsDropDownList(requestModel.AttachmentRedundancy);
 
-            return View("CreateStep2", attachmentSetModel);
+            return View(requestModel);
         }
 
         [HttpGet]
-        public async Task<ActionResult> Edit(int? id)
+        [ValidateAttachmentSetExists]
+        public async Task<ActionResult> Edit(int? attachmentSetId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value, deep: true, asTrackable: false);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachmentSet.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            await PopulateRoutingInstancesDropDownList(tenant.TenantID, attachmentSet.Region.Name, attachmentSet.SubRegion?.Name,
+                attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
+            await PopulateAttachmentRedundancyOptionsDropDownList(attachmentSet.AttachmentRedundancy.Name);
+            await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, attachmentSet.SubRegion.Name);
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
-            if (attachmentSet == null)
-            {
-                return NotFound();
-            }
-
-            await PopulateMulticastVpnDomainTypesDropDownList(attachmentSet.MulticastVpnDomainTypeID);
-            await PopulateDropDownLists(attachmentSet.RegionID);
-            return View(Mapper.Map<AttachmentSetViewModel>(attachmentSet));
+            return View(_mapper.Map<AttachmentSetUpdateViewModel>(attachmentSet));
         }
 
         [HttpPost]
+        [ValidateAttachmentSetExists]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, [Bind("AttachmentSetID,Name,Description,RegionID,SubRegionID,TenantID," +
-            "AttachmentRedundancyID,IsLayer3,MulticastVpnDomainTypeID,RowVersion")] AttachmentSetViewModel attachmentSetModel)
+        public async Task<ActionResult> Edit(int? attachmentSetId, AttachmentSetUpdateViewModel update)
         {
-            if (id != attachmentSetModel.AttachmentSetID)
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value, deep: true, asTrackable: false);
+
+            if (ModelState.IsValid)
             {
-                return NotFound();
-            }
-
-            var currentAttachmentSet = await AttachmentSetService.GetByIDAsync(id, deep: true);
-            if (currentAttachmentSet == null)
-            {
-                ModelState.AddModelError(string.Empty, "Unable to save changes. The Attachment Set was deleted by another user.");
-            }
-
-            try
-            {
-                if (ModelState.IsValid)
+                if (attachmentSet.HasPreconditionFailed(Request, update.GetConcurrencyToken()))
                 {
-                    Mapper.Map(attachmentSetModel, currentAttachmentSet);
-
-                    await AttachmentSetService.UpdateAsync(currentAttachmentSet);
-                    return RedirectToAction("GetAllByTenantID", new { id = currentAttachmentSet.TenantID });
+                    ModelState.AddUpdatePreconditionFailedMessage();
+                    ModelState.RemoveConcurrencyTokenItem();
+                    update.UpdateConcurrencyToken(attachmentSet.GetConcurrencyToken());
                 }
-            }
-
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var exceptionEntry = ex.Entries.Single();
-
-                var proposedName = (string)exceptionEntry.Property("Name").CurrentValue;
-                if (currentAttachmentSet.Name != proposedName)
+                else
                 {
-                    ModelState.AddModelError("Name", $"Current value: {currentAttachmentSet.Name}");
-                }
+                    // Project the list of attachment set routing instance names into a list of AttachmentSetRoutingInstanceRequest objects
+                    // to be passed to the service layer
+                    update.AttachmentSetRoutingInstances = update.AttachmentSetRoutingInstanceNames
+                        .Select(
+                            routingInstanceName =>
+                            new AttachmentSetRoutingInstanceRequestViewModel
+                            {
+                                RoutingInstanceName = routingInstanceName
+                            })
+                        .ToList();
 
-                var proposedRegionID = (int?)exceptionEntry.Property("RegionID").CurrentValue;
-                if (currentAttachmentSet.RegionID != proposedRegionID)
-                {
-                    ModelState.AddModelError("RegionID", $"Current value: {currentAttachmentSet.SubRegion.Name}");
-                }
+                    var attachmentUpdate = _mapper.Map<AttachmentSetUpdate>(update);
 
-                var proposedSubRegionID = (int?)exceptionEntry.Property("SubRegionID").CurrentValue;
-                if (currentAttachmentSet.SubRegionID != proposedSubRegionID)
-                {
-                    ModelState.AddModelError("SubRegionID", $"Current value: {currentAttachmentSet.SubRegion.Name}");
-                }
-
-                var proposedAttachmentRedundancyID = (int)exceptionEntry.Property("AttachmentRedundancyID").CurrentValue;
-                if (currentAttachmentSet.AttachmentRedundancyID != proposedAttachmentRedundancyID)
-                {
-                    ModelState.AddModelError("AttachmentRedundancyID", $"Current value: {currentAttachmentSet.AttachmentRedundancy.Name}");
-                }
-
-                var proposedTenantID = (int)exceptionEntry.Property("TenantID").CurrentValue;
-                if (currentAttachmentSet.TenantID != proposedTenantID)
-                {
-                    ModelState.AddModelError("TenantID", $"Current value: {currentAttachmentSet.Tenant.Name}");
-                }
-
-                var proposedIsLayer3 = (bool)exceptionEntry.Property("IsLayer3").CurrentValue;
-                if (currentAttachmentSet.IsLayer3 != proposedIsLayer3)
-                {
-                    ModelState.AddModelError("IsLayer3", $"Current value: {currentAttachmentSet.IsLayer3}");
-                }
-
-                if (currentAttachmentSet.MulticastVpnDomainTypeID != null)
-                {
-                    var proposedMulticastVpnDomainTypeID = (int)exceptionEntry.Property("MulticastVpnDomainTypeID").CurrentValue;
-                    if (currentAttachmentSet.MulticastVpnDomainTypeID != proposedMulticastVpnDomainTypeID)
+                    try
                     {
-                        ModelState.AddModelError("MulticastVpnDomainTypeID", $"Current value: {currentAttachmentSet.MulticastVpnDomainType.Name}");
+                        await _attachmentSetService.UpdateAsync(attachmentSetId.Value, attachmentUpdate);
+                        return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachmentSet.TenantID });
+                    }
+
+                    catch (BuilderBadArgumentsException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (BuilderUnableToCompleteException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (IllegalStateException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (IllegalDeleteAttemptException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (DbUpdateException)
+                    {
+                        ModelState.AddDatabaseUpdateExceptionMessage();
                     }
                 }
-           
-                ModelState.AddModelError(string.Empty, "The record you attempted to edit "
-                    + "was modified by another user after you got the original value. The "
-                    + "edit operation was cancelled and the current values in the database "
-                    + "have been displayed. If you still want to edit this record, click "
-                    + "the Save button again. Otherwise click the Back to List hyperlink.");
-
-                ModelState.Remove("RowVersion");
             }
 
-            catch (DbUpdateException /* ex */)
-            {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError("", "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator.");
-            }
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachmentSet.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            await PopulateRoutingInstancesDropDownList(tenant.TenantID, attachmentSet.Region.Name, update.SubRegion,
+                    attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
+            await PopulateAttachmentRedundancyOptionsDropDownList(update.AttachmentRedundancy.ToString());
+            await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, update.SubRegion);
 
-            await PopulateDropDownLists(attachmentSetModel.RegionID);
-            await PopulateMulticastVpnDomainTypesDropDownList(attachmentSetModel.MulticastVpnDomainTypeID);
-
-            return View(Mapper.Map<AttachmentSetViewModel>(currentAttachmentSet));
+            return View(_mapper.Map<AttachmentSetUpdateViewModel>(attachmentSet));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Delete(int? id, int? tenantID, bool? concurrencyError = false)
+        [ValidateAttachmentSetExists]
+        public async Task<IActionResult> Delete(int? attachmentSetId, bool? concurrencyError = false)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var item = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value, deep: true, asTrackable: false);
+            if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(item.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            var attachmentSet = await AttachmentSetService.GetByIDAsync(id.Value, deep: true);
-            if (attachmentSet == null)
-            {
-                if (concurrencyError.GetValueOrDefault())
-                {
-                    return RedirectToAction("GetAllByTenantID", new { id = tenantID });
-                }
-
-                return NotFound();
-            }
-
-            if (concurrencyError.GetValueOrDefault())
-            {
-                ViewData["ErrorMessage"] = "The record you attempted to delete "
-                    + "was modified by another user after you got the original values. "
-                    + "The delete operation was cancelled and the current values in the "
-                    + "database have been displayed. If you still want to delete this "
-                    + "record, click the Delete button again. Otherwise "
-                    + "click the Back to List hyperlink.";
-            }
-
-            return View(Mapper.Map<AttachmentSetViewModel>(attachmentSet));
+            return View(_mapper.Map<AttachmentSetDeleteViewModel>(item));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(AttachmentSetViewModel attachmentSetModel)
+        public async Task<IActionResult> Delete(AttachmentSetDeleteViewModel model)
         {
-            var currentAttachmentSet = await AttachmentSetService.GetByIDAsync(attachmentSetModel.AttachmentSetID);
-            if (currentAttachmentSet == null)
+            var attachmentSet = await _attachmentSetService.GetByIDAsync(model.AttachmentSetId.Value, deep: true, asTrackable: false);
+            if (attachmentSet == null) return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = model.TenantId });
+
+            if (attachmentSet.HasPreconditionFailed(Request, model.GetConcurrencyToken()))
             {
-                return RedirectToAction("GetAllByTenantID", new
+                return RedirectToAction(nameof(Delete), new
                 {
-                    id = attachmentSetModel.TenantID
+                    attachmentSetId = attachmentSet.AttachmentSetID,
+                    concurrencyError = true
                 });
             }
 
             try
             {
-                await AttachmentSetService.DeleteAsync(attachmentSetModel.AttachmentSetID);
-                return RedirectToAction("GetAllByTenantID", new { id = currentAttachmentSet.TenantID });
+                await _attachmentSetService.DeleteAsync(attachmentSet.AttachmentSetID);
+                return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachmentSet.TenantID });
             }
 
-            catch (DbUpdateConcurrencyException /* ex */)
+            catch (IllegalDeleteAttemptException ex)
             {
-                //Log the error (uncomment ex variable name and write a log.)
-                return RedirectToAction("Delete", new
-                {
-                    concurrencyError = true,
-                    id = attachmentSetModel.AttachmentSetID,
-                    tenantID = attachmentSetModel.TenantID
-                });
+                ViewData.AddDeleteValidationFailedMessage(ex.Message);
             }
-        }
 
-        /// <summary>
-        /// Helper to populate the drop-down lists for the view.
-        /// </summary>
-        /// <param name="regionID"></param>
-        /// <returns></returns>
-        private async Task PopulateDropDownLists(int regionID)
-        {
-            await PopulateSubRegionsDropDownList(regionID);
-            await PopulateAttachmentRedundancyDropDownList();
-        }
+            catch (DbUpdateException)
+            {
+                ViewData.AddDatabaseUpdateExceptionMessage();
+            }
 
-        private async Task PopulateAttachmentRedundancyDropDownList(object selectedAttachmentRedundancy = null)
-        {
-            var attachmentRedundancies = await AttachmentSetService.UnitOfWork.AttachmentRedundancyRepository.GetAsync();
-            ViewBag.AttachmentRedundancyID = new SelectList(attachmentRedundancies, "AttachmentRedundancyID", "Name", selectedAttachmentRedundancy);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachmentSet.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+
+            return View(_mapper.Map<AttachmentSetDeleteViewModel>(attachmentSet));
         }
 
         private async Task PopulateRegionsDropDownList(object selectedRegion = null)
         {
-            var regions = await AttachmentSetService.UnitOfWork.RegionRepository.GetAsync();
-            ViewBag.RegionID = new SelectList(regions, "RegionID", "Name", selectedRegion);
+            var regions = await _unitOfWork.RegionRepository.GetAsync();
+            ViewBag.Region = new SelectList(_mapper.Map<List<RegionViewModel>>(regions), 
+                "Name", "Name", selectedRegion);
         }
 
-        private async Task PopulateSubRegionsDropDownList(int regionID, object selectedSubRegion = null)
+        private async Task PopulateSubRegionsDropDownList(string region, object selectedSubRegion = null)
         {
-            var subRegions = await AttachmentSetService.UnitOfWork.SubRegionRepository.GetAsync(q => q.RegionID == regionID);
-            ViewBag.SubRegionID = new SelectList(subRegions, "SubRegionID", "Name", selectedSubRegion);
+            var subRegions = await _unitOfWork.SubRegionRepository.GetAsync(
+                             q =>
+                                q.Region.Name == region);
+            ViewBag.SubRegion = new SelectList(_mapper.Map<List<SubRegionViewModel>>(subRegions), 
+                "Name", "Name", selectedSubRegion);
         }
 
-        private async Task PopulateMulticastVpnDomainTypesDropDownList(object selectedMulticastVpnDomainType = null)
+        private async Task PopulateRoutingInstancesDropDownList(int tenantId, string region, string subRegion, IEnumerable<object> selectedRoutingInstances = null)
         {
-            var multicastVpnDomainTypes = await MulticastVpnDomainTypeService.GetAllAsync();
-            ViewBag.MulticastVpnDomainTypeID = new SelectList(Mapper.Map<List<MulticastVpnDomainType>>(multicastVpnDomainTypes),
-                "MulticastVpnDomainTypeID", "Name", selectedMulticastVpnDomainType);
+            var query = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                    q =>
+                         q.TenantID == tenantId &&
+                         q.RoutingInstanceType.IsTenantFacingVrf,
+                         query: q => q.Include(x => x.Device.Location.SubRegion.Region)
+                                      .Include(x => x.Device.Plane))
+                         select result);
+
+            if (!string.IsNullOrEmpty(region)) query = query.Where(q => q.Device.Location.SubRegion.Region.Name == region);
+            if (!string.IsNullOrEmpty(subRegion)) query = query.Where(q => q.Device.Location.SubRegion.Name == subRegion);
+
+            var items = query.Select(x => new { x.Name, DisplayName = $"{x.Name}, {x.Device.Location.SiteName}, {x.Device.Plane.Name}" });
+
+            ViewBag.RoutingInstances = new MultiSelectList(items, "Name", "DisplayName", selectedRoutingInstances);
+        }
+
+        private async Task PopulateAttachmentRedundancyOptionsDropDownList(object selectedAttachmentRedundancyOption = null)
+        {
+            var attachmentRedundancyOptions = await _unitOfWork.AttachmentRedundancyRepository.GetAsync();
+            ViewBag.AttachmentRedundancy = new SelectList(_mapper.Map<List<AttachmentRedundancyViewModel>>(attachmentRedundancyOptions),
+                "Name", "Name", selectedAttachmentRedundancyOption);
         }
     }
 }

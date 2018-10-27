@@ -9,9 +9,9 @@ namespace Mind.Builders
 {
     public class AttachmentSetUpdateDirector : IAttachmentSetUpdateDirector
     {
-        private readonly IAttachmentSetUpdateBuilder _builder;
+        private readonly IAttachmentSetBuilder _builder;
 
-        public AttachmentSetUpdateDirector(IAttachmentSetUpdateBuilder builder)
+        public AttachmentSetUpdateDirector(IAttachmentSetBuilder builder)
         {
             _builder = builder;
         }
@@ -22,7 +22,8 @@ namespace Mind.Builders
                                  .WithAttachmentRedundancy(update.AttachmentRedundancy.ToString())
                                  .WithSubRegion(update.SubRegion)
                                  .WithMulticastVpnDomainType(update.MulticastVpnDomainType.ToString())
-                                 .UpdateAsync();
+                                 .WithRoutingInstances(update.AttachmentSetRoutingInstances)
+                                 .BuildAsync();
         }
     }
 }

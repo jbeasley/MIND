@@ -3,7 +3,7 @@
 @if (ViewData["ErrorMessage"] != null)
 {
     <div class="alert alert-danger message-container" role="alert">
-        <div class="message-glyph">
+        <div class="message-glyph" style="margin-right:2em">
             <i class="fas fa-times fa-3x"></i>
             <span class="sr-only">Error:</span>
         </div>
@@ -14,7 +14,7 @@
 @if (ViewData["SuccessMessage"] != null)
 {
     <div class="alert alert-success message-container" role="alert">
-        <div class="message-glyph">
+        <div class="message-glyph" style="margin-right:2em">
             <i class="fas fa-check-circle fa-3x"></i>
             <span class="sr-only">Success:</span>
         </div>
@@ -25,10 +25,10 @@
 @if (ViewData["WarningMessage"] != null)
 {
     <div class="alert alert-warning message-container" role="alert">
-        <div class="message-glyph">
-            <div class="glyphicon glyphicon-warning-sign glyphicon-lg" aria-hidden="true"></div>
+        <div class="message-glyph" style="margin-right:2em">
+            <i class="fas fa-exclamation-triangle fa-3x"></i>
             <span class="sr-only">Warning:</span>
         </div>
-        <div class="message-content">@Html.Raw(ViewData["WarningMessage"])</div>
+        <div class="message-content" stylw="width:80%">@Html.Raw(ViewData["WarningMessage"])</div>
     </div>
 }

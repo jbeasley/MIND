@@ -18,6 +18,11 @@ namespace Mind.WebUI.Models
     /// </summary>
     public class ProviderDomainVifRequestViewModel
     {
+        public ProviderDomainVifRequestViewModel()
+        {
+            RoutingInstance = new RoutingInstanceRequestViewModel();
+        }
+
         /// <summary>
         /// The ID of the tenant to which the vif belongs. Usually this is the same tenant as the owner of the attachment
         /// to which the vif belongs. However, it is also possible to assign a vif to a different tenant.
@@ -26,7 +31,15 @@ namespace Mind.WebUI.Models
         /// <example>1001</example>
         [Required]
         [Display(Name = "tenant ID")]
-        public Int32? TenantId { get; set; }
+        public int? TenantId { get; set; }
+
+        /// <summary>
+        /// The ID of the parent attachment for which the new vif will be created.
+        /// </summary>
+        /// <value>Integer value denoting the ID of the attachment</value>
+        /// <example>9001</example>
+        [Required]   
+        public int? AttachmentId { get; set; }
 
         /// <summary>
         /// The name of an vif role which sets certain constrains on how the vif must be configured

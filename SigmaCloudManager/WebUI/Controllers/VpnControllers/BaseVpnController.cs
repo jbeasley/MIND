@@ -11,6 +11,7 @@ using SCM.Models.ViewModels;
 using SCM.Services;
 using SCM.Hubs;
 using Mind.Services;
+using Mind.WebUI.Models;
 
 namespace SCM.Controllers
 {

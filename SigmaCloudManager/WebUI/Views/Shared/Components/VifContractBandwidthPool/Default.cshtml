@@ -1,0 +1,23 @@
+﻿@model Mind.WebUI.Models.ContractBandwidthPoolViewModel
+
+<div class="form-group row">
+    <label asp-for="ContractBandwidthMbps" class="col-sm-2 col-form-label"></label>
+    <div class="col-sm-8">
+        <select asp-for="ContractBandwidthMbps" class="form-control" asp-items="ViewBag.ContractBandwidth">
+            <option value="">Select Contract Bandwidth</option>
+        </select>
+        <span asp-validation-for="ContractBandwidthMbps" class="text-danger"></span>
+    </div>
+</div>
+<div class="form-group row">
+    <div class="col-sm-2">
+    </div>
+    <div class="col-sm-10">
+        <label class="checkbox-inline">
+            <input type="checkbox" asp-for="TrustReceivedCosAndDscp" data-toggle="tooltip"
+                   title="Trust the COS and DSCP markings received in packets on this VIF"> <label asp-for="TrustReceivedCosAndDscp"></label>
+        </label>
+    </div>
+</div>
+
+

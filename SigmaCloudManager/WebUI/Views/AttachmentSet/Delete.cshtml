@@ -1,4 +1,5 @@
-@model SCM.Models.ViewModels.AttachmentSetViewModel
+@model Mind.WebUI.Models.AttachmentSetDeleteViewModel
+
 
 @{
     ViewData["Title"] = "Delete Attachment Set";
@@ -7,12 +8,13 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.TenantID">Attachment Sets - [@Model.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID?tenantId=@Model.TenantId">Attachment Sets - [@Model.TenantName]</a></li>
     <li class="breadcrumb-item active">Delete - [@Model.Name]</li>
 </ol>
 
 <h2>Delete Attachment Set '@Model.Name'</h2>
 
+@{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
 
 <h3>Are you sure you want to delete this?</h3>
@@ -26,19 +28,18 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
     </dl>
-
+    <hr />
     <form asp-action="Delete">
-        <input type="hidden" asp-for="AttachmentSetID" />
+        <input type="hidden" asp-for="AttachmentSetId" />
+        <input type="hidden" asp-for="TenantId" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
-            <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">
-                <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete
+            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button>
             </button> |
-            <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID">Back to List</a>
+            <a asp-action="GetAllByTenantID" asp-route-tenantId="@Model.TenantId">Back to List</a>
         </div>
     </form>
 </div>
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }

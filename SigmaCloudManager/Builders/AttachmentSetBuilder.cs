@@ -41,6 +41,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public IAttachmentSetBuilder ForAttachmentSet(int? attachmentSetId)
+        {
+            if (attachmentSetId.HasValue) _args.Add(nameof(ForAttachmentSet), attachmentSetId);
+            return this;
+        }
+
         public virtual IAttachmentSetBuilder WithAttachmentRedundancy(string attachmentRedundancy)
         {
             if (!string.IsNullOrEmpty(attachmentRedundancy)) _args.Add(nameof(WithAttachmentRedundancy), attachmentRedundancy);
@@ -79,10 +85,18 @@ namespace Mind.Builders
 
         public virtual async Task<AttachmentSet> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
-            if (_args.ContainsKey(nameof(WithLayer3))) _attachmentSet.IsLayer3 = (bool)_args[nameof(WithLayer3)];
+            if (_args.ContainsKey(nameof(ForAttachmentSet)))
+            {
+                await SetAttachmentSetAsync();
+            }
+            else
+            {
+                if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
+                if (_args.ContainsKey(nameof(WithLayer3))) _attachmentSet.IsLayer3 = (bool)_args[nameof(WithLayer3)];
+                if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
+            }
+
             if (_args.ContainsKey(nameof(WithAttachmentRedundancy))) await SetAttachmentRedundancyAsync();
-            if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
             if (_args.ContainsKey(nameof(WithSubRegion))) await SetSubRegionAsync();
             if (_args.ContainsKey(nameof(WithRoutingInstances))) await SetRoutingInstances();
             if (_args.ContainsKey(nameof(WithMulticastVpnDomainType))) await SetMulticastVpnDomainTypeAsync();
@@ -111,7 +125,7 @@ namespace Mind.Builders
                                     q =>
                                          q.MvpnDomainType.ToString() == multicastVpnDomainType,
                                          AsTrackable: true)
-                                         select multicastVpnDomainTypes)
+                                  select multicastVpnDomainTypes)
                                          .SingleOrDefault();
 
             _attachmentSet.MulticastVpnDomainType = mVpnDomainType ??
@@ -122,9 +136,9 @@ namespace Mind.Builders
         {
             var regionName = _args[nameof(WithRegion)].ToString();
             var region = (from regions in await _unitOfWork.RegionRepository.GetAsync(
-                       q => 
+                       q =>
                          q.Name == regionName)
-                         select regions)
+                          select regions)
                          .SingleOrDefault();
 
             _attachmentSet.Region = region ?? throw new BuilderBadArgumentsException($"The region argument {regionName} is not a valid region.");
@@ -172,6 +186,21 @@ namespace Mind.Builders
                                         .SingleOrDefault();
 
             _attachmentSet.AttachmentRedundancy = attachmentRedundancy;
+        }
+
+        protected async Task SetAttachmentSetAsync()
+        {
+            var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
+            var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
+                        x =>
+                            x.AttachmentSetID == attachmentSetId,
+                            AsTrackable: true,
+                            query: q => q.IncludeValidationProperties())
+                                 select result)
+                            .SingleOrDefault();
+
+            _attachmentSet = attachmentSet ?? throw new BuilderBadArgumentsException($"The attachment set with ID '{attachmentSetId}' was not found.");
+
         }
     }
 }

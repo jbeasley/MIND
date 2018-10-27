@@ -1,10 +1,7 @@
-@model IEnumerable<SCM.Models.ViewModels.AttachmentSetViewModel>
-@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
-@using Microsoft.Extensions.Options;
-@using SCM;
+@model IEnumerable<Mind.WebUI.Models.AttachmentSetViewModel>
 
 @{
-    ViewData["Title"] = "Attachment Sets";
+    ViewData["Title"] = "Provider Domain Attachments";
 }
 
 <ol class="breadcrumb">
@@ -13,91 +10,76 @@
     <li class="breadcrumb-item active">Attachment Sets - [@ViewBag.Tenant.Name]</li>
 </ol>
 
-@if (ApplicationConfiguration.Value.EnableNetworkSync)
-{
-
-    // Show Network messages if Network Sync functionality is enabled
-    await Html.RenderPartialAsync("_NetworkMessagingPartial");
-}
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
 
+
 <h2>Attachment Sets for Tenant '@ViewBag.Tenant.Name'</h2>
 
 <p>
-    <a asp-action="CreateStep1" asp-route-id="@ViewBag.Tenant.TenantID">Create New</a>
+    <a asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
+       data-toggle="tooltip" data-placement="right"
+       title="Create a new attachment set">Create New</a>
 </p>
-<table class="table">
+<p>
+
+<table class="table" id="attachmentsTable">
     <thead>
         <tr>
+            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.IsLayer3)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Region)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.SubRegion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AttachmentRedundancy)
-            </th>
             <th></th>
-            <th>Inbound Policy</th>
-            <th>Outbound Policy</th>
-            <th>VRF Policy</th>
+            <th></th>
+            <th></th>
+            <th></th>
         </tr>
     </thead>
+
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
+                <td>
+                    <input type="checkbox" />
+                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.IsLayer3)
                 </td>
+                <td></td>
+                <td></td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Region.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.SubRegion.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AttachmentRedundancy.Name)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.AttachmentSetID, tenantID = item.TenantID }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.AttachmentSetID, tenantID = item.TenantID }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.AttachmentSetID, tenantID = item.TenantID }) |
-                    @Html.ActionLink("Member VRFs", "GetAllByAttachmentSetID", "AttachmentSetRoutingInstance", new { id = item.AttachmentSetID, tenantID = item.TenantID }) |
-                    @Html.ActionLink("VPNs", "GetAllByAttachmentSetID", "AttachmentSetVpn", new { id = item.AttachmentSetID })
-                </td>
-                <td>
-                    @Html.ActionLink("Networks In", "GetAllByAttachmentSetID", "VpnTenantIpNetworkIn", new { id = item.AttachmentSetID }) |
-                    @Html.ActionLink("Communities In", "GetAllByAttachmentSetID", "VpnTenantCommunityIn", new { id = item.AttachmentSetID }) |
-                    @Html.ActionLink("Multicast RPs", "GetAllByAttachmentSetID", "MulticastVpnRp", new { id = item.AttachmentSetID }) |
-                    @Html.ActionLink("Multicast Groups", "GetAllByAttachmentSetID", "VpnTenantMulticastGroup", new { id = item.AttachmentSetID })
-                </td>
-                <td>
-
-                    @Html.ActionLink("Networks Out", "GetAllByAttachmentSetID", "VpnTenantNetworkOut", new { id = item.AttachmentSetID }) |
-                    @Html.ActionLink("Communities Out", "GetAllByAttachmentSetID", "VpnTenantCommunityOut", new { id = item.AttachmentSetID })
-                </td>
-                <td>
-                    @Html.ActionLink("VRF Policy for Networks", "GetAllByAttachmentSetID", "VpnTenantNetworkRoutingInstance", new { id = item.AttachmentSetID }) |
-                    @Html.ActionLink("VRF Policy for Communities", "GetAllByAttachmentSetID", "VpnTenantCommunityRoutingInstance", new { id = item.AttachmentSetID }) |
-                    @Html.ActionLink("VRF Static Routes", "GetAllByAttachmentSetID", "VpnTenantNetworkStaticRouteRoutingInstance", new { id = item.AttachmentSetID })
+                    @Html.ActionLink("Edit", "Edit", new { attachmentSetId = item.AttachmentSetId }) |
+                    @Html.ActionLink("Details", "Details", new { attachmentSetId = item.AttachmentSetId }) |
+                    @Html.ActionLink("Delete", "Delete", new { attachmentSetId = item.AttachmentSetId })
                 </td>
             </tr>
         }
     </tbody>
 </table>
-<div>
-    <a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
-</div>
+<input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
+
+<a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+ }

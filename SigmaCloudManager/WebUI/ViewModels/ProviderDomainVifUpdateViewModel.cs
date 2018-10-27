@@ -16,6 +16,25 @@ namespace Mind.WebUI.Models
     /// </summary>
     public class ProviderDomainVifUpdateViewModel : IModifiableResource
     {
+        public ProviderDomainVifUpdateViewModel()
+        {
+            RoutingInstance = new RoutingInstanceRequestViewModel();
+        }
+
+        /// <summary>
+        /// ID of the vif
+        /// </summary>
+        /// <value>Integer value denoting the ID of the vif</value>
+        /// <example>6001</example>
+        public int? VifId { get; set; }
+
+        /// <summary>
+        /// The name of the vif
+        /// </summary>
+        /// <value>string value denoting the name of the vif</value>
+        /// <example>TenGigabitEthernet0/0.10</example>
+        public string Name { get; private set; }
+
         /// <summary>
         /// If specified, the vif should be associated with an existing routing instance
         /// of the given name. The routing instance must belong to the same tenant as the owner of the vif.
@@ -47,7 +66,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Boolean value denoting the required trust state</value>
         [Display(Name="Trust Received Cos/Dscp")]
-        public bool? TrustReceivedCosAndDscp { get; set; }
+        public bool TrustReceivedCosAndDscp { get; set; }
 
         /// <summary>
         /// A list of IPv4 addresses to be assigned to the vlans of the vif
@@ -56,17 +75,18 @@ namespace Mind.WebUI.Models
         public List<Ipv4AddressAndMaskViewModel> Ipv4Addresses { get; set; }
 
         /// <summary>
+        /// Optional parameters for creating a new routing instance to be associated with the existing vif.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        public RoutingInstanceRequestViewModel RoutingInstance { get; set; }
+
+        /// <summary>
         /// Determines if the updated vif should use jumbo MTU
         /// </summary>
         /// <value>A boolean which when set to true indicates jumbo MTU is required</value>
         /// <example>true</example>
         [Display(Name = "Use Jumbo MTU")]
-        public bool? UseJumboMtu { get; set; }
-
-        /// <summary>
-        /// Concurrency token for the model
-        /// </summary>
-        public byte[] RowVersion { get; set; }
+        public bool UseJumboMtu { get; set; }
 
         /// <summary>
         /// Determines if the updated vif should be associated with a new routing instance. If the value of this property is true
@@ -75,11 +95,16 @@ namespace Mind.WebUI.Models
         /// <value>A boolean which when set to true indicates a new routing instance is required</value>
         /// <example>true</example>
         [Display(Name = "Create New Routing Instance")]
-        public bool? CreateNewRoutingInstance { get; set; }
+        public bool CreateNewRoutingInstance { get; set; }
+
+        /// <summary>
+        /// Concurrency token for the model
+        /// </summary>
+        public byte[] RowVersion { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (CreateNewRoutingInstance.HasValue && CreateNewRoutingInstance.Value)
+            if (CreateNewRoutingInstance)
             {
                 if (!string.IsNullOrEmpty(ExistingRoutingInstanceName))
                 {

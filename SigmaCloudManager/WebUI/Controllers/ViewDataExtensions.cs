@@ -34,5 +34,10 @@ namespace Mind.WebUI.Controllers
             viewData["ErrorMessage"] = "An error occurred while updating the database. " +
                  "Try again, and if the problem persists report it to your system administrator.";
         }
+
+        public static void AddWarningMessage(this ViewDataDictionary viewData, string message)
+        {
+            viewData["WarningMessage"] = message;
+        }
     }
 }

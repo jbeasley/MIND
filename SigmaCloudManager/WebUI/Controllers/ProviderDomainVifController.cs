@@ -19,7 +19,6 @@ using Mind.Builders;
 using Mind.WebUI.Attributes;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
-using Mind.WebUI.ViewComponents;
 using Mind.Models.RequestModels;
 
 namespace Mind.WebUI.Controllers
@@ -34,27 +33,22 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetIpAddressingComponent(string portPoolName, string attachmentRoleName, 
-            int? attachmentBandwidthGbps, bool? isMultiport)
+        public IActionResult GetIpAddressingComponent(int? attachmentId, string vifRoleName)
         {
             return ViewComponent("VifIpAddressing", new
             {
-                portPoolName,
-                attachmentRoleName,
-                attachmentBandwidthGbps,
-                isMultiport
+                attachmentId,
+                vifRoleName
             });
         }
 
         [HttpGet]
-        public IActionResult GetContractBandwidthPoolComponent(string portPoolName, string attachmentRoleName,
-            int? attachmentBandwidthGbps)
+        public IActionResult GetContractBandwidthPoolComponent(int? attachmentId, string vifRoleName)
         {
             return ViewComponent("VifContractBandwidthPool", new
             {
-                portPoolName,
-                attachmentRoleName,
-                attachmentBandwidthGbps
+                attachmentId,
+                vifRoleName
             });
         }
 
@@ -63,6 +57,15 @@ namespace Mind.WebUI.Controllers
         public async Task<IActionResult> Details(int? vifId)
         {
             var item = await _vifService.GetByIDAsync(vifId.Value, deep: true, asTrackable: false);
+            var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
+            q =>
+                 q.AttachmentID == item.AttachmentID,
+                 query: q => q.IncludeDeepProperties(),
+                 AsTrackable: false)
+                              select result)
+                 .Single();
+
+            ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
             return View(_mapper.Map<ProviderDomainVifViewModel>(item));
         }
 
@@ -70,29 +73,39 @@ namespace Mind.WebUI.Controllers
         [ValidateProviderDomainAttachmentExists]
         public async Task<IActionResult> GetAllByAttachmentID(int? attachmentId)
         {
-            var attachments = await _unitOfWork.VifRepository.GetAsync(
-                    q =>
-                    q.AttachmentID == attachmentId.Value,
-                    query: q => q.IncludeValidationProperties(),
-                    AsTrackable: false);
+            var vifs = await _vifService.GetAllByAttachmentIDAsync(attachmentId.Value, deep: true, asTrackable: false);
 
-            ViewData["SuccessMessage"] = FormatAsHtmlList(attachments
+            ViewData["SuccessMessage"] = FormatAsHtmlList(vifs
                 .Where(x => x.Created && x.ShowCreatedAlert)
                 .Select(x => $"{x.Name} has been created.").ToList());
 
-            var attachment = await _unitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+            var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q =>
+                             q.AttachmentID == attachmentId,
+                             query: q => q.IncludeDeepProperties(),
+                             AsTrackable: false)
+                             select result)
+                             .Single();
+
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
 
-            return View(_mapper.Map<List<ProviderDomainVifViewModel>>(attachments));
+            return View(_mapper.Map<List<ProviderDomainVifViewModel>>(vifs));
         }
 
         [HttpGet]
-        [ValidateTenantExists]
+        [ValidateProviderDomainAttachmentExists]
         public async Task<IActionResult> Create(int? attachmentId)
         {
-            var attachment = await _unitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+            var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q =>
+                             q.AttachmentID == attachmentId,
+                             query: q => q.IncludeDeepProperties(),
+                             AsTrackable: false)
+                              select result)
+                             .Single();
+
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
-            await PopulateVifRolesDropDownList(attachment.AttachmentID);
+            await PopulateVifRolesDropDownList(attachment.AttachmentRoleID);
             return View();
         }
 
@@ -130,11 +143,16 @@ namespace Mind.WebUI.Controllers
                     ModelState.AddDatabaseUpdateExceptionMessage();
                 }
             }
+            var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q =>
+                             q.AttachmentID == attachmentId,
+                             query: q => q.IncludeDeepProperties(),
+                             AsTrackable: false)
+                              select result)
+                             .Single();
 
-            var attachment = await _unitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
-
-            await PopulateVifRolesDropDownList(attachmentId.Value, requestModel.VifRoleName);
+            await PopulateVifRolesDropDownList(attachment.AttachmentRoleID, requestModel.VifRoleName);
 
             return View(requestModel);
         }
@@ -144,14 +162,21 @@ namespace Mind.WebUI.Controllers
         public async Task<ActionResult> Edit(int? vifId)
         {
             var vif = await _vifService.GetByIDAsync(vifId.Value, deep: true, asTrackable: false);
-            var attachment = await _unitOfWork.AttachmentRepository.GetByIDAsync(vif.AttachmentID);
-            ViewBag.Attachment = _mapper.Map<AttachmentViewModel>(attachment);
+            var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q =>
+                             q.AttachmentID == vif.AttachmentID,
+                             query: q => q.IncludeDeepProperties(),
+                             AsTrackable: false)
+                              select result)
+                             .Single();
+
+            ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
             if (vif.RoutingInstance != null)
             {
-                await PopulateRoutingInstancesDropDownList(attachment.AttachmentID, vif.RoutingInstance.Name);
+                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.DeviceID, vif.RoutingInstance.Name);
             }
 
-            return View(_mapper.Map<ProviderDomainVifUpdateViewModel>(attachment));
+            return View(_mapper.Map<ProviderDomainVifUpdateViewModel>(vif));
         }
 
         [HttpPost]
@@ -203,21 +228,37 @@ namespace Mind.WebUI.Controllers
 
             if (vif.RoutingInstance != null)
             {
-                await PopulateRoutingInstancesDropDownList(vif.AttachmentID, vif.RoutingInstance.Name);
+                await PopulateRoutingInstancesDropDownList(vif.Attachment.DeviceID, vif.Attachment.TenantID.Value, vif.RoutingInstance.Name);
             }
 
-            var attachment = await _unitOfWork.AttachmentRepository.GetByIDAsync(vif.AttachmentID);
+            var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q =>
+                             q.AttachmentID == vif.AttachmentID,
+                             query: q => q.IncludeDeepProperties(),
+                             AsTrackable: false)
+                              select result)
+                             .Single();
+
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
 
-            return View(_mapper.Map<ProviderDomainVifUpdateViewModel>(attachment));
+            return View(_mapper.Map<ProviderDomainVifUpdateViewModel>(vif));
         }
 
         [HttpGet]
         [ValidateProviderDomainVifExists]
-        public async Task<IActionResult> Delete(int? attachmentId, bool? concurrencyError = false)
+        public async Task<IActionResult> Delete(int? vifId, bool? concurrencyError = false)
         {
-            var item = await _vifService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
+            var item = await _vifService.GetByIDAsync(vifId.Value, deep: true, asTrackable: false);
             if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
+            var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
+                        q =>
+                              q.AttachmentID == item.AttachmentID,
+                              query: q => q.IncludeDeepProperties(),
+                              AsTrackable: false)
+                              select result)
+                              .Single();
+
+            ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
 
             return View(_mapper.Map<ProviderDomainVifDeleteViewModel>(item));
         }
@@ -254,6 +295,16 @@ namespace Mind.WebUI.Controllers
                 ViewData.AddDatabaseUpdateExceptionMessage();
             }
 
+            var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
+                            q =>
+                              q.AttachmentID == vif.AttachmentID,
+                              query: q => q.IncludeDeepProperties(),
+                              AsTrackable: false)
+                              select result)
+                              .Single();
+
+            ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
+
             return View(_mapper.Map<ProviderDomainVifDeleteViewModel>(vif));
         }
 
@@ -269,15 +320,12 @@ namespace Mind.WebUI.Controllers
                 "Name", "Name", selectedVifRole);
         }
 
-        private async Task PopulateRoutingInstancesDropDownList(int attachmentId, object selectedRoutingInstance = null)
+        private async Task PopulateRoutingInstancesDropDownList(int tenantId, int deviceId, object selectedRoutingInstance = null)
         {
             var routingInstances = await _unitOfWork.RoutingInstanceRepository.GetAsync(
                             q =>
-                                q.Attachments
-                                .Where(
-                                    x => 
-                                    x.AttachmentID == attachmentId)
-                                .Any() &&
+                                q.TenantID == tenantId &&
+                                q.DeviceID == deviceId &&
                                 q.RoutingInstanceType.IsTenantFacingVrf);
 
             ViewBag.RoutingInstance = new SelectList(_mapper.Map<List<RoutingInstanceViewModel>>(routingInstances),

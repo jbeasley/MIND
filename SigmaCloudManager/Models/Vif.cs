@@ -160,11 +160,17 @@ namespace SCM.Models
                         $"of '{this.VifRole.Name}' but none is defined.");
                 }
 
+                // Bear in mind that if a new VIF has been created it will not appear in the VIFs collection of the Attachment entity
+                // This is why we check to exclude any VIF with the same ID as this VIF, and then add the contract bandwidth of this VIF
+                // to the aggregate bandwidth
                 var aggContractBandwidthMbps = this.Attachment.Vifs
+                                                              .Where(
+                                                                vif => 
+                                                                vif.VifID != this.VifID)
                                                               .Select(
-                                                               vif =>
-                                                               vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
-                                                              .Aggregate(0, (x, y) => x + y);
+                                                                vif =>
+                                                                vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                                                              .Aggregate(0, (x, y) => x + y) + this.ContractBandwidthPool.ContractBandwidth.BandwidthMbps;
 
                 var attachmentBandwidthMbps = this.Attachment.AttachmentBandwidth.BandwidthGbps * 1000;
                 if (attachmentBandwidthMbps < aggContractBandwidthMbps)

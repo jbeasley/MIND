@@ -749,7 +749,6 @@ namespace Mind
             builder.RegisterType<VrfRoutingInstanceBuilder>().As<IVrfRoutingInstanceBuilder>();
             builder.RegisterType<DefaultRoutingInstanceBuilder>().As<IDefaultRoutingInstanceBuilder>();
             builder.RegisterType<AttachmentSetBuilder>().As<IAttachmentSetBuilder>();
-            builder.RegisterType<AttachmentSetUpdateBuilder>().As<IAttachmentSetUpdateBuilder>();
             builder.RegisterType<AttachmentSetRoutingInstanceBuilder>().As<IAttachmentSetRoutingInstanceBuilder>();
             builder.RegisterType<TenantIpNetworkInboundPolicyBuilder>().As<ITenantIpNetworkInboundPolicyBuilder>();
             builder.RegisterType<TenantIpNetworkOutboundPolicyBuilder>().As<ITenantIpNetworkOutboundPolicyBuilder>();

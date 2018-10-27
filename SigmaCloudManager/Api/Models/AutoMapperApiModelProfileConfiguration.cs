@@ -59,13 +59,16 @@ namespace Mind.Api.Models
                 .ForMember(dst => dst.AttachmentRoleName, conf => conf.MapFrom(src => src.AttachmentRole.Name));
 
             CreateMap<SCM.Models.Vif, Mind.Api.Models.ProviderDomainVif>()
-                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
+                .ForMember(dst => dst.VifRoleName, conf => conf.MapFrom(src => src.VifRole.Name));
 
             CreateMap<SCM.Models.Vif, Mind.Api.Models.TenantDomainVif>()
-                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
+                .ForMember(dst => dst.VifRoleName, conf => conf.MapFrom(src => src.VifRole.Name));
 
             CreateMap<SCM.Models.Vif, Mind.Api.Models.InfrastructureVif>()
-                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue));
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
+                .ForMember(dst => dst.VifRoleName, conf => conf.MapFrom(src => src.VifRole.Name));
 
             CreateMap<SCM.Models.Vlan, Mind.Api.Models.Vlan>();
 

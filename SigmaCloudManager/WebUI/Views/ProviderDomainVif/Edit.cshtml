@@ -1,0 +1,130 @@
+@using Mind.WebUI.Models;
+@model Mind.WebUI.Models.ProviderDomainVifUpdateViewModel
+
+@{
+    ViewData["Title"] = "Edit VIF";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantId">Provider Domain Attachments - [@ViewBag.Attachment.TenantName]</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainVif/GetAllByAttachmentID?attachmentID=@ViewBag.Attachment.AttachmentId">VIFs - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Delete - [@Model.Name]</li>
+</ol>
+
+<h2>Edit VIF '@Model.Name'</h2>
+
+<form asp-action="Edit">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+        <input type="hidden" asp-for="VifId" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div id="ipAddressingComponent">
+
+            @await Component.InvokeAsync("VifIpAddressing", new
+            {
+                vifId = Model.VifId,
+                currentModel = Model.Ipv4Addresses
+            })
+            
+        </div>
+
+        <div id="contractBandwidthPoolComponent">
+
+           @await Component.InvokeAsync("VifContractBandwidthPool", new
+           {
+               vifId = Model.VifId,
+               currentModel = new ContractBandwidthPoolViewModel
+               {
+                   ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                   TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
+               }
+           })
+            
+        </div>
+        @if (!string.IsNullOrEmpty(Model.ExistingRoutingInstanceName))
+        {
+            <div class="form-group row">
+                <label asp-for="ExistingRoutingInstanceName" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
+                            data-toggle="tooltip" data-placement="right" title="Select a routing instance for the vif">
+                        <option value="">-- Select Routing Instance --</option>
+                    </select>
+                    <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <div class="col-sm-2">
+                </div>
+                <div class="col-sm-10">
+                    <label class="checkbox-inline">
+                        <input type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
+                               title="Create a new routing instance for the vif"> <label asp-for="CreateNewRoutingInstance"></label>
+                    </label>
+                </div>
+            </div>
+        }
+        <div class="form-group row">
+            <label class="col-form-label col-sm-2"></label>
+            <div class="col-sm-10">
+                <div class="form-check form-check-inline">
+                    <input class="form-check-input" type="checkbox" asp-for="UseJumboMtu" data-toggle="tooltip" title="Enable jumbo MTU">
+                    <label class="form-check-label" asp-for="UseJumboMtu"></label>
+                </div>
+            </div>
+        </div>
+        <div class="form-group row">
+            <div class="col-md-offset-2 col-md-10">
+                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit" is-save-button></button>
+            </div>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByAttachmentID" asp-route-attachmentID="@ViewBag.Attachment.AttachmentId">Back to VIFs List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+<script type="text/javascript">
+
+        (function ($) {
+
+            var $routingInstance = $('#ExistingRoutingInstanceName'),
+                routingInstance = $routingInstance[0],
+                $createNewRoutingInstance = $('#CreateNewRoutingInstance'),
+                createNewRoutingInstance = $createNewRoutingInstance[0];
+
+            // Initialise all tool-tips
+            $('[data-toggle="tooltip"]').tooltip();
+
+            if (createNewRoutingInstance.checked) {
+
+                routingInstance.selectedIndex = 0;
+                routingInstance.disabled = true;
+            }
+
+            $createNewRoutingInstance.on('click', function () {
+
+                if (this.checked) {
+
+                    routingInstance.selectedIndex = 0;
+                    routingInstance.disabled = true;
+                }
+                else {
+
+                    routingInstance.disabled = false;
+                }
+            });
+            
+
+        }(jQuery));
+
+</script>
+
+}

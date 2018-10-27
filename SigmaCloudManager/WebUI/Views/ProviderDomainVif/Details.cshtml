@@ -1,0 +1,94 @@
+@model Mind.WebUI.Models.ProviderDomainVifViewModel
+
+@{
+    ViewData["Title"] = "VIF Details";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantId">Provider Domain Attachments - [@ViewBag.Attachment.TenantName]</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainVif/GetAllByAttachmentID?attachmentID=@ViewBag.Attachment.AttachmentId">VIFs - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.Name]</li>
+</ol>
+
+<h2>Details for Attachment '@Model.Name'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VlanTag)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VlanTag)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.VifRoleName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.VifRoleName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsLayer3)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsLayer3)
+        </dd>
+        @if (Model.ContractBandwidthPool != null)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.ContractBandwidthPool.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ContractBandwidthPool.Name)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.ContractBandwidthPool.ContractBandwidthMbps)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ContractBandwidthPool.ContractBandwidthMbps)
+            </dd>
+        }
+        @if (Model.RoutingInstance != null)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.Name)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.AdministratorSubField)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.AdministratorSubField)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.AssignedNumberSubField)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.AssignedNumberSubField)
+            </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.Mtu)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mtu)
+        </dd>
+    </dl>
+</div>
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a asp-action="GetAllByAttachmentID" asp-route-attachmentID="@Model.AttachmentId">Back to Attachments List</a>
+    </div>
+</form>

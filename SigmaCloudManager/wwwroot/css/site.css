@@ -14,7 +14,7 @@
 input,
 select,
 textarea {
-    max-width: 280px;
+    max-width: 380px;
 }
 
 /* The following sets the list of items in a details view so that the label in the dt element 

@@ -1,0 +1,95 @@
+@model IEnumerable<Mind.WebUI.Models.ProviderDomainVifViewModel>
+
+@{
+    ViewData["Title"] = "Provider Domain VIFs";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantId=@ViewBag.Attachment.TenantId">Provider Domain Attachments - [@ViewBag.Attachment.TenantName]</a></li>
+    <li class="breadcrumb-item active">VIFs - [@ViewBag.Attachment.Name]</li>
+</ol>
+
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+@if (ViewData["SuccessMessage"] != null)
+{
+    @using (Html.BeginForm("ClearCreatedAlerts", "ProviderDomainVif", FormMethod.Post))
+    {
+        <input type="hidden" name="attachmentId" value="@ViewBag.Attachment.AttachmentId" />
+        <p>
+            <button type="submit" class="btn btn-info btn-default" is-clear-alerts-button>
+            </button>
+        </p>
+    }
+}
+
+<h2>VIFs for Attachment '@ViewBag.Attachment.Name'</h2>
+
+<p>
+    <a asp-action="Create" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId"
+       data-toggle="tooltip" data-placement="right"
+       title="Create a VIF to connect a Tenant Domain to the Provider Domain across the tagged Attachment.
+       For example, create a VIF on a PE to connect the PE to a data-center.">Create New</a>
+</p>
+<p>
+
+<table class="table" id="vifsTable">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsLayer3)
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsLayer3)
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { vifId = item.VifId }) |
+                    @Html.ActionLink("Details", "Details", new { vifId = item.VifId }) |
+                    @Html.ActionLink("Delete", "Delete", new { vifID = item.VifId }) |
+                    @Html.ActionLink("Vlans", "GetAllByVifID", new { vifId = item.VifId })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<input type="hidden" name="attachmentId" id="attachmentId" value="@ViewBag.Attachment.TenantId" />
+
+<a asp-controller="ProviderDomainAttachment" asp-action="GetAllByTenantID" asp-route-tenantId="@ViewBag.Attachment.TenantId">Back to Attachments</a>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+ }

@@ -35,7 +35,7 @@ namespace Mind.Api.Models
         /// <example>1001</example>
         [Required]
         [DataMember(Name = "tenantId")]
-        public Int32? TenantId { get; set; }
+        public int? TenantId { get; set; }
 
         /// <summary>
         /// The name of an vif role which sets certain constrains on how the vif must be configured

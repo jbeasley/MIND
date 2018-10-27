@@ -40,7 +40,7 @@ namespace Mind.WebUI.Models
         /// <value>Boolean value denoting whether the vif is enabled for layer 3</value>
         /// <example>true</example>
         [Display(Name="Layer 3")]
-        public bool? IsLayer3 { get; private set; }
+        public bool IsLayer3 { get; private set; }
 
         /// <summary>
         /// The vlan tag number assigned to the vif

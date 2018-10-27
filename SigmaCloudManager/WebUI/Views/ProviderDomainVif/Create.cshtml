@@ -1,0 +1,154 @@
+@using Mind.WebUI.Models;
+@model Mind.WebUI.Models.ProviderDomainVifRequestViewModel
+
+@{
+    ViewData["Title"] = "Create VIF";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantId">Provider Domain Attachments - [@ViewBag.Attachment.TenantName]</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainVif/GetAllByAttachmentID?attachmentID=@ViewBag.Attachment.AttachmentId">VIFs - [@ViewBag.Attachment.Name]</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+<h2>Create a VIF for Attachment '@ViewBag.Attachment.Name'</h2>
+
+<form id="createForm" asp-action="Create">
+    <hr />
+    @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+    <input type="hidden" asp-for="AttachmentId" value="@ViewBag.Attachment.AttachmentId" />
+    <input type="hidden" asp-for="TenantId" value="@ViewBag.Attachment.TenantId" />
+    <div class="form-group row">
+        <label asp-for="VifRoleName" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select asp-for="VifRoleName" class="form-control" asp-items="ViewBag.VifRole">
+                <option value="">-- Select a Role --</option>
+            </select>
+            <span asp-validation-for="VifRoleName" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="RequestedVlanTag" class="col-sm-2 col-form-label"> </label>
+        <div class="col-sm-10">
+            <input asp-for="RequestedVlanTag" class="form-control" data-toggle="tooltip" data-placement="right" title="Request a specific vlan tag (between 1 and 4094). If you leave this option
+                   blank then a vlan tag will be automatically allocated for you." />
+            <span asp-validation-for="RequestedVlanTag" class="text-danger"></span>
+        </div>
+    </div>
+    <div id="ipAddressingComponent">
+
+        @if (Model != null)
+        {
+            @await Component.InvokeAsync("VifIpAddressing", new
+       {
+           attachmentId = Model.AttachmentId,
+           currentModel = Model.Ipv4Addresses
+       });
+        }
+    </div>
+
+    <div id="contractBandwidthPoolComponent">
+        @if (Model != null)
+        {
+            @await Component.InvokeAsync("VifContractBandwidthPool", new
+       {
+           attachmentId = Model.AttachmentId,
+           vifRoleName = Model.VifRoleName,
+           currentModel = new ContractBandwidthPoolViewModel
+           {
+               ContractBandwidthMbps = Model.ContractBandwidthMbps,
+               TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp.GetValueOrDefault()
+           }
+       });
+        }
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" id="Create" class="btn btn-success" asp-action="Create" is-create-button></button>
+        </div>
+    </div>
+</form>
+
+<div>
+    <a asp-action="GetAllByAttachmentID" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId">Back to VIFs List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            var $attachmentId = $('#AttachmentId'),
+                attachmentId = $attachmentId[0],
+                $vifRole = $('#VifRoleName'),
+                vifRole = $vifRole[0],
+                $ipAddressingComponent = $("#ipAddressingComponent"),
+                $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent");
+
+            const uri = "/ProviderDomainVif/";
+
+            // Initialise all tool-tips
+            $('[data-toggle="tooltip"]').tooltip();
+
+            $vifRole.on('change', function (e) {
+
+                var vifRoleName = this.value;
+                if (vifRoleName !== null) {
+
+                    GetIpAddressingComponent();
+                    GetContractBandwidthPoolComponent();
+                }
+            });           
+
+            function GetIpAddressingComponent() {
+
+                $ipAddressingComponent.fadeOut().empty();
+
+                $.get(uri + "GetIpAddressingComponent", {
+                    attachmentId: attachmentId.value,
+                    vifRoleName: vifRole.value
+                })
+                    .done(function (data) {
+
+                        $ipAddressingComponent.html(data).fadeIn();
+                        // Initialise new tool-tips
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // Re-initialise unobtrusive validation on the form
+                        var $form = $('#createForm')
+                            .removeData("validator")
+                            .removeData("unobtrusiveValidation");
+                        $.validator.unobtrusive.parse($form);
+                    });
+            }
+
+            function GetContractBandwidthPoolComponent() {
+
+                $contractBandwidthPoolComponent.fadeOut().empty();
+
+                $.get(uri + "GetContractBandwidthPoolComponent", {
+                    attachmentId: attachmentId.value,
+                    vifRoleName: vifRole.value
+                })
+                    .done(function (data) {
+
+                        $contractBandwidthPoolComponent.html(data).fadeIn();
+                        // Initialise new tool-tips
+                        $('[data-toggle="tooltip"]').tooltip();
+
+                        // Re-initialise unobtrusive validation on the form
+                        var $form = $('#createForm')
+                            .removeData("validator")
+                            .removeData("unobtrusiveValidation");
+                        $.validator.unobtrusive.parse($form);
+                    });
+            }
+
+        }(jQuery));
+    
+    </script>
+}

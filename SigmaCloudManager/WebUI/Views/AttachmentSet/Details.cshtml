@@ -1,27 +1,23 @@
-@model SCM.Models.ViewModels.AttachmentSetViewModel
+@model Mind.WebUI.Models.ProviderDomainAttachmentViewModel
 
 @{
-    ViewData["Title"] = "Attachment Set Details";
+    ViewData["Title"] = "Attachment Details";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID/@Model.TenantID">Attachment Sets- [@Model.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantId=@Model.TenantId">Provider Domain Attachments - [@Model.TenantName]</a></li>
     <li class="breadcrumb-item active">Details - [@Model.Name]</li>
 </ol>
 
-<h2>Details '@Model.Name'</h2>
+<h2>Details for Attachment '@Model.Name'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
 
 <div>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Tenant)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Tenant.Name)
-        </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Name)
         </dt>
@@ -29,32 +25,136 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.SubRegion.Region)
+            @Html.DisplayNameFor(model => model.InfrastructureDeviceName)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.SubRegion.Region.Name)
+            @Html.DisplayFor(model => model.InfrastructureDeviceName)
+        </dd>
+        @if (Model.IsMultiport)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.IsMultiport)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.IsMultiport)
+            </dd>
+        }
+        @if (Model.IsBundle)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.IsBundle)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.IsBundle)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.BundleMinLinks)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.BundleMinLinks)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.BundleMaxLinks)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.BundleMaxLinks)
+            </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.LocationName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LocationName)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.SubRegion)
+            @Html.DisplayNameFor(model => model.PlaneName)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.SubRegion.Name)
+            @Html.DisplayFor(model => model.PlaneName)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentRoleName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentRoleName)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.AttachmentRedundancy)
+            @Html.DisplayNameFor(model => model.IsLayer3)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AttachmentRedundancy.Name)
+            @Html.DisplayFor(model => model.IsLayer3)
         </dd>
         <dt>
-            @Html.DisplayNameFor(model => model.MulticastVpnDomainType)
+            @Html.DisplayNameFor(model => model.IsTagged)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.MulticastVpnDomainType.Name)
+            @Html.DisplayFor(model => model.IsTagged)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentBandwidthGbps)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentBandwidthGbps)
+        </dd>
+        @if (Model.ContractBandwidthPool != null)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.ContractBandwidthPool.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ContractBandwidthPool.Name)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.ContractBandwidthPool.ContractBandwidthMbps)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.ContractBandwidthPool.ContractBandwidthMbps)
+            </dd>
+        }
+        @if (Model.RoutingInstance != null)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.Name)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.AdministratorSubField)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.AdministratorSubField)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.AssignedNumberSubField)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.AssignedNumberSubField)
+            </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.Mtu)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mtu)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Notes)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Notes)
         </dd>
     </dl>
 </div>
-<div>
-    @Html.ActionLink("Edit", "Edit", new {  id = Model.AttachmentSetID, tenantID = Model.TenantID }) |
-    <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID">Back to List</a>
-</div>
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Attachments List</a>
+    </div>
+</form>

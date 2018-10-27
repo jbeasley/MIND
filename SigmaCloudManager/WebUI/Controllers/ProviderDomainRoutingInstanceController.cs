@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
 using Mind.WebUI.Attributes;
+using Mind.WebUI.Models;
 using SCM.Controllers;
 using SCM.Data;
 using SCM.Models;

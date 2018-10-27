@@ -11,6 +11,7 @@ namespace Mind.Builders
     public interface IAttachmentSetBuilder
     {
         IAttachmentSetBuilder ForTenant(int? tenantId);
+        IAttachmentSetBuilder ForAttachmentSet(int? attachmentSetId);
         IAttachmentSetBuilder WithAttachmentRedundancy(string attachmentRedundancy);
         IAttachmentSetBuilder WithLayer3(bool? isLayer3);
         IAttachmentSetBuilder WithMulticastVpnDomainType(string multicastVpnDomainTypeName);

@@ -31,6 +31,18 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.ProviderDomainAttachmentDeleteViewModel>()
                 .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
 
+            CreateMap<SCM.Models.Vif, Mind.WebUI.Models.ProviderDomainVifViewModel>()
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
+                .ForMember(dst => dst.VifRoleName, conf => conf.MapFrom(src => src.VifRole.Name));
+
+            CreateMap<SCM.Models.Vif, Mind.WebUI.Models.ProviderDomainVifUpdateViewModel>()
+                .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
+                .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
+                .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo))
+                .ForMember(dst => dst.RoutingInstance, conf => conf.Ignore());
+
+            CreateMap<SCM.Models.Vlan, Mind.WebUI.Models.VlanViewModel>();
+
             CreateMap<SCM.Models.Device, Mind.WebUI.Models.InfrastructureDeviceViewModel>()
                 .ForMember(dst => dst.DeviceModel, conf => conf.MapFrom(src => src.DeviceModel.Name))
                 .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
@@ -55,11 +67,16 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.ProviderDomainRoutingInstanceViewModel>()
                 .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName));
 
+            CreateMap<SCM.Models.AttachmentSet, Mind.WebUI.Models.AttachmentSetUpdateViewModel>()
+                .ForMember(dst => dst.AttachmentSetRoutingInstanceNames, conf => conf.Ignore())
+                .ForMember(dst => dst.AttachmentSetRoutingInstances, conf => conf.Ignore())
+                .ForMember(dst => dst.AttachmentRedundancy, conf => conf.Ignore())
+                .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name));
+
             // View model to entity model mappings
 
             CreateMap<Mind.WebUI.Models.TenantRequestViewModel, SCM.Models.Tenant>();
             CreateMap<Mind.WebUI.Models.TenantUpdateViewModel, SCM.Models.Tenant>();
-
         }
     }
 }

@@ -224,7 +224,7 @@ namespace Mind.WebUI.Controllers
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             if (attachment.RoutingInstance != null)
             {
-                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstance.Name);
+                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.DeviceID, attachment.RoutingInstance.Name);
             }
 
             return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
@@ -279,7 +279,7 @@ namespace Mind.WebUI.Controllers
 
             if (attachment.RoutingInstance != null)
             {
-                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.RoutingInstance.Name);
+                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.DeviceID, attachment.RoutingInstance.Name);
             }
 
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachment.TenantID);
@@ -413,14 +413,15 @@ namespace Mind.WebUI.Controllers
             ViewBag.Plane = new SelectList(_mapper.Map<List<PlaneViewModel>>(planes), "Name", "Name", selectedPlane);
         }
 
-        private async Task PopulateRoutingInstancesDropDownList(int tenantId, object selectedRoutingInstance = null)
+        private async Task PopulateRoutingInstancesDropDownList(int tenantId, int deviceId, object selectedRoutingInstance = null)
         {
             var routingInstances = await _unitOfWork.RoutingInstanceRepository.GetAsync(
                             q =>
                                 q.TenantID == tenantId &&
+                                q.DeviceID == deviceId &&
                                 q.RoutingInstanceType.IsTenantFacingVrf);
 
-            ViewBag.RoutingInstance = new SelectList(_mapper.Map<List<RoutingInstanceViewModel>>(routingInstances),
+            ViewBag.RoutingInstance = new SelectList(_mapper.Map<List<ProviderDomainRoutingInstanceViewModel>>(routingInstances),
                 "Name", "Name", selectedRoutingInstance);
         }
     }

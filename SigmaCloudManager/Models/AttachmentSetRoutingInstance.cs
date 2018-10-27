@@ -24,8 +24,14 @@ namespace SCM.Models
         {
             return query.Include(x => x.AttachmentSet)
                         .Include(x => x.RoutingInstance);
-        }        
-                
+        }
+
+        /// <summary>
+        /// Include all properties required to perform delete validation.
+        /// Changes to this method MUST also be refleted in the AttachmentSet entity model
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
         public static IQueryable<AttachmentSetRoutingInstance> IncludeDeleteValidationProperties(this IQueryable<AttachmentSetRoutingInstance> query)
         {
             return query.Include(x => x.AttachmentSet.VpnAttachmentSets)

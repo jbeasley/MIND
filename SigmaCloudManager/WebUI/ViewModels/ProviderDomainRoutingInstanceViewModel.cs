@@ -30,7 +30,15 @@ namespace Mind.WebUI.Models
         /// <value>A string value denoting the name of the routing instance</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [Display(Name = "Routing Instance Name")]
-        public string Name { get; private set; }
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The display name of the routing instance which includes the location and provider plane
+        /// </summary>
+        /// <value>A string value denoting the display name of the routing instance</value>
+        /// <example>db7c48eaa9864cd0b3aa6af08c8370d6, UK2, Blue</example>
+        [Display(Name = "Routing Instance Display Name")]
+        public string DisplayName { get; set; }
 
         /// <summary>
         /// The name of the provider domain location within which the routing instance exists

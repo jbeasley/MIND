@@ -1,0 +1,28 @@
+﻿@model IList<Mind.WebUI.Models.Ipv4AddressAndMaskViewModel>
+
+<fieldset class="form-group">
+    @for (var i = 0; i < Model.Count(); i++)
+    {
+        <div class="row">
+            <label class="col-sm-2">IP Addressing Set @i</label>
+            <div class="col-sm-2">
+                <label>IP Address</label>
+                <div>
+                    <input asp-for="@Model[i].IpAddress" name="Ipv4Addresses[@i].IpAddress" class="form-control" data-toggle="tooltip" data-placement="top"
+                           title="Enter an IP address for the attachment" />
+                    <span asp-validation-for="@Model[i].IpAddress" class="text-danger" />
+                </div>
+            </div>
+            <div class="col-sm-2">
+                <label>Subnet Mask</label>
+                <div>
+                    <input asp-for="@Model[i].SubnetMask" name="Ipv4Addresses[@i].SubnetMask"  class="form-control" data-toggle="tooltip" data-placement="top"
+                           title="Enter a subnet mask for the attachment" />
+                    <span asp-validation-for="@Model[i].SubnetMask" class="text-danger" />
+                </div>
+            </div>
+        </div>
+        }
+</fieldset>
+
+

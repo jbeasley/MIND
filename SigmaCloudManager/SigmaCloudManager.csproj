@@ -43,6 +43,45 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="WebUI\Views\AttachmentSet\Create.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\AttachmentSet\Delete.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\AttachmentSet\Details.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\AttachmentSet\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\AttachmentSet\GetAllByTenantID.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\AttachmentSet\RoutingInstances.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\AttachmentSet\SubRegions.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\ProviderDomainVif\VifRoles.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\ProviderDomainVif\Create.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\ProviderDomainVif\Delete.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\ProviderDomainVif\Details.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\ProviderDomainVif\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\ProviderDomainVif\GetAllByAttachmentID.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="WebUI\Views\ProviderDomainAttachment\AttachmentRoles.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -70,7 +109,13 @@
     <Content Update="WebUI\Views\ProviderDomainAttachment\SubRegions.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="WebUI\Views\Shared\Components\VifContractBandwidthPool\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="WebUI\Views\Shared\Components\AttachmentContractBandwidthPool\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\VifIpAddressing\Default.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\Shared\ItemNotFound.cshtml">

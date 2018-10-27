@@ -20,8 +20,7 @@
     {
         <input type="hidden" name="tenantId" value="@ViewBag.Tenant.TenantId" />
         <p>
-            <button type="submit" class="btn btn-info btn-default ">
-                <i class="far fa-minus-square"></i>&nbsp;Clear Created Alerts
+            <button type="submit" class="btn btn-info btn-default" is-clear-alerts-button>
             </button>
         </p>
     }
@@ -40,6 +39,7 @@
 <table class="table" id="attachmentsTable">
     <thead>
         <tr>
+            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
@@ -67,6 +67,9 @@
         {
             <tr>
                 <td>
+                    <input type="checkbox" />
+                </td>
+                <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
@@ -87,10 +90,10 @@
                     @Html.ActionLink("Edit", "Edit", new { attachmentId = item.AttachmentId }) |
                     @Html.ActionLink("Details", "Details", new { attachmentId = item.AttachmentId }) |
                     @Html.ActionLink("Delete", "Delete", new { attachmentID = item.AttachmentId }) |
-                    @Html.ActionLink("Interfaces", "GetAllInterfacesByAttachmentID", new { attachmentId = item.AttachmentId })
+                    @Html.ActionLink("Interfaces", "GetAllByAttachmentID", "ProviderDomainInterface", new { attachmentId = item.AttachmentId })
                     @if (item.IsTagged)
                     {
-                        <span>|</span> @Html.ActionLink("VIFs", "GetAllByAttachmentID", "TenantVif", new { ID = item.AttachmentId })
+                        <span>|</span> @Html.ActionLink("VIFs", "GetAllByAttachmentID", "ProviderDomainVif", new { attachmentId = item.AttachmentId })
                     }
                 </td>
             </tr>

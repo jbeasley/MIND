@@ -33,5 +33,11 @@ namespace Mind.Models.RequestModels
         /// </summary>
         /// <value>An enum member for the multicast domain supported by the attachment set</value>
         public MulticastVpnDomainTypeEnum? MulticastVpnDomainType { get; set; }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <value>A list of RoutingInstanceForAttachmentSetRequest objects</value>
+        public List<RoutingInstanceForAttachmentSetRequest> AttachmentSetRoutingInstances { get; set; }
     }
 }

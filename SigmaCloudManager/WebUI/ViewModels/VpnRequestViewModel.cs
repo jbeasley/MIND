@@ -1,59 +1,196 @@
-﻿using Mind.WebUI.Models;
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 
-namespace SCM.Models.ViewModels
+using System;
+using System.Linq;
+using System.IO;
+using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
+using System.ComponentModel;
+
+namespace Mind.WebUI.Models
 {
-    public class VpnRequestViewModel
+    /// <summary>
+    /// Model for requesting a vpn
+    public class VpnRequestViewModel : IValidatableObject
     {
+        public VpnRequestViewModel()
+        {
+            // Default value for VPN should be to enable Nova
+            IsNovaVpn = true;
+        }
+
+        /// <summary>
+        /// The ID of the tenant for which the vpn will be created
+        /// </summary>
+        /// <value>Integer value for the ID of the tenant</value>
+        /// <example>1001</example>
+        public int? TenantId { get; set; }
+
+        /// <summary>
+        /// The name of the vpn
+        /// </summary>
+        /// <value>String value denoting the name of the vpn</value>
+        /// <example>cloud-connectivity-vpn</example>
         [Required]
-        [StringLength(50)]
-        [RegularExpression(@"^[a-zA-Z0-9-]+$", ErrorMessage = "The name must contain letters, numbers, and dashes (-) only and no whitespace.")]
+        [Display(Name = "Name")]
         public string Name { get; set; }
-        [StringLength(250)]
+
+        /// <summary>
+        /// A description of the VPN
+        /// </summary>
+        /// <value>String value denoting the vpn description</value>
+        /// <example>vpn for providing IP connectivity between hosts running in public and private clouds</example>
+        [Display(Name = "Description")]
+        [Required]
         public string Description { get; set; }
+
+        /// <summary>
+        /// The geographical region which the vpn operates within. If no region is chosen then the vpn should be made available in all regions
+        /// </summary>
+        /// <value>Enum value denoting the region</value>
+        /// <example>EMEA</example>
+        [Display(Name = "Region")]
+        public RegionEnum? Region { get; set; }
+
+        /// <summary>
+        /// The provider plane which the vpn should operate. If no plane is chosen then the vpn should operate in both the red and blue planes.
+        /// </summary>
+        /// <value>Enum member denoting the provider plane which the VPN operates within</value>
+        /// <example>Red</example>
+        [Display(Name = "Plane")]
+        public PlaneEnum? Plane { get; set; }
+
+        /// <summary>
+        /// The tenancy type of the vpn. If the tenancy type is single then only the owner of the vpn can participate in the vpn. 
+        /// If the tenancy type is multi then any tenant can participate in the vpn.
+        /// </summary>
+        /// <value>Enum value denoting the tenancy type of the vpn</value>
+        /// <example>Single</example>
+        [Required]
+        [Display(Name = "Tenancy Type")]
+        public TenancyTypeEnum? TenancyType { get; set; }
+
+        /// <summary>
+        /// The protocol type of the vpn.
+        /// </summary>
+        /// <value>Enum value denoting the protocol type of the vpn</value>
+        /// <example>IP</example>
+        [Required]
+        [Display(Name = "Protocol Type")]
+        public ProtocolTypeEnum? ProtocolType { get; set; } = ProtocolTypeEnum.IP;
+
+        /// <summary>
+        /// The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. 
+        /// A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. 
+        /// </summary>
+        /// <value>Enum value denoting the topology type of the vpn.</value>
+        /// <example>Meshed</example>
+        [Required]
+        [Display(Name = "Topology Type")]
+        public TopologyTypeEnum? TopologyType { get; set; }
+
+        /// <summary>
+        /// The address family of the VPN. Currently only IPv4 is available. 
+        /// </summary>
+        /// <value>Enum value denoting the address family of the vpn.</value>
+        /// <example>IPv4</example>
+        [Required]
+        [Display(Name = "Address Family")]
+        public AddressFamilyEnum? AddressFamily { get; set; }
+
+        /// <summary>
+        /// Determines if the VPN is launched as a standard 'Nova' implemented vpn. If this option is disabled the vpn may be customised.
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn is launched as a standard Nova VPN.</value>
+        [Required]
+        [Display(Name = "Nova VPN")]
+        public bool IsNovaVpn { get; set; }
+
+        /// <summary>
+        /// Determines if the vpn supports extranet connectivity
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports extranet</value>
+        /// <example>true</example>
         [Display(Name = "Extranet")]
         public bool IsExtranet { get; set; }
-        [Display(Name = "Nova VPN")]
-        public bool IsNovaVpn { get; set; } = true;
+
+        /// <summary>
+        /// Determines if the VPN supports IP multicast
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports IP multicast.</value>
+        /// <example>true</example>
         [Display(Name = "Multicast VPN")]
         public bool IsMulticastVpn { get; set; }
-        [Required(ErrorMessage = "A VPN Protocol Type must be selected")]
-        public int VpnProtocolTypeID { get; set; }
-        [Required(ErrorMessage = "A VPN Topology Type must be selected.")]
-        public int VpnTopologyTypeID { get; set; }
-        [Required(ErrorMessage = "A VPN Tenancy Type must be selected.")]
-        public int VpnTenancyTypeID { get; set; }
-        [Required(ErrorMessage = "A Tenant must be selected.")]
-        public int TenantID { get; set; }
-        public int? PlaneID { get; set; }
-        [Required(ErrorMessage = "An Address Family must be selected.")]
-        public int AddressFamilyID { get; set; }
-        public int? RegionID { get; set; }
-        public int? RouteTargetRangeID { get; set; }
-        [Display(Name = "Requires Sync")]
-        public bool RequiresSync { get; set; }
-        public bool Created { get; set; }
-        public int? MulticastVpnServiceTypeID { get; set; }
-        public int? MulticastVpnDirectionTypeID { get; set; }
-        public byte[] RowVersion { get; set; }
-        public TenantViewModel Tenant { get; set; }
-        public PlaneViewModel Plane { get; set; }
-        public RegionViewModel Region { get; set; }
-        [Display(Name = "Protocol Type")]
-        public VpnProtocolTypeViewModel VpnProtocolType { get; set; }
-        [Display(Name = "Address Family")]
-        public AddressFamilyViewModel AddressFamily { get; set; }
+
+        /// <summary>
+        /// The multicast service type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast service type of the vpn.</value>
+        /// <example>ssm</example>
+        [Display(Name = "Multicast VPN Service Type")]
+        public MulticastVpnServiceTypeEnum? MulticastVpnServiceType { get; set; }
+
+        /// <summary>
+        /// The multicast direction type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast direction type of the vpn.</value>
+        /// <example>unidirectional</example>
+        [Display(Name = "Multicast VPN Direction Type")]
+        public MulticastVpnDirectionTypeEnum? MulticastVpnDirectionType { get; set; }
+
+        /// <summary>
+        /// The name of a tenant with attachment sets to be added to the vpn.
+        /// </summary>
+        /// <value>String value denoting the name of a tenant</value>
+        /// <example>Elektron</example>
+        [Display(Name="Tenant Name")]
+        public string TenantName { get; private set; }
+
+        /// <summary>
+        /// An attachment set to be added to the vpn.
+        /// </summary>
+        /// <value>An instnace of AttachmentSetViewModel representing an attachment set to be added to the vpn</value>
+        [Display(Name="Attachment Set")]
+        public AttachmentSetViewModel AttachmentSet { get; set; }
+
+        /// <summary>
+        /// The route target range. Route targets will be allocated from the specified range.
+        /// </summary>
+        /// <value>String value denoting the name of the route target range</value>
+        /// <example>default</example>
         [Display(Name = "Route Target Range")]
-        public RouteTargetRangeViewModel RouteTargetRange { get; set; }
-        [Display(Name = "Topology Type")]
-        public VpnTopologyTypeViewModel VpnTopologyType { get; set; }
-        [Display(Name = "Tenancy Type")]
-        public VpnTenancyTypeViewModel VpnTenancyType { get; set; }
-        [Display(Name = "Multicast Service Type")]
-        public MulticastVpnServiceTypeViewModel MulticastVpnServiceType { get; set; }
-        [Display(Name = "Multicast Direction Type")]
-        public MulticastVpnDirectionTypeViewModel MulticastVpnDirectionType { get; set; }
+        public RouteTargetRangeEnum? RouteTargetRange { get; set; } = RouteTargetRangeEnum.Default;
+
+        /// <summary>
+        /// A list of requested route targets to be assigned to the vpn
+        /// </summary>
+        /// <value>A list of RouteTargetRequest objects</value>
+        [Display(Name = "Route Target Requests")]
+        public List<RouteTargetRequestViewModel> RouteTargetRequests { get; set; }
+
+        /// <summary>
+        /// A list of vpn attachment set request objects to be associated with the vpn.
+        /// This list is created on submission of the create form from the web UI from the list of attachment set names given
+        /// in the AttachmentSetNames property of this model. Each attachment set name in the list is mapped into an
+        /// instance of VpnAttachmentSetRequest and added this list. This step makes it easy to integrate the create method
+        /// of the controller with the service layer of the application.
+        /// </summary>
+        public List<VpnAttachmentSetRequestViewModel> VpnAttachmentSets { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (!RouteTargetRange.HasValue)
+            {
+                if (RouteTargetRequests != null && RouteTargetRequests.Any())
+                {
+                    yield return new ValidationResult("A route target range cannot be specified concurrently with requested route targets. " +
+                        "Remove either the route target range or the list of requested route targets from the request.");
+                }
+            }
+        }
     }
 }

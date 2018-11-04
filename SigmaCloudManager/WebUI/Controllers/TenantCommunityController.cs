@@ -5,296 +5,240 @@ using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper;
-using SCM.Models;
+using SCM.Models.RequestModels;
 using SCM.Models.ViewModels;
-using SCM.Services;
-using SCM.Validators;
+using SCM.Models;
+using Microsoft.AspNetCore.Mvc.Filters;
+using SCM.Controllers;
 using Mind.Services;
+using SCM.Data;
+using Mind.Models;
+using Mind.Builders;
+using Mind.WebUI.Attributes;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
+using Mind.Models.RequestModels;
+using Mind.WebUI.ViewComponents;
 
-namespace SCM.Controllers
+namespace Mind.WebUI.Controllers
 {
     public class TenantCommunityController : BaseViewController
     {
-        public TenantCommunityController(ITenantCommunityService tenantCommunityService,
-            IVpnService vpnService,
-            ITenantService tenantService,
-            IMapper mapper,
-            ITenantCommunityValidator tenantCommunityValidator)
+        private readonly ITenantCommunityService _tenantCommunityService;
+        public TenantCommunityController(ITenantCommunityService tenantCommunityService, IUnitOfWork unitOfWork, IMapper mapper) :
+            base(unitOfWork, mapper)
         {
-            TenantCommunityService = tenantCommunityService;
-            VpnService = vpnService;
-            TenantService = tenantService;
-            Mapper = mapper;
-            TenantCommunityValidator = tenantCommunityValidator;
-            this.Validator = tenantCommunityValidator;
-        }
-
-        private ITenantCommunityService TenantCommunityService { get; set; }
-        private IVpnService VpnService { get; set; }
-        private ITenantService TenantService { get; set; }
-        private IMapper Mapper { get; set; }
-        private ITenantCommunityValidator TenantCommunityValidator { get; set; }
-
-        [HttpGet]
-        public async Task<IActionResult> GetAllByTenantID(int? id, string searchString = "", bool showWarningMessage = false)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenantCommunities = await TenantCommunityService.GetAllByTenantIDAsync(id.Value, searchString);
-            if (showWarningMessage)
-            {
-                ViewData["NetworkWarningMessage"] = $"VPNs require synchronisation with the network as a result of this update. "
-                            + "Follow this <a href = '/Vpn/GetAll'>link</a> to the VPNs page.";
-            }
-
-            ViewBag.Tenant = await TenantService.GetByIDAsync(id.Value);
-            return View(Mapper.Map<List<TenantCommunityViewModel>>(tenantCommunities));
+            _tenantCommunityService = tenantCommunityService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(int? id)
+        [ValidateTenantCommunityExists]
+        public async Task<IActionResult> Details(int? tenantCommunityId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var item = await TenantCommunityService.GetByIDAsync(id.Value);
-            if (item == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.Tenant = await TenantService.GetByIDAsync(item.TenantID);
-            return View(Mapper.Map<TenantCommunityViewModel>(item));
+            var item = await _tenantCommunityService.GetByIDAsync(tenantCommunityId.Value, deep: true, asTrackable: false);
+            return View(_mapper.Map<TenantCommunityViewModel>(item));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(int? id)
+        [ValidateTenantExists]
+        public async Task<IActionResult> GetAllByTenantID(int? tenantId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var tenantCommunitys = await _unitOfWork.TenantCommunityRepository.GetAsync(
+                    q =>
+                    q.TenantID == tenantId.Value,
+                    query: q => q.IncludeDeepProperties(),
+                    AsTrackable: false);
 
-            ViewBag.Tenant = await TenantService.GetByIDAsync(id.Value);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+
+            return View(_mapper.Map<List<TenantCommunityViewModel>>(tenantCommunitys));
+        }
+
+        [HttpGet]
+        [ValidateTenantExists]
+        public async Task<IActionResult> Create(int? tenantId)
+        {
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            PopulateIpRoutingBehavioursDropDownList();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TenantID,AutonomousSystemNumber,Number,AllowExtranet")] TenantCommunityViewModel tenantCommunityModel)
+        [ValidateTenantExists]
+        public async Task<IActionResult> Create(int? tenantId, TenantCommunityRequestViewModel requestModel)
         {
             if (ModelState.IsValid)
             {
-                var tenantCommunity = Mapper.Map<TenantCommunity>(tenantCommunityModel);
-                await TenantCommunityValidator.ValidateNewAsync(tenantCommunity);
-
-                if (TenantCommunityValidator.ValidationDictionary.IsValid)
+                try
                 {
+                    var request = _mapper.Map<TenantCommunityRequest>(requestModel);
+
+                    var attachment = await _tenantCommunityService.AddAsync(tenantId.Value, request);
+                    return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
+                }
+
+                catch (BuilderBadArgumentsException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (BuilderUnableToCompleteException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (DbUpdateException)
+                {
+                    ModelState.AddDatabaseUpdateExceptionMessage();
+                }
+            }
+
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            PopulateIpRoutingBehavioursDropDownList();
+
+            return View(requestModel);
+        }
+
+        [HttpGet]
+        [ValidateTenantCommunityExists]
+        public async Task<ActionResult> Edit(int? tenantCommunityId)
+        {
+            var tenantCommunity = await _tenantCommunityService.GetByIDAsync(tenantCommunityId.Value, deep: true, asTrackable: false);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantCommunity.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            PopulateIpRoutingBehavioursDropDownList(tenantCommunity.IpRoutingBehaviour);
+
+            return View(_mapper.Map<TenantCommunityUpdateViewModel>(tenantCommunity));
+        }
+
+        [HttpPost]
+        [ValidateTenantCommunityExists]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit(int? tenantCommunityId, TenantCommunityUpdateViewModel update)
+        {
+            var tenantCommunity = await _tenantCommunityService.GetByIDAsync(tenantCommunityId.Value, deep: true, asTrackable: false);
+
+            if (ModelState.IsValid)
+            {
+                if (tenantCommunity.HasPreconditionFailed(Request, update.GetConcurrencyToken()))
+                {
+                    ModelState.AddUpdatePreconditionFailedMessage();
+                    ModelState.RemoveConcurrencyTokenItem();
+                    update.UpdateConcurrencyToken(tenantCommunity.GetConcurrencyToken());
+                }
+                else
+                {
+
+                    var tenantCommunityUpdate = _mapper.Map<TenantCommunityRequest>(update);
+
                     try
                     {
-                        await TenantCommunityService.AddAsync(Mapper.Map<TenantCommunity>(tenantCommunityModel));
-                        return RedirectToAction("GetAllByTenantID", new
-                        {
-                            id = tenantCommunityModel.TenantID
-                        });
+                        await _tenantCommunityService.UpdateAsync(tenantCommunityId.Value, tenantCommunityUpdate);
+                        return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = tenantCommunity.TenantID });
                     }
 
-                    catch (DbUpdateException /* ex */)
+                    catch (BuilderBadArgumentsException ex)
                     {
-                        //Log the error (uncomment ex variable name and write a log.
-                        ModelState.AddModelError("", "Unable to save changes. " +
-                            "Try again, and if the problem persists " +
-                            "see your system administrator.");
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (BuilderUnableToCompleteException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (IllegalStateException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (IllegalDeleteAttemptException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (DbUpdateException)
+                    {
+                        ModelState.AddDatabaseUpdateExceptionMessage();
                     }
                 }
             }
-        
-            ViewBag.Tenant = await TenantService.GetByIDAsync(tenantCommunityModel.TenantID);
-            return View(Mapper.Map<TenantCommunityViewModel>(tenantCommunityModel));
+
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantCommunity.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            PopulateIpRoutingBehavioursDropDownList(update.IpRoutingBehaviour);
+
+            return View(_mapper.Map<TenantCommunityUpdateViewModel>(tenantCommunity));
         }
 
         [HttpGet]
-        public async Task<ActionResult> Edit(int? id)
+        [ValidateTenantCommunityExists]
+        public async Task<IActionResult> Delete(int? tenantCommunityId, bool? concurrencyError = false)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var item = await _tenantCommunityService.GetByIDAsync(tenantCommunityId.Value, deep: true, asTrackable: false);
+            if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(item.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            var tenantCommunity = await TenantCommunityService.GetByIDAsync(id.Value);
-            if (tenantCommunity == null)
-            {
-                return NotFound();
-            }
-
-            ViewBag.Tenant = await TenantService.GetByIDAsync(id.Value);
-            return View(Mapper.Map<TenantCommunityViewModel>(tenantCommunity));
+            return View(_mapper.Map<TenantCommunityDeleteViewModel>(item));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, [Bind("TenantCommunityID,TenantID,AutonomousSystemNumber," +
-            "Number,AllowExtranet,RowVersion")] TenantCommunityViewModel tenantCommunityModel)
+        public async Task<IActionResult> Delete(TenantCommunityDeleteViewModel model)
         {
-            if (id != tenantCommunityModel.TenantCommunityID)
-            {
-                return NotFound();
-            }
+            var tenantCommunity = await _tenantCommunityService.GetByIDAsync(model.TenantCommunityId.Value, deep: true, asTrackable: false);
+            if (tenantCommunity == null) return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = model.TenantId });
 
-            var tenantCommunity = await TenantCommunityService.GetByIDAsync(id);
-            if (tenantCommunity == null)
+            if (tenantCommunity.HasPreconditionFailed(Request, model.GetConcurrencyToken()))
             {
-                ModelState.AddModelError(string.Empty, "Unable to save changes. The Tenant Community was deleted by another user.");
-            }
-
-            try
-            {
-                var item = Mapper.Map<TenantCommunity>(tenantCommunityModel);
-                await TenantCommunityValidator.ValidateChangesAsync(item);
-
-                if (TenantCommunityValidator.ValidationDictionary.IsValid)
+                return RedirectToAction(nameof(Delete), new
                 {
-                    await TenantCommunityService.UpdateAsync(item);
-    
-                    return RedirectToAction("GetAllByTenantID", new
-                    {
-                        id = tenantCommunity.TenantID
-                    });
-                }
-            }
-
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var exceptionEntry = ex.Entries.Single();
-
-                var proposedAutonomousSystemNumber = (int)exceptionEntry.Property("AutonomousSystemNumber").CurrentValue;
-                if (tenantCommunity.AutonomousSystemNumber != proposedAutonomousSystemNumber)
-                {
-                    ModelState.AddModelError("AutonomousSystemNumber", $"Current value: {tenantCommunity.AutonomousSystemNumber}");
-                }
-
-                var proposedNumber = (int)exceptionEntry.Property("Number").CurrentValue;
-                if (tenantCommunity.Number != proposedNumber)
-                {
-                    ModelState.AddModelError("Number", $"Current value: {tenantCommunity.Number}");
-                }
-
-                var proposedAllowExtranet = (bool)exceptionEntry.Property("AllowExtranet").CurrentValue;
-                if (tenantCommunity.AllowExtranet != proposedAllowExtranet)
-                {
-                    ModelState.AddModelError("AllowExtranet", $"Current value: {tenantCommunity.AllowExtranet}");
-                }
-
-                ModelState.AddModelError(string.Empty, "The record you attempted to edit "
-                    + "was modified by another user after you got the original value. The "
-                    + "edit operation was cancelled and the current values in the database "
-                    + "have been displayed. If you still want to edit this record, click "
-                    + "the Save button again. Otherwise click the Back to List hyperlink.");
-
-                ModelState.Remove("RowVersion");
-            }
-
-            catch (DbUpdateException /* ex */ )
-            {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError("", "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator.");
-
-            }
-
-            ViewBag.Tenant = await TenantService.GetByIDAsync(tenantCommunity.TenantID);
-            return View(Mapper.Map<TenantCommunityViewModel>(tenantCommunity));
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Delete(int? id, int? tenantID, bool? concurrencyError = false)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenantCommunity = await TenantCommunityService.GetByIDAsync(id.Value);
-            if (tenantCommunity == null)
-            {
-                if (concurrencyError.GetValueOrDefault())
-                {
-                    return RedirectToAction("GetAllByTenantID", new
-                    {
-                        id = tenantID
-                    });
-                }
-
-                return NotFound();
-            }
-
-            if (concurrencyError.GetValueOrDefault())
-            {
-                ViewData["ErrorMessage"] = "The record you attempted to delete "
-                    + "was modified by another user after you got the original values. "
-                    + "The delete operation was cancelled and the current values in the "
-                    + "database have been displayed. If you still want to delete this "
-                    + "record, click the Delete button again. Otherwise "
-                    + "click the Back to List hyperlink.";
-            }
-
-            var tenant = await TenantService.GetByIDAsync(tenantCommunity.TenantID);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-
-            return View(Mapper.Map<TenantCommunityViewModel>(tenantCommunity));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(TenantCommunityViewModel tenantCommunityModel)
-        {
-            var tenantCommunity = await TenantCommunityService.GetByIDAsync(tenantCommunityModel.TenantCommunityID);
-            if (tenantCommunity == null)
-            {
-                return RedirectToAction("GetAllByTenantID", new
-                {
-                    id = tenantCommunityModel.TenantID
+                    tenantCommunityId = tenantCommunity.TenantCommunityID,
+                    concurrencyError = true
                 });
             }
 
             try
             {
-                this.Validator.ValidationDictionary.Clear();
-                await TenantCommunityValidator.ValidateDeleteAsync(tenantCommunity.TenantCommunityID);
-
-                if (TenantCommunityValidator.ValidationDictionary.IsValid)
-                {
-                    await TenantCommunityService.DeleteAsync(tenantCommunityModel.TenantCommunityID);
-                    return RedirectToAction("GetAllByTenantID", new
-                    {
-                        id = tenantCommunityModel.TenantID
-                    });
-                }
+                await _tenantCommunityService.DeleteAsync(tenantCommunity.TenantCommunityID);
+                return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = tenantCommunity.TenantID });
             }
 
-            catch (DbUpdateConcurrencyException /* ex */)
+            catch (IllegalDeleteAttemptException ex)
             {
-                //Log the error (uncomment ex variable name and write a log.)
-                return RedirectToAction("Delete", new
-                {
-                    concurrencyError = true,
-                    id = tenantCommunityModel.TenantCommunityID,
-                    tenantID = tenantCommunityModel.TenantID
-                });
+                ViewData.AddDeleteValidationFailedMessage(ex.Message);
             }
 
-            var tenant = await TenantService.GetByIDAsync(tenantCommunity.TenantID);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
+            catch (DbUpdateException ex)
+            {
+                ViewData.AddDatabaseUpdateExceptionMessage();
+            }
 
-            return View(Mapper.Map<TenantCommunityViewModel>(tenantCommunity));
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantCommunity.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+
+            return View(_mapper.Map<TenantCommunityDeleteViewModel>(tenantCommunity));
+        }
+
+        private void PopulateIpRoutingBehavioursDropDownList(object selectedIpRoutingBehavior = null)
+        {
+            IList<SelectListItem> list = Enum.GetValues(typeof(TenantIpRoutingBehaviourEnum))
+                .Cast<TenantIpRoutingBehaviourEnum>()
+                .Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+
+            ViewBag.IpRoutingBehaviour = new SelectList(list, "Value", "Text");
         }
     }
 }

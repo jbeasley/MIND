@@ -1,7 +1,4 @@
-@model IEnumerable<SCM.Models.ViewModels.TenantIpNetworkViewModel>
-@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
-@using Microsoft.Extensions.Options;
-@using SCM;
+@model IEnumerable<Mind.WebUI.Models.TenantIpNetworkViewModel>
 
 @{
     ViewData["Title"] = "Tenant IP Networks";
@@ -10,78 +7,73 @@
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item active">IP Networks - [@ViewBag.Tenant.Name]</li>
+    <li class="breadcrumb-item active">Tenant IP Networks - [@ViewBag.Tenant.Name]</li>
 </ol>
 
-@if (ApplicationConfiguration.Value.EnableNetworkSync)
-{
-
-    // Show Network messages if Network Sync functionality is enabled
-    await Html.RenderPartialAsync("_NetworkMessagingPartial");
-}
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
 
-<h2>Networks for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<h2>IP Networks for Tenant '@ViewBag.Tenant.Name'</h2>
 
 <p>
-    <a asp-action="Create" asp-route-id="@ViewBag.Tenant.TenantID" ]">Create New</a>
+    <a asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
+       data-toggle="tooltip" data-placement="right"
+       title="Create a new IP network">Create New</a>
 </p>
-
-@using (Html.BeginForm("GetAllByTenantID", "TenantIpNetwork", FormMethod.Get))
-{
-    <p>
-        CIDR Network: @Html.TextBox("SearchString")
-        <button type="submit" class="btn btn-info btn-default ">
-            <span class="glyphicon glyphicon-search"></span>&nbsp;Search
-        </button>
-    </p>
-}
+<p>
 
 <table class="table">
     <thead>
         <tr>
+            <th></th>
             <th>
-                @Html.DisplayNameFor(model => model.Ipv4Prefix)
+                @Html.DisplayNameFor(model => model.CidrNameIncludingIpv4LessThanOrEqualToLength)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Ipv4Length)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Ipv4LessThanOrEqualToLength)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.AllowExtranet)
-            </th>
+            <th></th>
+            <th></th>
+            <th></th>
             <th></th>
         </tr>
     </thead>
+
     <tbody>
         @foreach (var item in Model)
         {
             <tr>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Ipv4Prefix)
+                    <input type="checkbox" />
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Ipv4Length)
+                    @Html.DisplayFor(modelItem => item.CidrNameIncludingIpv4LessThanOrEqualToLength)
                 </td>
+                <td></td>
+                <td></td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.Ipv4LessThanOrEqualToLength)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AllowExtranet)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.TenantIpNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
-                    @Html.ActionLink("Details", "Details", new { id = item.TenantIpNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
-                    @Html.ActionLink("Delete", "Delete", new { id = item.TenantIpNetworkID, tenantID = Context.Request.Query["tenantID"] })
+                    @Html.ActionLink("Edit", "Edit", new { tenantIpNetworkId = item.TenantIpNetworkId }) |
+                    @Html.ActionLink("Details", "Details", new { tenantIpNetworkId = item.TenantIpNetworkId }) |
+                    @Html.ActionLink("Delete", "Delete", new { tenantIpNetworkId = item.TenantIpNetworkId })
                 </td>
             </tr>
         }
     </tbody>
 </table>
-<div>
-    <a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
-</div>
+<input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
+
+<a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+ }

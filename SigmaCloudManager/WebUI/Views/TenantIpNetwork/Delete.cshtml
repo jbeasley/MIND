@@ -1,17 +1,18 @@
-@model SCM.Models.ViewModels.TenantIpNetworkViewModel
+@model Mind.WebUI.Models.TenantIpNetworkDeleteViewModel
+
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Tenant IP Network";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID/@Model.TenantID">IP Networks - [@Model.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Delete - [@Model.Ipv4Prefix/@Model.Ipv4Length]</li>
+    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID?tenantId=@Model.TenantId">Tenant IP Networks - [@Model.TenantName]</a></li>
+    <li class="breadcrumb-item active">Delete - [@Model.CidrNameIncludingIpv4LessThanOrEqualToLength]</li>
 </ol>
 
-<h2>Delete Tenant Network '@Model.Ipv4Prefix/@Model.Ipv4Length'</h2>
+<h2>Delete IP Network '@Model.CidrNameIncludingIpv4LessThanOrEqualToLength'</h2>
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
@@ -21,36 +22,21 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Ipv4Prefix)
+            @Html.DisplayNameFor(model => model.CidrNameIncludingIpv4LessThanOrEqualToLength)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Ipv4Prefix)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Ipv4Length)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Ipv4Length)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Tenant)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Tenant.Name)
+            @Html.DisplayFor(model => model.CidrNameIncludingIpv4LessThanOrEqualToLength)
         </dd>
     </dl>
-
+    <hr />
     <form asp-action="Delete">
-        <input type="hidden" asp-for="TenantIpNetworkID" />
-        <input type="hidden" asp-for="TenantID" />
-        <input type="hidden" asp-for="Ipv4Length" />
-        <input type="hidden" asp-for="Ipv4Prefix" />
+        <input type="hidden" asp-for="TenantIpNetworkId" />
+        <input type="hidden" asp-for="TenantId" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
-            <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">
-                <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete
+            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button>
             </button> |
-            <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID">Back to List</a>
+            <a asp-action="GetAllByTenantID" asp-route-tenantId="@Model.TenantId">Back to Tenant IP Networks List</a>
         </div>
     </form>
 </div>

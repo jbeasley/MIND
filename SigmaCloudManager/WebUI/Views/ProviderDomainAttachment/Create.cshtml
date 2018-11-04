@@ -57,13 +57,13 @@
     <div class="form-group row">
         <label class="col-form-label col-sm-2"></label>
         <div class="col-sm-10">
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" asp-for="BundleRequired" data-toggle="tooltip" title="Request a bundle attachment">
-                <label class="form-check-label" asp-for="BundleRequired"></label>
+            <div class="custom-control custom-control-inline custom-checkbox">
+                <input class="form-check-input custom-control-input" type="checkbox" asp-for="BundleRequired" data-toggle="tooltip" title="Request a bundle attachment">
+                <label class="form-check-label custom-control-label" asp-for="BundleRequired"></label>
             </div>
-            <div class="form-check form-check-inline">
-                <input class="form-check-input" type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip" title="Request a multi-port attachment">
-                <label class="form-check-label" asp-for="MultiportRequired"></label>
+            <div class="custom-control custom-control-inline custom-checkbox">
+                <input class="form-check-input custom-control-input" type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip" title="Request a multi-port attachment">
+                <label class="form-check-label custom-control-label" asp-for="MultiportRequired"></label>
             </div>
         </div>
     </div>
@@ -211,7 +211,7 @@
                 }
                 else {
 
-                    Populate($attachmentRole, uri + "AttachmentRoles", {
+                    Mind.Utilities.populateDropDownList($attachmentRole, uri + "AttachmentRoles", {
                         portPoolName: portPoolVal
                     });
                 }
@@ -262,7 +262,7 @@
                     location.selectedIndex = 0;
                     location.disabled = true;
 
-                    Populate($subregion, uri + "SubRegions", { regionId : regionId });
+                    Mind.Utilities.populateDropDownList($subregion, uri + "SubRegions", { regionId : regionId });
                 }
             });
 
@@ -275,29 +275,14 @@
             $multiportRequired.on('click', function (e) {
 
                 bundleRequired.checked = false;
-                Populate($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
+                Mind.Utilities.populateDropDownList($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
             });
 
             $bundleRequired.on('click', function (e) {
 
                 multiportRequired.checked = false;
-                Populate($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
+                Mind.Utilities.populateDropDownList($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
             });
-
-            function Populate($e, url, data) {
-
-                // Disable the element during loading
-                $e[0].disabled = true;
-
-                $.get(url, data)
-                    .done(function (data) {
-
-                        // Enable the html element to be populated
-                        $e[0].disabled = false;
-
-                        $e.html(data);
-                });
-            }
 
             function GetIpAddressingComponent() {
 

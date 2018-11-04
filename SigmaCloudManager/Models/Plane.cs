@@ -11,6 +11,8 @@ namespace SCM.Models
         public int PlaneID { get; private set; }
         [Required]
         [MaxLength(50)]
-        public string Name { get; set; } 
+        public string Name { get; set; }
+        public virtual ICollection<Device> Devices { get; set; }
+        public virtual ICollection<Vpn> Vpns { get; set; }
     }
 }

@@ -1,0 +1,341 @@
+@using Mind.WebUI.Models;
+@model Mind.WebUI.Models.VpnRequestViewModel
+
+@{
+    ViewData["Title"] = "Create VPN";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/Vpn/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">VPNs - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item active">Create</li>
+</ol>
+
+<h2>Create a VPN for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<form id="createForm" asp-action="Create">
+    @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+    <input type="hidden" asp-for="TenantId" value="@ViewBag.Tenant.TenantId" />
+    <div id="createVpnWizard">
+        <h3>Name and Description</h3>
+        <section id="name-and-description">
+            <br />
+            <div class="form-group row">
+                <label asp-for="Name" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="Description" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger" />
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-form-label col-sm-2"></label>
+                <div class="col-sm-10">
+                    <div class="custom-control custom-checkbox">
+                        <input class="form-check-input custom-control-input" type="checkbox" asp-for="IsNovaVpn" data-toggle="tooltip"
+                               title="Request a standard Nova VPN" data-placement="left" />
+                        <label class="form-check-label custom-control-label" asp-for="IsNovaVpn"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label class="col-form-label col-sm-2"></label>
+                <div class="col-sm-10">
+                    <div class="custom-control custom-checkbox">
+                        <input class="form-check-input custom-control-input" type="checkbox" asp-for="IsExtranet" data-toggle="tooltip"
+                               title="Request an extranet VPN" data-placement="left" />
+                        <label class="form-check-label custom-control-label" asp-for="IsExtranet"></label>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <h3>Protocol and Topology</h3>
+        <section id="protocol-and-topology">
+            <br />
+            <div class="form-group row">
+                <label asp-for="ProtocolType" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="ProtocolType" class="form-control" asp-items="ViewBag.ProtocolType">
+                        <option value="">--  Select Protocol Type --</option>
+                    </select>
+                    <span asp-validation-for="ProtocolType" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="AddressFamily" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="AddressFamily" class="form-control" asp-items="ViewBag.AddressFamily">
+                        <option value="">--  Select Address-Family --</option>
+                    </select>
+                    <span asp-validation-for="AddressFamily" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="TopologyType" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="TopologyType" class="form-control" asp-items="ViewBag.TopologyType">
+                        <option value="">-- Select Topology Type --</option>
+                    </select>
+                    <span asp-validation-for="TopologyType" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <h3>Tenancy Type</h3>
+        <section id="tenancyType">
+            <br />
+            <div class="form-group row">
+                <label asp-for="TenancyType" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="TenancyType" class="form-control" asp-items="ViewBag.TenancyType">
+                        <option value="">-- Select Tenancy Type --</option>
+                    </select>
+                    <span asp-validation-for="TenancyType" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <h3>Region</h3>
+        <section id="region">
+            <br />
+            <div class="form-group row">
+                <label asp-for="Region" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="Region" class="form-control" asp-items="ViewBag.Region">
+                        <option value="">-- Optionally Select Region --</option>
+                    </select>
+                    <span asp-validation-for="Region" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <h3>Plane</h3>
+        <section id="plane">
+            <br />
+            <div class="form-group row">
+                <label asp-for="Plane" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="Plane" class="form-control" asp-items="ViewBag.Plane">
+                        <option value="">-- Optionally Select Plane --</option>
+                    </select>
+                    <span asp-validation-for="Plane" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+
+        <!-- View component for displaying a grid of attachment sets which belong to the vpn -->
+       @await Component.InvokeAsync("VpnAttachmentSets", new
+       {
+           vpnAttachmentSets = Model?.VpnAttachmentSets
+       });
+
+    </div>
+</form>
+<div class="modal fade" id="duplicateItemModal" tabindex="-1" role="dialog" aria-labelledby="duplicateItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="duplicateItemModalLabel">Attachment Set Already Exists</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                The selected attachment set is already bound to the VPN
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div>
+    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs List</a>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            var $form = $("#createForm"),
+                $wizard = $("#createVpnWizard"),
+                $grid;
+
+            const uri = "/Vpn/";
+
+            //Create wizard
+            $wizard.steps({
+                headerTag: "h3",
+                bodyTag: "section",
+                transitionEffect: "fade",
+                onStepChanging: function (event, currentIndex, newIndex) {
+
+                    // Allways allow previous action even if the current form is not valid!
+                    if (currentIndex > newIndex) {
+                        return true;
+                    }
+
+                    $form.validate().settings.ignore = ":disabled,:hidden";
+                    return $form.valid();
+                },
+                onFinishing: function (event, currentIndex) {
+                    $form.validate().settings.ignore = ":disabled";
+                    return $form.valid();
+                },
+                onFinished: function (event, currentIndex) {
+
+                    var gridRows = $grid.bootgrid("getCurrentRows");
+                    $form.append(
+                        $('<input />').attr('type', 'hidden')
+                            .attr('name', "VpnAttachmentSets")
+                            .attr('value', JSON.stringify(gridRows))
+                   );
+                   $form.submit();
+                }
+            });
+
+            // Create grid for listing attachment set which are to be bound to the vpn
+            $grid = $("#grid").bootgrid({
+                formatters: {
+                    "commands": function (column, row) {
+                        return "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><i class=\"fa fa-trash\"></i></button>";
+                    }
+                },
+                columnSelection: false,
+                navigation: 1
+            }).on("loaded.rs.jquery.bootgrid", function () {
+
+                /* Executes after data is loaded and rendered */
+                $grid.find(".command-delete").on("click", function (e) {
+                    alert("You pressed delete on row: " + $(this).data("row-id"));
+                });
+            });
+
+            var $protocolType = $('#ProtocolType'),
+                protocolType = $protocolType[0],
+                $addressFamily = $('#AddressFamily'),
+                addressFamily = $addressFamily[0],
+                $topologyType = $('#TopologyType'),
+                topologyType = $topologyType[0],
+                $tenancyType = $('#TenancyType'),
+                $ownerTenantId = $('#TenantId'),
+                ownerTenantId = $ownerTenantId[0],
+                $participantTenant = $('#TenantName'),
+                participantTenant = $participantTenant[0],
+                $attachmentSet = $('#AttachmentSet'),
+                attachmentSet = $attachmentSet[0],
+                $addAttachmentSetBtn = $('#addAttachmentSet');
+
+            // Handle changes to the protocol type dropdown list selection
+            $protocolType.on('change', function (e) {
+
+                if (this.value === null || this.value === "") {
+
+                    addressFamily.selectedIndex = 0;
+                    addressFamily.disabled = true;
+                    topologyType.selectedIndex = 0;
+                    topologyType.disabled = true;
+                }
+                else {
+
+                    Mind.Utilities.populateDropDownList($addressFamily, uri + "AddressFamilies", { protocolType: this.value });
+                    Mind.Utilities.populateDropDownList($topologyType, uri + "TopologyTypes", { protocolType: this.value });
+                }
+            });
+
+            if (protocolType.value === null || protocolType.value === "") {
+
+                addressFamily.selectedIndex = 0;
+                addressFamily.disabled = true;
+                topologyType.selectedIndex = 0;
+                topologyType.disabled = true;
+            }
+
+            $tenancyType.on('change', function (e) {
+
+                attachmentSet.selectedIndex = 0;
+                attachmentSet.disabled = true;
+
+                if (this.value === null || this.value === "") {
+
+                    participantTenant.selectedIndex = 0;
+                    participantTenant.disabled = true;
+                }
+                else {
+
+                    Mind.Utilities.populateDropDownList($participantTenant, uri + "ParticipantTenants", {
+                        ownerTenantId: ownerTenantId.value, tenancyType: this.value
+                    });
+                }
+            });
+
+            $participantTenant.on('change', function (e) {
+
+                if (this.value === null || this.value === "") {
+
+                    attachmentSet.selectedIndex = 0;
+                    attachmentSet.disabled = true;
+                }
+                else {
+
+                    Mind.Utilities.populateDropDownList($attachmentSet, uri + "AttachmentSets", {
+                        tenantName: this.value
+                    });
+                }
+            });
+
+            $addAttachmentSetBtn.on('click', function (e) {
+
+                if (attachmentSet.value === null || attachmentSet.value === "") {
+
+                    //
+                }
+                else {
+
+                    var $selected = $attachmentSet.find(":selected");
+                    var attachmentSetName = $selected.data('name');
+
+                    var exists = $grid
+                        .find("td")
+                        .filter(function () {
+                            return $(this).text() === attachmentSetName;
+                        })
+                        .length > 0;
+
+                    if (exists) {
+
+                        // The attachment set already exists in the table
+                        $("#duplicateItemModal").modal();
+                    }
+                    else {
+                        var attachmentRedundancy = $selected.data('attachment-redundancy');
+                        var tenantName = $selected.data('tenant-name');
+                        var regionName = $selected.data('region-name');
+                        var rows = [{
+                            "attachmentSetName": attachmentSetName,
+                            "tenantName": tenantName,
+                            "attachmentRedundancy": attachmentRedundancy,
+                            "region": regionName,
+                            "isHub": false
+                        }];
+
+                        $grid.bootgrid('append', rows);
+                    }
+                }
+            });
+
+            // Initialise all tool-tips
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+}

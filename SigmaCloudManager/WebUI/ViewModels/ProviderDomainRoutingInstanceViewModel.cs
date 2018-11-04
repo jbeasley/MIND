@@ -49,6 +49,14 @@ namespace Mind.WebUI.Models
         public string ProviderDomainLocationName { get; private set; }
 
         /// <summary>
+        /// The name of the provider plane within which the routing instance exists
+        /// </summary>
+        /// <value>A string value denoting the name of the provider plane</value>
+        /// <example>RED</example>
+        [Display(Name = "Provider Plane Name")]
+        public string ProviderPlaneName { get; private set; }
+
+        /// <summary>
         /// The administrator sub-field of the routing instance
         /// </summary>
         /// <value>An integer value denoting the assigned-number sub-field of the routing instance</value>

@@ -19,16 +19,6 @@ namespace SCM.Models.RequestModels
             CreateMap<AttachmentUpdate, RoutingInstance>();
             CreateMap<RoutingInstanceUpdate, RoutingInstance>();
             CreateMap<AttachmentRequest, ContractBandwidthPool>();
-            CreateMap<VifRequest, Vif>()
-                .ForMember(dest => dest.VlanTag, conf => conf.MapFrom(src => src.AllocatedVlanTag))
-                .ForMember(dest => dest.Vlans, conf => conf.UseValue(new List<Vlan>()));
-            CreateMap<VifRequest, RoutingInstance>();
-            CreateMap<VifRequest, ContractBandwidthPool>();
-            CreateMap<VifUpdate, Vif>();
-            CreateMap<VifUpdate, RoutingInstance>();
-            CreateMap<VifUpdate, ContractBandwidthPool>();
-            CreateMap<RouteTargetRequest, RouteTarget>();
-            CreateMap<VpnRequest, Vpn>();
         }
     }
 }

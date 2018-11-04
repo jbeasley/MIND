@@ -70,9 +70,9 @@ namespace Mind.WebUI.Controllers
 
         [HttpGet]
         [ValidateAttachmentSetExists]
-        public async Task<IActionResult> Details(int? attachmentId)
+        public async Task<IActionResult> Details(int? attachmentSetId)
         {
-            var item = await _attachmentSetService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
+            var item = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value, deep: true, asTrackable: false);
             return View(_mapper.Map<AttachmentSetViewModel>(item));
         }
 

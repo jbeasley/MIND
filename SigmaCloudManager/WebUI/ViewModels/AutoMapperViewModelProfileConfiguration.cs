@@ -65,13 +65,38 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidth.BandwidthMbps));
 
             CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.ProviderDomainRoutingInstanceViewModel>()
-                .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName));
+                .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
+                .ForMember(dst => dst.ProviderPlaneName, conf => conf.MapFrom(src => src.Device.Plane.Name));
+
+            CreateMap<SCM.Models.AttachmentSet, Mind.WebUI.Models.AttachmentSetViewModel>()
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name))
+                .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
+                .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name))
+                .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentRedundancy.Name));
 
             CreateMap<SCM.Models.AttachmentSet, Mind.WebUI.Models.AttachmentSetUpdateViewModel>()
                 .ForMember(dst => dst.AttachmentSetRoutingInstanceNames, conf => conf.Ignore())
                 .ForMember(dst => dst.AttachmentSetRoutingInstances, conf => conf.Ignore())
                 .ForMember(dst => dst.AttachmentRedundancy, conf => conf.Ignore())
                 .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name));
+
+            CreateMap<SCM.Models.TenantIpNetwork, Mind.WebUI.Models.TenantIpNetworkViewModel>()
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
+
+            CreateMap<SCM.Models.TenantCommunity, Mind.WebUI.Models.TenantCommunityViewModel>()
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
+
+            CreateMap<SCM.Models.Vpn, Mind.WebUI.Models.VpnViewModel>()
+                .ForMember(dst => dst.TenantOwnerName, conf => conf.MapFrom(src => src.Tenant.Name))
+                .ForMember(dst => dst.TenancyType, conf => conf.MapFrom(src => src.VpnTenancyType.Name))
+                .ForMember(dst => dst.TopologyType, conf => conf.MapFrom(src => src.VpnTopologyType.Name))
+                .ForMember(dst => dst.Plane, conf => conf.MapFrom(src => src.Plane.Name))
+                .ForMember(dst => dst.AddressFamily, conf => conf.MapFrom(src => src.AddressFamily.Name))
+                .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name));
+
+            CreateMap<SCM.Models.RouteTarget, Mind.WebUI.Models.RouteTargetViewModel>()
+                .ForMember(dst => dst.RangeName, conf => conf.MapFrom(src => src.RouteTargetRange.Name))
+                .ForMember(dst => dst.AdministratorSubField, conf => conf.MapFrom(src => src.RouteTargetRange.AdministratorSubField));
 
             // View model to entity model mappings
 

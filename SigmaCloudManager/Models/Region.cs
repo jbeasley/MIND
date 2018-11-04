@@ -26,5 +26,7 @@ namespace SCM.Models
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual ICollection<SubRegion> SubRegions { get; set; }
+        public virtual ICollection<AttachmentSet> AttachmentSets { get; set; }
+        public virtual ICollection<Vpn> Vpns { get; set; }
     }
 }

@@ -11,6 +11,10 @@ namespace SCM.Models
         public int AddressFamilyID { get; private set; }
         [Required]
         [MaxLength(50)]
-        public string Name { get; set; } 
+        public string Name { get; set; }
+        [Timestamp]
+        public byte[] RowVersion { get; set; }
+        public int VpnProtocolTypeID { get; set; }
+        public virtual VpnProtocolType VpnProtocolType { get; set; }
     }
 }

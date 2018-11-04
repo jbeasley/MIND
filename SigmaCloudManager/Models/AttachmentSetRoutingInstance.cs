@@ -23,7 +23,8 @@ namespace SCM.Models
         public static IQueryable<AttachmentSetRoutingInstance> IncludeDeepProperties(this IQueryable<AttachmentSetRoutingInstance> query)
         {
             return query.Include(x => x.AttachmentSet)
-                        .Include(x => x.RoutingInstance);
+                        .Include(x => x.RoutingInstance.Device.Location)
+                        .Include(x => x.RoutingInstance.Device.Plane);
         }
 
         /// <summary>

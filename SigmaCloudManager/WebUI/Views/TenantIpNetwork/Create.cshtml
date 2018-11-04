@@ -1,66 +1,72 @@
-@model SCM.Models.ViewModels.TenantIpNetworkViewModel
+@using Mind.WebUI.Models;
+@model Mind.WebUI.Models.TenantIpNetworkRequestViewModel
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Create Tenant IP Network";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID/@ViewBag.Tenant.TenantID">Networks - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">Tenant IP Networks - [@ViewBag.Tenant.Name]</a></li>
     <li class="breadcrumb-item active">Create</li>
 </ol>
 
-<h2>Create Network for Tenant '@ViewBag.Tenant.Name'</h2>
+<h2>Create an IP Network for Tenant '@ViewBag.Tenant.Name'</h2>
 
-<form asp-action="Create">
-    <div class="form-horizontal">
-        <hr />
-        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-        <input type="hidden" asp-for="TenantID" value="@ViewBag.Tenant.TenantID" />
-        <div class="form-group">
-            <label asp-for="Ipv4Prefix" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="Ipv4Prefix" class="form-control" />
-                <span asp-validation-for="Ipv4Prefix" class="text-danger" />
+<form id="createForm" asp-action="Create">
+    <hr />
+    @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+    <input type="hidden" asp-for="TenantId" value="@ViewBag.Tenant.TenantId" />
+    <div class="form-group row">
+        <label asp-for="Ipv4Prefix" class="col-sm-2 col-form-label"> </label>
+        <div class="col-sm-10">
+            <input asp-for="Ipv4Prefix" class="form-control" />
+            <span asp-validation-for="Ipv4Prefix" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="Ipv4Length" class="col-sm-2 col-form-label"> </label>
+        <div class="col-sm-10">
+            <input asp-for="Ipv4Length" class="form-control" />
+            <span asp-validation-for="Ipv4Length" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="Ipv4LessThanOrEqualToLength" class="col-sm-2 col-form-label"> </label>
+        <div class="col-sm-10">
+            <input asp-for="Ipv4LessThanOrEqualToLength" class="form-control" />
+            <span asp-validation-for="Ipv4LessThanOrEqualToLength" class="text-danger"></span>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-form-label col-sm-2"></label>
+        <div class="col-sm-10">
+            <div class="custom-control custom-checkbox">
+                <input class="form-check-input custom-control-input" type="checkbox" asp-for="AllowExtranet" data-toggle="tooltip" title="Enable the IP network to participate in extranet services">
+                <label class="form-check-label custom-control-label" asp-for="AllowExtranet"></label>
             </div>
         </div>
-        <div class="form-group">
-            <label asp-for="Ipv4Length" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="Ipv4Length" class="form-control" />
-                <span asp-validation-for="Ipv4Length" class="text-danger" />
-            </div>
+    </div>
+    <div class="form-group row">
+        <label asp-for="IpRoutingBehaviour" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select asp-for="IpRoutingBehaviour" class="form-control" asp-items="ViewBag.IpRoutingBehaviour" data-toggle="tooltip"
+                    title="Select the routing behaviour required for IP network" data-placement="right">
+                <option disabled value="">-- Select IP Routing Behaviour --</option>
+            </select>
+            <span asp-validation-for="IpRoutingBehaviour" class="text-danger"></span>
         </div>
-        <div class="form-group">
-            <label asp-for="Ipv4LessThanOrEqualToLength" class="col-md-2 control-label"></label>
-            <div class="col-md-10">
-                <input asp-for="Ipv4LessThanOrEqualToLength" class="form-control" />
-                <span asp-validation-for="Ipv4LessThanOrEqualToLength" class="text-danger" />
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-md-2">
-            </div>
-            <div class="col-md-10">
-                <label class="checkbox-inline">
-                    <input type="checkbox" asp-for="AllowExtranet" data-toggle="tooltip" title="Check to enable the network for Extranet"> 
-                    <label asp-for="AllowExtranet"></label>
-                </label>
-            </div>
-        </div>
-        <div class="form-group">
-            <div class="col-md-offset-2 col-md-10">
-                <button type="submit" id="Create" class="btn btn-success" asp-action="Create">
-                    <span class="glyphicon glyphicon-plus"></span>&nbsp;Create
-                </button>
-            </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" id="Create" class="btn btn-success" asp-action="Create" is-create-button></button>
         </div>
     </div>
 </form>
 
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-id="@ViewBag.Tenant.TenantID" asp-route-tenantID="@Context.Request.Query["tenantID"]">Back to List</a>
+    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Tenant IP Networks List</a>
 </div>
 
 @section Scripts {
@@ -71,10 +77,9 @@
         (function ($) {
 
             // Initialise all tool-tips
-
             $('[data-toggle="tooltip"]').tooltip();
 
         }(jQuery));
-
+    
     </script>
 }

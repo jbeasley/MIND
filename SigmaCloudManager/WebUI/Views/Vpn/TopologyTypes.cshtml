@@ -1,0 +1,8 @@
+@model IEnumerable<Mind.WebUI.Models.VpnTopologyTypeViewModel>
+    
+<option value="">-- Select Topology Type --</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.Name">@item.Name</option>
+}

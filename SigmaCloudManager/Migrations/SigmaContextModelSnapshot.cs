@@ -9,7 +9,7 @@ using SCM.Data;
 using SCM.Models;
 using System;
 
-namespace SigmaCloudManager.Migrations
+namespace Mind.Migrations
 {
     [DbContext(typeof(SigmaContext))]
     partial class SigmaContextModelSnapshot : ModelSnapshot
@@ -30,10 +30,18 @@ namespace SigmaCloudManager.Migrations
                         .IsRequired()
                         .HasMaxLength(50);
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<int>("VpnProtocolTypeID");
+
                     b.HasKey("AddressFamilyID");
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("VpnProtocolTypeID");
 
                     b.ToTable("AddressFamily");
                 });
@@ -72,8 +80,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("MtuID");
 
-                    b.Property<int?>("MtuID1");
-
                     b.Property<string>("Notes")
                         .HasMaxLength(250);
 
@@ -102,8 +108,6 @@ namespace SigmaCloudManager.Migrations
                     b.HasIndex("DeviceID");
 
                     b.HasIndex("MtuID");
-
-                    b.HasIndex("MtuID1");
 
                     b.HasIndex("RoutingInstanceID");
 
@@ -1469,8 +1473,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("MtuID");
 
-                    b.Property<int?>("MtuID1");
-
                     b.Property<bool>("RequiresSync");
 
                     b.Property<int?>("RoutingInstanceID");
@@ -1487,8 +1489,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("VifRoleID");
 
-                    b.Property<int?>("VifRoleID1");
-
                     b.Property<int>("VlanTag");
 
                     b.Property<int?>("VlanTagRangeID");
@@ -1499,15 +1499,11 @@ namespace SigmaCloudManager.Migrations
 
                     b.HasIndex("MtuID");
 
-                    b.HasIndex("MtuID1");
-
                     b.HasIndex("RoutingInstanceID");
 
                     b.HasIndex("TenantID");
 
                     b.HasIndex("VifRoleID");
-
-                    b.HasIndex("VifRoleID1");
 
                     b.HasIndex("VlanTagRangeID");
 
@@ -1644,8 +1640,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantID");
 
-                    b.Property<int?>("TenantID1");
-
                     b.Property<int>("VpnTenancyTypeID");
 
                     b.Property<int>("VpnTopologyTypeID");
@@ -1666,8 +1660,6 @@ namespace SigmaCloudManager.Migrations
                     b.HasIndex("RegionID");
 
                     b.HasIndex("TenantID");
-
-                    b.HasIndex("TenantID1");
 
                     b.HasIndex("VpnTenancyTypeID");
 
@@ -1768,15 +1760,11 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantCommunityID");
 
-                    b.Property<int?>("TenantCommunityID1");
-
                     b.HasKey("VpnTenantCommunityInID");
 
                     b.HasIndex("AttachmentSetID");
 
                     b.HasIndex("BgpPeerID");
-
-                    b.HasIndex("TenantCommunityID1");
 
                     b.HasIndex("TenantCommunityID", "AttachmentSetID", "AddToAllBgpPeersInAttachmentSet", "BgpPeerID")
                         .IsUnique();
@@ -1801,15 +1789,11 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantCommunityID");
 
-                    b.Property<int?>("TenantCommunityID1");
-
                     b.HasKey("VpnTenantCommunityOutID");
 
                     b.HasIndex("AttachmentSetID");
 
                     b.HasIndex("BgpPeerID");
-
-                    b.HasIndex("TenantCommunityID1");
 
                     b.HasIndex("TenantCommunityID", "AttachmentSetID", "BgpPeerID")
                         .IsUnique();
@@ -1834,8 +1818,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int?>("TenantCommunityID");
 
-                    b.Property<int?>("TenantCommunityID1");
-
                     b.Property<int?>("TenantCommunitySetID");
 
                     b.HasKey("VpnTenantCommunityRoutingInstanceID");
@@ -1843,8 +1825,6 @@ namespace SigmaCloudManager.Migrations
                     b.HasIndex("AttachmentSetID");
 
                     b.HasIndex("RoutingInstanceID");
-
-                    b.HasIndex("TenantCommunityID1");
 
                     b.HasIndex("TenantCommunityID", "AttachmentSetID")
                         .IsUnique()
@@ -1868,15 +1848,11 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantCommunityID");
 
-                    b.Property<int?>("TenantCommunityID1");
-
                     b.Property<int>("VpnTenantIpNetworkInID");
 
                     b.HasKey("VpnTenantIpNetworkCommunityInID");
 
                     b.HasIndex("TenantCommunityID");
-
-                    b.HasIndex("TenantCommunityID1");
 
                     b.HasIndex("VpnTenantIpNetworkInID", "TenantCommunityID")
                         .IsUnique();
@@ -1893,8 +1869,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int?>("AttachmentSetID");
 
-                    b.Property<int?>("AttachmentSetID1");
-
                     b.Property<int?>("BgpPeerID");
 
                     b.Property<int?>("LocalIpRoutingPreference");
@@ -1905,17 +1879,11 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantIpNetworkID");
 
-                    b.Property<int?>("TenantIpNetworkID1");
-
                     b.HasKey("VpnTenantIpNetworkInID");
 
                     b.HasIndex("AttachmentSetID");
 
-                    b.HasIndex("AttachmentSetID1");
-
                     b.HasIndex("BgpPeerID");
-
-                    b.HasIndex("TenantIpNetworkID1");
 
                     b.HasIndex("TenantIpNetworkID", "AttachmentSetID", "AddToAllBgpPeersInAttachmentSet", "BgpPeerID")
                         .IsUnique();
@@ -1932,8 +1900,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int?>("AttachmentSetID");
 
-                    b.Property<int?>("AttachmentSetID1");
-
                     b.Property<int>("BgpPeerID");
 
                     b.Property<byte[]>("RowVersion")
@@ -1942,17 +1908,11 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantIpNetworkID");
 
-                    b.Property<int?>("TenantIpNetworkID1");
-
                     b.HasKey("VpnTenantIpNetworkOutID");
 
                     b.HasIndex("AttachmentSetID");
 
-                    b.HasIndex("AttachmentSetID1");
-
                     b.HasIndex("BgpPeerID");
-
-                    b.HasIndex("TenantIpNetworkID1");
 
                     b.HasIndex("TenantIpNetworkID", "AttachmentSetID", "BgpPeerID")
                         .IsUnique();
@@ -1977,15 +1937,11 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantIpNetworkID");
 
-                    b.Property<int?>("TenantIpNetworkID1");
-
                     b.HasKey("VpnTenantIpNetworkRoutingInstanceID");
 
                     b.HasIndex("AttachmentSetID");
 
                     b.HasIndex("RoutingInstanceID");
-
-                    b.HasIndex("TenantIpNetworkID1");
 
                     b.HasIndex("TenantIpNetworkID", "AttachmentSetID")
                         .IsUnique();
@@ -2014,15 +1970,11 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantIpNetworkID");
 
-                    b.Property<int?>("TenantIpNetworkID1");
-
                     b.HasKey("VpnTenantIpNetworkRoutingInstanceStaticRouteID");
 
                     b.HasIndex("AttachmentSetID");
 
                     b.HasIndex("RoutingInstanceID");
-
-                    b.HasIndex("TenantIpNetworkID1");
 
                     b.HasIndex("TenantIpNetworkID", "AttachmentSetID")
                         .IsUnique();
@@ -2047,8 +1999,6 @@ namespace SigmaCloudManager.Migrations
 
                     b.Property<int>("TenantMulticastGroupID");
 
-                    b.Property<int?>("TenantMulticastGroupID1");
-
                     b.HasKey("VpnTenantMulticastGroupID");
 
                     b.HasIndex("AttachmentSetID");
@@ -2056,8 +2006,6 @@ namespace SigmaCloudManager.Migrations
                     b.HasIndex("MulticastGeographicalScopeID");
 
                     b.HasIndex("MulticastVpnRpID");
-
-                    b.HasIndex("TenantMulticastGroupID1");
 
                     b.HasIndex("TenantMulticastGroupID", "AttachmentSetID")
                         .IsUnique();
@@ -2092,10 +2040,18 @@ namespace SigmaCloudManager.Migrations
                     b.ToTable("VpnTopologyType");
                 });
 
+            modelBuilder.Entity("SCM.Models.AddressFamily", b =>
+                {
+                    b.HasOne("SCM.Models.VpnProtocolType", "VpnProtocolType")
+                        .WithMany("AddressFamilies")
+                        .HasForeignKey("VpnProtocolTypeID")
+                        .OnDelete(DeleteBehavior.Cascade);
+                });
+
             modelBuilder.Entity("SCM.Models.Attachment", b =>
                 {
                     b.HasOne("SCM.Models.AttachmentBandwidth", "AttachmentBandwidth")
-                        .WithMany()
+                        .WithMany("Attachments")
                         .HasForeignKey("AttachmentBandwidthID")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2114,13 +2070,9 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.Mtu", "Mtu")
-                        .WithMany()
+                        .WithMany("Attachments")
                         .HasForeignKey("MtuID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.Mtu")
-                        .WithMany("Attachments")
-                        .HasForeignKey("MtuID1");
 
                     b.HasOne("SCM.Models.RoutingInstance", "RoutingInstance")
                         .WithMany("Attachments")
@@ -2146,7 +2098,7 @@ namespace SigmaCloudManager.Migrations
             modelBuilder.Entity("SCM.Models.AttachmentSet", b =>
                 {
                     b.HasOne("SCM.Models.AttachmentRedundancy", "AttachmentRedundancy")
-                        .WithMany()
+                        .WithMany("AttachmentSets")
                         .HasForeignKey("AttachmentRedundancyID")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2155,12 +2107,12 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("MulticastVpnDomainTypeID");
 
                     b.HasOne("SCM.Models.Region", "Region")
-                        .WithMany()
+                        .WithMany("AttachmentSets")
                         .HasForeignKey("RegionID")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SCM.Models.SubRegion", "SubRegion")
-                        .WithMany()
+                        .WithMany("AttachmentSets")
                         .HasForeignKey("SubRegionID")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2194,7 +2146,7 @@ namespace SigmaCloudManager.Migrations
             modelBuilder.Entity("SCM.Models.ContractBandwidthPool", b =>
                 {
                     b.HasOne("SCM.Models.ContractBandwidth", "ContractBandwidth")
-                        .WithMany()
+                        .WithMany("ContractBandwidthPools")
                         .HasForeignKey("ContractBandwidthID")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2221,12 +2173,12 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.Location", "Location")
-                        .WithMany()
+                        .WithMany("Devices")
                         .HasForeignKey("LocationID")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SCM.Models.Plane", "Plane")
-                        .WithMany()
+                        .WithMany("Devices")
                         .HasForeignKey("PlaneID")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2347,7 +2299,7 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("InterfaceID");
 
                     b.HasOne("SCM.Models.PortBandwidth", "PortBandwidth")
-                        .WithMany()
+                        .WithMany("Ports")
                         .HasForeignKey("PortBandwidthID")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2414,7 +2366,7 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.Tenant", "Tenant")
-                        .WithMany()
+                        .WithMany("RoutingInstances")
                         .HasForeignKey("TenantID")
                         .OnDelete(DeleteBehavior.Restrict);
                 });
@@ -2455,7 +2407,7 @@ namespace SigmaCloudManager.Migrations
             modelBuilder.Entity("SCM.Models.TenantCommunitySetCommunity", b =>
                 {
                     b.HasOne("SCM.Models.TenantCommunity", "TenantCommunity")
-                        .WithMany()
+                        .WithMany("TenantCommunitySetCommunities")
                         .HasForeignKey("TenantCommunityID")
                         .OnDelete(DeleteBehavior.Restrict);
 
@@ -2493,13 +2445,9 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("ContractBandwidthPoolID");
 
                     b.HasOne("SCM.Models.Mtu", "Mtu")
-                        .WithMany()
+                        .WithMany("Vifs")
                         .HasForeignKey("MtuID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.Mtu")
-                        .WithMany("Vifs")
-                        .HasForeignKey("MtuID1");
 
                     b.HasOne("SCM.Models.RoutingInstance", "RoutingInstance")
                         .WithMany("Vifs")
@@ -2510,13 +2458,9 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("TenantID");
 
                     b.HasOne("SCM.Models.VifRole", "VifRole")
-                        .WithMany()
+                        .WithMany("Vifs")
                         .HasForeignKey("VifRoleID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.VifRole")
-                        .WithMany("Vifs")
-                        .HasForeignKey("VifRoleID1");
 
                     b.HasOne("SCM.Models.VlanTagRange", "VlanTagRange")
                         .WithMany("Vifs")
@@ -2562,23 +2506,19 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("MulticastVpnServiceTypeID");
 
                     b.HasOne("SCM.Models.Plane", "Plane")
-                        .WithMany()
+                        .WithMany("Vpns")
                         .HasForeignKey("PlaneID")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SCM.Models.Region", "Region")
-                        .WithMany()
+                        .WithMany("Vpns")
                         .HasForeignKey("RegionID")
                         .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("SCM.Models.Tenant", "Tenant")
-                        .WithMany()
+                        .WithMany("Vpns")
                         .HasForeignKey("TenantID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.Tenant")
-                        .WithMany("Vpns")
-                        .HasForeignKey("TenantID1");
 
                     b.HasOne("SCM.Models.VpnTenancyType", "VpnTenancyType")
                         .WithMany("Vpns")
@@ -2615,13 +2555,9 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("BgpPeerID");
 
                     b.HasOne("SCM.Models.TenantCommunity", "TenantCommunity")
-                        .WithMany()
+                        .WithMany("VpnTenantCommunitiesIn")
                         .HasForeignKey("TenantCommunityID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantCommunity")
-                        .WithMany("VpnTenantCommunitiesIn")
-                        .HasForeignKey("TenantCommunityID1");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTenantCommunityOut", b =>
@@ -2636,13 +2572,9 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.TenantCommunity", "TenantCommunity")
-                        .WithMany()
+                        .WithMany("VpnTenantCommunitiesOut")
                         .HasForeignKey("TenantCommunityID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantCommunity")
-                        .WithMany("VpnTenantCommunitiesOut")
-                        .HasForeignKey("TenantCommunityID1");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTenantCommunityRoutingInstance", b =>
@@ -2658,13 +2590,9 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.TenantCommunity", "TenantCommunity")
-                        .WithMany()
+                        .WithMany("VpnTenantCommunityRoutingInstancePoliciesIn")
                         .HasForeignKey("TenantCommunityID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantCommunity")
-                        .WithMany("VpnTenantCommunityRoutingInstancePoliciesIn")
-                        .HasForeignKey("TenantCommunityID1");
 
                     b.HasOne("SCM.Models.TenantCommunitySet", "TenantCommunitySet")
                         .WithMany()
@@ -2674,13 +2602,9 @@ namespace SigmaCloudManager.Migrations
             modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkCommunityIn", b =>
                 {
                     b.HasOne("SCM.Models.TenantCommunity", "TenantCommunity")
-                        .WithMany()
+                        .WithMany("VpnTenantIpNetworkCommunitiesIn")
                         .HasForeignKey("TenantCommunityID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantCommunity")
-                        .WithMany("VpnTenantIpNetworkCommunitiesIn")
-                        .HasForeignKey("TenantCommunityID1");
 
                     b.HasOne("SCM.Models.VpnTenantIpNetworkIn", "VpnTenantIpNetworkIn")
                         .WithMany("VpnTenantIpNetworkCommunitiesIn")
@@ -2691,38 +2615,26 @@ namespace SigmaCloudManager.Migrations
             modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkIn", b =>
                 {
                     b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
-                        .WithMany()
+                        .WithMany("VpnTenantIpNetworksIn")
                         .HasForeignKey("AttachmentSetID")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SCM.Models.AttachmentSet")
-                        .WithMany("VpnTenantIpNetworksIn")
-                        .HasForeignKey("AttachmentSetID1");
 
                     b.HasOne("SCM.Models.BgpPeer", "BgpPeer")
                         .WithMany("VpnTenantIpNetworksIn")
                         .HasForeignKey("BgpPeerID");
 
                     b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
-                        .WithMany()
+                        .WithMany("VpnTenantIpNetworksIn")
                         .HasForeignKey("TenantIpNetworkID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantIpNetwork")
-                        .WithMany("VpnTenantIpNetworksIn")
-                        .HasForeignKey("TenantIpNetworkID1");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkOut", b =>
                 {
                     b.HasOne("SCM.Models.AttachmentSet", "AttachmentSet")
-                        .WithMany()
+                        .WithMany("VpnTenantIpNetworksOut")
                         .HasForeignKey("AttachmentSetID")
                         .OnDelete(DeleteBehavior.Cascade);
-
-                    b.HasOne("SCM.Models.AttachmentSet")
-                        .WithMany("VpnTenantIpNetworksOut")
-                        .HasForeignKey("AttachmentSetID1");
 
                     b.HasOne("SCM.Models.BgpPeer", "BgpPeer")
                         .WithMany("VpnTenantIpNetworksOut")
@@ -2730,13 +2642,9 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
-                        .WithMany()
+                        .WithMany("VpnTenantIpNetworksOut")
                         .HasForeignKey("TenantIpNetworkID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantIpNetwork")
-                        .WithMany("VpnTenantIpNetworksOut")
-                        .HasForeignKey("TenantIpNetworkID1");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkRoutingInstance", b =>
@@ -2752,13 +2660,9 @@ namespace SigmaCloudManager.Migrations
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
-                        .WithMany()
+                        .WithMany("VpnTenantIpNetworkRoutingInstancePoliciesIn")
                         .HasForeignKey("TenantIpNetworkID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantIpNetwork")
-                        .WithMany("VpnTenantIpNetworkRoutingInstancePoliciesIn")
-                        .HasForeignKey("TenantIpNetworkID1");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTenantIpNetworkRoutingInstanceStaticRoute", b =>
@@ -2773,13 +2677,9 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("RoutingInstanceID");
 
                     b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
-                        .WithMany()
+                        .WithMany("VpnTenantIpNetworkRoutingInstanceStaticRoutes")
                         .HasForeignKey("TenantIpNetworkID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantIpNetwork")
-                        .WithMany("VpnTenantIpNetworkRoutingInstanceStaticRoutes")
-                        .HasForeignKey("TenantIpNetworkID1");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTenantMulticastGroup", b =>
@@ -2798,13 +2698,9 @@ namespace SigmaCloudManager.Migrations
                         .HasForeignKey("MulticastVpnRpID");
 
                     b.HasOne("SCM.Models.TenantMulticastGroup", "TenantMulticastGroup")
-                        .WithMany()
+                        .WithMany("VpnTenantMulticastGroups")
                         .HasForeignKey("TenantMulticastGroupID")
                         .OnDelete(DeleteBehavior.Restrict);
-
-                    b.HasOne("SCM.Models.TenantMulticastGroup")
-                        .WithMany("VpnTenantMulticastGroups")
-                        .HasForeignKey("TenantMulticastGroupID1");
                 });
 
             modelBuilder.Entity("SCM.Models.VpnTopologyType", b =>

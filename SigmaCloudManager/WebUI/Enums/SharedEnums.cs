@@ -95,6 +95,23 @@ namespace Mind.WebUI
     }
 
     /// <summary>
+    /// Enum for the protocol type optoins of a vpn
+    /// </summary>
+    /// <plane>Enumerated list of protocol type options</plane>
+    public enum ProtocolTypeEnum
+    {
+        /// <summary>
+        /// Enum for IP
+        /// </summary>
+        IP = 0,
+
+        /// <summary>
+        /// Enum for Ethernet
+        /// </summary>
+        Ethernet = 1
+    }
+
+    /// <summary>
     /// Enum for the topology type options of a vpn.
     /// </summary>
     /// <value>Enumerated list of topology type options</value>

@@ -4,15 +4,23 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SCM.Models.ViewModels
+namespace Mind.WebUI.Models
 {
+    /// <summary>
+    /// Model of am address family
+    /// </summary>
     public class AddressFamilyViewModel
     {
-        [Display(AutoGenerateField = false)]
-        public int AddressFamilyID { get; set; }
-        [StringLength(50)]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "A name must be specified")]
-        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "The name must contain letters and numbers only and no whitespace.")]
-        public string Name { get; set; }
+        /// <summary>
+        /// The ID of the address family
+        /// </summary>
+        /// <value>Integer value denoting the ID of the address family</value>
+        public int AddressFamilyID { get; private set; }
+
+        /// <summary>
+        /// The name of the address family
+        /// </summary>
+        /// <value>String value denoting the name of the address family</value>
+        public string Name { get; private set; }
     }
 }

@@ -4,15 +4,20 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SCM.Models.ViewModels
+namespace Mind.WebUI.Models
 {
     public class PlaneViewModel
     {
-        [Display(AutoGenerateField = false)]
-        public int PlaneID { get; set; }
-        [StringLength(50)]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "A name must be specified")]
-        [RegularExpression(@"^[a-zA-Z0-9]+$", ErrorMessage = "The name must contain letters and numbers only and no whitespace.")]
-        public string Name { get; set; }
+        /// <summary>
+        /// The ID of the plane
+        /// </summary>
+        /// <value>Integer value denoting the ID of the plane</value>
+        public int PlaneID { get; private set; }
+
+        /// <summary>
+        /// The name of the plane
+        /// </summary>
+        /// <value>String value denoting the name of the plane</value>
+        public string Name { get; private set; }
     }
 }

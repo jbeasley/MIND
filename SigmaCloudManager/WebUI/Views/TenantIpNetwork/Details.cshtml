@@ -1,28 +1,23 @@
-@model SCM.Models.ViewModels.TenantIpNetworkViewModel
+@model Mind.WebUI.Models.TenantIpNetworkViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Tenant IP Network Details";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID/@Model.TenantID">Networks - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Details - [@Model.Ipv4Prefix/@Model.Ipv4Length]</li>
+    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID?tenantId=@Model.TenantId">Tenant IP Network - [@Model.TenantName]</a></li>
+    <li class="breadcrumb-item active">Details - [@Model.CidrNameIncludingIpv4LessThanOrEqualToLength]</li>
 </ol>
 
-<h2>Details for Tenant Network '@Model.CidrName'</h2>
+<h2>Details for Tenant IP Network '@Model.CidrNameIncludingIpv4LessThanOrEqualToLength'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
 
 <div>
-    <h4>Tenant Network</h4>
     <hr />
     <dl class="dl-horizontal">
-        <dt>
-            @Html.DisplayNameFor(model => model.Tenant)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Tenant.Name)
-        </dd>
         <dt>
             @Html.DisplayNameFor(model => model.Ipv4Prefix)
         </dt>
@@ -42,14 +37,27 @@
             @Html.DisplayFor(model => model.Ipv4LessThanOrEqualToLength)
         </dd>
         <dt>
+            @Html.DisplayNameFor(model => model.CidrNameIncludingIpv4LessThanOrEqualToLength)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.CidrNameIncludingIpv4LessThanOrEqualToLength)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.AllowExtranet)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.AllowExtranet)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IpRoutingBehaviour)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IpRoutingBehaviour)
+        </dd>
     </dl>
-</div>
-<div>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.TenantIpNetworkID, tenantID = Context.Request.Query["tenantID"] }) |
-    <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID" asp-route-tenantID="@Context.Request.Query["tenantID"]">Back to List</a>
-</div>
+    </div>
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Tenant IP Networks List</a>
+    </div>
+</form>

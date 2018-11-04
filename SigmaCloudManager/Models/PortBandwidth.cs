@@ -9,6 +9,7 @@ namespace SCM.Models
     {       
         public int PortBandwidthID { get; private set; }
         public int BandwidthGbps { get; set; }
+        public virtual ICollection<Port> Ports { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
     }

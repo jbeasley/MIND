@@ -121,6 +121,7 @@ namespace Mind.WebUI.Controllers
 
         [HttpGet]
         [ValidateTenantExists]
+        [SetTenantCookieState]
         public async Task<IActionResult> GetAllByTenantID(int? tenantId)
         {
             var attachments = await _unitOfWork.AttachmentRepository.GetAsync(

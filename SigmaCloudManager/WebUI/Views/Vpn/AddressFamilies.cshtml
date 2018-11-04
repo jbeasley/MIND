@@ -1,0 +1,8 @@
+@model IEnumerable<Mind.WebUI.Models.AddressFamilyViewModel>
+    
+<option value="">-- Select Address-Family --</option>
+
+@foreach (var item in Model)
+{
+    <option value="@item.Name">@item.Name</option>
+}

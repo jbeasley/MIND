@@ -58,6 +58,7 @@ namespace SCM.Models
         public virtual ICollection<AttachmentSet> AttachmentSets { get; set; }
         public virtual ICollection<Vif> Vifs { get; set; }
         public virtual ICollection<Vpn> Vpns { get; set; }
+        public virtual ICollection<RoutingInstance> RoutingInstances { get; set; }
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
 
         public virtual void ValidateDelete()

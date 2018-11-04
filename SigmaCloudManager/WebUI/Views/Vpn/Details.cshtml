@@ -1,16 +1,13 @@
-@model SCM.Models.ViewModels.VpnViewModel
-@using SCM.Models.ViewModels;
-@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
-@using Microsoft.Extensions.Options;
-@using SCM;
+@model Mind.WebUI.Models.VpnViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "VPN Details";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Vpn/GetAll">VPNs</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/Vpn/GetAllByTenantID?tenantId=@Model.TenantId">Attachment Sets - [@Model.TenantName]</a></li>
     <li class="breadcrumb-item active">Details - [@Model.Name]</li>
 </ol>
 
@@ -22,144 +19,102 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.Name)" />
+            @Html.DisplayNameFor(model => model.TenantOwnerName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantOwnerName)
+        </dd>
+        <dt>
             @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Name)
         </dd>
         <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.Tenant)" />
-            @Html.DisplayNameFor(model => model.Tenant)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Tenant.Name)
-        </dd>
-        <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.Description)" />
             @Html.DisplayNameFor(model => model.Description)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.Description)
         </dd>
         <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.VpnTopologyType.VpnProtocolType)" />
-            @Html.DisplayNameFor(model => model.VpnTopologyType.VpnProtocolType)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.VpnTopologyType.VpnProtocolType.Name)
-        </dd>
-        <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.AddressFamily)" />
             @Html.DisplayNameFor(model => model.AddressFamily)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.AddressFamily.Name)
+            @Html.DisplayFor(model => model.AddressFamily)
         </dd>
         <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.Plane)" />
-            @Html.DisplayNameFor(model => model.Plane)
+            @Html.DisplayNameFor(model => model.IsExtranet)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Plane.Name)
+            @Html.DisplayFor(model => model.IsExtranet)
         </dd>
         <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.Region)" />
-            @Html.DisplayNameFor(model => model.Region)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Region.Name)
-        </dd>
-        <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.VpnTenancyType)" />
-            @Html.DisplayNameFor(model => model.VpnTenancyType)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.VpnTenancyType.Name)
-        </dd>
-        <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.VpnTopologyType)" />
-            @Html.DisplayNameFor(model => model.VpnTopologyType)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.VpnTopologyType.Name)
-        </dd>
-        @if (Model.VpnTopologyType.VpnProtocolType.ProtocolType == ProtocolType.IP)
-        {
-            <dt>
-                <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.IsExtranet)" />
-                @Html.DisplayNameFor(model => model.IsExtranet)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.IsExtranet)
-            </dd>
-            <dt>
-                <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.IsMulticastVpn)" />
-                @Html.DisplayNameFor(model => model.IsMulticastVpn)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.IsMulticastVpn)
-            </dd>
-            @if (Model.IsMulticastVpn)
-            {
-                <dt>
-                    <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.MulticastVpnServiceType)" />
-                    @Html.DisplayNameFor(model => model.MulticastVpnServiceType)
-                </dt>
-                <dd>
-                    @Html.DisplayFor(model => model.MulticastVpnServiceType.Name)
-                </dd>
-                if (Model.VpnTopologyType.TopologyType == TopologyType.HubandSpoke)
-                {
-                    <dt>
-                        <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.MulticastVpnDirectionType)" />
-                        @Html.DisplayNameFor(model => model.MulticastVpnDirectionType)
-                    </dt>
-                    <dd>
-                        @Html.DisplayFor(model => model.MulticastVpnDirectionType.Name)
-                    </dd>
-                }
-            }
-        }
-        <dt>
-            <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.IsNovaVpn)" />
             @Html.DisplayNameFor(model => model.IsNovaVpn)
         </dt>
         <dd>
             @Html.DisplayFor(model => model.IsNovaVpn)
         </dd>
-        @if (ApplicationConfiguration.Value.EnableNetworkSync)
-        {
-            <dt>
-                <span data-toggle="tooltip" data-placement="top" title="@Html.DisplayNameFor(model => model.RequiresSync)" />
-                @Html.DisplayNameFor(model => model.RequiresSync)
-            </dt>
-            <dd>
-                @Html.DisplayFor(model => model.RequiresSync)
-            </dd>
-        }
+        <dt>
+            @Html.DisplayNameFor(model => model.Region)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Region)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TenancyType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenancyType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TopologyType)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TopologyType)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Plane)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Plane)
+        </dd>
     </dl>
+    <br />
+    <h3>@Html.DisplayNameFor(model => model.RouteTargets)</h3>
+    <hr />
+    @foreach (var item in Model.RouteTargets)
+    {
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(x => item.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(x => item.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(x => item.RangeName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(x => item.RangeName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(x => item.AdministratorSubField)
+        </dt>
+        <dd>
+            @Html.DisplayFor(x => item.AdministratorSubField)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(x => item.AssignedNumberSubField)
+        </dt>
+        <dd>
+            @Html.DisplayFor(x => item.AssignedNumberSubField)
+        </dd>
+    </dl>
+    <hr />
+    }
 </div>
-<form asp-action="Sync">
-    <input type="hidden" asp-for="VpnID" name="VpnID" />
-    <input type="hidden" asp-for="AttachmentSetID" name="AttachmentSetID" />
-    @Html.ActionLink("Edit", "Edit", new { id = Model.VpnID }) |
-    <a asp-action="GetAll">Back to List</a>
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to VPNs List</a>
+    </div>
 </form>
-
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-    <script type="text/javascript">
-
-        (function ($) {
-
-            // Initialise all tool-tips
-
-            $('[data-toggle="tooltip"]').tooltip();
-        }(jQuery));
-
-    </script>
-}
-
-

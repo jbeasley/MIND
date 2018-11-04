@@ -19,6 +19,8 @@
     <Compile Remove="Migrations\20180829141651_Update10.Designer.cs" />
     <Compile Remove="Migrations\20180903162807_update14.cs" />
     <Compile Remove="Migrations\20180903162807_update14.Designer.cs" />
+    <Compile Remove="Migrations\20181031154916_update31.cs" />
+    <Compile Remove="Migrations\20181031154916_update31.Designer.cs" />
   </ItemGroup>
 
   <ItemGroup>
@@ -36,6 +38,7 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="2.0.4" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="3.0.0" />
+    <PackageReference Include="twitter-bootstrap-wizard" Version="1.4.2" />
   </ItemGroup>
 
   <ItemGroup>
@@ -43,6 +46,33 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Update="WebUI\Views\Vpn\ParticipantTenants.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Vpn\AttachmentSets.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Vpn\TopologyTypes.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Vpn\Create.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Vpn\Delete.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Vpn\Details.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Vpn\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Vpn\GetAllByTenantID.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Vpn\AddressFamilies.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="WebUI\Views\AttachmentSet\Create.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -119,6 +149,36 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\Shared\ItemNotFound.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantCommunity\Create.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantCommunity\Delete.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantCommunity\Details.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantCommunity\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantCommunity\GetAllByTenantID.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantIpNetwork\Create.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantIpNetwork\Delete.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantIpNetwork\Details.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantIpNetwork\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\TenantIpNetwork\GetAllByTenantID.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
   </ItemGroup>

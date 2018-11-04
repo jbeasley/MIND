@@ -42,6 +42,33 @@ dd {
     margin: 0
 }
 
+/* For Y-scrollable main content containers such as the list of tenants 
+   25 indicates the scrollable height expressed as a percentage of the element
+*/
+.main-25-y-scrollable {
+    height: 25%;
+    overflow-y: scroll;
+}
+
+/* Remove incorrect bulleted list-style for grids using jquery boot grid plugin */
+#grid-header > div > div > div.actions.btn-group > div.dropdown.btn-group.show:first-of-type > ul {
+
+    list-style: none !important;
+}
+
+/* Translate grid drop down list 80px left to avoid it dropping out of the right of the container */
+#grid-header > div > div > div.actions.btn-group > div.dropdown.btn-group.show:last-of-type > ul {
+
+    list-style: none !important;
+    transform: translate3d(-80px, -170px, 0px) !important;
+}
+
+/* Add Y-axis scroll to JQuery Bootgrid */
+.grid-y-scrollable {
+    height: 305px;
+    overflow-y: scroll;
+}
+
 /* Hide/rearrange for smaller screens */
 @media screen and (max-width: 767px) {
     /* Hide captions */
@@ -86,89 +113,4 @@ dd {
 
 tr:nth-child(even) {
     background-color: #edeaea;
-}
-
-.sk-cube-grid {
-    width: 100px;
-    margin-left: -50px;
-    margin-top: -50px;
-    height: 100px;
-}
-
-    .sk-cube-grid .sk-cube {
-        width: 33%;
-        height: 33%;
-        background-color: cadetblue;
-        float: left;
-        -webkit-animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
-        animation: sk-cubeGridScaleDelay 1.3s infinite ease-in-out;
-    }
-
-    .sk-cube-grid .sk-cube1 {
-        -webkit-animation-delay: 0.2s;
-        animation-delay: 0.2s;
-    }
-
-    .sk-cube-grid .sk-cube2 {
-        -webkit-animation-delay: 0.3s;
-        animation-delay: 0.3s;
-    }
-
-    .sk-cube-grid .sk-cube3 {
-        -webkit-animation-delay: 0.4s;
-        animation-delay: 0.4s;
-    }
-
-    .sk-cube-grid .sk-cube4 {
-        -webkit-animation-delay: 0.1s;
-        animation-delay: 0.1s;
-    }
-
-    .sk-cube-grid .sk-cube5 {
-        -webkit-animation-delay: 0.2s;
-        animation-delay: 0.2s;
-    }
-
-    .sk-cube-grid .sk-cube6 {
-        -webkit-animation-delay: 0.3s;
-        animation-delay: 0.3s;
-    }
-
-    .sk-cube-grid .sk-cube7 {
-        -webkit-animation-delay: 0s;
-        animation-delay: 0s;
-    }
-
-    .sk-cube-grid .sk-cube8 {
-        -webkit-animation-delay: 0.1s;
-        animation-delay: 0.1s;
-    }
-
-    .sk-cube-grid .sk-cube9 {
-        -webkit-animation-delay: 0.2s;
-        animation-delay: 0.2s;
-    }
-
-@-webkit-keyframes sk-cubeGridScaleDelay {
-    0%, 70%, 100% {
-        -webkit-transform: scale3D(1, 1, 1);
-        transform: scale3D(1, 1, 1);
-    }
-
-    35% {
-        -webkit-transform: scale3D(0, 0, 1);
-        transform: scale3D(0, 0, 1);
-    }
-}
-
-@keyframes sk-cubeGridScaleDelay {
-    0%, 70%, 100% {
-        -webkit-transform: scale3D(1, 1, 1);
-        transform: scale3D(1, 1, 1);
-    }
-
-    35% {
-        -webkit-transform: scale3D(0, 0, 1);
-        transform: scale3D(0, 0, 1);
-    }
 }

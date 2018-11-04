@@ -59,6 +59,7 @@ namespace Mind.WebUI.Models
         /// Determines if a multi port style of attachment is required
         /// </summary>
         /// <value>Boolean value which denotes if a multi port style of attachment is required</value>
+        [Display(Name = "Multiport Required")]
         public bool MultiportRequired { get; set; }
 
         /// <summary>

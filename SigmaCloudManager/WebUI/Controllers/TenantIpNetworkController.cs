@@ -2,298 +2,243 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net;
 using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
-using AutoMapper;
-using SCM.Models;
-using SCM.Models.ViewModels;
-using SCM.Services;
 using Microsoft.EntityFrameworkCore;
-using SCM.Validators;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using AutoMapper;
+using SCM.Models.RequestModels;
+using SCM.Models.ViewModels;
+using SCM.Models;
+using Microsoft.AspNetCore.Mvc.Filters;
+using SCM.Controllers;
 using Mind.Services;
+using SCM.Data;
+using Mind.Models;
+using Mind.Builders;
+using Mind.WebUI.Attributes;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
+using Mind.Models.RequestModels;
+using Mind.WebUI.ViewComponents;
 
-namespace SCM.Controllers
+namespace Mind.WebUI.Controllers
 {
     public class TenantIpNetworkController : BaseViewController
     {
         private readonly ITenantIpNetworkService _tenantIpNetworkService;
-        private readonly IVpnService _vpnService;
-        private readonly ITenantService _tenantService;
-
-        public TenantIpNetworkController(ITenantIpNetworkService tenantIpNetworkService,
-            IVpnService vpnService,
-            ITenantService tenantService,
-            IMapper mapper,
-            ITenantIpNetworkValidator tenantIpNetworkValidator) : base(tenantIpNetworkService, mapper)
+        public TenantIpNetworkController(ITenantIpNetworkService tenantIpNetworkService, IUnitOfWork unitOfWork, IMapper mapper) :
+            base(unitOfWork, mapper)
         {
             _tenantIpNetworkService = tenantIpNetworkService;
-            _vpnService = vpnService;
-            _tenantService = tenantService;
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllByTenantID(int? id, string searchString = "", bool showWarningMessage = false)
+        [ValidateTenantIpNetworkExists]
+        public async Task<IActionResult> Details(int? tenantIpNetworkId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenantIpNetworks = await _tenantIpNetworkService.GetAllByTenantIDAsync(id.Value, searchString);
-            if (showWarningMessage)
-            {
-                ViewData["NetworkWarningMessage"] = $"VPNs require synchronisation with the network as a result of this update. "
-                            + "Follow this <a href = '/Vpn/GetAll'>link</a> to go to the VPNs page.";
-            }
-
-            var tenant = await _tenantService.GetByIDAsync(id.Value);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-
-            return View(Mapper.Map<List<TenantIpNetworkViewModel>>(tenantIpNetworks));
+            var item = await _tenantIpNetworkService.GetByIDAsync(tenantIpNetworkId.Value, deep: true, asTrackable: false);
+            return View(_mapper.Map<TenantIpNetworkViewModel>(item));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Details(int? id)
+        [ValidateTenantExists]
+        public async Task<IActionResult> GetAllByTenantID(int? tenantId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var tenantIpNetworks = await _unitOfWork.TenantIpNetworkRepository.GetAsync(
+                    q =>
+                    q.TenantID == tenantId.Value,
+                    query: q => q.IncludeDeepProperties(),
+                    AsTrackable: false);
 
-            var item = await _tenantIpNetworkService.GetByIDAsync(id.Value, deep: true);
-            if (item == null)
-            {
-                return NotFound();
-            }
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            var tenant = await _tenantService.GetByIDAsync(item.TenantID);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-
-            return View(Mapper.Map<TenantIpNetworkViewModel>(item));
+            return View(_mapper.Map<List<TenantIpNetworkViewModel>>(tenantIpNetworks));
         }
 
         [HttpGet]
-        public async Task<IActionResult> Create(int? id)
+        [ValidateTenantExists]
+        public async Task<IActionResult> Create(int? tenantId)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenant = await _tenantService.GetByIDAsync(id.Value);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            PopulateIpRoutingBehavioursDropDownList();
             return View();
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("TenantID,Ipv4Prefix,Ipv4Length,Ipv4LessThanOrEqualToLength,AllowExtranet")] TenantIpNetworkViewModel tenantIpNetworkModel)
+        [ValidateTenantExists]
+        public async Task<IActionResult> Create(int? tenantId, TenantIpNetworkRequestViewModel requestModel)
         {
             if (ModelState.IsValid)
             {
-                var tenantIpNetwork = Mapper.Map<TenantIpNetwork>(tenantIpNetworkModel);
-
                 try
                 {
-                    await _tenantIpNetworkService.AddAsync(Mapper.Map<TenantIpNetwork>(tenantIpNetworkModel));
-                    return RedirectToAction("GetAllByTenantID", new
+                    var request = _mapper.Map<TenantIpNetworkRequest>(requestModel);
+
+                    var attachment = await _tenantIpNetworkService.AddAsync(tenantId.Value, request);
+                    return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
+                }
+
+                catch (BuilderBadArgumentsException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (BuilderUnableToCompleteException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (DbUpdateException)
+                {
+                    ModelState.AddDatabaseUpdateExceptionMessage();
+                }
+            }
+
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            PopulateIpRoutingBehavioursDropDownList();
+
+            return View(requestModel);
+        }
+
+        [HttpGet]
+        [ValidateTenantIpNetworkExists]
+        public async Task<ActionResult> Edit(int? tenantIpNetworkId)
+        {
+            var tenantIpNetwork = await _tenantIpNetworkService.GetByIDAsync(tenantIpNetworkId.Value, deep: true, asTrackable: false);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantIpNetwork.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            PopulateIpRoutingBehavioursDropDownList(tenantIpNetwork.IpRoutingBehaviour);
+
+            return View(_mapper.Map<TenantIpNetworkUpdateViewModel>(tenantIpNetwork));
+        }
+
+        [HttpPost]
+        [ValidateTenantIpNetworkExists]
+        [ValidateAntiForgeryToken]
+        public async Task<ActionResult> Edit(int? tenantIpNetworkId, TenantIpNetworkUpdateViewModel update)
+        {
+            var tenantIpNetwork = await _tenantIpNetworkService.GetByIDAsync(tenantIpNetworkId.Value, deep: true, asTrackable: false);
+
+            if (ModelState.IsValid)
+            {
+                if (tenantIpNetwork.HasPreconditionFailed(Request, update.GetConcurrencyToken()))
+                {
+                    ModelState.AddUpdatePreconditionFailedMessage();
+                    ModelState.RemoveConcurrencyTokenItem();
+                    update.UpdateConcurrencyToken(tenantIpNetwork.GetConcurrencyToken());
+                }
+                else
+                {
+
+                    var tenantIpNetworkUpdate = _mapper.Map<TenantIpNetworkRequest>(update);
+
+                    try
                     {
-                        id = tenantIpNetworkModel.TenantID
-                    });
-                }
+                        await _tenantIpNetworkService.UpdateAsync(tenantIpNetworkId.Value, tenantIpNetworkUpdate);
+                        return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = tenantIpNetwork.TenantID });
+                    }
 
-                catch (DbUpdateException /* ex */)
-                {
-                    //Log the error (uncomment ex variable name and write a log.
-                    ModelState.AddModelError("", "Unable to save changes. " +
-                        "Try again, and if the problem persists " +
-                        "see your system administrator.");
+                    catch (BuilderBadArgumentsException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (BuilderUnableToCompleteException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (IllegalStateException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (IllegalDeleteAttemptException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (DbUpdateException)
+                    {
+                        ModelState.AddDatabaseUpdateExceptionMessage();
+                    }
                 }
             }
 
-            var tenant = await _tenantService.GetByIDAsync(tenantIpNetworkModel.TenantID);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantIpNetwork.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+            PopulateIpRoutingBehavioursDropDownList(update.IpRoutingBehaviour);
 
-            return View(Mapper.Map<TenantIpNetworkViewModel>(tenantIpNetworkModel));
+            return View(_mapper.Map<TenantIpNetworkUpdateViewModel>(tenantIpNetwork));
         }
 
         [HttpGet]
-        public async Task<ActionResult> Edit(int? id)
+        [ValidateTenantIpNetworkExists]
+        public async Task<IActionResult> Delete(int? tenantIpNetworkId, bool? concurrencyError = false)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var item = await _tenantIpNetworkService.GetByIDAsync(tenantIpNetworkId.Value, deep: true, asTrackable: false);
+            if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(item.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            var tenantIpNetwork = await _tenantIpNetworkService.GetByIDAsync(id.Value, deep: true);
-            if (tenantIpNetwork == null)
-            {
-                return NotFound();
-            }
-
-            var tenant = await _tenantService.GetByIDAsync(tenantIpNetwork.TenantID);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-
-            return View(Mapper.Map<TenantIpNetworkViewModel>(tenantIpNetwork));
+            return View(_mapper.Map<TenantIpNetworkDeleteViewModel>(item));
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int id, [Bind("TenantIpNetworkID,TenantID,Ipv4Prefix," +
-            "Ipv4Length,Ipv4LessThanOrEqualToLength,AllowExtranet,RowVersion")] TenantIpNetworkViewModel tenantIpNetworkModel)
+        public async Task<IActionResult> Delete(TenantIpNetworkDeleteViewModel model)
         {
-            if (id != tenantIpNetworkModel.TenantIpNetworkID)
-            {
-                return NotFound();
-            }
+            var tenantIpNetwork = await _tenantIpNetworkService.GetByIDAsync(model.TenantIpNetworkId.Value, deep: true, asTrackable: false);
+            if (tenantIpNetwork == null) return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = model.TenantId });
 
-            var tenantIpNetwork = await _tenantIpNetworkService.GetByIDAsync(id, deep: true);
-            if (tenantIpNetwork == null)
+            if (tenantIpNetwork.HasPreconditionFailed(Request, model.GetConcurrencyToken()))
             {
-                ModelState.AddModelError(string.Empty, "Unable to save changes. The Tenant Network was deleted by another user.");
-            }
-
-            try
-            {
-                var item = Mapper.Map<TenantIpNetwork>(tenantIpNetworkModel);
-                await _tenantIpNetworkService.UpdateAsync(item);
-
-                return RedirectToAction("GetAllByTenantID", new
+                return RedirectToAction(nameof(Delete), new
                 {
-                    id = tenantIpNetwork.TenantID
-                });
-            }
-
-            catch (DbUpdateConcurrencyException ex)
-            {
-                var exceptionEntry = ex.Entries.Single();
-
-                var proposedIpv4Prefix = (string)exceptionEntry.Property("Ipv4Prefix").CurrentValue;
-                if (tenantIpNetwork.Ipv4Prefix != proposedIpv4Prefix)
-                {
-                    ModelState.AddModelError("Ipv4Prefix", $"Current value: {tenantIpNetwork.Ipv4Prefix}");
-                }
-
-                var proposedIpv4Length = (int)exceptionEntry.Property("Ipv4Length").CurrentValue;
-                if (tenantIpNetwork.Ipv4Length != proposedIpv4Length)
-                {
-                    ModelState.AddModelError("Ipv4Length", $"Current value: {tenantIpNetwork.Ipv4Length}");
-                }
-
-                var proposedIpv4LessThanOrEqualToLength = (int?)exceptionEntry.Property("Ipv4LessThanOrEqualToLength").CurrentValue;
-                if (tenantIpNetwork.Ipv4LessThanOrEqualToLength != proposedIpv4LessThanOrEqualToLength)
-                {
-                    ModelState.AddModelError("Ipv4LessThanOrEqualToLength", $"Current value: {tenantIpNetwork.Ipv4LessThanOrEqualToLength}");
-                }
-
-                var proposedAllowExtranet = (bool)exceptionEntry.Property("AllowExtranet").CurrentValue;
-                if (tenantIpNetwork.AllowExtranet != proposedAllowExtranet)
-                {
-                    ModelState.AddModelError("AllowExtranet", $"Current value: {tenantIpNetwork.AllowExtranet}");
-                }
-
-                ModelState.AddModelError(string.Empty, "The record you attempted to edit "
-                    + "was modified by another user after you got the original value. The "
-                    + "edit operation was cancelled and the current values in the database "
-                    + "have been displayed. If you still want to edit this record, click "
-                    + "the Save button again. Otherwise click the Back to List hyperlink.");
-
-                ModelState.Remove("RowVersion");
-            }
-
-            catch (DbUpdateException /* ex */ )
-            {
-                //Log the error (uncomment ex variable name and write a log.
-                ModelState.AddModelError("", "Unable to save changes. " +
-                    "Try again, and if the problem persists " +
-                    "see your system administrator.");
-
-            }
-
-            var tenant = await _tenantService.GetByIDAsync(tenantIpNetwork.TenantID);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-
-            return View(Mapper.Map<TenantIpNetworkViewModel>(tenantIpNetwork));
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> Delete(int? id, int? tenantID, bool? concurrencyError = false)
-        {
-            if (id == null)
-            {
-                return NotFound();
-            }
-
-            var tenantIpNetwork = await _tenantIpNetworkService.GetByIDAsync(id.Value, deep: true);
-            if (tenantIpNetwork == null)
-            {
-                if (concurrencyError.GetValueOrDefault())
-                {
-                    return RedirectToAction("GetAllByTenantID", new { id = tenantID });
-                }
-
-                return NotFound();
-            }
-
-            if (concurrencyError.GetValueOrDefault())
-            {
-                ViewData["ErrorMessage"] = "The record you attempted to delete "
-                    + "was modified by another user after you got the original values. "
-                    + "The delete operation was cancelled and the current values in the "
-                    + "database have been displayed. If you still want to delete this "
-                    + "record, click the Delete button again. Otherwise "
-                    + "click the Back to List hyperlink.";
-            }
-
-            var tenant = await _tenantService.GetByIDAsync(tenantIpNetwork.TenantID);
-            ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-
-            return View(Mapper.Map<TenantIpNetworkViewModel>(tenantIpNetwork));
-        }
-
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Delete(TenantIpNetworkViewModel tenantIpNetworkModel)
-        {
-            var tenantIpNetwork = await _tenantIpNetworkService.GetByIDAsync(tenantIpNetworkModel.TenantIpNetworkID, deep: true);
-            if (tenantIpNetwork == null)
-            {
-                return RedirectToAction("GetAllByTenantID", new
-                {
-                    id = tenantIpNetworkModel.TenantID
+                    tenantIpNetworkId = tenantIpNetwork.TenantIpNetworkID,
+                    concurrencyError = true
                 });
             }
 
             try
             {
-                await _tenantIpNetworkService.DeleteAsync(tenantIpNetworkModel.TenantIpNetworkID);
-                return RedirectToAction("GetAllByTenantID", new
-                {
-                    id = tenantIpNetworkModel.TenantID
-                });
+                await _tenantIpNetworkService.DeleteAsync(tenantIpNetwork.TenantIpNetworkID);
+                return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = tenantIpNetwork.TenantID });
             }
 
-            catch (DbUpdateConcurrencyException /* ex */)
+            catch (IllegalDeleteAttemptException ex)
             {
-                //Log the error (uncomment ex variable name and write a log.)
-                return RedirectToAction("Delete", new
-                {
-                    concurrencyError = true,
-                    id = tenantIpNetworkModel.TenantIpNetworkID,
-                    tenantID = tenantIpNetworkModel.TenantID
-                });
+                ViewData.AddDeleteValidationFailedMessage(ex.Message);
             }
 
-            catch (ServiceValidationException)
+            catch (DbUpdateException ex)
             {
-                var tenant = await _tenantService.GetByIDAsync(tenantIpNetwork.TenantID);
-                ViewBag.Tenant = Mapper.Map<TenantViewModel>(tenant);
-
-                return View(Mapper.Map<TenantIpNetworkViewModel>(tenantIpNetwork));
+                ViewData.AddDatabaseUpdateExceptionMessage();
             }
+
+            var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantIpNetwork.TenantID);
+            ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+
+            return View(_mapper.Map<TenantIpNetworkDeleteViewModel>(tenantIpNetwork));
+        }
+
+        private void PopulateIpRoutingBehavioursDropDownList(object selectedIpRoutingBehavior = null)
+        {
+            IList<SelectListItem> list = Enum.GetValues(typeof(TenantIpRoutingBehaviourEnum))
+                .Cast<TenantIpRoutingBehaviourEnum>()
+                .Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+
+            ViewBag.IpRoutingBehaviour = new SelectList(list, "Value", "Text");
         }
     }
 }

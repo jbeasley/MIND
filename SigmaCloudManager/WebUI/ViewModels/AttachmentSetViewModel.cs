@@ -26,6 +26,21 @@ namespace Mind.WebUI.Models
         public int AttachmentSetId { get; private set; }
 
         /// <summary>
+        /// The ID of the tenant owner of the attachment set
+        /// </summary>
+        /// <value>Integer value denoting the ID of the tenant</value>
+        /// <example>9001</example>
+        public int? TenantId { get; set; }
+
+        /// <summary>
+        /// The name of the tenant owner of the attachment set
+        /// </summary>
+        /// <value>String value denoting the name of the tenant</value>
+        /// <example>DCIS</example>
+        [Display(Name = "Tenant Name")]
+        public string TenantName { get; set; }
+
+        /// <summary>
         /// MIND System-generated name of the attachment set
         /// </summary>
         /// <value>String value for the name of the attachment set</value>
@@ -77,7 +92,7 @@ namespace Mind.WebUI.Models
         /// The list of routing instances which belong to the attachment Set
         /// </summary>
         /// <value>A list of AttachmentSetRoutingInstance objects</value>
-        [Display(Name="Attachment Set Routing Instances")]
+        [Display(Name="Routing Instances")]
         public List<AttachmentSetRoutingInstanceViewModel> AttachmentSetRoutingInstances { get; private set; }
     }
 }

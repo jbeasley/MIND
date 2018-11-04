@@ -2,39 +2,21 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div>
-    <table class="table">
-        <tr>
-            <td>
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="~/images/tenants.png" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Tenants</h5>
-                        <p class="card-text">Create and manage the lifecycle of tenants</p>
-                        <a href="/Tenant/GetAll" class="btn btn-primary">Go to Tenants</a>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="~/images/infrastructure.png" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Infrastructure</h5>
-                        <p class="card-text">Manage provider domain infrastructure</p>
-                        <a href="/Infrastructure" class="btn btn-primary">Go to Infrastructure</a>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div class="card" style="width: 18rem;">
-                    <img class="card-img-top" src="~/images/network.png" alt="Card image cap">
-                    <div class="card-body">
-                        <h5 class="card-title">Virtual Private Networks</h5>
-                        <p class="card-text">Create and manage the lifecycle of VPNs</p>
-                        <a href="/VPN/GetAll" class="btn btn-primary">Go to VPNs</a>
-                    </div>
-                </div>
-            </td>
-        </tr>
-    </table>
+<div class="card-deck">
+    <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="~/images/tenants.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Tenants</h5>
+            <p class="card-text">Create and manage the lifecycle of tenants</p>
+            <a href="/Tenant/GetAll" class="btn btn-primary">Go to Tenants</a>
+        </div>
+    </div>
+    <div class="card" style="width: 18rem;">
+        <img class="card-img-top" src="~/images/infrastructure.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Infrastructure</h5>
+            <p class="card-text">Manage provider domain infrastructure</p>
+            <a href="/Infrastructure" class="btn btn-primary">Go to Infrastructure</a>
+        </div>
+    </div>
 </div>

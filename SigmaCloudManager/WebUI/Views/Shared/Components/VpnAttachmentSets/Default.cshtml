@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Mind.WebUI.Models.VpnAttachmentSetRequestViewModel>
+
+<h3>Attachment Sets</h3>
+<section id="attachment-sets">
+    <br />
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label">Tenant Name</label>
+        <div class="col-sm-10">
+            <select class="form-control" id="TenantName" asp-items="ViewBag.ParticipantTenant" data-toggle="tooltip"
+                    title="Select a tenant with attachment sets that you wish to add to the VPN" data-placement="right">
+                <option value="">-- Select Tenant --</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select disabled class="form-control" id="AttachmentSet" asp-items="ViewBag.AttachmentSet" data-toggle="tooltip"
+                    title="Select an attachment set to add to this VPN" data-placement="right">
+                <option value="">-- Select Attachment Set --</option>
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <span class="col-sm-2"></span>
+        <div class="col-sm-10">
+            <button type="button" id="addAttachmentSet" class="btn btn-primary"><i class="fas fa-plus-square"></i>&nbsp;Add to VPN</button>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-12 grid-y-scrollable">
+            <table id="grid" class="table table-condensed table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th data-column-id="attachmentSetName">@Html.DisplayNameFor(model => model.AttachmentSetName)</th>
+                        <th data-column-id="tenantName" data-order="desc">@Html.DisplayNameFor(model => model.TenantName)</th>
+                        <th data-column-id="region">@Html.DisplayNameFor(model => model.Region)</th>
+                        <th data-column-id="attachmentRedundancy">@Html.DisplayNameFor(model => model.AttachmentRedundancy)</th>
+                        <th data-column-id="isHub">@Html.DisplayNameFor(model => model.IsHub)</th>
+                        <th data-column-id="commands" data-formatter="commands" data-sortable="false">Remove</th>
+                    </tr>
+                </thead>
+                @if (Model != null) {
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(x => item.AttachmentSetName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(x => item.TenantName)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(x => item.Region)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(x => item.AttachmentRedundancy)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(x => item.IsHub)
+                        </td>
+                    </tr>
+                    }
+                </tbody>
+                }
+            </table>
+        </div>
+    </div>
+</section>

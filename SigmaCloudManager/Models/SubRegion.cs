@@ -28,5 +28,6 @@ namespace SCM.Models
         public byte[] RowVersion { get; set; }
         public virtual Region Region { get; set; }
         public virtual ICollection<Location> Locations { get; set; }
+        public virtual ICollection<AttachmentSet> AttachmentSets { get; set; }
     }
 }

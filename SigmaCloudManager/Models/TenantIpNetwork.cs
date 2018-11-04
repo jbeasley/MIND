@@ -177,6 +177,8 @@ namespace SCM.Models
                     sb.Append($"Tenant IP network '{this.CidrName}' " +
                     $"cannot be deleted because it is used in the static routing policy of attachment set '{x.AttachmentSet.Name}'.").Append("\r\n")
                 );
+
+            if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());
         }
     }
 }

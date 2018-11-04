@@ -1,80 +1,163 @@
-﻿using Mind.WebUI.Models;
 using System;
+using System.Linq;
+using System.IO;
+using System.Text;
+using System.Collections;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
+using System.Runtime.Serialization;
+using Newtonsoft.Json;
 
-namespace SCM.Models.ViewModels
-{
+namespace Mind.WebUI.Models
+{ 
     /// <summary>
-    /// View Model for a VPN
+    /// Model of a VPN
     /// </summary>
-    public class VpnViewModel : IValidatableObject
+    public class VpnViewModel
     {
-        [Display(AutoGenerateField = false)]
-        public int VpnID { get; set; }
-        [Required]
-        [StringLength(50)]
-        [RegularExpression(@"^[a-zA-Z0-9-]+$", ErrorMessage = "The name must contain letters, numbers, and dashes (-) only and no whitespace.")]
-        public string Name { get; set; }
-        [StringLength(200)]
-        public string Description { get; set; }
-        [Display(Name = "Extranet")]
-        public bool IsExtranet { get; set; }
-        [Display(Name = "Multicast VPN")]
-        public bool IsMulticastVpn { get; set; }
-        [Display(Name = "Nova VPN")]
-        public bool IsNovaVpn { get; set; }
-        [Required(ErrorMessage = "A VPN Topology Type must be selected.")]
-        public int? VpnTopologyTypeID { get; set; }
-        [Required(ErrorMessage = "A VPN Tenancy Type must be selected.")]
-        public int? VpnTenancyTypeID { get; set; }
-        [Required(ErrorMessage = "A Tenant must be selected.")]
-        public int? TenantID { get; set; }
-        public int? PlaneID { get; set; }
-        public int? AddressFamilyID { get; set; }
-        public int? RegionID { get; set; }
-        [Display(Name = "Requires Sync")]
-        public bool RequiresSync { get; set; }
-        public bool Created { get; set; }
-        public int? MulticastVpnServiceTypeID { get; set; }
-        public int? MulticastVpnDirectionTypeID { get; set; }
-        public byte[] RowVersion { get; set; }
-        public TenantViewModel Tenant { get; set; }
-        public PlaneViewModel Plane { get; set; }
-        public RegionViewModel Region { get; set; }
-        [Display(Name = "Topology Type")]
-        public VpnTopologyTypeViewModel VpnTopologyType { get; set; }
-        [Display(Name = "Address Family")]
-        public AddressFamilyViewModel AddressFamily { get; set; }
-        [Display(Name = "Tenancy Type")]
-        public VpnTenancyTypeViewModel VpnTenancyType { get; set; }
-        [Display(Name = "Multicast Service Type")]
-        public MulticastVpnServiceTypeViewModel MulticastVpnServiceType { get; set; }
-        [Display(Name = "Multicast Direction Type")]
-        public MulticastVpnDirectionTypeViewModel MulticastVpnDirectionType { get; set; }
         /// <summary>
-        /// This property provides Attachment Set context for the AttachmentSetVpn controller.
-        /// It is not used to update the model.
+        /// The ID of the VPN
         /// </summary>
-        public AttachmentSetViewModel AttachmentSet { get; set; }
-        public int? AttachmentSetID { get; set; }
+        /// <value>Integer value denoting the ID of the vpn</value>
+        /// <example>12001</example>
+        public int? VpnId { get; private set; }
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (!IsMulticastVpn)
-            {
-                if (MulticastVpnServiceTypeID != null)
-                {
-                    yield return new ValidationResult(
-                        "A Multicast Service Type can only be specified for Multicast VPNs.");
-                }
+        /// <summary>
+        /// The ID of the tenant to which the VPN belongs
+        /// </summary>
+        /// <value>Integer value for the ID of the tenant</value>
+        /// <example>1001</example>
+        [Display(Name = "Tenant ID")]
+        public int? TenantId { get; private set; }
 
-                if (MulticastVpnDirectionTypeID != null)
-                {
-                    yield return new ValidationResult(
-                        "A Multicast Direction Type can only be specified for Multicast VPNs.");
-                }
-            }
-        }
+        /// <summary>
+        /// The name of the tenant owner of the VPN
+        /// </summary>
+        /// <value>String value denoting the name of the tenant</value>
+        /// <example>DCIS</example>
+        [Display(Name = "Tenant Name")]
+        public string TenantName { get; private set; }
+
+        /// <summary>
+        /// The name of the VPN
+        /// </summary>
+        /// <value>String value denoting the name of the vpn</value>
+        /// <example>cloud-connectivity-vpn</example>
+        [Display(Name="Name")]
+        public string Name { get; private set; }
+
+        /// <summary>
+        /// A description of the vpn
+        /// </summary>
+        /// <value>String value denoting the description of the vpn</value>
+        /// <example>vpn for providing IP connectivity between hosts running in public and private clouds</example>
+        [Display(Name="Description")]
+        public string Description { get; private set; }
+
+        /// <summary>
+        /// The tenant owner of the vpn
+        /// </summary>
+        /// <value>String value denoting the name of the tenant owner</value>
+        /// <example>product-group-tenant</example>
+        [Display(Name = "Tenant Owner Name")]
+        public string TenantOwnerName { get; private set; }
+
+        /// <summary>
+        /// The geographical region which the vpn operates within.
+        /// </summary>
+        /// <value>String value denoting the geographical region which the vpn operates within.</value>
+        /// <example>EMEA</example>
+        [Display(Name="Region")]
+        public string Region { get; private set; }
+
+        /// <summary>
+        /// The provider plane which the vpn operates within.
+        /// </summary>
+        /// <value>String value denoting the provider plane which the vpn operates within.</value>
+        /// <example>red</example>
+        [Display(Name="Plane")]
+        public string Plane { get; private set; }
+
+        /// <summary>
+        /// The tenancy type of the vpn. If the tenancy type is 'single' then only the owner of the VPN can participate in the vpn. 
+        /// If the tenancy type is 'multi' then any tenant can participate in the vpn.
+        /// </summary>
+        /// <value>String value denoting the tenancy type of the vpn.</value>
+        /// <example>single</example>
+        [Display(Name="Tenancy Type")]
+        public string TenancyType { get; private set; }
+
+        /// <summary>
+        /// The topology type of the vpn. A meshed vpn allows any endpoint to communicate with any other endpoint. 
+        /// A hub-and-spoke vpn allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. 
+        /// </summary>
+        /// <value>String value denoting the topology type of the vpn.</value>
+        /// <example>meshed</example>
+        [Display(Name="Topology Type")]
+        public string TopologyType { get; private set; }
+
+        /// <summary>
+        /// The address family of the vpn.
+        /// </summary>
+        /// <value>String valude dneoting the address family of the vpn.</value>
+        /// <example>ipv4</example>
+        [Display(Name="Address-Family")]
+        public string AddressFamily { get; private set; }
+
+        /// <summary>
+        /// Denotes whether the vpn conforms to the Nova standard. If this attribute is set to disabled then the VPN does not follow a standard 
+        /// Nova implementation and may be customised.
+        /// </summary>
+        /// <value>Boolean value denoting the vpn as Nova standard compliant.</value>
+        /// <example>true</example>
+        [Display(Name="Nova VPN")]
+        public bool IsNovaVpn { get; private set; }
+
+        /// <summary>
+        /// Denotes if the vpn supports extranet connectivity
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports extranet</value>
+        /// <example>true</example>
+        [Display(Name = "Extranet")]
+        public bool IsExtranet { get; private set; }
+
+        /// <summary>
+        /// Denotes if the VPN supports IP multicast
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn supports IP multicast.</value>
+        /// <example>true</example>
+        [Display(Name = "Multicast VPN")]
+        public bool IsMulticastVpn { get; private set; }
+
+        /// <summary>
+        /// The multicast service type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast service type of the vpn.</value>
+        /// <example>ssm</example>
+        [Display(Name = "Multicast VPN Service Type")]
+        public string MulticastVpnServiceType { get; private set; }
+
+        /// <summary>
+        /// The multicast direction type of the VPN. 
+        /// </summary>
+        /// <value>Enum value denoting the multicast direction type of the vpn.</value>
+        /// <example>unidirectional</example>
+        [Display(Name = "Multicast VPN Direction Type")]
+        public string MulticastVpnDirectionType { get; private set; }
+
+        /// <summary>
+        /// Route targets assigned to the vpn
+        /// </summary>
+        /// <value>A list of RouteTargetViewModel objects</value>
+        [Display(Name = "Route Targets")]
+        public List<RouteTargetViewModel> RouteTargets { get; private set; }
+
+        /// <summary>
+        /// Attachment Sets which are bound to the vpn
+        /// </summary>
+        /// <value>A list of AttachmentSetViewModel objects</value>
+        [Display(Name = "Attachment Set")]
+        public List<AttachmentSetViewModel> AttachmentSets { get; private set; }
     }
 }

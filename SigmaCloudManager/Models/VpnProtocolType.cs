@@ -20,5 +20,6 @@ namespace SCM.Models
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual ICollection<VpnTopologyType> VpnTopologyTypes { get; set; }
+        public virtual ICollection<AddressFamily> AddressFamilies { get; set; }
     }
 }

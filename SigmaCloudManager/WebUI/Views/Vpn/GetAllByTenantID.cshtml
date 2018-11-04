@@ -1,0 +1,85 @@
+@model IEnumerable<Mind.WebUI.Models.VpnViewModel>
+
+@{
+    ViewData["Title"] = "VPNs";
+}
+
+<ol class="breadcrumb">
+    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item active">VPNs - [@ViewBag.Tenant.Name]</li>
+</ol>
+
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+
+<h2>VPNs for Tenant '@ViewBag.Tenant.Name'</h2>
+
+<p>
+    <a asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
+       data-toggle="tooltip" data-placement="right"
+       title="Create a new vpn">Create New</a>
+</p>
+<p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsNovaVpn)
+            </th>
+            <th></th>
+            <th></th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <input type="checkbox" />
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsNovaVpn)
+                </td>
+                <td></td>
+                <td></td>
+                <td>
+                    @Html.ActionLink("Edit", "Edit", new { vpnId = item.VpnId }) |
+                    @Html.ActionLink("Details", "Details", new { vpnId = item.VpnId }) |
+                    @Html.ActionLink("Delete", "Delete", new { vpnId = item.VpnId })
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
+
+<a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
+
+
+@section Scripts {
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips
+
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
+    </script>
+ }

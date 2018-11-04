@@ -1,30 +1,26 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
+using System.Threading.Tasks;
 
-namespace SCM.Models.ViewModels
+namespace Mind.WebUI.Models
 {
-    public enum PortStatusType
-    {
-        Free,
-        Assigned,
-        Locked,
-        Migration,
-        Reserved
-    }
-
+    /// <summary>
+    /// Model of a port status option
+    /// </summary>
     public class PortStatusViewModel
     {
-        [Display(AutoGenerateField = false)]
-        public int PortStatusID { get; set; }
-        [Display(Name = "Port Status")]
-        [StringLength(50)]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "A port status name must be specified")]
-        [RegularExpression(@"^[a-zA-Z0-9-]+$", ErrorMessage = "The port status name must contain letters, numbers, or dashes (-) only and no whitespace.")]
-        public string Name { get; set; }
-        public PortStatusType PortStatusType { get; set; }
-        public byte[] RowVersion { get; set; }
-        public virtual ICollection<Port> Ports { get; set; }
+        /// <summary>
+        /// The ID of the port status
+        /// </summary>
+        /// <value>Integer value denoting the ID of the port status</value>
+        public int PlaneID { get; private set; }
+
+        /// <summary>
+        /// The name of the port status
+        /// </summary>
+        /// <value>String value denoting the name of the port status</value>
+        public string Name { get; private set; }
     }
 }

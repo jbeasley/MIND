@@ -74,6 +74,7 @@ namespace SCM.Models
         public virtual ICollection<VpnTenantCommunityRoutingInstance> VpnTenantCommunityRoutingInstancePoliciesIn { get; set; }
         public virtual ICollection<TenantCommunitySet> TenantCommunitySets { get; set; }
         public virtual ICollection<VpnTenantIpNetworkCommunityIn> VpnTenantIpNetworkCommunitiesIn { get; set; }
+        public virtual ICollection<TenantCommunitySetCommunity> TenantCommunitySetCommunities { get; set; }
 
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
 
@@ -147,7 +148,9 @@ namespace SCM.Models
                 x =>
                     sb.Append($"Tenant community '{this.Name}' " +
                     $"cannot be deleted because it it associated with community set '{x.Name}'.").Append("\r\n")
-    );
+            );
+
+            if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());
         }
     }
 }

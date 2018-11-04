@@ -158,137 +158,137 @@ namespace SCM.Data
 
             builder.Entity<Attachment>()
                     .HasOne(c => c.AttachmentBandwidth)
-                    .WithMany()
+                    .WithMany(e => e.Attachments)
                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<AttachmentSet>()
                    .HasOne(c => c.SubRegion)
-                   .WithMany()
+                   .WithMany(e => e.AttachmentSets)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<AttachmentSet>()
                    .HasOne(c => c.Region)
-                   .WithMany()
+                   .WithMany(e => e.AttachmentSets)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<AttachmentSet>()
                    .HasOne(c => c.AttachmentRedundancy)
-                   .WithMany()
+                   .WithMany(e => e.AttachmentSets)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<ContractBandwidthPool>()
                    .HasOne(c => c.ContractBandwidth)
-                   .WithMany()
+                   .WithMany(e => e.ContractBandwidthPools)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Device>()
                     .HasOne(c => c.Plane)
-                    .WithMany()
+                    .WithMany(e => e.Devices)
                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Device>()
                    .HasOne(c => c.Location)
-                   .WithMany()
+                   .WithMany(e => e.Devices)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Port>()
                    .HasOne(c => c.PortBandwidth)
-                   .WithMany()
+                   .WithMany(e => e.Ports)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<RoutingInstance>()
                   .HasOne(c => c.Tenant)
-                  .WithMany()
+                  .WithMany(e => e.RoutingInstances)
                   .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Vif>()
                   .HasOne(c => c.VifRole)
-                  .WithMany()
+                  .WithMany(e => e.Vifs)
                   .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Vpn>()
                    .HasOne(c => c.Tenant)
-                   .WithMany()
+                   .WithMany(e => e.Vpns)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Vpn>()
                    .HasOne(c => c.Plane)
-                   .WithMany()
+                   .WithMany(e => e.Vpns)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Vpn>()
                    .HasOne(c => c.Region)
-                   .WithMany()
+                   .WithMany(e => e.Vpns)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantIpNetworkCommunityIn>()
                    .HasOne(c => c.TenantCommunity)
-                   .WithMany()
+                   .WithMany(e => e.VpnTenantIpNetworkCommunitiesIn)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantIpNetworkIn>()
                     .HasOne(c => c.TenantIpNetwork)
-                    .WithMany()
+                    .WithMany(e => e.VpnTenantIpNetworksIn)
                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantIpNetworkIn>()
                     .HasOne(c => c.AttachmentSet)
-                    .WithMany()
+                    .WithMany(e => e.VpnTenantIpNetworksIn)
                     .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<VpnTenantIpNetworkOut>()
                     .HasOne(c => c.TenantIpNetwork)
-                    .WithMany()
+                    .WithMany(e => e.VpnTenantIpNetworksOut)
                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantIpNetworkOut>()
                     .HasOne(c => c.AttachmentSet)
-                    .WithMany()
+                    .WithMany(e => e.VpnTenantIpNetworksOut)
                     .OnDelete(DeleteBehavior.Cascade);
 
             builder.Entity<VpnTenantCommunityIn>()
                     .HasOne(c => c.TenantCommunity)
-                    .WithMany()
+                    .WithMany(e => e.VpnTenantCommunitiesIn)
                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantCommunityOut>()
                     .HasOne(c => c.TenantCommunity)
-                    .WithMany()
+                    .WithMany(e => e.VpnTenantCommunitiesOut)
                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<TenantCommunitySetCommunity>()
                    .HasOne(c => c.TenantCommunity)
-                   .WithMany()
+                   .WithMany(e => e.TenantCommunitySetCommunities)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantIpNetworkRoutingInstanceStaticRoute>()
                    .HasOne(c => c.TenantIpNetwork)
-                   .WithMany()
+                   .WithMany(e => e.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantIpNetworkRoutingInstance>()
                    .HasOne(c => c.TenantIpNetwork)
-                   .WithMany()
+                   .WithMany(e => e.VpnTenantIpNetworkRoutingInstancePoliciesIn)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantCommunityRoutingInstance>()
                     .HasOne(c => c.TenantCommunity)
-                    .WithMany()
+                    .WithMany(e => e.VpnTenantCommunityRoutingInstancePoliciesIn)
                     .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<VpnTenantMulticastGroup>()
                    .HasOne(c => c.TenantMulticastGroup)
-                   .WithMany()
+                   .WithMany(e => e.VpnTenantMulticastGroups)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Vif>()
                    .HasOne(c => c.Mtu)
-                   .WithMany()
+                   .WithMany(e => e.Vifs)
                    .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<Attachment>()
                    .HasOne(c => c.Mtu)
-                   .WithMany()
+                   .WithMany(e => e.Attachments)
                    .OnDelete(DeleteBehavior.Restrict);
 
             // Set Indexes to ensure data uniqueness

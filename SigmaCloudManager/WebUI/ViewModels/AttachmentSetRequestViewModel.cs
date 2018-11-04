@@ -62,7 +62,7 @@ namespace Mind.WebUI.Models
         /// <summary>
         /// A list of names of routing instances to be associated with the attachment set.
         /// Each routing instance must exist and belong to an attachment which is owned by the tenant owner requesting the attachment set.
-        /// The names passed as a list of strings to/from the web UI for simple integration with a drop-down list defined in the view.
+        /// The names are passed as a list of strings to/from the web UI for simple integration with a drop-down list defined in the view.
         /// </summary>
         /// <value>A list of strings with each string denoting the name of a routing instance</value>
         [Display(Name = "Routing Instances")]
@@ -77,7 +77,7 @@ namespace Mind.WebUI.Models
         public MulticastVpnDomainTypeEnum? MulticastVpnDomainType { get; set; }
 
         /// <summary>
-        /// A list of routing instances routing instance request objects to be associated with the attachment set.
+        /// A list of routing instances request objects to be associated with the attachment set.
         /// This list is created on submission of the create form from the web UI from the list of routing instance names given
         /// in the AttachmentSetRoutingInstanceNames property of this model. Each routing instance name in the list is mapped into an
         /// instance of AttachmentSetRoutingInstanceRequest and added this list. This step makes it easy to integrate the create method

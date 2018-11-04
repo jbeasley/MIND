@@ -1,0 +1,9 @@
+@model IEnumerable<Mind.WebUI.Models.AttachmentSetViewModel>
+    
+<option value="">-- Select Attachment Set --</option>
+
+@foreach (var item in Model)
+{
+    <option data-name="@item.Name" data-attachment-redundancy="@item.AttachmentRedundancy" data-tenant-name="@item.TenantName" data-region-name="@item.Region" 
+        value="@item.AttachmentSetId">@item.Name (@item.Region, @item.AttachmentRedundancy)</option>
+}

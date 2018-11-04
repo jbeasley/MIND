@@ -18,35 +18,208 @@
 <p>
     <a asp-action="Create">Create New</a>
 </p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var item in Model)
-        {
+<div class="main-25-y-scrollable">
+    <table class="table">
+        <thead>
             <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Details", "Details", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Delete", "Delete", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Devices", "GetAllByTenantID", "TenantDevice", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Attachments", "GetAllByTenantID", "ProviderDomainAttachment", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Attachment Sets", "GetAllByTenantID", "AttachmentSet", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("IP Networks", "GetAllByTenantID", "TenantIpNetwork", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Communities", "GetAllByTenantID", "TenantCommunity", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Community Sets", "GetAllByTenantID", "TenantCommunitySet", new { tenantId = item.TenantId }) |
-                    @Html.ActionLink("Multicast Groups", "GetAllByTenantID", "TenantMulticastGroup", new { tenantId = item.TenantId })
-                </td>
+                <th></th>
+                <th>
+                    @Html.DisplayNameFor(model => model.Name)
+                </th>
+                <th></th>
+                <th></th>
+                <th></th>
+                <th></th>
             </tr>
-        }
-    </tbody>
-</table>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        <div class="form-check">
+                            <input class="form-check-input position-static" type="checkbox" aria-label="select-item" data-query-parameter="tenantId=@item.TenantId">
+                        </div>
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Name)
+                    </td>
+                    <td></td>
+                    <td></td>
+                    <td></td>
+                    <td>
+                        @Html.ActionLink("Edit", "Edit", new { tenantId = item.TenantId }) |
+                        @Html.ActionLink("Details", "Details", new { tenantId = item.TenantId }) |
+                        @Html.ActionLink("Delete", "Delete", new { tenantId = item.TenantId })
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<hr />
+<div class="card-deck">
+    <div class="card">
+        <img class="card-img-top" src="~/images/router.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Devices</h5>
+            <p class="card-text">Create and manage the lifecycle of devices</p>
+        </div>
+        <div class="card-footer">
+            <a href="/#" data-href="/TenantDomainDevices/GetAllByTenantId?" class="btn btn-primary">Go to Devices</a>
+        </div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="~/images/network.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Attachments</h5>
+            <p class="card-text">Create and manage the lifecycle of Attachments to Sigma</p>
+        </div>
+        <div class="card-footer">
+            <a href="/#" data-href="/ProviderDomainAttachment/GetAllByTenantId?" class="btn btn-primary">Go to Attachments</a>
+        </div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="~/images/network.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Attachment Sets</h5>
+            <p class="card-text">Create and manage the lifecycle of Attachment Sets</p>
+        </div>
+        <div class="card-footer">
+            <a href="/#" data-href="/AttachmentSet/GetAllByTenantId?" class="btn btn-primary">Go to Attachment Sets</a>
+        </div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="~/images/network.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">IP Networks</h5>
+            <p class="card-text">Create and manage the lifecycle of IP Networks</p>
+        </div>
+        <div class="card-footer">
+            <a href="/#" data-href="/TenantIpNetwork/GetAllByTenantId?" class="btn btn-primary">Go to IP Networks</a>
+        </div>
+    </div>
+</div>
+<br />
+<div class="card-deck">
+    <div class="card">
+        <img class="card-img-top" src="~/images/router.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Communities</h5>
+            <p class="card-text">Create and manage the lifecycle of Communities</p>
+        </div>
+        <div class="card-footer">
+            <a href="/#" data-href="/TenantCommunity/GetAllByTenantId?" class="btn btn-primary">Go to Communities</a>
+        </div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="~/images/router.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Community Sets</h5>
+            <p class="card-text">Create and manage the lifecycle of Community Sets</p>
+        </div>
+        <div class="card-footer">
+            <a href="/#" data-href="/TenantCommunitySet/GetAllByTenantId?" class="btn btn-primary">Go to Community Sets</a>
+        </div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="~/images/router.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Multicast Groups</h5>
+            <p class="card-text">Create and manage the lifecycle of Multicast Groups</p>
+        </div>
+        <div class="card-footer">
+            <a href="/#" data-href="/TenantMulticastGroup/GetAllByTenantId?" class="btn btn-primary">Go to Multicast Groups</a>
+        </div>
+    </div>
+    <div class="card">
+        <img class="card-img-top" src="~/images/network.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Virtual Private Networks</h5>
+            <p class="card-text">Create and manage the lifecycle of VPNs</p>
+        </div>
+        <div class="card-footer">
+            <a href="/#" data-href="/VPN/GetAllByTenantId?" class="btn btn-primary">Go to VPNs</a>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="selectItemModal" tabindex="-1" role="dialog" aria-labelledby="selectItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="selectItemModalLabel">No items are selected</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Select a tenant from the list by clicking the checkbox
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="multipleItemsSelectedModal" tabindex="-1" role="dialog" aria-labelledby="multipleItemsSelectedModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="multipleItemsSelectedModalLabel">Multiple items are selected</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Select only one tenant from the list
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            var tenantId = Mind.Utilities.getCookie("tenantId");
+            if (tenantId !== "") {
+
+                var $input = $('.form-check-input[data-query-parameter = "tenantId=' + tenantId + '"]');
+                if ($input.length === 1) {
+                    $input[0].checked = true;
+                }
+            }
+
+            $(".btn-primary").click(function (e) {
+                e.preventDefault();
+
+                var $inputs = $(".form-check-input:checkbox:checked");
+                if ($inputs.length === 0) {
+
+                    // No items are checked
+                    $("#selectItemModal").modal();
+
+                }
+                else if ($inputs.length > 1) {
+
+                    // More than one checked item
+                    $("#multipleItemsSelectedModal").modal();
+                }
+                else {
+
+                    var href = $(this).data("href");
+                    var queryParameter = $inputs.data('query-parameter');
+                    window.location.href = href + queryParameter;
+                }
+            });
+
+        }(jQuery));
+
+    </script>
+}

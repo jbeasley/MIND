@@ -1,15 +1,14 @@
-@model SCM.Models.ViewModels.VpnViewModel
-@inject IOptions<ApplicationConfiguration> ApplicationConfiguration
-@using Microsoft.Extensions.Options;
-@using SCM;
+@model Mind.WebUI.Models.VpnDeleteViewModel
+
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete VPN";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Vpn/GetAll">VPNs</a></li>
+    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
+    <li class="breadcrumb-item"><a href="/Vpn/GetAllByTenantID?tenantId=@Model.TenantId">VPNs - [@Model.TenantName]</a></li>
     <li class="breadcrumb-item active">Delete - [@Model.Name]</li>
 </ol>
 
@@ -28,28 +27,16 @@
         <dd>
             @Html.DisplayFor(model => model.Name)
         </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Description)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Description)
-        </dd>
     </dl>
-
-    <form asp-action="">
-        <input type="hidden" asp-for="VpnID" name="VpnID" />
+    <hr />
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="VpnId" />
+        <input type="hidden" asp-for="TenantId" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
-            @if (ApplicationConfiguration.Value.EnableNetworkSync)
-            {
-                <button type="submit" id="DeleteFromNetwork" class="btn btn-info btn-warning" asp-action="DeleteFromNetwork">
-                    <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete from Network
-                </button><span>|</span>
-            }
-            <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">
-                <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete
+            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button>
             </button> |
-            <a asp-action="GetAll">Back to List</a>
+            <a asp-action="GetAllByTenantID" asp-route-tenantId="@Model.TenantId">Back to VPNs List</a>
         </div>
     </form>
 </div>

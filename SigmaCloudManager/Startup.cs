@@ -154,8 +154,6 @@ namespace Mind
             services.AddScoped<IMtuService, MtuService>();
             services.AddScoped<IPortBandwidthService, PortBandwidthService>();
             services.AddScoped<ITenantService, TenantService>();
-            services.AddScoped<ITenantAttachmentService, TenantAttachmentService>();
-            services.AddScoped<IDeviceService, DeviceService>();
             services.AddScoped<IDeviceRoleService, DeviceRoleService>();
             services.AddScoped<IDeviceRolePortRoleService, DeviceRolePortRoleService>();
             services.AddScoped<IDeviceModelService, DeviceModelService>();
@@ -188,11 +186,9 @@ namespace Mind
             services.AddScoped<IVpnTenantCommunityRoutingInstanceService, VpnTenantCommunityRoutingInstanceService>();
             services.AddScoped<IVpnTenantIpNetworkCommunityInService, VpnTenantIpNetworkCommunityInService>();
             services.AddScoped<IVpnTenantMulticastGroupService, VpnTenantMulticastGroupService>();
-            services.AddScoped<IAttachmentService, AttachmentService>();
             services.AddScoped<IInfrastructureAttachmentService, InfrastructureAttachmentService>();
             services.AddScoped<IAttachmentRoleService, AttachmentRoleService>();
             services.AddScoped<IVifRoleService, VifRoleService>();
-            services.AddScoped<IVifService, VifService>();
             services.AddScoped<IVlanService, VlanService>();
             services.AddScoped<IAttachmentBandwidthService, AttachmentBandwidthService>();
             services.AddScoped<IAttachmentRedundancyService, AttachmentRedundancyService>();
@@ -214,23 +210,13 @@ namespace Mind
             services.AddScoped<IVpnTenantMulticastGroupService, VpnTenantMulticastGroupService>();
 
             // Factories for creating complex objects
-            services.AddScoped<IDeviceFactory, DeviceFactory>();
-            services.AddScoped<IAttachmentFactory, AttachmentFactory>();
-            services.AddScoped<IVifFactory, VifFactory>();
-            services.AddScoped<IRoutingInstanceFactory, RoutingInstanceFactory>();
-            services.AddScoped<IVpnFactory, VpnFactory>();
             services.AddScoped<IRouteTargetFactory, RouteTargetFactory>();
             services.AddScoped<IContractBandwidthPoolFactory, ContractBandwidthPoolFactory>();
             services.AddScoped<ILogicalInterfaceFactory, LogicalInterfaceFactory>();
 
             // Validators to validate inbound requests from clients
-            services.AddScoped<ITenantValidator, TenantValidator>();
-            services.AddScoped<IContractBandwidthPoolValidator, ContractBandwidthPoolValidator>();
-            services.AddScoped<IDeviceValidator, DeviceValidator>();
             services.AddScoped<IPortValidator, PortValidator>();
             services.AddScoped<IRouteTargetValidator, RouteTargetValidator>();
-            services.AddScoped<IAttachmentValidator, AttachmentValidator>();
-            services.AddScoped<IVifValidator, VifValidator>();
             services.AddScoped<IRoutingInstanceValidator, RoutingInstanceValidator>();
             services.AddScoped<IVpnValidator, VpnValidator>();
             services.AddScoped<IExtranetVpnMemberValidator, ExtranetVpnMemberValidator>();
@@ -247,8 +233,6 @@ namespace Mind
             services.AddScoped<ITenantCommunitySetValidator, TenantCommunitySetValidator>();
             services.AddScoped<ITenantMulticastGroupValidator, TenantMulticastGroupValidator>();
             services.AddScoped<IBgpPeerValidator, BgpPeerValidator>();
-            services.AddScoped<ILocationValidator, LocationValidator>();
-            services.AddScoped<IVlanValidator, VlanValidator>();
             services.AddScoped<IProviderDomainAttachmentValidator, ProviderDomainAttachmentValidator>();
             services.AddScoped<IProviderDomainVifValidator, ProviderDomainVifValidator>();
 

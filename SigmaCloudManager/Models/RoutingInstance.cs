@@ -34,6 +34,7 @@ namespace SCM.Models
                         .ThenInclude(x => x.AttachmentSet)
                         .Include(x => x.RoutingInstanceType)
                         .Include(x => x.Device.Location.SubRegion.Region)
+                        .Include(x => x.Device.Plane)
                         .Include(x => x.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksIn)
                         .ThenInclude(x => x.TenantIpNetwork)
@@ -52,8 +53,7 @@ namespace SCM.Models
                         .ThenInclude(x => x.TenantCommunity)
                         .Include(x => x.VpnTenantIpNetworkRoutingInstances)
                         .ThenInclude(x => x.TenantIpNetwork)
-                        .Include(x => x.LogicalInterfaces)
-                        .Include(x => x.Device.Location);
+                        .Include(x => x.LogicalInterfaces);
         }
     }
 

@@ -1,17 +1,18 @@
-@model SCM.Models.ViewModels.TenantCommunityViewModel
+@model Mind.WebUI.Models.TenantCommunityDeleteViewModel
+
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Delete Tenant Community";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantCommunity/GetAllByTenantID/@Model.TenantID">Communities - [@Model.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantCommunity/GetAllByTenantID?tenantId=@Model.TenantId">Tenant Communities - [@Model.TenantName]</a></li>
     <li class="breadcrumb-item active">Delete - [@Model.Name]</li>
 </ol>
 
-<h2>Delete Tenant Community '@Model.Name'</h2>
+<h2>Delete Community '@Model.Name'</h2>
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
@@ -21,34 +22,21 @@
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Tenant)
+            @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Tenant.Name)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.AutonomousSystemNumber)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.AutonomousSystemNumber)
-        </dd>
-        <dt>
-            @Html.DisplayNameFor(model => model.Number)
-        </dt>
-        <dd>
-            @Html.DisplayFor(model => model.Number)
+            @Html.DisplayFor(model => model.Name)
         </dd>
     </dl>
-
+    <hr />
     <form asp-action="Delete">
-        <input type="hidden" asp-for="TenantCommunityID" />
-        <input type="hidden" asp-for="TenantID" />
+        <input type="hidden" asp-for="TenantCommunityId" />
+        <input type="hidden" asp-for="TenantId" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
-            <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete">
-                <span class="glyphicon glyphicon-remove"></span>&nbsp;Delete
+            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button>
             </button> |
-            <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID">Back to List</a>
+            <a asp-action="GetAllByTenantID" asp-route-tenantId="@Model.TenantId">Back to Tenant Communities List</a>
         </div>
     </form>
 </div>

@@ -8,6 +8,7 @@ namespace SCM.Models
     {
         public int ContractBandwidthID { get; private set; }
         public int BandwidthMbps { get; set; }
+        public virtual ICollection<ContractBandwidthPool> ContractBandwidthPools { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
     }

@@ -1,26 +1,28 @@
-@model SCM.Models.ViewModels.TenantCommunityViewModel
+@model Mind.WebUI.Models.TenantCommunityViewModel
 
 @{
-    ViewData["Title"] = "Details";
+    ViewData["Title"] = "Tenant Community Details";
 }
 
 <ol class="breadcrumb">
     <li class="breadcrumb-item"><a href="/Home">Home</a></li>
     <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantCommunity/GetAllByTenantID/@Model.TenantID">Communities - [@ViewBag.Tenant.Name]</a></li>
+    <li class="breadcrumb-item"><a href="/TenantCommunity/GetAllByTenantID?tenantId=@Model.TenantId">Tenant Commmmmunity - [@Model.TenantName]</a></li>
     <li class="breadcrumb-item active">Details - [@Model.Name]</li>
 </ol>
 
 <h2>Details for Tenant Community '@Model.Name'</h2>
 
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
 <div>
     <hr />
     <dl class="dl-horizontal">
         <dt>
-            @Html.DisplayNameFor(model => model.Tenant)
+            @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd>
-            @Html.DisplayFor(model => model.Tenant.Name)
+            @Html.DisplayFor(model => model.Name)
         </dd>
         <dt>
             @Html.DisplayNameFor(model => model.AutonomousSystemNumber)
@@ -40,9 +42,16 @@
         <dd>
             @Html.DisplayFor(model => model.AllowExtranet)
         </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IpRoutingBehaviour)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IpRoutingBehaviour)
+        </dd>
     </dl>
-</div>
-<div>
-    @Html.ActionLink("Edit", "Edit", new { id = Model.TenantCommunityID, tenantID = Context.Request.Query["tenantID"] }) |
-    <a asp-action="GetAllByTenantID" asp-route-id="@Model.TenantID">Back to List</a>
-</div>
+    </div>
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Tenant Communities List</a>
+    </div>
+</form>

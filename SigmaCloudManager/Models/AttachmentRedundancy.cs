@@ -21,6 +21,7 @@ namespace SCM.Models
         [Required]
         public string Name { get; set; }
         public AttachmentRedundancyTypeEnum AttachmentRedundancyType { get; set; }
+        public virtual ICollection<AttachmentSet> AttachmentSets { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
     }

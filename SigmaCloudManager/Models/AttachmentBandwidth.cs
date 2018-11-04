@@ -12,6 +12,7 @@ namespace SCM.Models
         public bool SupportedByBundle { get; set; }
         public bool SupportedByMultiPort { get; set; }
         public int? BundleOrMultiPortMemberBandwidthGbps { get; set; }
+        public virtual ICollection<Attachment> Attachments { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
     }

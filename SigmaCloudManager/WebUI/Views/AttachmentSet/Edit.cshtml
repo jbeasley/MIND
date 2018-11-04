@@ -2,7 +2,7 @@
 @model Mind.WebUI.Models.AttachmentSetUpdateViewModel
 
 @{
-    ViewData["Title"] = "Edit Attachment";
+    ViewData["Title"] = "Edit Attachment Set";
 }
 
 <ol class="breadcrumb">
@@ -57,7 +57,7 @@
 </form>
 
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments List</a>
+    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachment Sets List</a>
 </div>
 
 @section Scripts {

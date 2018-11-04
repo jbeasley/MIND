@@ -7,7 +7,6 @@ namespace SCM.Models.ViewModels
 {
     public class PortSfpViewModel
     {
-        [Display(AutoGenerateField = false)]
         public int PortSfpID { get; set; }
         [Display(Name = "Port SFP")]
         [StringLength(50)]

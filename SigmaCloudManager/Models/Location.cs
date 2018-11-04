@@ -45,6 +45,7 @@ namespace SCM.Models
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual SubRegion SubRegion { get; set; }
+        public virtual ICollection<Device> Devices { get; set; }
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
     }
 }

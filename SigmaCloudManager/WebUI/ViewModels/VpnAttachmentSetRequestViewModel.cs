@@ -22,7 +22,7 @@ namespace Mind.WebUI.Models
         /// <value>String value denoting the name of the tenant</value>
         /// <example>Elektron</example>
         [Display(Name = "Tenant Name")]
-        public string TenantName { get; private set; }
+        public string TenantName { get; set; }
 
         /// <summary>
         /// The name of the attachment set
@@ -30,7 +30,7 @@ namespace Mind.WebUI.Models
         /// <value>A string denoting the name of the attachment set</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [Display(Name = "Attachment Set Name")]
-        public string AttachmentSetName { get; private set; }
+        public string AttachmentSetName { get; set; }
 
         /// <summary>
         /// The name of the region to which the attachment set belongs
@@ -38,7 +38,7 @@ namespace Mind.WebUI.Models
         /// <value>A string denoting the name of the region</value>
         /// <example>EMEA</example>
         [Display(Name = "Region")]
-        public string Region { get; private set; }
+        public string Region { get; set; }
 
         /// <summary>
         /// The redundancy setting configured for the attachment set
@@ -46,7 +46,7 @@ namespace Mind.WebUI.Models
         /// <value>A string denoting the redundancy setting</value>
         /// <example>Bronze</example>
         [Display(Name = "Attachment Redundancy")]
-        public string AttachmentRedundancy { get; private set; }
+        public string AttachmentRedundancy { get; set; }
 
         /// <summary>
         /// Determines if the attachment set should be configured as a hub for the association with the vpn.

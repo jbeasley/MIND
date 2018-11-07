@@ -8,8 +8,8 @@ namespace Mind.Builders
 {
     public class IpVpnUpdateDirector : IVpnUpdateDirector
     {
-        private readonly IIpVpnUpdateBuilder _builder;
-        public IpVpnUpdateDirector(IIpVpnUpdateBuilder builder)
+        private readonly IIpVpnBuilder _builder;
+        public IpVpnUpdateDirector(IIpVpnBuilder builder)
         {
             _builder = builder;
         }
@@ -23,7 +23,8 @@ namespace Mind.Builders
                                  .WithTenancyType(update.TenancyType.ToString())
                                  .WithExtranet(update.IsExtranet)
                                  .WithMulticastVpnDirectionType(update.MulticastVpnDirectionType.ToString())
-                                 .UpdateAsync();
+                                 .WithAttachmentSets(update.VpnAttachmentSets)
+                                 .BuildAsync();
         }
     }
 }

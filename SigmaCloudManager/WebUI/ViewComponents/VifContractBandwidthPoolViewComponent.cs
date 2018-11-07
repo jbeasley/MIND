@@ -38,7 +38,8 @@ namespace Mind.WebUI.ViewComponents
                                   select result)
                                  .SingleOrDefault();
 
-                if (vif == null) return Content(string.Empty);
+                // MUST pass null as the model to the view - see https://github.com/aspnet/Announcements/issues/221
+                if (vif == null) return View(model: null as ContractBandwidthViewModel);
                 if (vif.VifRole.RequireContractBandwidth)
                 {
                     await PopulateContractBandwidthsDropDownList(vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps);
@@ -48,7 +49,7 @@ namespace Mind.WebUI.ViewComponents
                 }
                 else
                 {
-                    return Content(string.Empty);
+                    return View(model: null as ContractBandwidthViewModel);
                 }
             }
 
@@ -60,7 +61,7 @@ namespace Mind.WebUI.ViewComponents
                               select result)
                   .SingleOrDefault();
 
-            if (attachment == null) return Content(string.Empty);
+            if (attachment == null) return View(model: null as ContractBandwidthViewModel);
 
             var vifRole = (from result in await _unitOfWork.VifRoleRepository.GetAsync(
                            q =>
@@ -69,8 +70,8 @@ namespace Mind.WebUI.ViewComponents
                            select result)
                            .SingleOrDefault();
 
-            if (vifRole == null) return Content(string.Empty);
-            if (!vifRole.IsLayer3Role) return Content(string.Empty);
+            if (vifRole == null) return View(model: null as ContractBandwidthViewModel);
+            if (!vifRole.IsLayer3Role) return View(model: null as ContractBandwidthViewModel);
 
             if (vifRole.RequireContractBandwidth) await PopulateContractBandwidthsDropDownList();
             if (currentModel != null) return View(currentModel);

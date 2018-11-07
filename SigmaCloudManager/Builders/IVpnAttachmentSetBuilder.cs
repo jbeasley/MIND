@@ -10,8 +10,11 @@ namespace Mind.Builders
 {
     public interface IVpnAttachmentSetBuilder
     {
+        IVpnAttachmentSetBuilder ForVpnAttachmentSet();
         IVpnAttachmentSetBuilder ForVpn(int? vpnId);
+        IVpnAttachmentSetBuilder ForVpn(Vpn vpn);
         IVpnAttachmentSetBuilder WithAttachmentSet(string attachmentSetName);
+        IVpnAttachmentSetBuilder WithAttachmentSet(int? attachmentSetId);
         IVpnAttachmentSetBuilder WithHub(bool? isHub);
         IVpnAttachmentSetBuilder WithMulticastDirectlyIntegrated(bool? isMulticastDirectlyIntegrated);
         Task<VpnAttachmentSet> BuildAsync();

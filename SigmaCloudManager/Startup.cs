@@ -740,13 +740,11 @@ namespace Mind
             builder.RegisterType<TenantCommunityOutboundPolicyBuilder>().As<ITenantCommunityOutboundPolicyBuilder>();
             builder.RegisterType<VifBuilder>().As<IVifBuilder>();
             builder.RegisterType<IpVpnBuilder>().As<IIpVpnBuilder>();
-            builder.RegisterType<IpVpnUpdateBuilder>().As<IIpVpnUpdateBuilder>();
             builder.RegisterType<BgpPeerBuilder>().As<IBgpPeerBuilder>();
             builder.RegisterType<BgpPeerUpdateBuilder>().As<IBgpPeerUpdateBuilder>();
             builder.RegisterType<TenantIpNetworkBuilder>().As<ITenantIpNetworkBuilder>();
             builder.RegisterType<TenantCommunityBuilder>().As<ITenantCommunityBuilder>();
             builder.RegisterType<VpnAttachmentSetBuilder>().As<IVpnAttachmentSetBuilder>();
-            builder.RegisterType<VpnAttachmentSetUpdateBuilder>().As<IVpnAttachmentSetUpdateBuilder>();
             builder.RegisterType<RoutingInstanceStaticRouteBuilder>().As<IRoutingInstanceStaticRouteBuilder>();
             builder.RegisterType<LogicalInterfaceBuilder>().As<ILogicalInterfaceBuilder>();
         }

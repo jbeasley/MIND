@@ -214,7 +214,8 @@ namespace SCM.Models
                 {
                     if (this.RouteTargets.Where(x => x.RouteTargetRange.Range == SCM.Models.RouteTargetRangeEnum.Default).Any())
                     {
-                        throw new IllegalStateException("The default route target range cannot be used for non-Nova vpns.");
+                        throw new IllegalStateException("A non-default route target range must be specifed for a vpn which is not enabled for the 'Nova' standard. " +
+                            "Either enable the vpn for 'Nova' or specify a different route target range.");
                     }
                 }
 
@@ -229,8 +230,8 @@ namespace SCM.Models
 
                     if (this.RouteTargets
                             .Where(
-                            x => 
-                            x.IsHubExport)
+                                x => 
+                                x.IsHubExport)
                             .Count() != 1)
                         throw new IllegalStateException($"One route target must be enabled with the 'isHubExport' property for hub-and-spoke vpn '{this.Name}'.");
                 }
@@ -250,17 +251,17 @@ namespace SCM.Models
                 if (this.Region != null)
                 {
                     var distinctRegions = this.VpnAttachmentSets.SelectMany(
-                                                vpnAttachmentSet =>
-                                                vpnAttachmentSet.AttachmentSet.AttachmentSetRoutingInstances
-                                                .Select(
-                                                    attachmentSetRoutingInstance =>
-                                                    attachmentSetRoutingInstance.RoutingInstance.Device.Location.SubRegion.Region))
-                                                    .GroupBy(
-                                                        q =>
-                                                        q.RegionID)
-                                                        .Select(
-                                                            group =>
-                                                            group.First());
+                                               vpnAttachmentSet =>
+                                               vpnAttachmentSet.AttachmentSet.AttachmentSetRoutingInstances
+                                               .Select(
+                                                   attachmentSetRoutingInstance =>
+                                                   attachmentSetRoutingInstance.RoutingInstance.Device.Location.SubRegion.Region))
+                                               .GroupBy(
+                                                   q =>
+                                                   q.RegionID)
+                                               .Select(
+                                                   group =>
+                                                   group.First());
 
                     if (distinctRegions.Count() == 1)
                     {

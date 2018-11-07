@@ -286,7 +286,7 @@ namespace Mind.WebUI.Controllers
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachment.TenantID);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            return View(_mapper.Map<ProviderDomainAttachmentUpdateViewModel>(attachment));
+            return View(update);
         }
 
         [HttpGet]

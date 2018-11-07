@@ -31,6 +31,7 @@ namespace Mind.Builders
                                 .WithMulticast(request.IsMulticastVpn)
                                 .WithMulticastVpnServiceType(request.MulticastVpnServiceType.ToString())
                                 .WithMulticastVpnDirectionType(request.MulticastVpnDirectionType.ToString())
+                                .WithAttachmentSets(request.VpnAttachmentSets)
                                 .BuildAsync();
         }
     }

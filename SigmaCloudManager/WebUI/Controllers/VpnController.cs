@@ -86,6 +86,7 @@ namespace Mind.WebUI.Controllers
 
         [HttpGet]
         [ValidateTenantExists]
+        [SetTenantCookieState]
         public async Task<IActionResult> GetAllByTenantID(int? tenantId)
         {
             var vpns = await _unitOfWork.VpnRepository.GetAsync(
@@ -233,7 +234,7 @@ namespace Mind.WebUI.Controllers
             await PopulateRegionsDropDownList(update.Region);
             await PopulateTenantsDropDownList(vpn.TenantID, update.TenancyType.ToString());
 
-            return View(_mapper.Map<VpnUpdateViewModel>(vpn));
+            return View(update);
         }
 
         [HttpGet]

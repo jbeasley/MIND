@@ -156,12 +156,31 @@ namespace SCM.Models
                     $"cannot be enabled for multicast-direct-integration with vpn '{this.Vpn.Name}' because the vpn is not enabled for " +
                     $"multicast.");
             }
+
             // Must not create an association of an attachment set with an extranet vpn
             if (this.Vpn.IsExtranet)
             {
                 throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be added to extranet vpn " +
                     $"'{this.Vpn.Name}'. Instead, add vpns as members to the extranet vpn and then add communities and networks from the member " +
                     $"vpn to the extranet.");
+            }
+
+            // IsHub property must be set for Hub-and-Spoke VPN topologies only
+            if (this.Vpn.VpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke)
+            {
+                if (!this.IsHub.HasValue)
+                {
+                    throw new IllegalStateException($"The 'IsHub' property for attachment set '{this.AttachmentSet.Name}' must be specified because " +
+                        $"vpn '{this.Vpn.Name}' is a hub-and-spoke IP VPN.");
+                }
+            }
+            else
+            {
+                if (this.IsHub.GetValueOrDefault())
+                {
+                    throw new IllegalStateException($"The 'IsHub' property for attachment set '{this.AttachmentSet.Name}' must NOT be specified because " +
+                        $"vpn '{this.Vpn.Name}' is not a hub-and-spoke IP VPN.");
+                }
             }
 
             // Validate attachment set redundancy-level is correctly configured
@@ -223,7 +242,6 @@ namespace SCM.Models
                     $"associated with multicast vpn '{this.Vpn.Name}' because routing instance '{multiportAttachment.RoutingInstance.Name}' belongs " +
                     $"to the attachment set and the routing instance has a multiport attachment associated with it. Multiport attachments do not currently support " +
                     $"multicast services.");
-
 
                 var multiportAttachmentVif = this.AttachmentSet.AttachmentSetRoutingInstances
                     .SelectMany(

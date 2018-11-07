@@ -10,6 +10,7 @@ namespace Mind.Builders
     public interface IIpVpnBuilder
     {
         IIpVpnBuilder ForTenant(int? tenantId);
+        IIpVpnBuilder ForVpn(int? vpnId);
         IIpVpnBuilder WithName(string name);
         IIpVpnBuilder WithDescription(string description);
         IIpVpnBuilder WithRegion(string regionName);
@@ -24,6 +25,7 @@ namespace Mind.Builders
         IIpVpnBuilder WithMulticast(bool? isMulticast);
         IIpVpnBuilder WithMulticastVpnServiceType(string multicastVpnServiceType);
         IIpVpnBuilder WithMulticastVpnDirectionType(string multicastVpnDirectionType);
+        IIpVpnBuilder WithAttachmentSets(List<VpnAttachmentSetRequest> vpnAttachmentSetRequests);
         Task<Vpn> BuildAsync();
     }
 }

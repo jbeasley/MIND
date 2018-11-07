@@ -16,8 +16,6 @@ namespace SCM.Models.ViewModels
         [Required(ErrorMessage = "A Tenant Community must be selected.")]
         public int TenantCommunityID { get; set; }
         public byte[] RowVersion { get; set; }
-        [Display(Name = "Tenant IP Network")]
-        public VpnTenantIpNetworkInViewModel VpnTenantIpNetworkIn { get; set; }
         [Display(Name = "Tenant Community")]
         public TenantCommunityViewModel TenantCommunity { get; set; }
 

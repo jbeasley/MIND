@@ -92,5 +92,11 @@ namespace Mind.Models.RequestModels
         /// </summary>
         /// <value>String value denoting the name of the route target range</value>
         public RouteTargetRangeEnum? RouteTargetRange { get; set; }
+
+        /// <summary>
+        /// A list of attachment sets to be associated with the vpn
+        /// </summary>
+        /// <value>A list of VpnAttachmentSetRequest objects</value>
+        public List<VpnAttachmentSetRequest> VpnAttachmentSets { get; set; }
     }
 }

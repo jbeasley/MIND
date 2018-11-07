@@ -11,5 +11,7 @@ namespace Mind.Builders
     public interface IVpnAttachmentSetDirector
     {
         Task<VpnAttachmentSet> BuildAsync(int vpnId, VpnAttachmentSetRequest request);
+        Task<VpnAttachmentSet> BuildAsync(Vpn vpn, VpnAttachmentSetRequest request);
+        Task<List<SCM.Models.VpnAttachmentSet>> BuildAsync(Vpn vpn, List<VpnAttachmentSetRequest> requests);
     }
 }

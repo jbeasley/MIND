@@ -21,6 +21,9 @@
         <h3>Name and Description</h3>
         <section id="name-and-description">
             <br />
+            <div class="alert alert-info" role="alert">
+                Give a user-friendy name for the VPN and a description.
+            </div>
             <div class="form-group row">
                 <label asp-for="Name" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-10">
@@ -35,15 +38,24 @@
                     <span asp-validation-for="Description" class="text-danger" />
                 </div>
             </div>
+            <br />
+            <div class="alert alert-info" role="alert">
+                Typically the Nova option should be enabled. Disable it if you want to customise the VPN using
+                route targets from a specific range, or if you want to associate the VPN with a non-standard routing instance.
+            </div>
             <div class="form-group row">
                 <label class="col-form-label col-sm-2"></label>
                 <div class="col-sm-10">
                     <div class="custom-control custom-checkbox">
-                        <input class="form-check-input custom-control-input" type="checkbox" asp-for="IsNovaVpn" data-toggle="tooltip"
+                        <input class="form-check-input custom-control-input" type="checkbox" asp-for="IsNovaVpn" checked data-toggle="tooltip"
                                title="Request a standard Nova VPN" data-placement="left" />
                         <label class="form-check-label custom-control-label" asp-for="IsNovaVpn"></label>
                     </div>
                 </div>
+            </div>
+            <div class="alert alert-info" role="alert">
+                Extranets are a special type of VPN which provide a 'cross-connect' between two or more other VPNs.
+                Enable the extranet option to create a cross-connect VPN.
             </div>
             <div class="form-group row">
                 <label class="col-form-label col-sm-2"></label>
@@ -59,6 +71,10 @@
         <h3>Protocol and Topology</h3>
         <section id="protocol-and-topology">
             <br />
+            <div class="alert alert-info" role="alert">
+                Select a protocol type of IP for a layer 3, IP-based connectivity service.
+                Select a protocol type of Ethernet for a layer 2 Ethernet-based connectivity service.
+            </div>
             <div class="form-group row">
                 <label asp-for="ProtocolType" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-10">
@@ -68,6 +84,10 @@
                     <span asp-validation-for="ProtocolType" class="text-danger"></span>
                 </div>
             </div>
+            <div class="alert alert-info" role="alert">
+                Select an address-family option. An address-family is a sub-category of the protocol selection. For example,
+                IPv4 is an address-family option for an IP-based connectivity service.
+            </div>
             <div class="form-group row">
                 <label asp-for="AddressFamily" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-10">
@@ -76,6 +96,11 @@
                     </select>
                     <span asp-validation-for="AddressFamily" class="text-danger"></span>
                 </div>
+            </div>
+            <div class="alert alert-info" role="alert">
+                The topology of the VPN determines how sites connected ot the VPN are able to communicate.
+                For example, selecting the Meshed option for an IP-based VPN allows any site to communicate with 
+                any other site.
             </div>
             <div class="form-group row">
                 <label asp-for="TopologyType" class="col-sm-2 col-form-label"></label>
@@ -90,6 +115,11 @@
         <h3>Tenancy Type</h3>
         <section id="tenancyType">
             <br />
+            <div class="alert alert-info" role="alert">
+               Select a tenancy type for the VPN. A tenancy type of 'single' means that only sites which belong to the tenant who owns
+                the VPN can be attached to the VPN. If the tenancy type is 'multi' then any site belonging to any tenant can 
+                be attached to the VPN.
+            </div>
             <div class="form-group row">
                 <label asp-for="TenancyType" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-10">
@@ -103,6 +133,10 @@
         <h3>Region</h3>
         <section id="region">
             <br />
+            <div class="alert alert-info" role="alert">
+                Optionally select a geographical region. If this option is selected then only sites in the specified
+                region can be attached to the VPN.
+            </div>
             <div class="form-group row">
                 <label asp-for="Region" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-10">
@@ -116,6 +150,11 @@
         <h3>Plane</h3>
         <section id="plane">
             <br />
+            <div class="alert alert-info" role="alert">
+                Optionally select a provider network plane. If a plane option is selected then only sites which are 
+                attached to the designated plane can participate in the VPN. Typically the plane option is used for 
+                'Live/Live' routing where two VPNs, one for each plane, are required.
+            </div>
             <div class="form-group row">
                 <label asp-for="Plane" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-10">
@@ -131,7 +170,7 @@
        @await Component.InvokeAsync("VpnAttachmentSets", new
        {
            vpnAttachmentSets = Model?.VpnAttachmentSets
-       });
+       })
 
     </div>
 </form>
@@ -166,8 +205,7 @@
         (function ($) {
 
             var $form = $("#createForm"),
-                $wizard = $("#createVpnWizard"),
-                $grid;
+                $wizard = $("#createVpnWizard");
 
             const uri = "/Vpn/";
 
@@ -192,31 +230,8 @@
                 },
                 onFinished: function (event, currentIndex) {
 
-                    var gridRows = $grid.bootgrid("getCurrentRows");
-                    $form.append(
-                        $('<input />').attr('type', 'hidden')
-                            .attr('name', "VpnAttachmentSets")
-                            .attr('value', JSON.stringify(gridRows))
-                   );
                    $form.submit();
                 }
-            });
-
-            // Create grid for listing attachment set which are to be bound to the vpn
-            $grid = $("#grid").bootgrid({
-                formatters: {
-                    "commands": function (column, row) {
-                        return "<button type=\"button\" class=\"btn btn-xs btn-default command-delete\" data-row-id=\"" + row.id + "\"><i class=\"fa fa-trash\"></i></button>";
-                    }
-                },
-                columnSelection: false,
-                navigation: 1
-            }).on("loaded.rs.jquery.bootgrid", function () {
-
-                /* Executes after data is loaded and rendered */
-                $grid.find(".command-delete").on("click", function (e) {
-                    alert("You pressed delete on row: " + $(this).data("row-id"));
-                });
             });
 
             var $protocolType = $('#ProtocolType'),
@@ -294,19 +309,15 @@
 
             $addAttachmentSetBtn.on('click', function (e) {
 
-                if (attachmentSet.value === null || attachmentSet.value === "") {
-
-                    //
-                }
-                else {
+                if (attachmentSet.value !== null && attachmentSet.value !== "") {
 
                     var $selected = $attachmentSet.find(":selected");
                     var attachmentSetName = $selected.data('name');
 
-                    var exists = $grid
-                        .find("td")
+                    var exists = $('#grid')
+                        .find('td > input[type="text"]')
                         .filter(function () {
-                            return $(this).text() === attachmentSetName;
+                            return this.value === attachmentSetName;
                         })
                         .length > 0;
 
@@ -316,21 +327,57 @@
                         $("#duplicateItemModal").modal();
                     }
                     else {
+
                         var attachmentRedundancy = $selected.data('attachment-redundancy');
                         var tenantName = $selected.data('tenant-name');
                         var regionName = $selected.data('region-name');
-                        var rows = [{
-                            "attachmentSetName": attachmentSetName,
-                            "tenantName": tenantName,
-                            "attachmentRedundancy": attachmentRedundancy,
-                            "region": regionName,
-                            "isHub": false
-                        }];
+                        var arrName = "VpnAttachmentSets";
+                        var rowId = 0;
+                        var rowCount = $('#grid').find('tbody tr').length;
+                        if (rowCount > 0) {
+                            rowId = rowCount;
+                        }
 
-                        $grid.bootgrid('append', rows);
+                        // Create new row and append to the grid 
+                        var row = '<tr id="gridRow_' + rowId + '" data-row-id = ' + rowId + '>' +
+                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].AttachmentSetName" value="' + attachmentSetName + '"></input></td>' +
+                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].TenantName" value="' + tenantName + '"></input></td>' +
+                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].Region" value="' + regionName + '"></input></td>' +
+                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].AttachmentRedundancy" value="' + attachmentRedundancy + '"></input></td>';
+
+                        if (topologyType.value === "HubAndSpoke") {
+                            row = row + '<td><div class="custom-control custom-checkbox"> ' +
+                                '<input class="custom-control-input mind-grid-checkbox" id="IsHub_' + rowId + '" type="checkbox" name="' + arrName + '[' + rowId + '].IsHub" value="false">' +
+                                '<label class="custom-control-label" for="IsHub_' + rowId + '"></label>' +
+                                '</div></td>';
+                        }
+                        else {
+                            row = row + '<td></td>';
+                        }
+
+                        row = row + '<td><button type="button" id="Delete[' + rowId + ']" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id= ' + rowId + '><i class="fas fa-trash"></i></button></td>' +
+                                    '</tr>';
+                            
+                        $('#grid > tbody:last-child').append($(row));
                     }
                 }
             });
+
+            //Bind to click event of trash buttons in the grid rows
+            $('#grid').on('click', '.mind-grid-delete-row', function (e) {
+
+                var deleteRowId = $(this).data('row-id');
+                var $row = $('#gridRow_' + deleteRowId);
+                $row.remove();
+            });
+
+            // Bind to checkbox change event to set value - this is needed to send correct boolean value
+            // to the controller on form submit
+            $('#grid').on('change', '.mind-grid-checkbox', function (e) {
+
+                this.value = this.checked;
+            });
+
 
             // Initialise all tool-tips
             $('[data-toggle="tooltip"]').tooltip();

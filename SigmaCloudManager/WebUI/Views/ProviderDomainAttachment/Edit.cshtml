@@ -14,107 +14,151 @@
 
 <h2>Edit Attachment '@Model.Name'</h2>
 
-<form asp-action="Edit">
+<form id="editForm" asp-action="Edit">
     <div class="form-horizontal">
         <hr />
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
         <input type="hidden" asp-for="AttachmentId" />
         <input type="hidden" asp-for="RowVersion" />
-        @if (Model.IsBundle)
-        {
-            <div class="form-group row">
-                <label asp-for="BundleMinLinks" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <input asp-for="BundleMinLinks" class="form-control" data-toggle="tooltip" data-placement="right"
-                           title="Specify the minimum number of active links in the bundle" />
-                    <span asp-validation-for="BundleMinLinks" class="text-danger"></span>
-                </div>
-            </div>
-            <div class="form-group row">
-                <label asp-for="BundleMaxLinks" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <input asp-for="BundleMaxLinks" class="form-control" data-toggle="tooltip" data-placement="right"
-                           title="Specify the maximum number of active links in the bundle" />
-                    <span asp-validation-for="BundleMaxLinks" class="text-danger"></span>
-                </div>
-            </div>
-        }
-        <div id="ipAddressingComponent">
-
-            @if (Model != null)
+        <div id="editAttachmentWizard">
+            @if (Model.IsBundle)
             {
-                @await Component.InvokeAsync("AttachmentIpAddressing", new
-            {
-                attachmentId = Model.AttachmentId,
-                currentModel = Model.Ipv4Addresses
-            });
+                <h3>Bundle Options</h3>
+                <section id="bundle-options">
+                    <br />
+                    <div class="alert alert-info" role="alert">
+                        Select the minimum and maximum number of active links for the bundle.
+                        If the number of active links falls below the minimum link threshold then the bundle will be disabled until the number
+                        of active links meets or exceed the minimum threshold.
+                        If the number of active links exceeds the maximum links threshold then the number of links above the maximum threshold will
+                        be disabled.
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="BundleMinLinks" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input asp-for="BundleMinLinks" class="form-control" data-toggle="tooltip" data-placement="right"
+                                   title="Specify the minimum number of active links in the bundle" />
+                            <span asp-validation-for="BundleMinLinks" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="BundleMaxLinks" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input asp-for="BundleMaxLinks" class="form-control" data-toggle="tooltip" data-placement="right"
+                                   title="Specify the maximum number of active links in the bundle" />
+                            <span asp-validation-for="BundleMaxLinks" class="text-danger"></span>
+                        </div>
+                    </div>
+                </section>
             }
-        </div>
+            <h3>IP Addressing</h3>
+            <section id="ip-addressing">
+                <div id="ipAddressingComponent">
 
-        <div id="contractBandwidthPoolComponent">
-            @if (Model != null)
+                    @if (Model != null)
+                    {
+                        @await Component.InvokeAsync("AttachmentIpAddressing", new
+                    {
+                        attachmentId = Model.AttachmentId,
+                        currentModel = Model.Ipv4Addresses
+                    });
+                    }
+                </div>
+            </section>
+            <h3>Contract Bandwidth</h3>
+            <section id="contract-bandwidth">
+                <div id="contractBandwidthPoolComponent">
+                    @if (Model != null)
+                    {
+                        @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
+                   {
+                       attachmentId = Model.AttachmentId,
+                       currentModel = new ContractBandwidthPoolViewModel
+                       {
+                           ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                           TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
+                       }
+                   });
+                    }
+                </div>
+            </section>
+            @if (!string.IsNullOrEmpty(Model.ExistingRoutingInstanceName))
             {
-                @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
-           {
-               attachmentId = Model.AttachmentId,
-               currentModel = new ContractBandwidthPoolViewModel
-               {
-                   ContractBandwidthMbps = Model.ContractBandwidthMbps,
-                   TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
-               }
-           });
+                <h3>Routing Instance</h3>
+                <section id="routing-instance">
+                    <br />
+                    <div class="alert alert-info" role="alert">
+                        Select a routing instance for the attachment. A routing instance contains routing information for the tenant domains which
+                        are directly attached to it and also routing information for any VPNs which are associated with the routing instance through
+                        the use of an attachment set. Routing instances can be shared between multiple attachments which belong to the same tenant.
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="ExistingRoutingInstanceName" class="col-sm-4 col-form-label"></label>
+                        <div class="col-sm-8">
+                            <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
+                                    data-toggle="tooltip" data-placement="right" title="Select a routing instance for the attachment">
+                                <option value="">-- Select Routing Instance --</option>
+                            </select>
+                            <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <br />
+                    <div class="alert alert-info" role="alert">
+                        Optionally you can create a new routing instance for this attachment. Do this is if the attachment is currently associated
+                        with a routing instance which is shared with other attachments or vifs and you wish to create a dedicated routing instance for this attachment.
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-sm-4" asp-for="CreateNewRoutingInstance"></label>
+                        <div class="col-sm-8">
+                            <div class="custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input" type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
+                                       data-placement="right" title="Create a new routing instance for this attachment">
+                                <label class="form-check-label custom-control-label" for="CreateNewRoutingInstance"></label>
+                            </div>
+                        </div>
+                    </div>
+                </section>
             }
-        </div>
-        @if (!string.IsNullOrEmpty(Model.ExistingRoutingInstanceName))
-        {
-            <div class="form-group row">
-                <label asp-for="ExistingRoutingInstanceName" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
-                            data-toggle="tooltip" data-placement="right" title="Select a routing instance for the attachment">
-                        <option value="">-- Select Routing Instance --</option>
-                    </select>
-                    <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
+            <h3>MTU Options</h3>
+            <section id="mtu-options">
+                <br />
+                <div class="alert alert-info" role="alert">
+                    If jumbo MTU is enabled then ethernet frames of up to either 9000 or 9014 bytes may be transmitted using this attachment.
+                    If jumbo MTU is disabled then the frame size is limited to either 1500 or 1514 bytes.
+                    The actual MTU value is dependent on the Sigma PE hardware which is used to terminate the attachment.
                 </div>
-            </div>
-            <div class="form-group row">
-                <div class="col-sm-2">
+                <div class="form-group row">
+                    <label class="col-form-label col-sm-2" asp-for="UseJumboMtu"></label>
+                    <div class="col-sm-10">
+                        <div class="custom-control custom-checkbox">
+                            <input class="form-check-input custom-control-input" type="checkbox" asp-for="UseJumboMtu" data-toggle="tooltip"
+                                   data-placement="right" title="Enable jumbo MTU">
+                            <label class="form-check-label custom-control-label" for="UseJumboMtu"></label>
+                        </div>
+                    </div>
                 </div>
-                <div class="col-sm-10">
-                    <label class="checkbox-inline">
-                        <input type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
-                               title="Create a new routing instance for the attachment"> <label asp-for="CreateNewRoutingInstance"></label>
-                    </label>
+            </section>
+            <h3>Description and Notes</h3>
+            <section id="location">
+                <br />
+                <div class="alert alert-info" role="alert">
+                    Enter a description and any notes which describe the purpose of the attachment.
                 </div>
-            </div>
-        }
-        <div class="form-group row">
-            <label class="col-form-label col-sm-2"></label>
-            <div class="col-sm-10">
-                <div class="form-check form-check-inline">
-                    <input class="form-check-input" type="checkbox" asp-for="UseJumboMtu" data-toggle="tooltip" title="Enable jumbo MTU">
-                    <label class="form-check-label" asp-for="UseJumboMtu"></label>
+                <div class="form-group row">
+                    <label asp-for="Description" class="col-sm-2 col-form-label"> </label>
+                    <div class="col-sm-10">
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
                 </div>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label asp-for="Description" class="col-sm-2 col-form-label"> </label>
-            <div class="col-sm-10">
-                <input asp-for="Description" class="form-control" />
-                <span asp-validation-for="Description" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group row">
-            <label asp-for="Notes" class="col-sm-2 col-form-label"> </label>
-            <div class="col-sm-10">
-                <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
-                <span asp-validation-for="Notes" class="text-danger"></span>
-            </div>
-        </div>
-        <div class="form-group row">
-            <div class="col-md-offset-2 col-md-10">
-                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit" is-save-button></button>
-            </div>
+                <div class="form-group row">
+                    <label asp-for="Notes" class="col-sm-2 col-form-label"> </label>
+                    <div class="col-sm-10">
+                        <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+                </div>
+            </section>
         </div>
     </div>
 </form>
@@ -129,6 +173,34 @@
 <script type="text/javascript">
 
         (function ($) {
+
+            var $form = $("#editForm"),
+                $wizard = $("#editAttachmentWizard");
+
+            //Create wizard
+            $wizard.steps({
+                headerTag: "h3",
+                bodyTag: "section",
+                transitionEffect: "fade",
+                onStepChanging: function (event, currentIndex, newIndex) {
+
+                    // Allways allow previous action even if the current form is not valid!
+                    if (currentIndex > newIndex) {
+                        return true;
+                    }
+
+                    $form.validate().settings.ignore = ":disabled,:hidden";
+                    return $form.valid();
+                },
+                onFinishing: function (event, currentIndex) {
+                    $form.validate().settings.ignore = ":disabled";
+                    return $form.valid();
+                },
+                onFinished: function (event, currentIndex) {
+
+                    $form.submit();
+                }
+            });
 
             var $routingInstance = $('#ExistingRoutingInstanceName'),
                 routingInstance = $routingInstance[0],

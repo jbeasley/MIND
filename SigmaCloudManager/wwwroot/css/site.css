@@ -42,31 +42,72 @@ dd {
     margin: 0
 }
 
+h5 {
+    font-size: 1.25rem;
+}
+
+.card-img-top {
+    height: 40%;
+    object-fit:contain;
+}
+
+.card-body {
+    height: 40%;
+}
+
+.card-footer {
+    height: 20%;
+}
+
 /* For Y-scrollable main content containers such as the list of tenants 
    25 indicates the scrollable height expressed as a percentage of the element
 */
-.main-25-y-scrollable {
+.mind-25-y-scrollable {
     height: 25%;
     overflow-y: scroll;
 }
 
-/* Remove incorrect bulleted list-style for grids using jquery boot grid plugin */
-#grid-header > div > div > div.actions.btn-group > div.dropdown.btn-group.show:first-of-type > ul {
-
-    list-style: none !important;
+.mind-grid {
+    table-layout: fixed;
+    word-wrap: break-word;
 }
 
-/* Translate grid drop down list 80px left to avoid it dropping out of the right of the container */
-#grid-header > div > div > div.actions.btn-group > div.dropdown.btn-group.show:last-of-type > ul {
+.mind-grid > thead > tr > th {
+    vertical-align: top;
+}
 
-    list-style: none !important;
-    transform: translate3d(-80px, -170px, 0px) !important;
+/* Style row text content for the grid */
+.mind-grid > tbody > tr > td > input[type="text"] {
+    background: inherit;
+    border: none !important;
+    max-width: 100%;
+    text-overflow: ellipsis;
+}
+
+.mind-grid > tbody > tr > td > div > label {
+    margin-bottom: 2rem !important;
+}
+
+/* Cursor for when user hovers over the trash button of the grid */
+.mind-grid > tbody > tr > td > i {
+    cursor: pointer;
 }
 
 /* Add Y-axis scroll to JQuery Bootgrid */
-.grid-y-scrollable {
-    height: 305px;
+.mind-grid-y-scrollable {
+    height: 255px;
     overflow-y: scroll;
+    overflow-x: hidden;
+}
+
+/* Modify bootstrap checkbox background color when not checked */
+.custom-control-label:before {
+    background-color: #2184be;
+}
+
+/* Modify bootstrap checkbox background color when checked */
+.custom-checkbox .custom-control-input:checked ~ .custom-control-label::before {
+    background-color: black;
 }
 
 /* Hide/rearrange for smaller screens */
@@ -109,8 +150,4 @@ dd {
 
 .btn-margin-2 {
     margin: 2px;
-}
-
-tr:nth-child(even) {
-    background-color: #edeaea;
 }

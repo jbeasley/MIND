@@ -40,8 +40,9 @@ namespace Mind.WebUI.ViewComponents
                                   select result)
                                  .SingleOrDefault();
 
-                if (vif == null) return Content(string.Empty);
-                if (!vif.VifRole.IsLayer3Role) return Content(string.Empty);
+                // MUST pass null as the model to the view - see https://github.com/aspnet/Announcements/issues/221
+                if (vif == null) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
+                if (!vif.VifRole.IsLayer3Role) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
 
                 _model = vif.Vlans.Select(
                                    x =>
@@ -63,7 +64,7 @@ namespace Mind.WebUI.ViewComponents
                               select result)
                               .SingleOrDefault();
 
-            if (attachment == null) return Content(string.Empty);
+            if (attachment == null) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
 
             var vifRole = (from result in await _unitOfWork.VifRoleRepository.GetAsync(
                          q =>
@@ -72,8 +73,8 @@ namespace Mind.WebUI.ViewComponents
                          select result)
                          .SingleOrDefault();
 
-            if (vifRole == null) return Content(string.Empty);
-            if (!vifRole.IsLayer3Role) return Content(string.Empty);
+            if (vifRole == null) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
+            if (!vifRole.IsLayer3Role) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
 
             for (var i = 0; i < attachment.Interfaces.Count; i++)
             {

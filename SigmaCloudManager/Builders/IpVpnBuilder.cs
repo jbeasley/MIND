@@ -14,13 +14,22 @@ namespace Mind.Builders
     /// </summary>
     public class IpVpnBuilder : VpnBuilder, IIpVpnBuilder
     {
-        public IpVpnBuilder(IUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly IVpnAttachmentSetDirector _vpnAttachmentSetDirector;
+
+        public IpVpnBuilder(IUnitOfWork unitOfWork, IVpnAttachmentSetDirector vpnAttachmentSetDirector) : base(unitOfWork)
         {
+            _vpnAttachmentSetDirector = vpnAttachmentSetDirector;
         }
 
         IIpVpnBuilder IIpVpnBuilder.ForTenant(int? tenantId)
         {
             base.ForTenant(tenantId);
+            return this;
+        }
+
+        IIpVpnBuilder IIpVpnBuilder.ForVpn(int? vpnId)
+        {
+            base.ForVpn(vpnId);
             return this;
         }
 
@@ -108,23 +117,46 @@ namespace Mind.Builders
             return this;
         }
 
+        public IIpVpnBuilder WithAttachmentSets(List<VpnAttachmentSetRequest> vpnAttachmentSetRequests)
+        {
+            if (vpnAttachmentSetRequests != null) _args.Add(nameof(WithAttachmentSets), vpnAttachmentSetRequests);
+            return this;
+        }
+
         public override async Task<Vpn> BuildAsync()
         {
-            await base.BuildAsync();
-            if (_args.ContainsKey(nameof(WithExtranet))) SetExtranet();
-            if (_args.ContainsKey(nameof(WithMulticast))) SetIsMulticastVpn();
-            if (_args.ContainsKey(nameof(WithMulticastVpnServiceType))) await SetMulticastVpnServiceTypeAsync();
-            if (_args.ContainsKey(nameof(WithMulticastVpnDirectionType))) await SetMulticastVpnDirectionTypeAsync();
-
-            // If specific route targets have been requested then try to assign them, otherwise
-            // try to auto allocate some route targets 
-            if (_args.ContainsKey(nameof(WithRouteTargets)))
+            if (_args.ContainsKey(nameof(ForVpn)))
             {
-                await AssignRequestedRouteTargetsAsync();
+                // Update an existing vpn
+                await SetVpnAsync();
+                if (_args.ContainsKey(nameof(WithName))) base.SetName();
+                if (_args.ContainsKey(nameof(WithDescription))) base.SetDescription();
+                if (_args.ContainsKey(nameof(WithTenancyType))) await base.SetTenancyTypeAsync();
+                if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
+                if (_args.ContainsKey(nameof(WithExtranet))) SetExtranet();
+                if (_args.ContainsKey(nameof(WithMulticastVpnDirectionType))) await SetMulticastVpnDirectionTypeAsync();
+                if (_args.ContainsKey(nameof(WithAttachmentSets))) await SetAttachmentSets();
             }
-            else if (_args.ContainsKey(nameof(WithRouteTargetRange)))
+            else
             {
-                await AllocateRouteTargetsAsync();
+                // Create a new vpn
+                await base.BuildAsync();
+                if (_args.ContainsKey(nameof(WithExtranet))) SetExtranet();
+                if (_args.ContainsKey(nameof(WithMulticast))) SetIsMulticastVpn();
+                if (_args.ContainsKey(nameof(WithMulticastVpnServiceType))) await SetMulticastVpnServiceTypeAsync();
+                if (_args.ContainsKey(nameof(WithMulticastVpnDirectionType))) await SetMulticastVpnDirectionTypeAsync();
+                if (_args.ContainsKey(nameof(WithAttachmentSets))) await SetAttachmentSets();
+
+                // If specific route targets have been requested then try to assign them, otherwise
+                // try to auto allocate some route targets 
+                if (_args.ContainsKey(nameof(WithRouteTargets)))
+                {
+                    await AssignRequestedRouteTargetsAsync();
+                }
+                else if (_args.ContainsKey(nameof(WithRouteTargetRange)))
+                {
+                    await AllocateRouteTargetsAsync();
+                }
             }
 
             _vpn.Validate();
@@ -305,6 +337,30 @@ namespace Mind.Builders
             );
 
             await Task.WhenAll(tasks);
+        }
+
+        protected virtual internal async Task SetVpnAsync()
+        {
+            var vpnId = (int)_args[nameof(ForVpn)];
+            var vpn = (from result in await _unitOfWork.VpnRepository.GetAsync(
+                    q =>
+                       q.VpnID == vpnId,
+                       query:
+                       q =>
+                          q.IncludeBaseValidationProperties()
+                           .IncludeIpVpnValidationProperties(),
+                       AsTrackable: true)
+                       select result)
+                       .SingleOrDefault();
+
+            _vpn = vpn ?? throw new BuilderBadArgumentsException($"Unable to find the vpn with ID '{vpnId}'.");
+        }
+
+        protected virtual internal async Task SetAttachmentSets()
+        {
+            var requests = (List<VpnAttachmentSetRequest>)_args[nameof(WithAttachmentSets)];
+            var vpnAttachmentSets = await _vpnAttachmentSetDirector.BuildAsync(this._vpn, requests);
+            _vpn.VpnAttachmentSets = vpnAttachmentSets;
         }
     }
 }

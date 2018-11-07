@@ -38,13 +38,6 @@ namespace SCM.Controllers
         private IMapper Mapper { get; }
 
 
-        [HttpGet]
-        public async Task<PartialViewResult> VpnTenantNetworks(int vpnID, int tenantID)
-        {
-            var vpnTenantNetworks = await VpnTenantNetworkInService.GetAllByVpnIDAsync(vpnID, tenantID, 
-                extranet: true);
-            return PartialView(Mapper.Map<List<VpnTenantIpNetworkInViewModel>>(vpnTenantNetworks));
-        }
 
         [HttpGet]
         public async Task<IActionResult> GetAllByExtranetVpnMemberID(int? id, bool? showWarningMessage = false)

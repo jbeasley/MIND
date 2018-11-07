@@ -1,28 +1,43 @@
 ﻿@model IList<Mind.WebUI.Models.Ipv4AddressAndMaskViewModel>
 
-<fieldset class="form-group">
+@if (Model != null && Model.Any())
+{
+    <div class="alert alert-info" role="alert">
+        Enter IP address details. If more than one set of IP address details are required then enter IP address details for each set.
+        Multiple sets of IP addresses are needed for vifs which are configured under multiport attachments since one IP address is required 
+        per vlan which comprises the vif, and there is one vlan per physical attachment which comprises the multiport.
+    </div>
+
     @for (var i = 0; i < Model.Count(); i++)
     {
-        <div class="row">
-            <label class="col-sm-2">IP Addressing Set @i</label>
-            <div class="col-sm-2">
-                <label>IP Address</label>
-                <div>
-                    <input asp-for="@Model[i].IpAddress" name="Ipv4Addresses[@i].IpAddress" class="form-control" data-toggle="tooltip" data-placement="top"
-                           title="Enter an IP address for the vif" />
-                    <span asp-validation-for="@Model[i].IpAddress" class="text-danger" />
+        <fieldset class="form-group">
+            <div class="row">
+                <label class="col-sm-4">IP Addressing Set @i</label>
+                <div class="col-sm-4">
+                    <label>IP Address</label>
+                    <div>
+                        <input asp-for="@Model[i].IpAddress" name="Ipv4Addresses[@i].IpAddress" class="form-control" data-toggle="tooltip" data-placement="top"
+                               title="Enter an IP address for the vif" />
+                        <span asp-validation-for="@Model[i].IpAddress" class="text-danger" />
+                    </div>
+                </div>
+                <div class="col-sm-4">
+                    <label>Subnet Mask</label>
+                    <div>
+                        <input asp-for="@Model[i].SubnetMask" name="Ipv4Addresses[@i].SubnetMask" class="form-control" data-toggle="tooltip" data-placement="top"
+                               title="Enter a subnet mask for the vif" />
+                        <span asp-validation-for="@Model[i].SubnetMask" class="text-danger" />
+                    </div>
                 </div>
             </div>
-            <div class="col-sm-2">
-                <label>Subnet Mask</label>
-                <div>
-                    <input asp-for="@Model[i].SubnetMask" name="Ipv4Addresses[@i].SubnetMask"  class="form-control" data-toggle="tooltip" data-placement="top"
-                           title="Enter a subnet mask for the vif" />
-                    <span asp-validation-for="@Model[i].SubnetMask" class="text-danger" />
-                </div>
-            </div>
-        </div>
-        }
-</fieldset>
+        </fieldset>
+    }
+}
+else
+{
+    <div class="alert alert-info" role="alert">
+        The selected vif role does not require IP address details to be specified. Please go to the next step.
+    </div>
+}
 
 

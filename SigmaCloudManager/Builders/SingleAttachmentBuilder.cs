@@ -46,5 +46,13 @@ namespace Mind.Builders
         {
             _numPortsRequired = 1;
         }
+
+        /// <summary>
+        /// Checks that the attachment role is compatible with a single attachment  
+        /// </summary>
+        protected internal override void CheckAttachmentRoleIsValid()
+        {
+            // No check here is required
+        }
     }
 }

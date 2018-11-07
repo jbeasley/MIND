@@ -18,131 +18,194 @@
     <hr />
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <input type="hidden" asp-for="TenantId" value="@ViewBag.Tenant.TenantId" />
-    <div class="form-group row">
-        <label asp-for="RegionId" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select asp-for="RegionId" class="form-control" asp-items="ViewBag.Region">
-                <option value="">-- Select Region --</option>
-            </select>
-            <span asp-validation-for="RegionId" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="SubRegionId" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select asp-for="SubRegionId" class="form-control" asp-items="ViewBag.SubRegion">
-                <option value="">-- Select Sub-Region --</option>
-            </select>
-            <span asp-validation-for="SubRegionId" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="LocationName" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select asp-for="LocationName" class="form-control" asp-items="ViewBag.Location">
-                <option value="">-- Select Location --</option>
-            </select>
-            <span asp-validation-for="LocationName" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="PlaneName" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select asp-for="PlaneName" class="form-control" asp-items="ViewBag.Plane">
-                <option value="">-- Optionally Select a Plane --</option>
-            </select>
-            <span asp-validation-for="PlaneName" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label class="col-form-label col-sm-2"></label>
-        <div class="col-sm-10">
-            <div class="custom-control custom-control-inline custom-checkbox">
-                <input class="form-check-input custom-control-input" type="checkbox" asp-for="BundleRequired" data-toggle="tooltip" title="Request a bundle attachment">
-                <label class="form-check-label custom-control-label" asp-for="BundleRequired"></label>
+    <div id="createAttachmentWizard">
+        <h3>Location</h3>
+        <section id="location">
+            <br />
+            <div class="alert alert-info" role="alert">
+                Select location where you wish to attach to the Sigma network.
             </div>
-            <div class="custom-control custom-control-inline custom-checkbox">
-                <input class="form-check-input custom-control-input" type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip" title="Request a multi-port attachment">
-                <label class="form-check-label custom-control-label" asp-for="MultiportRequired"></label>
+            <div class="form-group row">
+                <label asp-for="RegionId" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="RegionId" class="form-control" asp-items="ViewBag.Region">
+                        <option value="">-- Select Region --</option>
+                    </select>
+                    <span asp-validation-for="RegionId" class="text-danger"></span>
+                </div>
             </div>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="AttachmentBandwidthGbps" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select asp-for="AttachmentBandwidthGbps" class="form-control" asp-items="ViewBag.AttachmentBandwidth">
-                <option value="">-- Select a Bandwidth --</option>
-            </select>
-            <span asp-validation-for="AttachmentBandwidthGbps" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="PortPoolName" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select asp-for="PortPoolName" class="form-control" asp-items="ViewBag.PortPool">
-                <option value="">-- Select a Port Pool --</option>
-            </select>
-            <span asp-validation-for="PortPoolName" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="AttachmentRoleName" class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
-            <select asp-for="AttachmentRoleName" class="form-control" asp-items="ViewBag.AttachmentRole">
-                <option value="">-- Select a Role --</option>
-            </select>
-            <span asp-validation-for="AttachmentRoleName" class="text-danger"></span>
-        </div>
-    </div>
-    <div id="ipAddressingComponent">
+            <div class="form-group row">
+                <label asp-for="SubRegionId" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="SubRegionId" class="form-control" asp-items="ViewBag.SubRegion">
+                        <option value="">-- Select Sub-Region --</option>
+                    </select>
+                    <span asp-validation-for="SubRegionId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="LocationName" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="LocationName" class="form-control" asp-items="ViewBag.Location">
+                        <option value="">-- Select Location --</option>
+                    </select>
+                    <span asp-validation-for="LocationName" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <h3>Bundle/Multiport Options</h3>
+        <section id="bundle-and-multiport-options">
+            <br />
+            <div class="alert alert-info" role="alert">
+                If you want the attachment to be configured as a bundle then select the bundle option. Bundles are groups of two or
+                more physical attachments which are logically grouped together and behave as one physical attachment. Traffic is load-balandced
+                across the bundle using the LACP protocol.
+            </div>
+            <div class="form-group row">
+                <label class="col-form-label col-sm-2" asp-for="BundleRequired"></label>
+                <div class="col-sm-10">
+                    <div class="custom-control custom-checkbox">
+                        <input class="form-check-input custom-control-input" type="checkbox" asp-for="BundleRequired" data-toggle="tooltip"
+                               data-placement="right" title="Request a bundle attachment">
+                        <label class="form-check-label custom-control-label" for="BundleRequired"></label>
+                    </div>
+                </div>
+            </div>
+            <div class="alert alert-info" role="alert">
+                If you want the attachment to be configured as a multiport then select the multiport option. Multiports are groups of
+                two or more physical attachments each of which is configured for layer 3. Traffic is load-balanced across a multiport using
+                the ECMP protocol.
+            </div>
+            <div class="form-group row">
+                <label class="col-form-label col-sm-2" asp-for="MultiportRequired"></label>
+                <div class="col-sm-10">
+                    <div class="custom-control custom-checkbox">
+                        <input class="form-check-input custom-control-input" type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip"
+                               data-placement="right" title="Request a multi-port attachment">
+                        <label class="form-check-label custom-control-label" for="MultiportRequired"></label>
+                    </div>
+                </div>
+            </div>
+        </section>
+        <h3>Bandwidth</h3>
+        <section id="bandwidth-options">
+            <br />
+            <div class="alert alert-info" role="alert">
+                Select a bandwidth for the attachment. The values are in Gigabits per Second.
+            </div>
+            <div class="form-group row">
+                <label asp-for="AttachmentBandwidthGbps" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="AttachmentBandwidthGbps" class="form-control" asp-items="ViewBag.AttachmentBandwidth">
+                        <option value="">-- Select a Bandwidth --</option>
+                    </select>
+                    <span asp-validation-for="AttachmentBandwidthGbps" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <h3>Port Pool and Role</h3>
+        <section id="port-pool-and-role">
+            <div class="alert alert-info" role="alert">
+                Select a port pool. The port pool determines the pool from which ports will be assigned
+                for the new attachment.
+            </div>
+            <div class="form-group row">
+                <label asp-for="PortPoolName" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="PortPoolName" class="form-control" asp-items="ViewBag.PortPool">
+                        <option value="">-- Select a Port Pool --</option>
+                    </select>
+                    <span asp-validation-for="PortPoolName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="alert alert-info" role="alert">
+                Selet an attachment role. The attachment determines certain parameters regarding how the attachment will be logically provisioned,
+                such as whether IP addressing and contract bandwidth is required. 
+            </div>
+            <div class="form-group row">
+                <label asp-for="AttachmentRoleName" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="AttachmentRoleName" class="form-control" asp-items="ViewBag.AttachmentRole">
+                        <option value="">-- Select a Role --</option>
+                    </select>
+                    <span asp-validation-for="AttachmentRoleName" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <h3>IP Addressing</h3>
+        <section id="ip-addressing">
+            <div id="ipAddressingComponent">
 
-        @if (Model != null)
-        {
-           @await Component.InvokeAsync("AttachmentIpAddressing", new
-       {
-           portPoolName = Model.PortPoolName,
-           attachmentRoleName = Model.AttachmentRoleName,
-           attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
-           isMultiport = Model.MultiportRequired,
-           currentModel = Model.Ipv4Addresses
-       });
-        }
-    </div>
-
-    <div id="contractBandwidthPoolComponent">
-        @if (Model != null)
-        {
-          @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
-     {
-         portPoolName = Model.PortPoolName,
-         attachmentRoleName = Model.AttachmentRoleName,
-         attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
-         currentModel = new ContractBandwidthPoolViewModel
-           {
-               ContractBandwidthMbps = Model.ContractBandwidthMbps,
-               TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
-           }
-          });
-        }
-    </div>
-    <div class="form-group row">
-        <label asp-for="Description" class="col-sm-2 col-form-label"> </label>
-        <div class="col-sm-10">
-            <input asp-for="Description" class="form-control" />
-            <span asp-validation-for="Description" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group row">
-        <label asp-for="Notes" class="col-sm-2 col-form-label"> </label>
-        <div class="col-sm-10">
-            <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
-            <span asp-validation-for="Notes" class="text-danger"></span>
-        </div>
-    </div>
-    <div class="form-group row">
-        <div class="col-sm-offset-2 col-sm-10">
-            <button type="submit" id="Create" class="btn btn-success" asp-action="Create" is-create-button></button>
-        </div>
+                @if (Model != null)
+                {
+                    @await Component.InvokeAsync("AttachmentIpAddressing", new
+                {
+                    portPoolName = Model.PortPoolName,
+                    attachmentRoleName = Model.AttachmentRoleName,
+                    attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
+                    isMultiport = Model.MultiportRequired,
+                    currentModel = Model.Ipv4Addresses
+                });
+                }
+            </div>
+        </section>
+        <h3>Contract Bandwidth</h3>
+        <section id="contract-bandwidth">
+            <div id="contractBandwidthPoolComponent">
+                @if (Model != null)
+                {
+                    @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
+               {
+                   portPoolName = Model.PortPoolName,
+                   attachmentRoleName = Model.AttachmentRoleName,
+                   attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
+                   currentModel = new ContractBandwidthPoolViewModel
+                     {
+                         ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                         TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
+                     }
+                    });
+                }
+            </div>
+        </section>
+        <h3>Plane</h3>
+        <section id="plane">
+            <br />
+            <div class="alert alert-info" role="alert">
+                Optionally select a provider network plane. If a plane option is selected then the attachment will be provisioned
+                on a PE in the selected plane. The plane option is typically useful for
+                'Live/Live' routing scenarios.
+            </div>
+            <div class="form-group row">
+                <label asp-for="PlaneName" class="col-sm-2 col-form-label"></label>
+                <div class="col-sm-10">
+                    <select asp-for="PlaneName" class="form-control" asp-items="ViewBag.Plane">
+                        <option value="">-- Optionally Select a Plane --</option>
+                    </select>
+                    <span asp-validation-for="PlaneName" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
+        <h3>Description and Notes</h3>
+        <section id="description-and-notes">
+            <div class="alert alert-info" role="alert">
+                Enter a description and any notes which describe the purpose of the attachment.
+            </div>
+            <div class="form-group row">
+                <label asp-for="Description" class="col-sm-2 col-form-label"> </label>
+                <div class="col-sm-10">
+                    <input asp-for="Description" class="form-control" />
+                    <span asp-validation-for="Description" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-group row">
+                <label asp-for="Notes" class="col-sm-2 col-form-label"> </label>
+                <div class="col-sm-10">
+                    <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
+                    <span asp-validation-for="Notes" class="text-danger"></span>
+                </div>
+            </div>
+        </section>
     </div>
 </form>
 
@@ -156,6 +219,34 @@
     <script type="text/javascript">
 
         (function ($) {
+
+            var $form = $("#createForm"),
+                $wizard = $("#createAttachmentWizard");
+
+            //Create wizard
+            $wizard.steps({
+                headerTag: "h3",
+                bodyTag: "section",
+                transitionEffect: "fade",
+                onStepChanging: function (event, currentIndex, newIndex) {
+
+                    // Allways allow previous action even if the current form is not valid!
+                    if (currentIndex > newIndex) {
+                        return true;
+                    }
+
+                    $form.validate().settings.ignore = ":disabled,:hidden";
+                    return $form.valid();
+                },
+                onFinishing: function (event, currentIndex) {
+                    $form.validate().settings.ignore = ":disabled";
+                    return $form.valid();
+                },
+                onFinished: function (event, currentIndex) {
+
+                    $form.submit();
+                }
+            });
 
             var $region = $('#RegionId'),
                 region = $region[0],
@@ -269,7 +360,7 @@
             $subregion.on('change', function (e) {
 
                 var subRegionId = this.value;
-                Populate($location, uri + "Locations", { subRegionId: subRegionId });
+                Mind.Utilities.populateDropDownList($location, uri + "Locations", { subRegionId: subRegionId });
             });
 
             $multiportRequired.on('click', function (e) {

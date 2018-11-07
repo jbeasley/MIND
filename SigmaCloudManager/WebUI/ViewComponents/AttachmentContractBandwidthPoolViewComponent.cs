@@ -39,7 +39,8 @@ namespace Mind.WebUI.ViewComponents
                                   select result)
                                  .SingleOrDefault();
 
-                if (attachment == null) return Content(string.Empty);
+                // MUST pass null as the model to the view - see https://github.com/aspnet/Announcements/issues/221
+                if (attachment == null) return View(model: null as ContractBandwidthViewModel);
                 if (attachment.AttachmentRole.RequireContractBandwidth)
                 {
                     await PopulateContractBandwidthsDropDownList(attachment.ContractBandwidthPool.ContractBandwidth.BandwidthMbps);
@@ -49,7 +50,7 @@ namespace Mind.WebUI.ViewComponents
                 }
                 else
                 {
-                    return Content(string.Empty);
+                    return View(model: null as ContractBandwidthViewModel);
                 }
             }
 
@@ -60,8 +61,8 @@ namespace Mind.WebUI.ViewComponents
                                   select result)
                                   .SingleOrDefault();
 
-            if (attachmentRole == null) return Content(string.Empty);
-            if (!attachmentRole.IsLayer3Role) return Content(string.Empty);
+            if (attachmentRole == null) return View(model: null as ContractBandwidthViewModel);
+            if (!attachmentRole.IsLayer3Role) return View(model: null as ContractBandwidthViewModel);
 
             if (attachmentRole.RequireContractBandwidth) await PopulateContractBandwidthsDropDownList();
             if (currentModel != null) return View(currentModel);

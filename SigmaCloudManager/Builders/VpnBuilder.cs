@@ -35,6 +35,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public IVpnBuilder ForVpn(int? vpnId)
+        {
+            if (vpnId.HasValue) _args.Add(nameof(ForVpn), vpnId);
+            return this;
+        }
+
         public virtual IVpnBuilder WithName(string name)
         {
             if (!string.IsNullOrEmpty(name)) _args.Add(nameof(WithName), name);

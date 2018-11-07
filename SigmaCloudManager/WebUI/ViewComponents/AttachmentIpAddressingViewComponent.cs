@@ -40,8 +40,9 @@ namespace Mind.WebUI.ViewComponents
                                   select result)
                                  .SingleOrDefault();
 
-                if (attachment == null) return Content(string.Empty);
-                if (!attachment.AttachmentRole.IsLayer3Role) return Content(string.Empty);
+                // MUST pass null as the model to the view - see https://github.com/aspnet/Announcements/issues/221
+                if (attachment == null) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
+                if (!attachment.AttachmentRole.IsLayer3Role) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
 
                 _model = attachment.Interfaces.Select(
                                                     x =>
@@ -61,8 +62,9 @@ namespace Mind.WebUI.ViewComponents
                                   select result)
                                   .SingleOrDefault();
 
-            if (attachmentRole == null) return Content(string.Empty);
-            if (!attachmentRole.IsLayer3Role) return Content(string.Empty);
+            // Must pass an empty list of the required model type here - https://github.com/aspnet/Mvc/issues/5597
+            if (attachmentRole == null) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
+            if (!attachmentRole.IsLayer3Role) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
 
             var attachmentBandwidth = (from result in await _unitOfWork.AttachmentBandwidthRepository.GetAsync(
                                        q =>
@@ -71,7 +73,7 @@ namespace Mind.WebUI.ViewComponents
                                        select result)
                                       .SingleOrDefault();
 
-            if (attachmentBandwidth == null) return Content(string.Empty);
+            if (attachmentBandwidth == null) return View(model: null as List<Ipv4AddressAndMaskViewModel>);
 
             var numIpAddressesRequired = 1;
             if (isMultiport.GetValueOrDefault())

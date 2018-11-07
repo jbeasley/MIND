@@ -23,23 +23,23 @@ namespace Mind.WebUI.ViewComponents
             _mapper = mapper;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(int? vpnId, IEnumerable<VpnAttachmentSetRequestViewModel> requests)
+        public async Task<IViewComponentResult> InvokeAsync(int? vpnId, IEnumerable<VpnAttachmentSetRequestViewModel> vpnAttachmentSets)
         {
             if (vpnId.HasValue)
             {
+                if (vpnAttachmentSets != null) return View(vpnAttachmentSets);
+
                 // Existing VPN - get the attachment sets which are bound tp the vpn
-                var vpnAttachmentSets = await _unitOfWork.VpnAttachmentSetRepository.GetAsync(
+                var items = await _unitOfWork.VpnAttachmentSetRepository.GetAsync(
                                     q =>
                                     q.VpnID == vpnId,
                                     query: q => q.IncludeDeepProperties(),
                                     AsTrackable: false);
 
-                return View(_mapper.Map<VpnAttachmentSetRequestViewModel>(vpnAttachmentSets));
+                return View(_mapper.Map<List<VpnAttachmentSetRequestViewModel>>(items));
             }
-            else
-            {
-                return View(requests);
-            }
+
+            return View(vpnAttachmentSets);
         }
     }
 }

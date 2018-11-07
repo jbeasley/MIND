@@ -154,6 +154,7 @@ namespace Mind.Builders
             {
                 throw new BuilderBadArgumentsException("The requested attachment bandwidth is not supported by a bundle.");
             }
+
             _numPortsRequired = attachmentBandwidth.BandwidthGbps / attachmentBandwidth.BundleOrMultiPortMemberBandwidthGbps.Value;
         }
 
@@ -166,6 +167,14 @@ namespace Mind.Builders
             }
 
             _portBandwidthRequired = attachmentBandwidth.BundleOrMultiPortMemberBandwidthGbps.Value;
+        }
+
+        /// <summary>
+        /// Checks that the attachment role is compatible with a bundle attachment  
+        /// </summary>
+        protected internal override void CheckAttachmentRoleIsValid()
+        {
+            if (!_attachment.AttachmentRole.SupportedByBundle) throw new BuilderBadArgumentsException("The requested attachment role is not supportd by a bundle.");
         }
 
         protected internal virtual void SetBundleLinks()

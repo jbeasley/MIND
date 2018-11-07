@@ -62,7 +62,7 @@ namespace Mind.Api.Models
                 if (!string.IsNullOrEmpty(Ipv4PeerAddress))
                 {
                     yield return new ValidationResult(
-                        "A BGP peer address canot be specified when the 'AddToAllBgpPeersInAttachmentSet' " +
+                        "A BGP peer address cannot be specified when the 'AddToAllBgpPeersInAttachmentSet' " +
                         "argument is not specified or is set to 'true'. Include the 'AddToAllBgpPeersInAttachmentSet' argument with a value of " +
                         "'false' in the request if you wish to associate the IP network with a specific BGP peer.");
                 }

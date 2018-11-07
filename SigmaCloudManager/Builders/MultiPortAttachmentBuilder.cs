@@ -53,6 +53,14 @@ namespace Mind.Builders
             _portBandwidthRequired = attachmentBandwidth.BundleOrMultiPortMemberBandwidthGbps.Value;
         }
 
+        /// <summary>
+        /// Checks that the attachment role is compatible with a multiport attachment  
+        /// </summary>
+        protected internal override void CheckAttachmentRoleIsValid()
+        {
+            if (!_attachment.AttachmentRole.SupportedByMultiPort) throw new BuilderBadArgumentsException("The requested attachment role is not supportd by a multiport.");
+        }
+
         protected internal override void CreateInterfaces()
         {
             var ports = _ports.ToList();

@@ -21,15 +21,33 @@ namespace Mind.Builders
             _vpnAttachmentSet = new VpnAttachmentSet();
         }
 
+        public virtual IVpnAttachmentSetBuilder ForVpnAttachmentSet()
+        {
+             _args.Add(nameof(ForVpnAttachmentSet), true);
+            return this;
+        }
+
         public virtual IVpnAttachmentSetBuilder ForVpn(int? vpnId)
         {
             if (vpnId.HasValue) _args.Add(nameof(ForVpn), vpnId);
             return this;
         }
 
+        public virtual IVpnAttachmentSetBuilder ForVpn(Vpn vpn)
+        {
+            if (vpn != null) _args.Add(nameof(ForVpn), vpn);
+            return this;
+        }
+
         public virtual IVpnAttachmentSetBuilder WithAttachmentSet(string attachmentSetName)
         {
             if (!string.IsNullOrEmpty(attachmentSetName)) _args.Add(nameof(WithAttachmentSet), attachmentSetName);
+            return this;
+        }
+
+        public virtual IVpnAttachmentSetBuilder WithAttachmentSet(int? attachmentSetId)
+        {
+            if (attachmentSetId.HasValue) _args.Add(nameof(WithAttachmentSet), attachmentSetId);
             return this;
         }
 
@@ -47,10 +65,49 @@ namespace Mind.Builders
 
         public virtual async Task<VpnAttachmentSet> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForVpn))) await SetVpnAsync();
-            if (_args.ContainsKey(nameof(WithAttachmentSet))) await SetAttachmentSetAsync();
-            if (_args.ContainsKey(nameof(WithHub))) SetIsHub();
-            if (_args.ContainsKey(nameof(WithMulticastDirectlyIntegrated))) SetMulticastDirectlyIntegrated();
+            if (_args.ContainsKey(nameof(ForVpnAttachmentSet)))
+            {
+                // Existing vpn attachment set for update
+                var arg = _args[nameof(WithAttachmentSet)];
+                if (arg.GetType() == typeof(int))
+                {
+                    if (_args.ContainsKey(nameof(ForVpn)))
+                    {
+                        await SetVpnAttachmentSetAsync();
+                        if (_args.ContainsKey(nameof(WithHub))) SetIsHub();
+                        if (_args.ContainsKey(nameof(WithMulticastDirectlyIntegrated))) SetMulticastDirectlyIntegrated();
+                    }
+                }
+            }
+            else
+            {
+                // Create a new vpn attachment set
+                if (_args.ContainsKey(nameof(ForVpn)))
+                {
+                    var arg = _args[nameof(ForVpn)];
+                    if (arg.GetType() == typeof(Vpn))
+                    {
+                        _vpnAttachmentSet.Vpn = (arg as Vpn);
+                    }
+                    else
+                    {
+                        await SetVpnAsync();
+                    }
+                }
+
+                if (_args.ContainsKey(nameof(WithAttachmentSet)))
+                {
+
+                    var arg = _args[nameof(WithAttachmentSet)];
+                    if (arg.GetType() == typeof(string))
+                    {
+                        await SetAttachmentSetAsync();
+                    }
+                }
+
+                if (_args.ContainsKey(nameof(WithHub))) SetIsHub();
+                if (_args.ContainsKey(nameof(WithMulticastDirectlyIntegrated))) SetMulticastDirectlyIntegrated();
+            }
 
             _vpnAttachmentSet.Validate();
             return _vpnAttachmentSet;
@@ -97,6 +154,22 @@ namespace Mind.Builders
         protected virtual internal void SetMulticastDirectlyIntegrated()
         {
             _vpnAttachmentSet.IsMulticastDirectlyIntegrated = (bool)_args[nameof(WithMulticastDirectlyIntegrated)];
+        }
+
+        protected internal virtual async Task SetVpnAttachmentSetAsync()
+        {
+            var attachmentSetId = (int)_args[nameof(WithAttachmentSet)];
+            var vpnId = (int)_args[nameof(ForVpn)];
+            var vpnAttachmentSet = (from result in await _unitOfWork.VpnAttachmentSetRepository.GetAsync(
+                            q =>
+                                q.VpnID == vpnId && q.AttachmentSetID == attachmentSetId,
+                                AsTrackable: true,
+                                query: x => x.IncludeValidationProperties())
+                                    select result)
+                                .SingleOrDefault();
+
+            _vpnAttachmentSet = vpnAttachmentSet ?? throw new BuilderBadArgumentsException($"The vpn attachment set for vpn with ID '{vpnId}' and " +
+                $"attachment set with ID '{attachmentSetId}' was not found.");
         }
     }
 }

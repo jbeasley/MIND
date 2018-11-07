@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace Mind.Models.RequestModels
 {
     /// <summary>
@@ -41,5 +43,11 @@ namespace Mind.Models.RequestModels
         /// </summary>
         /// <value>Enum value denoting the multicast direction type of the vpn.</value>
         public MulticastVpnDirectionTypeEnum? MulticastVpnDirectionType { get; set; }
+
+        /// <summary>
+        /// A list of attachment sets to be associated with the vpn
+        /// </summary>
+        /// <value>A list of VpnAttachmentSetRequest objects</value>
+        public List<VpnAttachmentSetRequest> VpnAttachmentSets { get; set; }
     }
 }

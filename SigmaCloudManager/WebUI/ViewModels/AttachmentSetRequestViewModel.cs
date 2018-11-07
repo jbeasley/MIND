@@ -84,5 +84,19 @@ namespace Mind.WebUI.Models
         /// of the controller with the service layer of the application.
         /// </summary>
         public List<AttachmentSetRoutingInstanceRequestViewModel> AttachmentSetRoutingInstances { get; set; }
+
+        /// <summary>
+        /// A list of tenant IP network associations with the bgp inbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkInRequestViewModel objects</value>
+        [Display(Name = "BGP IP Network Inbound Policy")]
+        public List<VpnTenantIpNetworkInRequestViewModel> BgpIpNetworkInboundPolicy { get; set; }
+
+        /// <summary>
+        /// A list of tenant IP network associations with the bgp outbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkInRequestViewModel objects</value>
+        [Display(Name = "BGP IP Network Outbound Policy")]
+        public List<VpnTenantIpNetworkOutRequestViewModel> BgpIpNetworkOutboundPolicy { get; set; }
     }     
 }

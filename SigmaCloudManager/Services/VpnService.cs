@@ -198,7 +198,28 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Vpn> UpdateAsync(int vpnId, Mind.Models.RequestModels.VpnUpdate update)
         {
-            var vpn = await GetByIDAsync(vpnId, asTrackable: false);
+            var vpn = (from result in await UnitOfWork.VpnRepository.GetAsync(
+                   q =>
+                       q.VpnID == vpnId,
+                       query: q => q.IncludeDeepProperties(),
+                       AsTrackable: false)
+                       select result)
+                       .Single();
+
+            //Get atachment sets to remove from the vpn
+            var vpnAttachmentSetsToDelete = vpn.VpnAttachmentSets
+                                                        .Where(
+                                                           vpnAttachmentSet =>
+                                                           !update.VpnAttachmentSets
+                                                        .Any(
+                                                           updateVpnAttachmentSet =>
+                                                           updateVpnAttachmentSet.AttachmentSetName == vpnAttachmentSet.AttachmentSet.Name));
+
+            foreach (var vpnAttachmentSet in vpnAttachmentSetsToDelete)
+            {
+                await this.UnitOfWork.VpnAttachmentSetRepository.DeleteAsync(vpnAttachmentSet.VpnAttachmentSetID);
+            }
+
             var updateDirector = _updateDirectorFactory(vpn);
             await updateDirector.UpdateAsync(vpnId, update);
             await this.UnitOfWork.SaveAsync();

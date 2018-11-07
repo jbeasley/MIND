@@ -151,7 +151,7 @@ namespace Mind.Builders
         {
             if (_args.ContainsKey(nameof(ForAttachment)))
             {
-                // Find an existing attachment
+                // Find and update an existing attachment
                 await SetAttachmentAsync();
 
                 if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
@@ -172,12 +172,18 @@ namespace Mind.Builders
                 SetNumberOfPortsRequired();
                 SetPortBandwidthRequired();
 
+                // It is necessary to check the validity of the attachment role here, otherwise we may drop through to 
+                // trying to allocate some ports and find that none are available if the attachment role is not compatible
+                CheckAttachmentRoleIsValid();
+
                 if (_args.ContainsKey(nameof(ForDevice)))
                 {
+                    // Use an explicitly provided device
                     await SetDeviceAsync();
                 }
                 else
                 {
+                    // Find a device from given constrainsts (e.g. Location, Plane)
                     await FindDeviceFromConstraintsAsync();
                 }
 
@@ -218,6 +224,8 @@ namespace Mind.Builders
         /// Set the number of ports required. This method must be implemented by derived classes.
         /// </summary>
         protected abstract internal void SetNumberOfPortsRequired();
+
+        protected abstract internal void CheckAttachmentRoleIsValid();
 
         protected internal virtual async Task SetTenantAsync()
         {

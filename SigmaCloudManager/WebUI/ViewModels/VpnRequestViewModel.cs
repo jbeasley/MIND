@@ -143,21 +143,6 @@ namespace Mind.WebUI.Models
         public MulticastVpnDirectionTypeEnum? MulticastVpnDirectionType { get; set; }
 
         /// <summary>
-        /// The name of a tenant with attachment sets to be added to the vpn.
-        /// </summary>
-        /// <value>String value denoting the name of a tenant</value>
-        /// <example>Elektron</example>
-        [Display(Name="Tenant Name")]
-        public string TenantName { get; private set; }
-
-        /// <summary>
-        /// An attachment set to be added to the vpn.
-        /// </summary>
-        /// <value>An instnace of AttachmentSetViewModel representing an attachment set to be added to the vpn</value>
-        [Display(Name="Attachment Set")]
-        public AttachmentSetViewModel AttachmentSet { get; set; }
-
-        /// <summary>
         /// The route target range. Route targets will be allocated from the specified range.
         /// </summary>
         /// <value>String value denoting the name of the route target range</value>
@@ -173,12 +158,9 @@ namespace Mind.WebUI.Models
         public List<RouteTargetRequestViewModel> RouteTargetRequests { get; set; }
 
         /// <summary>
-        /// A list of vpn attachment set request objects to be associated with the vpn.
-        /// This list is created on submission of the create form from the web UI from the list of attachment set names given
-        /// in the AttachmentSetNames property of this model. Each attachment set name in the list is mapped into an
-        /// instance of VpnAttachmentSetRequest and added this list. This step makes it easy to integrate the create method
-        /// of the controller with the service layer of the application.
+        /// A list of vpn attachment set request objects denoting attachment sets to be associated with the vpn.
         /// </summary>
+        /// <value>List of VpnAttachmentSetRequest objects</value>
         public List<VpnAttachmentSetRequestViewModel> VpnAttachmentSets { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

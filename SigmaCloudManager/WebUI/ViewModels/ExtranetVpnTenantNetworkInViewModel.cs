@@ -19,8 +19,6 @@ namespace SCM.Models.ViewModels
         [Required(ErrorMessage = "An Extranet VPN Member must be selected.")]
         public int ExtranetVpnMemberID { get; set; }
         public byte[] RowVersion { get; set; }
-        [Display(Name = "Tenant IP Network")]
-        public VpnTenantIpNetworkInViewModel VpnTenantIpNetworkIn { get; set; }
         [Display(Name = "Extranet VPN Member")]
         public ExtranetVpnMemberViewModel ExtranetVpnMember { get; set; }
     }

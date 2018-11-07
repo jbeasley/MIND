@@ -18,6 +18,29 @@ namespace Mind.WebUI.Models
     public class VpnUpdateViewModel : IModifiableResource
     {
         /// <summary>
+        /// The ID of the vpn
+        /// </summary>
+        /// <value>Integer value denoting the ID of the vpn</value>
+        /// <example>10010</example>
+        public int VpnId { get; set; }
+
+        /// <summary>
+        /// The ID of the tenant owner of the VPN
+        /// </summary>
+        /// <value>Integer value for the ID of the tenant</value>
+        /// <example>1001</example>
+        public int? TenantId { get; set; }
+
+        /// <summary>
+        /// The topology type of the VPN. A meshed VPN allows any endpoint to communicate with any other endpoint. 
+        /// A hub-and-spoke VPN allows spoke endpoints to communicate with hub endpoints but not with other spoke endpoints. 
+        /// This property is used to control javascript logic on the edit page and cannot be updated by the user.
+        /// </summary>
+        /// <value>Enum value denoting the topology type of the vpn.</value>
+        /// <example>Meshed</example>
+        public TopologyTypeEnum? TopologyType { get; private set; }
+
+        /// <summary>
         /// The name of the vpn
         /// </summary>
         /// <value>String value denoting the name of the vpn</value>
@@ -48,6 +71,7 @@ namespace Mind.WebUI.Models
         /// <value>Enum value denoting the tenancy type of the vpn</value>
         /// <example>single</example>
         [Display(Name="Tenancy Type")]
+        [Required]
         public TenancyTypeEnum? TenancyType { get; set; }
 
         /// <summary>
@@ -65,6 +89,12 @@ namespace Mind.WebUI.Models
         /// <example>unidirectional</example>
         [Display(Name = "Multicast VPN Direction Type")]
         public MulticastVpnDirectionTypeEnum? MulticastVpnDirectionType { get; set; }
+
+        /// <summary>
+        /// A list of vpn attachment set request objects denoting attachment sets to be associated with the vpn.
+        /// </summary>
+        /// <value>List of VpnAttachmentSetRequest objects</value>
+        public List<VpnAttachmentSetRequestViewModel> VpnAttachmentSets { get; set; }
 
         /// <summary>
         /// Concurrency token for the model

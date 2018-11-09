@@ -78,10 +78,21 @@ h5 {
 
 /* Style row text content for the grid */
 .mind-grid > tbody > tr > td > input[type="text"] {
-    background: inherit;
     border: none !important;
     max-width: 100%;
+    width: 100%;
     text-overflow: ellipsis;
+}
+
+.mind-grid > tbody > tr > td > input:read-only {
+    background: inherit;
+ }
+
+/* Style row number content for the grid */
+.mind-grid > tbody > tr > td > input[type="number"] {
+    border: none !important;
+    max-width: 100%;
+    width: 100%;
 }
 
 .mind-grid > tbody > tr > td > div > label {

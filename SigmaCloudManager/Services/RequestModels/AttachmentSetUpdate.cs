@@ -35,9 +35,21 @@ namespace Mind.Models.RequestModels
         public MulticastVpnDomainTypeEnum? MulticastVpnDomainType { get; set; }
 
         /// <summary>
-        /// 
+        /// A list of routing instances which are to be associated with the attachment set
         /// </summary>
         /// <value>A list of RoutingInstanceForAttachmentSetRequest objects</value>
         public List<RoutingInstanceForAttachmentSetRequest> AttachmentSetRoutingInstances { get; set; }
+
+        /// <summary>
+        /// Requests for tenant IP networks to to be added or updated for the BGP inbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkInRequest objects</value>
+        public List<VpnTenantIpNetworkInRequest> BgpIpNetworkInboundPolicy { get; set; }
+
+        /// <summary>
+        /// Requests for tenant IP networks to to be added or update for the BGP outbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkOutRequest objects</value>
+        public List<VpnTenantIpNetworkOutRequest> BgpIpNetworkOutboundPolicy { get; set; }
     }
 }

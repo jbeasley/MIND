@@ -68,6 +68,18 @@ namespace Mind.WebUI.Controllers
             return PartialView(_mapper.Map<List<SubRegionViewModel>>(subRegions));
         }
 
+        [HttpPost]
+        public IActionResult GetAttachmentSetRoutingInstancesGridData([FromBody]List<AttachmentSetRoutingInstanceRequestViewModel> attachmentSetRoutingInstanceRequests)
+        { 
+            return ViewComponent("AttachmentSetRoutingInstancesGridData", new { attachmentSetRoutingInstanceRequests });
+        }
+
+        [HttpPost]
+        public IActionResult GetBgpIpNetworkInboundPolicyGridData([FromBody]List<VpnTenantIpNetworkInRequestViewModel> bgpIpNetworkInboundPolicy)
+        {
+            return ViewComponent("BgpIpNetworkInboundPolicyGridData", new { bgpIpNetworkInboundPolicy });
+        }
+
         [HttpGet]
         [ValidateAttachmentSetExists]
         public async Task<IActionResult> Details(int? attachmentSetId)
@@ -78,6 +90,7 @@ namespace Mind.WebUI.Controllers
 
         [HttpGet]
         [ValidateTenantExists]
+        [SetTenantCookieState]
         public async Task<IActionResult> GetAllByTenantID(int? tenantId)
         {
             var attachmentSets = await _unitOfWork.AttachmentSetRepository.GetAsync(
@@ -114,6 +127,8 @@ namespace Mind.WebUI.Controllers
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             await PopulateRegionsDropDownList();
             await PopulateAttachmentRedundancyOptionsDropDownList();
+            await PopulateInboundIpNetworksList(tenantId.Value);
+
             return View();
         }
 
@@ -126,17 +141,6 @@ namespace Mind.WebUI.Controllers
             {
                 try
                 {
-                    // Project the list of attachment set routing instance names into a list of AttachmentSetRoutingInstanceRequest objects
-                    // to be passed to the service layer
-                    requestModel.AttachmentSetRoutingInstances = requestModel.AttachmentSetRoutingInstanceNames
-                        .Select(
-                            routingInstanceName => 
-                            new AttachmentSetRoutingInstanceRequestViewModel
-                            {
-                                RoutingInstanceName = routingInstanceName
-                            })
-                        .ToList();
-
                     var request = _mapper.Map<AttachmentSetRequest>(requestModel);
 
                     var attachment = await _attachmentSetService.AddAsync(tenantId.Value, request);
@@ -168,9 +172,9 @@ namespace Mind.WebUI.Controllers
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             await PopulateRegionsDropDownList(requestModel.Region.ToString());
             await PopulateSubRegionsDropDownList(requestModel.Region?.ToString(), requestModel.SubRegion?.ToString());
-            await PopulateRoutingInstancesDropDownList(tenantId.Value, requestModel.Region?.ToString(), requestModel.SubRegion,
-                requestModel.AttachmentSetRoutingInstanceNames);
+            await PopulateRoutingInstancesDropDownList(tenantId.Value, requestModel.Region?.ToString(), requestModel.SubRegion);
             await PopulateAttachmentRedundancyOptionsDropDownList(requestModel.AttachmentRedundancy);
+            await PopulateInboundIpNetworksList(tenantId.Value);
 
             return View(requestModel);
         }
@@ -186,6 +190,7 @@ namespace Mind.WebUI.Controllers
                 attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
             await PopulateAttachmentRedundancyOptionsDropDownList(attachmentSet.AttachmentRedundancy.Name);
             await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, attachmentSet.SubRegion.Name);
+            await PopulateInboundIpNetworksList(attachmentSet.TenantID);
 
             return View(_mapper.Map<AttachmentSetUpdateViewModel>(attachmentSet));
         }
@@ -207,17 +212,6 @@ namespace Mind.WebUI.Controllers
                 }
                 else
                 {
-                    // Project the list of attachment set routing instance names into a list of AttachmentSetRoutingInstanceRequest objects
-                    // to be passed to the service layer
-                    update.AttachmentSetRoutingInstances = update.AttachmentSetRoutingInstanceNames
-                        .Select(
-                            routingInstanceName =>
-                            new AttachmentSetRoutingInstanceRequestViewModel
-                            {
-                                RoutingInstanceName = routingInstanceName
-                            })
-                        .ToList();
-
                     var attachmentUpdate = _mapper.Map<AttachmentSetUpdate>(update);
 
                     try
@@ -259,8 +253,9 @@ namespace Mind.WebUI.Controllers
                     attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
             await PopulateAttachmentRedundancyOptionsDropDownList(update.AttachmentRedundancy.ToString());
             await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, update.SubRegion);
+            await PopulateInboundIpNetworksList(attachmentSet.TenantID);
 
-            return View(_mapper.Map<AttachmentSetUpdateViewModel>(attachmentSet));
+            return View(update);
         }
 
         [HttpGet]
@@ -329,7 +324,7 @@ namespace Mind.WebUI.Controllers
                 "Name", "Name", selectedSubRegion);
         }
 
-        private async Task PopulateRoutingInstancesDropDownList(int tenantId, string region, string subRegion, IEnumerable<object> selectedRoutingInstances = null)
+        private async Task PopulateRoutingInstancesDropDownList(int tenantId, string region, string subRegion, object selectedRoutingInstance = null)
         {
             var query = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
                     q =>
@@ -344,7 +339,7 @@ namespace Mind.WebUI.Controllers
 
             var items = query.Select(x => new { x.Name, DisplayName = $"{x.Name}, {x.Device.Location.SiteName}, {x.Device.Plane.Name}" });
 
-            ViewBag.RoutingInstances = new MultiSelectList(items, "Name", "DisplayName", selectedRoutingInstances);
+            ViewBag.RoutingInstance = new SelectList(items, "Name", "DisplayName", selectedRoutingInstance);
         }
 
         private async Task PopulateAttachmentRedundancyOptionsDropDownList(object selectedAttachmentRedundancyOption = null)
@@ -352,6 +347,18 @@ namespace Mind.WebUI.Controllers
             var attachmentRedundancyOptions = await _unitOfWork.AttachmentRedundancyRepository.GetAsync();
             ViewBag.AttachmentRedundancy = new SelectList(_mapper.Map<List<AttachmentRedundancyViewModel>>(attachmentRedundancyOptions),
                 "Name", "Name", selectedAttachmentRedundancyOption);
+        }
+
+        private async Task PopulateInboundIpNetworksList(int tenantId, object selectedIpNetwork = null)
+        {
+            var query = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
+                    q =>
+                         q.TenantID == tenantId)
+                         select result);
+
+            var items = query.Select(x => new { Name = x.CidrNameIncludingIpv4LessThanOrEqualToLength, DisplayName = x.CidrNameIncludingIpv4LessThanOrEqualToLength });
+
+            ViewBag.InboundIpNetwork = new SelectList(items, "Name", "DisplayName", selectedIpNetwork);
         }
     }
 }

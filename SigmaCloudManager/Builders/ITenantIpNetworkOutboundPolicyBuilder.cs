@@ -11,6 +11,7 @@ namespace Mind.Builders
     public interface ITenantIpNetworkOutboundPolicyBuilder
     {
         ITenantIpNetworkOutboundPolicyBuilder ForAttachmentSet(int? attachmenSetId);
+        ITenantIpNetworkOutboundPolicyBuilder ForAttachmentSet(AttachmentSet attachmenSet);
         ITenantIpNetworkOutboundPolicyBuilder ForDevice(int? deviceId);
         ITenantIpNetworkOutboundPolicyBuilder ForTenantIpNetworkOutboundPolicy(int vpnTenantIpNetworkOutId);
         ITenantIpNetworkOutboundPolicyBuilder WithTenantIpNetworkCidrName(string tenantIpNetworkCidrName);

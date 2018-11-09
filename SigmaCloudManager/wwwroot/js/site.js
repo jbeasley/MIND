@@ -3,6 +3,31 @@
 var Mind = {
 };
 
+Mind.Constants = (function () {
+
+    "use strict";
+
+    const uris = {
+        ATTACHMENT_SET: "AttachmentSet/"
+    };
+
+    const bgp = {
+        LOCAL_IP_ROUTING_PREFERENCE_DEFAULT: 100,
+        ADVERTISED_IP_ROUTING_PREFERENCE_DEFAULT: 1,
+        LOCAL_IP_ROUTING_PREFERENCE_MIN_VALUE: 1,
+        LOCAL_IP_ROUTING_PREFERENCE_MAX_VALUE: 500,
+        ADVERTISED_IP_ROUTING_PREFERENCE_MIN_VALUE: 1,
+        ADVERTISED_IP_ROUTING_PREFERENCE_MAX_VALUE: 10
+    };  
+
+    return {
+
+        uris: uris,
+        bgp: bgp
+    };
+
+}(jQuery));
+
 Mind.Utilities = (function () {
 
     "use strict";
@@ -23,9 +48,8 @@ Mind.Utilities = (function () {
         return "";
     };
 
-    var populateDropDownList = function ($e, url, data) {
+    var populateElement = function ($e, url, data) {
 
-        // Disable the drop down element during loading
         $e[0].disabled = true;
 
         $.get(url, data)
@@ -33,7 +57,6 @@ Mind.Utilities = (function () {
 
                 // Enable the html element to be populated
                 $e[0].disabled = false;
-
                 $e.html(data);
             });
     };
@@ -41,7 +64,7 @@ Mind.Utilities = (function () {
     return {
 
         getCookie: getCookie,
-        populateDropDownList: populateDropDownList
+        populateElement: populateElement
     };
 
 }(jQuery));

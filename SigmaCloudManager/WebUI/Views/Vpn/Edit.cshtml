@@ -184,7 +184,7 @@
                 }
                 else {
 
-                    Mind.Utilities.populateDropDownList($participantTenant, uri + "ParticipantTenants", {
+                    Mind.Utilities.populateElement($participantTenant, uri + "ParticipantTenants", {
                         ownerTenantId: ownerTenantId.value, tenancyType: this.value
                     });
                 }
@@ -199,7 +199,7 @@
                 }
                 else {
 
-                    Mind.Utilities.populateDropDownList($attachmentSet, uri + "AttachmentSets", {
+                    Mind.Utilities.populateElement($attachmentSet, uri + "AttachmentSets", {
                         tenantName: this.value
                     });
                 }

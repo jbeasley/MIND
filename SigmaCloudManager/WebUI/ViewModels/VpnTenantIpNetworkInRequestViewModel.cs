@@ -1,5 +1,4 @@
 
-
 using System;
 using System.Linq;
 using System.IO;
@@ -23,8 +22,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>An integer denoting the ID of the tenant owner</value>
         /// <example>1001</example>
-        [Required(ErrorMessage="The ID of the tenant owner of the tenant IP network must be specified")]
-        public int? TenantId { get; private set; }
+        public int? TenantId { get; set; }
 
         /// <summary>
         /// CIDR block name of the tenant IP network
@@ -32,8 +30,7 @@ namespace Mind.WebUI.Models
         /// <value>String value for the CIDR representation of the tenant IP network</value>
         /// <example>10.1.1.0/24 le 32</example>
         [Display(Name = "IP Network CIDR Name")]
-        [Required(AllowEmptyStrings = false, ErrorMessage = "A CIDR block range must be specified, e.g. 10.1.1.0/24. You can also include the " +
-            "'less than or equal to' parameter, e.g. 10.1.1.0/24 le 32")]
+        [Required(AllowEmptyStrings = false, ErrorMessage = "A CIDR block range must be specified, e.g. 10.1.1.0/24")]
         public string TenantIpNetworkCidrName { get; set; }
 
         /// <summary>
@@ -42,7 +39,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
         /// <example>true</example>
-        [Display(Name = "Add to all BGP Peers in AttachmentSet")]
+        [Display(Name = "Add to all BGP Peers")]
         public bool? AddToAllBgpPeersInAttachmentSet { get; set; } = true;
 
         /// <summary>
@@ -71,8 +68,8 @@ namespace Mind.WebUI.Models
                 if (!string.IsNullOrEmpty(Ipv4PeerAddress))
                 {
                     yield return new ValidationResult(
-                        "A BGP peer address cannot be specified when the 'AddToAllBgpPeersInAttachmentSet' " +
-                        "argument is not specified or is set to 'true'. Include the 'AddToAllBgpPeersInAttachmentSet' argument with a value of " +
+                        $"A BGP peer address cannot be specified for CIDR network {this.TenantIpNetworkCidrName}' when the 'Add to all BGP Peers in Attachment Set' " +
+                        "argument is not specified or is set to 'true'. Include the 'Add to all BGP Peers in Attachment Set' argument with a value of " +
                         "'false' in the request if you wish to associate the IP network with a specific BGP peer.");
                 }
 
@@ -80,9 +77,9 @@ namespace Mind.WebUI.Models
                 if (string.IsNullOrEmpty(Ipv4PeerAddress))
                 {
                     yield return new ValidationResult(
-                        "You must specify either a BGP peer address with the 'Ipv4PeerAddress' argument, or specify that " +
+                        $"For CIDR network CIDR network {this.TenantIpNetworkCidrName}' You must specify either a BGP peer address with the 'IPv4 Peer Address' argument, or specify that " +
                         "the IP network should be associated with all BGP peers in the attachment set with the " +
-                        "'AddToAllBgpPeersInAttachmentSet' argument.");
+                        "'Add to All BGP Peers in Attachment Set' argument.");
                 }
         }
     }

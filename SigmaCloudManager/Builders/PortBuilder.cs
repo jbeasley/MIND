@@ -94,7 +94,6 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(ForPort)))
             {
                 await SetPortAsync();
-                if (_args.ContainsKey(nameof(ForPort))) await SetPortAsync();
                 if (_args.ContainsKey(nameof(WithConnector))) await SetConnectorAsync();
                 if (_args.ContainsKey(nameof(WithSfp))) await SetSfpAsync();
                 if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();

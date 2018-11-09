@@ -29,7 +29,7 @@ namespace SCM.Models.ViewModels
         [Display(Name = "Attachment Set")]
         public AttachmentSetViewModel AttachmentSet { get; set; }
         [Display(Name = "BGP Peer")]
-        public BgpPeerViewModel BgpPeer { get; set; }
+        public ProviderDomainBgpPeerViewModel BgpPeer { get; set; }
         [Display(Name = "VRF")]
         public RoutingInstanceViewModel RoutingInstance { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)

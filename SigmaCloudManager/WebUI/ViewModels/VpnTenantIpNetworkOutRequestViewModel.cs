@@ -18,6 +18,13 @@ namespace Mind.WebUI.Models
     public class VpnTenantIpNetworkOutRequestViewModel
     {
         /// <summary>
+        /// The ID of the tenant owner of the tenant IP network to be added to the BGP peers of the attachment set
+        /// </summary>
+        /// <value>An integer denoting the ID of the tenant owner</value>
+        /// <example>1001</example>
+        public int? TenantId { get; set; }
+
+        /// <summary>
         /// CIDR block name of the tenant IP network
         /// </summary>
         /// <value>String value for the CIDR representation of the tenant IP network</value>

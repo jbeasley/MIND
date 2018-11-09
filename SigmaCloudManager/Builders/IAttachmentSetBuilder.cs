@@ -18,6 +18,8 @@ namespace Mind.Builders
         IAttachmentSetBuilder WithRegion(string region);
         IAttachmentSetBuilder WithSubRegion(string subregion);
         IAttachmentSetBuilder WithRoutingInstances(List<RoutingInstanceForAttachmentSetRequest> requests);
+        IAttachmentSetBuilder WithBgpIpNetworkInboundPolicy(List<VpnTenantIpNetworkInRequest> bgpIpNetworkInboundPolicy);
+        IAttachmentSetBuilder WithBgpIpNetworkOutboundPolicy(List<VpnTenantIpNetworkOutRequest> bgpIpNetworkOutboundPolicy);
         Task<AttachmentSet> BuildAsync();
     }
 }

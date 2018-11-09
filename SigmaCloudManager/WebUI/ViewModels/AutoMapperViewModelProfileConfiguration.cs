@@ -75,10 +75,21 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentRedundancy.Name));
 
             CreateMap<SCM.Models.AttachmentSet, Mind.WebUI.Models.AttachmentSetUpdateViewModel>()
-                .ForMember(dst => dst.AttachmentSetRoutingInstanceNames, conf => conf.Ignore())
-                .ForMember(dst => dst.AttachmentSetRoutingInstances, conf => conf.Ignore())
-                .ForMember(dst => dst.AttachmentRedundancy, conf => conf.Ignore())
-                .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name));
+                .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
+                .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name))
+                .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentRedundancy.Name))
+                .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksIn))
+                .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksOut));
+
+            CreateMap<SCM.Models.VpnTenantIpNetworkIn, Mind.WebUI.Models.VpnTenantIpNetworkInRequestViewModel>()
+                .ForMember(dst => dst.TenantId, conf => conf.MapFrom(src => src.TenantIpNetwork.TenantID))
+                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
+                .ForMember(dst => dst.TenantIpNetworkCidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength));
+
+            CreateMap<SCM.Models.VpnTenantIpNetworkOut, Mind.WebUI.Models.VpnTenantIpNetworkOutRequestViewModel>()
+               .ForMember(dst => dst.TenantId, conf => conf.MapFrom(src => src.TenantIpNetwork.TenantID))
+               .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
+               .ForMember(dst => dst.TenantIpNetworkCidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength));
 
             CreateMap<SCM.Models.TenantIpNetwork, Mind.WebUI.Models.TenantIpNetworkViewModel>()
                 .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
@@ -108,6 +119,10 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.RouteTarget, Mind.WebUI.Models.RouteTargetViewModel>()
                 .ForMember(dst => dst.RangeName, conf => conf.MapFrom(src => src.RouteTargetRange.Name))
                 .ForMember(dst => dst.AdministratorSubField, conf => conf.MapFrom(src => src.RouteTargetRange.AdministratorSubField));
+
+            CreateMap<SCM.Models.BgpPeer, Mind.WebUI.Models.ProviderDomainBgpPeerViewModel>()
+                .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksIn))
+                .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksOut));
 
             // View model to entity model mappings
 

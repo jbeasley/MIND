@@ -1,8 +1,8 @@
 @model IEnumerable<Mind.WebUI.Models.ProviderDomainRoutingInstanceViewModel>
 
-<option disabled value="">-- Select Routing Instances --</option>
+<option value="">-- Select Routing Instance --</option>
 
 @foreach (var item in Model)
 {
-    <option value="@item.Name">@item.DisplayName</option>
+    <option data-name="@item.Name" value="@item.Name">@item.DisplayName</option>
 }

@@ -118,7 +118,7 @@ namespace SCM.Controllers
                 bgpPeers = result.ToList();
             }
 
-            return PartialView(Mapper.Map<List<BgpPeerViewModel>>(bgpPeers));
+            return PartialView(Mapper.Map<List<ProviderDomainBgpPeerViewModel>>(bgpPeers));
         }
 
         [HttpPost]

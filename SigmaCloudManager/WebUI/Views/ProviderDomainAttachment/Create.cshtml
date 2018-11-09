@@ -302,7 +302,7 @@
                 }
                 else {
 
-                    Mind.Utilities.populateDropDownList($attachmentRole, uri + "AttachmentRoles", {
+                    Mind.Utilities.populateElement($attachmentRole, uri + "AttachmentRoles", {
                         portPoolName: portPoolVal
                     });
                 }
@@ -353,26 +353,26 @@
                     location.selectedIndex = 0;
                     location.disabled = true;
 
-                    Mind.Utilities.populateDropDownList($subregion, uri + "SubRegions", { regionId : regionId });
+                    Mind.Utilities.populateElement($subregion, uri + "SubRegions", { regionId : regionId });
                 }
             });
 
             $subregion.on('change', function (e) {
 
                 var subRegionId = this.value;
-                Mind.Utilities.populateDropDownList($location, uri + "Locations", { subRegionId: subRegionId });
+                Mind.Utilities.populateElement($location, uri + "Locations", { subRegionId: subRegionId });
             });
 
             $multiportRequired.on('click', function (e) {
 
                 bundleRequired.checked = false;
-                Mind.Utilities.populateDropDownList($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
+                Mind.Utilities.populateElement($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
             });
 
             $bundleRequired.on('click', function (e) {
 
                 multiportRequired.checked = false;
-                Mind.Utilities.populateDropDownList($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
+                Mind.Utilities.populateElement($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
             });
 
             function GetIpAddressingComponent() {

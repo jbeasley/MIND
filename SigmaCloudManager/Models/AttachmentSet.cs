@@ -145,8 +145,10 @@ namespace SCM.Models
             return query.Include(x => x.VpnAttachmentSets)
                         .ThenInclude(x => x.Vpn)
                         .Include(x => x.VpnTenantIpNetworksIn)
+                        .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.VpnTenantCommunitiesIn)
                         .Include(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.VpnTenantCommunitiesOut)
                         .Include(x => x.VpnTenantIpNetworksRoutingInstance)
                         .Include(x => x.VpnTenantMulticastGroups)
@@ -348,8 +350,6 @@ namespace SCM.Models
             {
                 if (this.SubRegion == null) throw new IllegalStateException("A subregion must be defined for attachment set " +
                         $"'{this.Name}' with {this.AttachmentRedundancy.AttachmentRedundancyType.ToString()}-level redundancy");
-
-
             }
             else if (this.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Custom)
             {

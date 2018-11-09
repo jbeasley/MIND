@@ -16,11 +16,18 @@ namespace Mind.Builders
     {
         protected internal AttachmentSet _attachmentSet;
         private readonly IAttachmentSetRoutingInstanceDirector _attachmentSetRoutingInstanceDirector;
+        private readonly IProviderDomainIpNetworkInboundPolicyDirector _providerDomainIpNetworkInboundPolicyDirector;
+        private readonly IProviderDomainIpNetworkOutboundPolicyDirector _providerDomainIpNetworkOutboundPolicyDirector;
 
         public AttachmentSetBuilder(IUnitOfWork unitOfWork,
-            IAttachmentSetRoutingInstanceDirector attachmentSetRoutingInstanceDirector) : base(unitOfWork)
+            IAttachmentSetRoutingInstanceDirector attachmentSetRoutingInstanceDirector, 
+            IProviderDomainIpNetworkInboundPolicyDirector providerDomainIpNetworkInboundPolicyDirector, 
+            IProviderDomainIpNetworkOutboundPolicyDirector providerDomainIpNetworkOutboundPolicyDirector) : base(unitOfWork)
         {
             _attachmentSetRoutingInstanceDirector = attachmentSetRoutingInstanceDirector;
+            _providerDomainIpNetworkInboundPolicyDirector = providerDomainIpNetworkInboundPolicyDirector;
+            _providerDomainIpNetworkOutboundPolicyDirector = providerDomainIpNetworkOutboundPolicyDirector;
+
             _attachmentSet = new AttachmentSet
             {
                 Name = Guid.NewGuid().ToString("N"),
@@ -83,14 +90,28 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IAttachmentSetBuilder WithBgpIpNetworkInboundPolicy(List<VpnTenantIpNetworkInRequest> bgpIpNetworkInboundPolicy)
+        {
+            if (bgpIpNetworkInboundPolicy.Any()) _args.Add(nameof(WithBgpIpNetworkInboundPolicy), bgpIpNetworkInboundPolicy);
+            return this;
+        }
+
+        public virtual IAttachmentSetBuilder WithBgpIpNetworkOutboundPolicy(List<VpnTenantIpNetworkOutRequest> bgpIpNetworkOutboundPolicy)
+        {
+            if (bgpIpNetworkOutboundPolicy.Any()) _args.Add(nameof(WithBgpIpNetworkOutboundPolicy), bgpIpNetworkOutboundPolicy);
+            return this;
+        }
+
         public virtual async Task<AttachmentSet> BuildAsync()
         {
             if (_args.ContainsKey(nameof(ForAttachmentSet)))
             {
+                // Existing attachment set to update
                 await SetAttachmentSetAsync();
             }
             else
             {
+                // Create a new attachment set
                 if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
                 if (_args.ContainsKey(nameof(WithLayer3))) _attachmentSet.IsLayer3 = (bool)_args[nameof(WithLayer3)];
                 if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
@@ -100,6 +121,8 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithSubRegion))) await SetSubRegionAsync();
             if (_args.ContainsKey(nameof(WithRoutingInstances))) await SetRoutingInstances();
             if (_args.ContainsKey(nameof(WithMulticastVpnDomainType))) await SetMulticastVpnDomainTypeAsync();
+            if (_args.ContainsKey(nameof(WithBgpIpNetworkInboundPolicy))) await SetBgpIpNetworkInboundPolicy();
+            if (_args.ContainsKey(nameof(WithBgpIpNetworkOutboundPolicy))) await SetBgpIpNetworkOutboundPolicy();
 
             _attachmentSet.Validate();
             return _attachmentSet;
@@ -175,6 +198,20 @@ namespace Mind.Builders
             _attachmentSet.AttachmentSetRoutingInstances = attachmentSetRoutingInstances;
         }
 
+        protected virtual internal async Task SetBgpIpNetworkInboundPolicy()
+        {
+            var requests = (List<VpnTenantIpNetworkInRequest>)_args[nameof(WithBgpIpNetworkInboundPolicy)];
+            var bgpIpNetworkInboundPolicy = await _providerDomainIpNetworkInboundPolicyDirector.BuildAsync(this._attachmentSet, requests);
+            _attachmentSet.VpnTenantIpNetworksIn = bgpIpNetworkInboundPolicy;
+        }
+
+        protected virtual internal async Task SetBgpIpNetworkOutboundPolicy()
+        {
+            var requests = (List<VpnTenantIpNetworkOutRequest>)_args[nameof(WithBgpIpNetworkOutboundPolicy)];
+            var bgpIpNetworkOutboundPolicy = await _providerDomainIpNetworkOutboundPolicyDirector.BuildAsync(this._attachmentSet, requests);
+            _attachmentSet.VpnTenantIpNetworksOut = bgpIpNetworkOutboundPolicy;
+        }
+
         protected virtual internal async Task SetAttachmentRedundancyAsync()
         {
             var attachmentRedundancyName = _args[nameof(WithAttachmentRedundancy)].ToString();
@@ -188,7 +225,7 @@ namespace Mind.Builders
             _attachmentSet.AttachmentRedundancy = attachmentRedundancy;
         }
 
-        protected async Task SetAttachmentSetAsync()
+        protected virtual internal async Task SetAttachmentSetAsync()
         {
             var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
             var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(

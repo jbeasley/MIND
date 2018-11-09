@@ -27,6 +27,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual ITenantIpNetworkInboundPolicyBuilder ForAttachmentSet(AttachmentSet attachmentSet)
+        {
+            if (attachmentSet != null) _args.Add(nameof(ForAttachmentSet), attachmentSet);
+            return this;
+        }
+
         public virtual ITenantIpNetworkInboundPolicyBuilder ForDevice(int? deviceId)
         {
             if (deviceId != null) _args.Add(nameof(ForDevice), deviceId);
@@ -116,16 +122,24 @@ namespace Mind.Builders
 
         protected virtual internal async Task SetAttachmentSetAsync()
         {
-            var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
-            var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
-                                    q => 
-                                        q.AttachmentSetID == attachmentSetId, 
-                                        query: q => q.IncludeValidationProperties(),
-                                        AsTrackable: true)
-                                select result)
-                                .SingleOrDefault();
+            if (_args[nameof(ForAttachmentSet)].GetType() == typeof(AttachmentSet))
+            {
+                var attachmentSet = (AttachmentSet)_args[nameof(ForAttachmentSet)];
+                _vpnTenantIpNetworkIn.AttachmentSet = attachmentSet;
+            }
+            else
+            {
+                var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
+                var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
+                                        q =>
+                                            q.AttachmentSetID == attachmentSetId,
+                                            query: q => q.IncludeValidationProperties(),
+                                            AsTrackable: true)
+                                     select result)
+                                    .SingleOrDefault();
 
-            _vpnTenantIpNetworkIn.AttachmentSet = attachmentSet;
+                _vpnTenantIpNetworkIn.AttachmentSet = attachmentSet;
+            }
         }
 
         private async Task SetTenantIpNetworkInboundPolicyAsync()
@@ -180,17 +194,17 @@ namespace Mind.Builders
         protected virtual internal async Task SetIpv4BgpPeerForAttachmentSetAsync()
         {
             var ipv4PeerAddress = _args[nameof(WithIpv4PeerAddress)].ToString();
-            var bgpPeer = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
+            var bgpPeer = (from result in await _unitOfWork.BgpPeerRepository.GetAsync(
                        q =>
-                          q.AttachmentSetID == _vpnTenantIpNetworkIn.AttachmentSet.AttachmentSetID,
-                          query: q => q.IncludeValidationProperties(),
-                          AsTrackable: true)
-                           from attachmentSetRoutingInstance in result.AttachmentSetRoutingInstances
-                           from bgpPeers in attachmentSetRoutingInstance.RoutingInstance.BgpPeers
-                           select bgpPeers)
-                           .SingleOrDefault(
-                                x =>
-                                    x.Ipv4PeerAddress == ipv4PeerAddress);
+                          q.RoutingInstance.AttachmentSetRoutingInstances
+                          .Where(x => x.AttachmentSetID == _vpnTenantIpNetworkIn.AttachmentSet.AttachmentSetID)
+                          .Any(),
+                           query: q => q.IncludeValidationProperties(),
+                           AsTrackable: true)
+                           select result)
+                          .SingleOrDefault(
+                            x => 
+                            x.Ipv4PeerAddress == ipv4PeerAddress);
 
             _vpnTenantIpNetworkIn.BgpPeer = bgpPeer;
         }

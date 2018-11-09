@@ -27,6 +27,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual ITenantIpNetworkOutboundPolicyBuilder ForAttachmentSet(AttachmentSet attachmentSet)
+        {
+            if (attachmentSet != null) _args.Add(nameof(ForAttachmentSet), attachmentSet);
+            return this;
+        }
+
         public virtual ITenantIpNetworkOutboundPolicyBuilder ForDevice(int? deviceId)
         {
             if (deviceId != null) _args.Add(nameof(ForDevice), deviceId);
@@ -101,15 +107,23 @@ namespace Mind.Builders
 
         protected virtual internal async Task SetAttachmentSetAsync()
         {
-            var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
-            var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
-                            q => 
-                                 q.AttachmentSetID == attachmentSetId, 
-                                 AsTrackable: true)
-                                 select result)
-                                 .SingleOrDefault();
+            if (_args[nameof(ForAttachmentSet)].GetType() == typeof(AttachmentSet))
+            {
+                var attachmentSet = (AttachmentSet)_args[nameof(ForAttachmentSet)];
+                _vpnTenantIpNetworkOut.AttachmentSet = attachmentSet;
+            }
+            else
+            {
+                var attachmentSetId = (int)_args[nameof(ForAttachmentSet)];
+                var attachmentSet = (from result in await _unitOfWork.AttachmentSetRepository.GetAsync(
+                                q =>
+                                     q.AttachmentSetID == attachmentSetId,
+                                     AsTrackable: true)
+                                     select result)
+                                     .SingleOrDefault();
 
-            _vpnTenantIpNetworkOut.AttachmentSet = attachmentSet;
+                _vpnTenantIpNetworkOut.AttachmentSet = attachmentSet;
+            }
         }
 
         private async Task SetTenantIpNetworkOutboundPolicyAsync()

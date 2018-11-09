@@ -261,8 +261,8 @@
                 }
                 else {
 
-                    Mind.Utilities.populateDropDownList($addressFamily, uri + "AddressFamilies", { protocolType: this.value });
-                    Mind.Utilities.populateDropDownList($topologyType, uri + "TopologyTypes", { protocolType: this.value });
+                    Mind.Utilities.populateElement($addressFamily, uri + "AddressFamilies", { protocolType: this.value });
+                    Mind.Utilities.populateElement($topologyType, uri + "TopologyTypes", { protocolType: this.value });
                 }
             });
 
@@ -286,7 +286,7 @@
                 }
                 else {
 
-                    Mind.Utilities.populateDropDownList($participantTenant, uri + "ParticipantTenants", {
+                    Mind.Utilities.populateElement($participantTenant, uri + "ParticipantTenants", {
                         ownerTenantId: ownerTenantId.value, tenancyType: this.value
                     });
                 }
@@ -301,7 +301,7 @@
                 }
                 else {
 
-                    Mind.Utilities.populateDropDownList($attachmentSet, uri + "AttachmentSets", {
+                    Mind.Utilities.populateElement($attachmentSet, uri + "AttachmentSets", {
                         tenantName: this.value
                     });
                 }

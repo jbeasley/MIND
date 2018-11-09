@@ -67,7 +67,7 @@ namespace SCM.Controllers
                 bgpPeers = result.ToList();
             }
 
-            return PartialView(Mapper.Map<List<BgpPeerViewModel>>(bgpPeers));
+            return PartialView(Mapper.Map<List<ProviderDomainBgpPeerViewModel>>(bgpPeers));
         }
 
         [HttpGet]
@@ -377,7 +377,7 @@ namespace SCM.Controllers
         private async Task PopulateBgpPeersDropDownList(int vrfID, object selectedBgpPeer = null)
         {
             var bgpPeers = await BgpPeerService.GetAllByRoutingInstanceIDAsync(vrfID);
-            ViewBag.BgpPeerID = new SelectList(Mapper.Map<List<BgpPeerViewModel>>(bgpPeers),
+            ViewBag.BgpPeerID = new SelectList(Mapper.Map<List<ProviderDomainBgpPeerViewModel>>(bgpPeers),
                 "BgpPeerID", "Name", selectedBgpPeer);
         }
     }

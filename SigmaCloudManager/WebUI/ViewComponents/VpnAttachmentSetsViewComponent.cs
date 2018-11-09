@@ -29,7 +29,7 @@ namespace Mind.WebUI.ViewComponents
             {
                 if (vpnAttachmentSets != null) return View(vpnAttachmentSets);
 
-                // Existing VPN - get the attachment sets which are bound tp the vpn
+                // Existing VPN - get the attachment sets which are bound to the vpn
                 var items = await _unitOfWork.VpnAttachmentSetRepository.GetAsync(
                                     q =>
                                     q.VpnID == vpnId,

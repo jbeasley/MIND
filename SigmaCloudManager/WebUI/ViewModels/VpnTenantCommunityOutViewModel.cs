@@ -34,6 +34,6 @@ namespace SCM.Models.ViewModels
         [Display(Name = "VRF")]
         public RoutingInstanceViewModel RoutingInstance { get; set; }
         [Display(Name = "BGP Peer")]
-        public BgpPeerViewModel BgpPeer { get; set; }
+        public ProviderDomainBgpPeerViewModel BgpPeer { get; set; }
     }
 }

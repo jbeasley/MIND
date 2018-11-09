@@ -100,6 +100,15 @@ namespace SCM.Models
                 throw new IllegalStateException($"Routing instance '{this.RoutingInstance.Name}' is not associated with "
                      + $"a device in region {this.AttachmentSet.Region.Name}.");
 
+            // If a subregion for the attachment set is defined then the routing instance must be associated with a device 
+            // in the same subregion
+            if (this.AttachmentSet.SubRegion != null)
+            {
+                if (this.RoutingInstance.Device.Location.SubRegionID != this.AttachmentSet.SubRegion.SubRegionID)
+                    throw new IllegalStateException($"Routing instance '{this.RoutingInstance.Name}' is not associated with "
+                         + $"a device in subregion {this.AttachmentSet.SubRegion.Name}.");
+            }
+
             // The routing instance must belong to a device in the provider domain
             if (!this.RoutingInstance.Device.DeviceRole.IsProviderDomainRole)
             {

@@ -1,13 +1,13 @@
 ﻿
 @{
-    if (!ViewData.ModelState.IsValid && ViewData.ModelState.Any(x => x.Key == string.Empty))
+    if (!ViewData.ModelState.IsValid && ViewData.ModelState.Any())
     {
         <div class="alert alert-danger message-container" role="alert">
             <div class="message-glyph">
                 <i class="fas fa-times fa-3x"></i>
                 <span class="sr-only">Error:</span>
             </div>
-            <div class="message-content" asp-validation-summary="ModelOnly"></div>
+            <div class="message-content" asp-validation-summary="All"></div>
         </div>
     }
 }

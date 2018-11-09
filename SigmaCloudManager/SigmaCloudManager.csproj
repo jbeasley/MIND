@@ -46,6 +46,28 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Include="wwwroot\js\AttachmentSet\grids.js" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="WebUI\Views\AttachmentSet\Edit.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\AttachmentSet\_AttachmentSetScriptsPartial.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\AttachmentSetRoutingInstancesGridData\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\AttachmentSetRoutingInstances\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\BgpIpNetworkInboundPolicyGridData\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\BgpIpNetworkInboundPolicy\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="WebUI\Views\Vpn\Edit.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -80,9 +102,6 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\AttachmentSet\Details.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="WebUI\Views\AttachmentSet\Edit.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\AttachmentSet\GetAllByTenantID.cshtml">

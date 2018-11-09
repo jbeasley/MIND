@@ -22,8 +22,14 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Integer value for the ID of the attachment set</value>
         /// <example>11001</example>
-        [Display(Name = "Attachment Set ID")]
-        public int AttachmentSetId { get; private set; }
+        public int AttachmentSetId { get; set; }
+
+        /// <summary>
+        /// The ID of the tenant owner of the attachment set
+        /// </summary>
+        /// <value>Integer value denoting the ID of the tenant</value>
+        /// <example>9001</example>
+        public int? TenantId { get; set; }
 
         /// <summary>
         /// MIND System-generated name of the attachment set
@@ -31,7 +37,15 @@ namespace Mind.WebUI.Models
         /// <value>String value for the name of the attachment set</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [Display(Name = "Name")]
-        public string Name { get; private set; }
+        public string Name { get; set; }
+
+        /// <summary>
+        /// The geographic region within which the attachment set operates.
+        /// </summary>
+        /// <value>String value denoting the geographic region within which the attachment set operates</value>
+        /// <example>EMEA</example>
+        [Display(Name = "Region")]
+        public string Region { get; set; }
 
         /// <summary>
         /// The sub-region within which the attachment set operates
@@ -50,15 +64,6 @@ namespace Mind.WebUI.Models
         public AttachmentRedundancyEnum? AttachmentRedundancy { get; set; }
 
         /// <summary>
-        /// A list of names of routing instances to be associated with the attachment set.
-        /// Each routing instance must exist and belong to an attachment which is owned by the tenant owner requesting the attachment set.
-        /// The names passed as a list of strings to/from the web UI for simple integration with a drop-down list defined in the view.
-        /// </summary>
-        /// <value>A list of strings with each string denoting the name of a routing instance</value>
-        [Display(Name = "Routing Instances")]
-        public List<string> AttachmentSetRoutingInstanceNames { get; set; }
-
-        /// <summary>
         /// Determines the multicast domain type supported by the attachment set
         /// </summary>
         /// <value>An enum member for the multicast domain supported by the attachment set</value>
@@ -68,12 +73,23 @@ namespace Mind.WebUI.Models
 
         /// <summary>
         /// A list of routing instances routing instance request objects to be associated with the attachment set.
-        /// This list is created on submission of the edit form from the web UI from the list of routing instance names given
-        /// in the AttachmentSetRoutingInstanceNames property of this model. Each routing instance name in the list is mapped into an
-        /// instance of AttachmentSetRoutingInstanceRequest and added this list. This step makes it easy to integrate the edit method
-        /// of the controller with the service layer of the application.
         /// </summary>
+        /// <value>A list of AttachmentSetRoutingInstanceRequestViewModel objects</value>
         public List<AttachmentSetRoutingInstanceRequestViewModel> AttachmentSetRoutingInstances { get; set; }
+
+        /// <summary>
+        /// A list of tenant IP network associations with the bgp inbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkInRequestViewModel objects</value>
+        [Display(Name = "BGP IP Network Inbound Policy")]
+        public List<VpnTenantIpNetworkInRequestViewModel> BgpIpNetworkInboundPolicy { get; set; }
+
+        /// <summary>
+        /// A list of tenant IP network associations with the bgp outbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkOutRequestViewModel objects</value>
+        [Display(Name = "BGP IP Network Outbound Policy")]
+        public List<VpnTenantIpNetworkOutRequestViewModel> BgpIpNetworkOutboundPolicy { get; set; }
 
         /// <summary>
         /// Concurrency token for the model

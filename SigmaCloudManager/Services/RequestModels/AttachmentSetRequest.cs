@@ -38,6 +38,18 @@ namespace Mind.Models.RequestModels
         public List<RoutingInstanceForAttachmentSetRequest> AttachmentSetRoutingInstances { get; set; }
 
         /// <summary>
+        /// Requests for tenant IP networks to to be added to the BGP inbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkInRequest objects</value>
+        public List<VpnTenantIpNetworkInRequest> BgpIpNetworkInboundPolicy{ get; set; }
+
+        /// <summary>
+        /// Requests for tenant IP networks to to be added to the BGP outbound policy of the attachment set
+        /// </summary>
+        /// <value>A list of VpnTenantIpNetworkOutRequest objects</value>
+        public List<VpnTenantIpNetworkOutRequest> BgpIpNetworkOutboundPolicy { get; set; }
+
+        /// <summary>
         /// Determines the type of multicast domain supported by the attachment set
         /// </summary>
         /// <value>An enum member for the multicast domain supported by the attachment set</value>

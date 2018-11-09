@@ -40,7 +40,7 @@
             <br />
             <div class="alert alert-info" role="alert">
                 Create a layer 2 attachment set for inter-connecting tenant domains via an Ethernet VPN.
-                Create a layer 3 attachment for inter-conneting tenant domains with an IP VPN.
+                Create a layer 3 attachment set for inter-connecting tenant domains with an IP VPN.
             </div>
             <div class="form-group row">
                 <label class="col-form-label col-sm-2" asp-for="IsLayer3"></label>
@@ -82,60 +82,39 @@
                 </div>
             </div>
         </section>
-        <h3>Routing Instances</h3>
-        <section id="routing-instances">
-            <br />
-            <div class="alert alert-info" role="alert">
-                Add routing instances to the attachment set.
-            </div>
-            <div class="form-group row">
-                <label asp-for="AttachmentSetRoutingInstanceNames" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select multiple asp-for="AttachmentSetRoutingInstanceNames" class="form-control" asp-items="ViewBag.RoutingInstances" data-toggle="tooltip"
-                            title="Select one or more routing instances" data-placement="right">
-                        <option disabled value="">-- Select Routing Instances --</option>
-                    </select>
-                    <span asp-validation-for="AttachmentSetRoutingInstanceNames" class="text-danger"></span>
-                </div>
-            </div>
-        </section>
-        <h3>Inbound IP Network Routing Policy</h3>
-        <section id="inbound-ip-network-routing-policy">
-            <br />
-            <div class="alert alert-info" role="alert">
-                Add IP networks to the inbound policy of the attachment set.
-            </div>
-            <div class="form-group row">
-                <label asp-for="BgpIpNetworkInboundPolicy" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select multiple asp-for="BgpIpNetworkInboundPolicy" class="form-control" asp-items="ViewBag.TenantIpNetworksIn" data-toggle="tooltip"
-                            title="Select an IP network to add to the inbound policy" data-placement="right">
-                        <option disabled value="">-- Select IP Network --</option>
-                    </select>
-                    <span asp-validation-for="BgpIpNetworkInboundPolicy" class="text-danger"></span>
-                </div>
-            </div>
-        </section>
-        <h3>Outbound IP Network Routing Policy</h3>
-        <section id="inbound-ip-network-routing-policy">
-            <br />
-            <div class="alert alert-info" role="alert">
-                Add IP networks to the outbound policy of the attachment set.
-            </div>
-            <div class="form-group row">
-                <label asp-for="BgpIpNetworkOutboundPolicy" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select multiple asp-for="BgpIpNetworkOutboundPolicy" class="form-control" asp-items="ViewBag.TenantIpNetworksOut" data-toggle="tooltip"
-                            title="Select an IP network to add to the inbound policy" data-placement="right">
-                        <option disabled value="">-- Select IP Network --</option>
-                    </select>
-                    <span asp-validation-for="BgpIpNetworkOutboundPolicy" class="text-danger"></span>
-                </div>
-            </div>
-        </section>
+        <!-- View component for displaying the routing instances which are bound to the attachment set -->
+        @await Component.InvokeAsync("AttachmentSetRoutingInstances", new
+        {
+            attachmentSetRoutingInstanceRequests = Model?.AttachmentSetRoutingInstances
+        })
+        <!-- View component for displaying the BGP IP Network Inbound Policy -->
+        @await Component.InvokeAsync("BgpIpNetworkInboundPolicy", new
+        {
+            bgpIpNetworkInboundPolicy = Model?.BgpIpNetworkInboundPolicy
+        })
+
+        <!-- View component for displaying the BGP IP Network Outbound Policy -->
+
     </div>
 </form>
-
+<div class="modal fade" id="duplicateItemModal" tabindex="-1" role="dialog" aria-labelledby="duplicateItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="duplicateItemModalLabel">Routing Instance Already Exists</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                The selected routing instance is already bound to the attachment set
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 <div>
     <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachment Sets List</a>
 </div>
@@ -179,26 +158,18 @@
                 region = $region[0],
                 $subregion = $('#SubRegion'),
                 subregion = $subregion[0],
-                $routingInstances = $('#AttachmentSetRoutingInstanceNames'),
-                routingInstances = $routingInstances[0],
+                $routingInstance = $('#RoutingInstance'),
+                routingInstance = $routingInstance[0],
                 $tenantId = $('#TenantId'),
                 tenantId = $tenantId[0];
-
-            const uri = "/AttachmentSet/";
 
             // Initialise all tool-tips
             $('[data-toggle="tooltip"]').tooltip();
 
-           
             if (region.value === null || region.value === "") {
 
                 subregion.disabled = true;
-                routingInstances.disabled = true;
-            }
-
-            if (subregion.value === null || subregion.value === "") {
-
-                routingInstances.disabled = true;
+                routingInstance.disabled = true;
             }
 
             $region.on('change', function (e) {
@@ -207,17 +178,17 @@
 
                     subregion.selectedIndex = 0;
                     subregion.disabled = true;
-                    routingInstances.selectedIndex = 0;
-                    $routingInstances.empty();
-                    routingInstances.disabled = true;
+                    routingInstance.selectedIndex = 0;
+                    $routingInstance.empty();
+                    routingInstance.disabled = true;
                 }
                 else {
 
-                    routingInstances.selectedIndex = 0;
-                    routingInstances.disabled = true;
+                    routingInstance.selectedIndex = 0;
+                    routingInstance.disabled = true;
 
-                    Populate($subregion, uri + "SubRegions", { region: region.value });
-                    Populate($routingInstances, uri + "RoutingInstances", { tenantId: tenantId.value, region: region.value });
+                    Mind.Utilities.populateElement($subregion, "SubRegions", { region: region.value });
+                    Mind.Utilities.populateElement($routingInstance, "RoutingInstances", { tenantId: tenantId.value, region: region.value });
                 }
             });
 
@@ -225,30 +196,17 @@
 
                 if (subregion.value === null || subregion.value === "") {
 
-                    Populate($routingInstances, uri + "RoutingInstances", { tenantId: tenantId.value, region: region.value });
+                    Mind.Utilities.populateElement($routingInstance, "RoutingInstances", { tenantId: tenantId.value, region: region.value });
                 }
                 else {
 
-                    Populate($routingInstances, uri + "RoutingInstances", { tenantId: tenantId.value, region: region.value, subRegion: subregion.value });
+                    Mind.Utilities.populateElement($routingInstance, "RoutingInstances", { tenantId: tenantId.value, region: region.value, subRegion: subregion.value });
                 }
             });
 
-            function Populate($e, url, data) {
-
-                // Disable the element during loading
-                $e[0].disabled = true;
-
-                $.get(url, data)
-                    .done(function (data) {
-
-                        // Enable the html element to be populated
-                        $e[0].disabled = false;
-
-                        $e.html(data);
-                });
-            }
-
         }(jQuery));
-    
+
     </script>
+
+    @{await Html.RenderPartialAsync("_AttachmentSetScriptsPartial");}
 }

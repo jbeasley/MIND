@@ -194,11 +194,14 @@ namespace Mind.Builders
         protected virtual internal async Task SetIpv4BgpPeerForAttachmentSetAsync()
         {
             var ipv4PeerAddress = _args[nameof(WithIpv4PeerAddress)].ToString();
+            var routingInstanceNames = _vpnTenantIpNetworkIn.AttachmentSet.AttachmentSetRoutingInstances
+                           .Select(
+                               attachmentSetRoutingInstance =>
+                               attachmentSetRoutingInstance.RoutingInstance.Name);
+
             var bgpPeer = (from result in await _unitOfWork.BgpPeerRepository.GetAsync(
-                       q =>
-                          q.RoutingInstance.AttachmentSetRoutingInstances
-                          .Where(x => x.AttachmentSetID == _vpnTenantIpNetworkIn.AttachmentSet.AttachmentSetID)
-                          .Any(),
+                           q =>
+                           routingInstanceNames.Contains(q.RoutingInstance.Name),
                            query: q => q.IncludeValidationProperties(),
                            AsTrackable: true)
                            select result)

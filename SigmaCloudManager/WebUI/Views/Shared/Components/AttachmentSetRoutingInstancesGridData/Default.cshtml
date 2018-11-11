@@ -7,16 +7,16 @@
         var item = Model.ToList()[i];
         <tr id="routing-instance-grid-row_@i" data-row-id="@i" data-name="@item.RoutingInstanceName" data-local-ip-routing-preference="@item.LocalIpRoutingPreference"
             data-advertised-ip-routing-preference="@item.AdvertisedIpRoutingPreference">
-            <td>
+            <td width="40%">
                 <input type="text" name="AttachmentSetRoutingInstances[@i].RoutingInstanceName" value="@item.RoutingInstanceName" readonly />
             </td>
-            <td>
-                <input type="number" id="LocalIpRoutingPreference_@i" name="AttachmentSetRoutingInstances[@i].LocalIpRoutingPreference" value="@item.LocalIpRoutingPreference" />
+            <td width="25%">
+                <input class="form-control" type="number" id="LocalIpRoutingPreference_@i" name="AttachmentSetRoutingInstances[@i].LocalIpRoutingPreference" value="@item.LocalIpRoutingPreference" />
             </td>
-            <td>
-                <input type="number" name="AttachmentSetRoutingInstances[@i].AdvertisedIpRoutingPreference" value="@item.AdvertisedIpRoutingPreference" />
+            <td width="25%">
+                <input class="form-control" type="number" name="AttachmentSetRoutingInstances[@i].AdvertisedIpRoutingPreference" value="@item.AdvertisedIpRoutingPreference" />
             </td>
-            <td>
+            <td width="10%">
                 <button type="button" id="Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
             </td>
         </tr>

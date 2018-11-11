@@ -12,11 +12,11 @@ using System.Threading.Tasks;
 
 namespace Mind.WebUI.ViewComponents
 { 
-    public class BgpIpNetworkInboundPolicyViewComponent : ViewComponent
+    public class BgpIpNetworkOutboundPolicyViewComponent : ViewComponent
     {
-        public Task<IViewComponentResult> InvokeAsync(BgpIpNetworkInboundPolicyRequestViewModel bgpIpNetworkInboundPolicy)
+        public Task<IViewComponentResult> InvokeAsync(BgpIpNetworkOutboundPolicyRequestViewModel bgpIpNetworkOutboundPolicy)
         { 
-            return Task.FromResult<IViewComponentResult>(View(bgpIpNetworkInboundPolicy));
+            return Task.FromResult<IViewComponentResult>(View(bgpIpNetworkOutboundPolicy));
         }
     }
 }

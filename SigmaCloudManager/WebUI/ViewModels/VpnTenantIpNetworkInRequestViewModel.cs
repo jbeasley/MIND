@@ -40,7 +40,7 @@ namespace Mind.WebUI.Models
         /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
         /// <example>true</example>
         [Display(Name = "Add to all BGP Peers")]
-        public bool? AddToAllBgpPeersInAttachmentSet { get; set; } = true;
+        public bool AddToAllBgpPeersInAttachmentSet { get; set; } = true;
 
         /// <summary>
         /// An IPv4 BGP peer address from which the tenant IP network should be learned. THe specified BGP peer must be configured and exist
@@ -64,23 +64,27 @@ namespace Mind.WebUI.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (AddToAllBgpPeersInAttachmentSet.HasValue && AddToAllBgpPeersInAttachmentSet.Value)
+            if (AddToAllBgpPeersInAttachmentSet)
+            {
                 if (!string.IsNullOrEmpty(Ipv4PeerAddress))
                 {
                     yield return new ValidationResult(
-                        $"A BGP peer address cannot be specified for CIDR network {this.TenantIpNetworkCidrName}' when the 'Add to all BGP Peers in Attachment Set' " +
-                        "argument is not specified or is set to 'true'. Include the 'Add to all BGP Peers in Attachment Set' argument with a value of " +
-                        "'false' in the request if you wish to associate the IP network with a specific BGP peer.");
+                        $"A BGP peer address cannot be specified for CIDR network {this.TenantIpNetworkCidrName}' when the 'Add to all BGP Peers' " +
+                        "checkbox is checked. Uncheck the 'Add to all BGP Peers' checkbox  " +
+                        "if you wish to associate the IP network with a specific BGP peer.");
                 }
+            }
 
-            if (AddToAllBgpPeersInAttachmentSet.HasValue && !AddToAllBgpPeersInAttachmentSet.Value)
+            if (!AddToAllBgpPeersInAttachmentSet)
+            {
                 if (string.IsNullOrEmpty(Ipv4PeerAddress))
                 {
                     yield return new ValidationResult(
-                        $"For CIDR network CIDR network {this.TenantIpNetworkCidrName}' You must specify either a BGP peer address with the 'IPv4 Peer Address' argument, or specify that " +
-                        "the IP network should be associated with all BGP peers in the attachment set with the " +
-                        "'Add to All BGP Peers in Attachment Set' argument.");
+                        $"For CIDR network {this.TenantIpNetworkCidrName}' you must specify either a BGP peer or specify that " +
+                        "the IP network should be associated with all BGP peers in the attachment set by checking the " +
+                        "'Add to All BGP Peers' checkbox.");
                 }
+            }
         }
     }
 }

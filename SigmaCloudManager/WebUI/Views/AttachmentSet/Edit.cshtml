@@ -65,8 +65,11 @@
         {
             bgpIpNetworkInboundPolicy = Model?.BgpIpNetworkInboundPolicy
         })
-
         <!-- View component for displaying the BGP IP Network Outbound Policy -->
+        @await Component.InvokeAsync("BgpIpNetworkOutboundPolicy", new
+        {
+            bgpIpNetworkOutboundPolicy = Model?.BgpIpNetworkOutboundPolicy
+        })
 
     </div>
 </form>

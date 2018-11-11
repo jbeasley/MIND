@@ -1,0 +1,8 @@
+@model IEnumerable<Mind.WebUI.Models.TenantIpNetworkViewModel>
+<option value="">-- Select CIDR Block --</option>
+
+@foreach (var item in Model)
+{
+    <option data-cidr-name="@item.CidrNameIncludingIpv4LessThanOrEqualToLength" data-tenant-name="@item.TenantName" 
+        value="@item.CidrNameIncludingIpv4LessThanOrEqualToLength">@item.CidrNameIncludingIpv4LessThanOrEqualToLength</option>
+}

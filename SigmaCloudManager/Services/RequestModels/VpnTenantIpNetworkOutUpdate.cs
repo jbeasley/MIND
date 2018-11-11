@@ -17,5 +17,12 @@ namespace Mind.Models.RequestModels
         /// <value>Integer representing the advertised IP routing preference</value>
         public int? AdvertisedIpRoutingPreference { get; set; }
 
+        /// <summary>
+        /// Denotes whether the tenant IP network should be added to the outbound policy of all BGP peers in the attachment set
+        /// </summary>
+        /// <value>Boolean denoting whether the tenant IP network should be registered against all BGP peers that exist within 
+        /// the attachment set</value>
+        public bool? AddToAllBgpPeersInAttachmentSet { get; set; }
+
     }
 }

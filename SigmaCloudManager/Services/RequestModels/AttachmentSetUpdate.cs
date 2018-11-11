@@ -41,15 +41,15 @@ namespace Mind.Models.RequestModels
         public List<RoutingInstanceForAttachmentSetRequest> AttachmentSetRoutingInstances { get; set; }
 
         /// <summary>
-        /// Requests for tenant IP networks to to be added or updated for the BGP inbound policy of the attachment set
+        /// The bgp IP network inbound policy of the attachment set
         /// </summary>
-        /// <value>A list of VpnTenantIpNetworkInRequest objects</value>
-        public List<VpnTenantIpNetworkInRequest> BgpIpNetworkInboundPolicy { get; set; }
+        /// <value>An instance of BgpIpNetworkInboundPolicyRequest</value>
+        public BgpIpNetworkInboundPolicyRequest BgpIpNetworkInboundPolicy { get; set; }
 
         /// <summary>
-        /// Requests for tenant IP networks to to be added or update for the BGP outbound policy of the attachment set
+        /// The bgp IP network outbound policy of the attachment set
         /// </summary>
-        /// <value>A list of VpnTenantIpNetworkOutRequest objects</value>
-        public List<VpnTenantIpNetworkOutRequest> BgpIpNetworkOutboundPolicy { get; set; }
+        /// <value>An instance of BgpIpNetworkOutboundPolicyRequest</value>
+        public BgpIpNetworkOutboundPolicyRequest BgpIpNetworkOutboundPolicy { get; set; }
     }
 }

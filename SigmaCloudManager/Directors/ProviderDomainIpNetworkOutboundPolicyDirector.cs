@@ -22,6 +22,8 @@ namespace Mind.Builders
             return await builder.ForAttachmentSet(attachmentSetId)
                                 .WithAdvertisedIpRoutingPreference(request.AdvertisedIpRoutingPreference)
                                 .WithIpv4PeerAddress(request.Ipv4PeerAddress)
+                                .AddToAllBgpPeersInAttachmentSet(request.AddToAllBgpPeersInAttachmentSet)
+                                .WithTenant(request.TenantId)
                                 .WithTenantIpNetworkCidrName(request.TenantIpNetworkCidrName)
                                 .BuildAsync();
         }
@@ -36,6 +38,8 @@ namespace Mind.Builders
             return await builder.ForAttachmentSet(attachmentSet)
                                 .WithAdvertisedIpRoutingPreference(request.AdvertisedIpRoutingPreference)
                                 .WithIpv4PeerAddress(request.Ipv4PeerAddress)
+                                .AddToAllBgpPeersInAttachmentSet(request.AddToAllBgpPeersInAttachmentSet)
+                                .WithTenant(request.TenantId)
                                 .WithTenantIpNetworkCidrName(request.TenantIpNetworkCidrName)
                                 .BuildAsync();
         }

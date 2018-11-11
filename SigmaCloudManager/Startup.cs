@@ -52,7 +52,6 @@ namespace Mind
 
             MapperConfiguration = new MapperConfiguration(cfg =>
             {
-                cfg.AddProfile(new AutoMapperServiceModelProfileConfiguration());
                 cfg.AddProfile(new AutoMapperViewModelProfileConfiguration());
                 cfg.AddProfile(new AutoMapperApiModelProfileConfiguration());
             });

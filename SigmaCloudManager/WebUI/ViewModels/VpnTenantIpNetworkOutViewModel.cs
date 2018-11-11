@@ -17,6 +17,14 @@ namespace Mind.WebUI.Models
     public class VpnTenantIpNetworkOutViewModel
     {
         /// <summary>
+        /// The ID of the tenant owner of the IP network which is associated with the outbound
+        /// policy of the attachment set.
+        /// </summary>
+        /// <value>An integer denoting the ID of the tenant</value>
+        /// <example>1001</example>
+        public int? TenantId { get; private set; }
+
+        /// <summary>
         /// The ID of the vpn tenant IP network
         /// </summary>
         /// <value>Integer for the ID of the vpn tenant IP network</value>
@@ -44,7 +52,7 @@ namespace Mind.WebUI.Models
         /// <value>String representing the CIDR notation of the tenant IP network</value>
         /// <exampel>10.1.1.0/24 le 32</exampel>
         [Display(Name = "CIDR Name")]
-        public string CidrName { get; private set; }
+        public string TenantIpNetworkCidrName { get; private set; }
 
         /// <summary>
         /// An IPv4 BGP peer address from which the tenant IP network should be advertised
@@ -53,6 +61,14 @@ namespace Mind.WebUI.Models
         /// <example>192.168.0.1</example>
         [Display(Name = "IPv4 Peer Address")]
         public string Ipv4PeerAddress { get; private set; }
+
+        /// <summary>
+        /// Denotes whether the tenant IP network is advertised on all BGP peers that are configured within the attachment set
+        /// </summary>
+        /// <value>Boolean denoting whether the tenant IP network is advertised on all BGP peers that exist within the attachment set</value>
+        /// <example>true</example>
+        [Display(Name = "Associated with all BGP Peers in Attachment Set")]
+        public bool AssociatedWithAllBgpPeersInAttachmentSet { get; private set; }
 
         /// <summary>
         /// The routing preference advertised with the route for the tenant IP network

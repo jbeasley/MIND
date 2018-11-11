@@ -77,7 +77,7 @@ namespace SCM.Models
                         .Include(x => x.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksOut)
-                        .ThenInclude(x => x.TenantIpNetwork)
+                        .ThenInclude(x => x.TenantIpNetwork.Tenant)
                         .Include(x => x.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantCommunitiesOut)
@@ -93,7 +93,7 @@ namespace SCM.Models
                         .Include(x => x.VpnTenantIpNetworksIn)
                         .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.VpnTenantIpNetworksOut)
-                        .ThenInclude(x => x.TenantIpNetwork)
+                        .ThenInclude(x => x.TenantIpNetwork.Tenant)
                         .Include(x => x.VpnTenantCommunitiesRoutingInstance)
                         .Include(x => x.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
                         .ThenInclude(x => x.TenantIpNetwork)
@@ -125,6 +125,10 @@ namespace SCM.Models
                             // The following gives us a result set with tenant IP networks which are to be added to 
                             // the inbound policy of all BGP peers in the attachment set
                             VpnTenantIpNetworksIn = x.VpnTenantIpNetworksIn
+                                                     .Where(q => q.AddToAllBgpPeersInAttachmentSet).ToList(),
+                            // The following gives us a result set with tenant IP networks which are to be added to 
+                            // the outbound policy of all BGP peers in the attachment set
+                            VpnTenantIpNetworksOut = x.VpnTenantIpNetworksOut
                                                      .Where(q => q.AddToAllBgpPeersInAttachmentSet).ToList(),
                             VpnTenantIpNetworksRoutingInstance = x.VpnTenantIpNetworksRoutingInstance,
                             VpnTenantMulticastGroups = x.VpnTenantMulticastGroups,
@@ -223,8 +227,8 @@ namespace SCM.Models
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
 
         /// <summary>
-        /// Validate the attachment set is setup correctly with the right number of routing instances, 
-        /// depending on the attachment redundancy (i.e. bronze, silver, gold, custom).
+        /// Validate the attachment set is setup correctly in terms of the number of routing instances which
+        /// depends on the configured attachment redundancy (i.e. bronze, silver, gold, custom).
         /// </summary>
         public virtual void ValidateAttachmentRedundancy()
         {

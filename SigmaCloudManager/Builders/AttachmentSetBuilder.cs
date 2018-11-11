@@ -92,13 +92,13 @@ namespace Mind.Builders
 
         public virtual IAttachmentSetBuilder WithBgpIpNetworkInboundPolicy(List<VpnTenantIpNetworkInRequest> bgpIpNetworkInboundPolicy)
         {
-            if (bgpIpNetworkInboundPolicy.Any()) _args.Add(nameof(WithBgpIpNetworkInboundPolicy), bgpIpNetworkInboundPolicy);
+            if (bgpIpNetworkInboundPolicy != null) _args.Add(nameof(WithBgpIpNetworkInboundPolicy), bgpIpNetworkInboundPolicy);
             return this;
         }
 
         public virtual IAttachmentSetBuilder WithBgpIpNetworkOutboundPolicy(List<VpnTenantIpNetworkOutRequest> bgpIpNetworkOutboundPolicy)
         {
-            if (bgpIpNetworkOutboundPolicy.Any()) _args.Add(nameof(WithBgpIpNetworkOutboundPolicy), bgpIpNetworkOutboundPolicy);
+            if (bgpIpNetworkOutboundPolicy != null) _args.Add(nameof(WithBgpIpNetworkOutboundPolicy), bgpIpNetworkOutboundPolicy);
             return this;
         }
 

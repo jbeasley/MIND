@@ -25,8 +25,17 @@ namespace Mind.Api.Models
     /// Model for requesting a tenant IP network association with the outbound policy of an attachment set
     /// </summary>
     [DataContract]
-    public partial class VpnTenantIpNetworkOutRequest : IEquatable<VpnTenantIpNetworkOutRequest>
+    public partial class VpnTenantIpNetworkOutRequest : IEquatable<VpnTenantIpNetworkOutRequest>, IValidatableObject
     {
+        /// <summary>
+        /// The ID of the tenant owner of the tenant IP network to be added to the BGP peers of the attachment set
+        /// </summary>
+        /// <value>An integer denoting the ID of the tenant owner</value>
+        /// <example>1001</example>
+        [DataMember(Name = "tenantId")]
+        [Required]
+        public int? TenantId { get; set; }
+
         /// <summary>
         /// CIDR block name of the tenant IP network
         /// </summary>
@@ -44,10 +53,18 @@ namespace Mind.Api.Models
         /// <value>string representing the address of an existing configured IPv4 BGP peer</value>
         /// <example>192.168.0.1</example>
         [DataMember(Name="ipv4PeerAddress")]
-        [Required(AllowEmptyStrings = false)]
         [RegularExpression(@"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$", 
             ErrorMessage = "A valid IP address must be entered, e.g. 192.168.0.1")]
         public string Ipv4PeerAddress { get; set; }
+
+        /// <summary>
+        /// Denotes whether the tenant IP network should be advertised on all BGP peers that are configured within the attachment set. This property 
+        /// cannot be used concurrently with the 'Ipv4PeerAddress' property.
+        /// </summary>
+        /// <value>Boolean denoting whether the tenant IP network should be advertised on all BGP peers that exist within the attachment set</value>
+        /// <example>true</example>
+        [DataMember(Name = "addToAllBgpPeersInAttachmentSet")]
+        public bool? AddToAllBgpPeersInAttachmentSet { get; set; } = true;
 
         /// <summary>
         /// The routing preference to be advertised with the route for the tenant IP network. By default the value of this property is 1
@@ -58,6 +75,31 @@ namespace Mind.Api.Models
         [Range(1, 20, ErrorMessage = "The advertised IP routing preference must be a number between 1 and 20")]
         public int? AdvertisedIpRoutingPreference { get; set; } = 1;
 
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (AddToAllBgpPeersInAttachmentSet.GetValueOrDefault())
+            {
+                if (!string.IsNullOrEmpty(Ipv4PeerAddress))
+                {
+                    yield return new ValidationResult(
+                        "A BGP peer address cannot be specified when the 'AddToAllBgpPeersInAttachmentSet' " +
+                        "argument is not specified or is set to 'true'. Include the 'AddToAllBgpPeersInAttachmentSet' argument with a value of " +
+                        "'false' in the request if you wish to associate the IP network with a specific BGP peer.");
+                }
+            }
+
+            if (!AddToAllBgpPeersInAttachmentSet.GetValueOrDefault())
+            {
+                if (string.IsNullOrEmpty(Ipv4PeerAddress))
+                {
+                    yield return new ValidationResult(
+                        "You must specify either a BGP peer address with the 'Ipv4PeerAddress' argument, or specify that " +
+                        "the IP network should be associated with all BGP peers in the attachment set with the " +
+                        "'AddToAllBgpPeersInAttachmentSet' argument.");
+                }
+            }
+        }
+
         /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
@@ -66,8 +108,10 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class VpnTenantIpNetworkOutRequest {\n");
+            sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  TenantIpNetworkCidrName: ").Append(TenantIpNetworkCidrName).Append("\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
+            sb.Append("  AddToAllBgpPeersInAttachmentSet: ").Append(AddToAllBgpPeersInAttachmentSet).Append("\n");
             sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -106,6 +150,11 @@ namespace Mind.Api.Models
 
             return
                 (
+                    TenantId == other.TenantId ||
+                    TenantId != null &&
+                    TenantId.Equals(other.TenantId)
+                ) &&
+                (
                     TenantIpNetworkCidrName == other.TenantIpNetworkCidrName||
                     TenantIpNetworkCidrName != null &&
                     TenantIpNetworkCidrName.Equals(other.TenantIpNetworkCidrName)
@@ -114,7 +163,12 @@ namespace Mind.Api.Models
                     Ipv4PeerAddress == other.Ipv4PeerAddress ||
                     Ipv4PeerAddress != null &&
                     Ipv4PeerAddress.Equals(other.Ipv4PeerAddress)
-                ) && 
+                ) &&
+                (
+                    AddToAllBgpPeersInAttachmentSet == other.AddToAllBgpPeersInAttachmentSet ||
+                    AddToAllBgpPeersInAttachmentSet != null &&
+                    AddToAllBgpPeersInAttachmentSet.Equals(other.AddToAllBgpPeersInAttachmentSet)
+                ) &&
                 (
                     AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
                     AdvertisedIpRoutingPreference != null &&
@@ -132,10 +186,14 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (TenantId != null)
+                    hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (TenantIpNetworkCidrName != null)
                     hashCode = hashCode * 59 + TenantIpNetworkCidrName.GetHashCode();
                     if (Ipv4PeerAddress != null)
                     hashCode = hashCode * 59 + Ipv4PeerAddress.GetHashCode();
+                    if (AddToAllBgpPeersInAttachmentSet != null)
+                    hashCode = hashCode * 59 + AddToAllBgpPeersInAttachmentSet.GetHashCode();
                     if (AdvertisedIpRoutingPreference != null)
                     hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
                 return hashCode;

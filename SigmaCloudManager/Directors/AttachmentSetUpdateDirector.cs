@@ -23,8 +23,8 @@ namespace Mind.Builders
                                  .WithSubRegion(update.SubRegion)
                                  .WithMulticastVpnDomainType(update.MulticastVpnDomainType.ToString())
                                  .WithRoutingInstances(update.AttachmentSetRoutingInstances)
-                                 .WithBgpIpNetworkInboundPolicy(update.BgpIpNetworkInboundPolicy)
-                                 .WithBgpIpNetworkOutboundPolicy(update.BgpIpNetworkOutboundPolicy)
+                                 .WithBgpIpNetworkInboundPolicy(update.BgpIpNetworkInboundPolicy?.VpnTenantIpNetworkInRequests)
+                                 .WithBgpIpNetworkOutboundPolicy(update.BgpIpNetworkOutboundPolicy?.VpnTenantIpNetworkOutRequests)
                                  .BuildAsync();
         }
     }

@@ -45,15 +45,15 @@ namespace Mind.WebUI.Models
         /// <value>String representing the CIDR notation of the tenant IP network</value>
         /// <exampel>10.1.1.0/24 le 32</exampel>
         [Display(Name = "CIDR Name")]
-        public string CidrName { get; private set; }
+        public string TenantIpNetworkCidrName { get; private set; }
 
         /// <summary>
-        /// Denotes whether the tenant IP network should be learned from all BGP peers that are configured within the attachment set
+        /// Denotes whether the tenant IP network is learned from all BGP peers that are configured within the attachment set
         /// </summary>
-        /// <value>Boolean denoting whether the tenant IP network should be learned from all BGP peers that exist within the attachment set</value>
+        /// <value>Boolean denoting whether the tenant IP network is learned from all BGP peers that exist within the attachment set</value>
         /// <example>true</example>
-        [Display(Name = "Associated with all Bgp Peers in Attachment Set")]
-        public bool? AssociatedWithAllBgpPeersInAttachmentSet { get; private set; }
+        [Display(Name = "Associated with all BGP Peers in Attachment Set")]
+        public bool AssociatedWithAllBgpPeersInAttachmentSet { get; private set; }
 
         /// <summary>
         /// An IPv4 BGP peer address from which the tenant IP network should be learned

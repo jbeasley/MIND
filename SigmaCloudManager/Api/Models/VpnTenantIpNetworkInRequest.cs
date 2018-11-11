@@ -34,7 +34,7 @@ namespace Mind.Api.Models
         /// <example>1001</example>
         [DataMember(Name = "tenantId")]
         [Required(ErrorMessage="The ID of the tenant owner of the tenant IP network must be specified")]
-        public int? TenantId { get; private set; }
+        public int? TenantId { get; set; }
 
         /// <summary>
         /// CIDR block name of the tenant IP network
@@ -77,7 +77,8 @@ namespace Mind.Api.Models
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (AddToAllBgpPeersInAttachmentSet.HasValue && AddToAllBgpPeersInAttachmentSet.Value)
+            if (AddToAllBgpPeersInAttachmentSet.GetValueOrDefault())
+            {
                 if (!string.IsNullOrEmpty(Ipv4PeerAddress))
                 {
                     yield return new ValidationResult(
@@ -85,8 +86,10 @@ namespace Mind.Api.Models
                         "argument is not specified or is set to 'true'. Include the 'AddToAllBgpPeersInAttachmentSet' argument with a value of " +
                         "'false' in the request if you wish to associate the IP network with a specific BGP peer.");
                 }
+            }
 
-            if (AddToAllBgpPeersInAttachmentSet.HasValue && !AddToAllBgpPeersInAttachmentSet.Value)
+            if (!AddToAllBgpPeersInAttachmentSet.GetValueOrDefault())
+            {
                 if (string.IsNullOrEmpty(Ipv4PeerAddress))
                 {
                     yield return new ValidationResult(
@@ -94,6 +97,7 @@ namespace Mind.Api.Models
                         "the IP network should be associated with all BGP peers in the attachment set with the " +
                         "'AddToAllBgpPeersInAttachmentSet' argument.");
                 }
+            }
         }
 
         /// <summary>

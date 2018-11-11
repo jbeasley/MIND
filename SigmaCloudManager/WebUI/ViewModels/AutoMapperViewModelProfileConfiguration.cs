@@ -78,15 +78,26 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
                 .ForMember(dst => dst.SubRegion, conf => conf.MapFrom(src => src.SubRegion.Name))
                 .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentRedundancy.Name))
-                .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksIn))
-                .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksOut));
+                .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.ResolveUsing<BgpIpNetworkInboundPolicyViewModelResolver>())
+                .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.ResolveUsing<BgpIpNetworkOutboundPolicyViewModelResolver>());
 
             CreateMap<SCM.Models.VpnTenantIpNetworkIn, Mind.WebUI.Models.VpnTenantIpNetworkInRequestViewModel>()
                 .ForMember(dst => dst.TenantId, conf => conf.MapFrom(src => src.TenantIpNetwork.TenantID))
                 .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
                 .ForMember(dst => dst.TenantIpNetworkCidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength));
 
+            CreateMap<SCM.Models.VpnTenantIpNetworkIn, Mind.WebUI.Models.VpnTenantIpNetworkInViewModel>()
+                .ForMember(dst => dst.TenantId, conf => conf.MapFrom(src => src.TenantIpNetwork.TenantID))
+                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
+                .ForMember(dst => dst.TenantIpNetworkCidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength));
+
             CreateMap<SCM.Models.VpnTenantIpNetworkOut, Mind.WebUI.Models.VpnTenantIpNetworkOutRequestViewModel>()
+               .ForMember(dst => dst.TenantId, conf => conf.MapFrom(src => src.TenantIpNetwork.TenantID))
+               .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.TenantIpNetwork.Tenant.Name))
+               .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
+               .ForMember(dst => dst.TenantIpNetworkCidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength));
+
+            CreateMap<SCM.Models.VpnTenantIpNetworkOut, Mind.WebUI.Models.VpnTenantIpNetworkOutViewModel>()
                .ForMember(dst => dst.TenantId, conf => conf.MapFrom(src => src.TenantIpNetwork.TenantID))
                .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
                .ForMember(dst => dst.TenantIpNetworkCidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength));
@@ -128,6 +139,81 @@ namespace Mind.WebUI.Models
 
             CreateMap<Mind.WebUI.Models.TenantRequestViewModel, SCM.Models.Tenant>();
             CreateMap<Mind.WebUI.Models.TenantUpdateViewModel, SCM.Models.Tenant>();
+
+        }
+    }
+
+    /// <summary>
+    /// Custom resolver which populates an instance of BgpIpNetworkInboundPolicyViewModel. The resolver collects all instances of VpnTenantIpNetworkIn
+    /// which are associated with an attachment set which include those which are associated with all BGP peers of the attachment set and those which are
+    /// associated with a specific BGP peer. The resolver also populates the BGP peers collection which is comprised of all BGP peers which belong
+    /// to all of the routing instances associated with the attachment set. The BGP peers are used to populate dropdown lists in various views.
+    /// </summary>
+    public class BgpIpNetworkInboundPolicyViewModelResolver : IValueResolver<SCM.Models.AttachmentSet, Mind.WebUI.Models.AttachmentSetUpdateViewModel, BgpIpNetworkInboundPolicyRequestViewModel>
+    {
+        public BgpIpNetworkInboundPolicyRequestViewModel Resolve(SCM.Models.AttachmentSet source, AttachmentSetUpdateViewModel dest, BgpIpNetworkInboundPolicyRequestViewModel member, ResolutionContext context)
+        {
+            var items = source.AttachmentSetRoutingInstances
+                .SelectMany(
+                    attachmentSetRoutingInstance =>
+                    attachmentSetRoutingInstance.RoutingInstance.BgpPeers
+                .SelectMany(
+                    bgpPeer => 
+                    bgpPeer.VpnTenantIpNetworksIn))
+                .Where(
+                    vpnTenantIpNetworkIn =>
+                    vpnTenantIpNetworkIn.AttachmentSetID == source.AttachmentSetID);
+
+            var vpnTenantIpNetworkInRequests = context.Mapper.Map<List<VpnTenantIpNetworkInRequestViewModel>>(source.VpnTenantIpNetworksIn.Concat(items));
+            var bgpPeers = source.AttachmentSetRoutingInstances
+                .SelectMany(
+                    attachmentSetRoutingInstance =>
+                    attachmentSetRoutingInstance.RoutingInstance.BgpPeers);
+
+            var bgpIpNetworkInboundPolicy = new BgpIpNetworkInboundPolicyRequestViewModel
+            {
+                VpnTenantIpNetworkInRequests = vpnTenantIpNetworkInRequests,
+                BgpPeers = context.Mapper.Map<List<ProviderDomainBgpPeerViewModel>>(bgpPeers)
+            };
+
+            return bgpIpNetworkInboundPolicy;
+        }
+    }
+
+    /// <summary>
+    /// Custom resolver which populates an instance of BgpIpNetworkOutboundPolicyViewModel. The resolver collects all instances of VpnTenantIpNetworkOut
+    /// which are associated with an attachment set which include those which are associated with all BGP peers of the attachment set and those which are
+    /// associated with a specific BGP peer. The resolver also populates the BGP peers collection which is comprised of all BGP peers which belong
+    /// to all of the routing instances associated with the attachment set. The BGP peers are used to populate dropdown lists in various views.
+    /// </summary>
+    public class BgpIpNetworkOutboundPolicyViewModelResolver : IValueResolver<SCM.Models.AttachmentSet, Mind.WebUI.Models.AttachmentSetUpdateViewModel, BgpIpNetworkOutboundPolicyRequestViewModel>
+    {
+        public BgpIpNetworkOutboundPolicyRequestViewModel Resolve(SCM.Models.AttachmentSet source, AttachmentSetUpdateViewModel dest, BgpIpNetworkOutboundPolicyRequestViewModel member, ResolutionContext context)
+        {
+            var items = source.AttachmentSetRoutingInstances
+                .SelectMany(
+                    attachmentSetRoutingInstance =>
+                    attachmentSetRoutingInstance.RoutingInstance.BgpPeers
+                .SelectMany(
+                    bgpPeer =>
+                    bgpPeer.VpnTenantIpNetworksOut))
+                .Where(
+                    vpnTenantIpNetworkOut => 
+                    vpnTenantIpNetworkOut.AttachmentSetID == source.AttachmentSetID);
+
+            var vpnTenantIpNetworkOutRequests = context.Mapper.Map<List<VpnTenantIpNetworkOutRequestViewModel>>(source.VpnTenantIpNetworksOut.Concat(items));
+            var bgpPeers = source.AttachmentSetRoutingInstances
+                .SelectMany(
+                    attachmentSetRoutingInstance =>
+                    attachmentSetRoutingInstance.RoutingInstance.BgpPeers);
+
+            var bgpIpNetworkOutboundPolicy = new BgpIpNetworkOutboundPolicyRequestViewModel
+            {
+                VpnTenantIpNetworkOutRequests = vpnTenantIpNetworkOutRequests,
+                BgpPeers = context.Mapper.Map<List<ProviderDomainBgpPeerViewModel>>(bgpPeers)
+            };
+
+            return bgpIpNetworkOutboundPolicy;
         }
     }
 }

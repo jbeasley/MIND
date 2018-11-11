@@ -12,32 +12,32 @@ using System.Threading.Tasks;
 
 namespace Mind.WebUI.ViewComponents
 { 
-    public class BgpIpNetworkInboundPolicyGridDataViewComponent : ViewComponent
+    public class BgpIpNetworkOutboundPolicyGridDataViewComponent : ViewComponent
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
 
-        public BgpIpNetworkInboundPolicyGridDataViewComponent(IUnitOfWork unitOfWork, IMapper mapper)
+        public BgpIpNetworkOutboundPolicyGridDataViewComponent(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(BgpIpNetworkInboundPolicyRequestViewModel bgpIpNetworkInboundPolicy)
+        public async Task<IViewComponentResult> InvokeAsync(BgpIpNetworkOutboundPolicyRequestViewModel bgpIpNetworkOutboundPolicy)
         {
-            if (bgpIpNetworkInboundPolicy?.RoutingInstanceNames != null)
+            if (bgpIpNetworkOutboundPolicy?.RoutingInstanceNames != null)
             {
                 var bgpPeers = (from result in await _unitOfWork.BgpPeerRepository.GetAsync(
                             q =>
-                                bgpIpNetworkInboundPolicy.RoutingInstanceNames.Contains(q.RoutingInstance.Name),
+                                bgpIpNetworkOutboundPolicy.RoutingInstanceNames.Contains(q.RoutingInstance.Name),
                                 AsTrackable: false)
                                 select result)
                                 .ToList();
 
-                bgpIpNetworkInboundPolicy.BgpPeers = _mapper.Map<List<ProviderDomainBgpPeerViewModel>>(bgpPeers);
+                bgpIpNetworkOutboundPolicy.BgpPeers = _mapper.Map<List<ProviderDomainBgpPeerViewModel>>(bgpPeers);
             }
             
-            return View(bgpIpNetworkInboundPolicy);
+            return View(bgpIpNetworkOutboundPolicy);
         }
     }
 }

@@ -50,6 +50,14 @@ namespace Mind.WebUI.Models
         public string Ipv4PeerAddress { get; private set; }
 
         /// <summary>
+        /// The name of the bgp peer which include the IPv4 peer address and the autonomous system number of the peer
+        /// </summary>
+        /// <value>A string value denoting the name of the name of the bgp peer</value>
+        /// <example>159.1.1.1 (AS 200)</example>
+        [Display(Name = "Name")]
+        public string Name { get; private set; }
+
+        /// <summary>
         /// The 2 Byte Autonomous system number of the BGP peer
         /// </summary>
         /// <value>An integer value between 1 and 65535</value>

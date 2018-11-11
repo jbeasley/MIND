@@ -18,8 +18,6 @@ namespace SCM.Models
                         .ThenInclude(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.VpnTenantIpNetworksIn)
                         .ThenInclude(x => x.TenantIpNetwork)
-                        .Include(x => x.AttachmentSet.AttachmentSetRoutingInstances)
-                        .Include(x => x.TenantIpNetwork)
                         .Include(x => x.BgpPeer.RoutingInstance.Device.DeviceRole)
                         .Include(x => x.AttachmentSet.VpnAttachmentSets)
                         .ThenInclude(x => x.Vpn)
@@ -97,19 +95,6 @@ namespace SCM.Models
                         "was found but is not required because the request is to add the tenant IP network to all bgp peers in attachment set " +
                         $"'{this.AttachmentSet.Name}'.");
                 }
-
-                // Cannot associate the tenant IP network with all BGP peers in the attachment set and also a specific BGP peer concurrently
-                var bgpPeer = (from attachmentSetRoutingInstances in this.AttachmentSet.AttachmentSetRoutingInstances
-                                       from peers in attachmentSetRoutingInstances.RoutingInstance.BgpPeers
-                                       from tenantIpNetworks in peers.VpnTenantIpNetworksIn
-                                       where TenantIpNetworkID == this.TenantIpNetwork.TenantIpNetworkID
-                                       select peers)
-                                       .SingleOrDefault();
-                if (bgpPeer != null)
-                {
-                    throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is " +
-                        $"already associated with BGP peer '{bgpPeer.Ipv4PeerAddress}' of attachment set '{this.AttachmentSet.Name}'.");
-                }
             }
             else
             {
@@ -118,20 +103,20 @@ namespace SCM.Models
                     throw new IllegalStateException($"A BGP peer association with the tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' " +
                         $"is required but was not found. A BGP peer which belongs to attachment set '{this.AttachmentSet.Name}' is required.");
                 }
-
-                if (this.BgpPeer.RoutingInstance.Device.DeviceRole.IsProviderDomainRole)
+                else
                 {
-                    // Cannot associate the tenant IP network with a specific BGP peer and also all BGP peers in the attachment set concurrently
-                    if (this.AttachmentSet.VpnTenantIpNetworksIn
-                                          .Where(
-                                            x =>
-                                               // Ignore the current item - we're only looking for other items for the same tenant IP network ID
-                                               x.VpnTenantIpNetworkInID != this.VpnTenantIpNetworkInID &&
-                                               x.TenantIpNetwork.TenantIpNetworkID == this.TenantIpNetwork.TenantIpNetworkID)
-                                          .Any())
+                    // The BGP peer must belong to a routing instance which is associated with the attachment set
+                    if (!this.AttachmentSet.AttachmentSetRoutingInstances
+                        .Select(
+                            attachmentSetRoutingInstance =>
+                            attachmentSetRoutingInstance.RoutingInstance.Name)
+                        .ToList()
+                        .Contains(
+                            this.BgpPeer.RoutingInstance.Name))
                     {
-                        throw new IllegalStateException($"Tenant IP network '{this.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is " +
-                            $"already associated with all BGP peers of attachment set '{this.AttachmentSet.Name}'.");
+                        throw new IllegalStateException($"BGP peer '{this.BgpPeer.Name}' belongs to routing instance '{this.BgpPeer.RoutingInstance.Name}' but this " +
+                       $"routing instance is not associated with attachment set '{this.AttachmentSet.Name}'. Make sure the routing instance is associated with that attachment set " +
+                       $"or select another BGP peer.");
                     }
                 }
             }

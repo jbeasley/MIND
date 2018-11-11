@@ -1,4 +1,5 @@
-﻿@model IEnumerable<Mind.WebUI.Models.VpnTenantIpNetworkInRequestViewModel>
+﻿@using Mind.WebUI.Models;
+@model BgpIpNetworkInboundPolicyRequestViewModel
 
 <h3>BGP IP Network Inbound Policy</h3>
 <section id="bgp-ip-network-inbound-policy">
@@ -36,18 +37,18 @@
         </div>
     </div>
     <div class="form-group row">
-        <div class="col-sm-12 mind-grid-y-scrollable">
+        <div class="col-sm-12">
             <table id="bgp-ip-network-inbound-policy-grid" class="table table-condensed table-hover table-striped mind-grid">
                 <thead>
                     <tr>
-                        <th style="width:30%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.TenantIpNetworkCidrName)</span></th>
-                        <th style="width:20%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.AddToAllBgpPeersInAttachmentSet)</th>
-                        <th style="width:25%" valign="top">@Html.DisplayNameFor(model => model.Ipv4PeerAddress)</th>
-                        <th style="width:15%">@Html.DisplayNameFor(model => model.LocalIpRoutingPreference)</th>
-                        <th data-sortable="false" style="width:10%" valign="top"></th>
+                        <th style="width:20%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].TenantIpNetworkCidrName)</span></th>
+                        <th style="width:20%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].AddToAllBgpPeersInAttachmentSet)</th>
+                        <th style="width:30%" valign="top">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].Ipv4PeerAddress)</th>
+                        <th style="width:15%">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].LocalIpRoutingPreference)</th>
+                        <th data-sortable="false" style="width:15%" valign="top"></th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody style="height:155px">
                     <!-- View component for displaying the grid for the BGP IP Network Inbound Policy
                          This is put into a separate view component so that the grid data can be reloaded from the server from the client
                          whenever a new row is added or a row deleted -->

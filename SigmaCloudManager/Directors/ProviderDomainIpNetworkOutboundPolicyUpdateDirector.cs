@@ -21,6 +21,7 @@ namespace Mind.Builders
             return await _builder.ForTenantIpNetworkOutboundPolicy(vpnTenantIpNetworkOutId)
                                  .WithAdvertisedIpRoutingPreference(update.AdvertisedIpRoutingPreference)
                                  .WithIpv4PeerAddress(update.Ipv4PeerAddress)
+                                 .AddToAllBgpPeersInAttachmentSet(update.AddToAllBgpPeersInAttachmentSet)
                                  .BuildAsync();
         }
     }

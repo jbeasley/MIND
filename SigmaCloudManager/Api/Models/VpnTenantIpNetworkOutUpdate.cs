@@ -25,7 +25,7 @@ namespace Mind.Api.Models
     /// Model for updating an existing tenant IP network association with the outbound policy of an attachment set
     /// </summary>
     [DataContract]
-    public partial class VpnTenantIpNetworkOutUpdate : IEquatable<VpnTenantIpNetworkOutUpdate>
+    public partial class VpnTenantIpNetworkOutUpdate : IEquatable<VpnTenantIpNetworkOutUpdate>, IValidatableObject
     {
         /// <summary>
         /// An IPv4 BGP peer address from which the tenant IP network should advertised. THe specified BGP peer must be configured and exist
@@ -39,6 +39,15 @@ namespace Mind.Api.Models
         public string Ipv4PeerAddress { get; set; }
 
         /// <summary>
+        /// Denotes whether the tenant IP network should be advertised on all BGP peers that are configured within the attachment set. This property 
+        /// cannot be used concurrently with the 'Ipv4PeerAddress' property.
+        /// </summary>
+        /// <value>Boolean denoting whether the tenant IP network should be advertised on all BGP peers that exist within the attachment set</value>
+        /// <example>true</example>
+        [DataMember(Name = "addToAllBgpPeersInAttachmentSet")]
+        public bool? AddToAllBgpPeersInAttachmentSet { get; set; }
+
+        /// <summary>
         /// The routing preference to be advertised with the route for the tenant IP network. By default the value of this property is 1
         /// </summary>
         /// <value>Integer representing the advertised IP routing preference</value>
@@ -46,6 +55,31 @@ namespace Mind.Api.Models
         [DataMember(Name = "advertisedIpRoutingPreference")]
         [Range(1, 20, ErrorMessage = "The advertised IP routing preference must be a number between 1 and 20")]
         public int? AdvertisedIpRoutingPreference { get; set; }
+
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            if (AddToAllBgpPeersInAttachmentSet.GetValueOrDefault())
+            {
+                if (!string.IsNullOrEmpty(Ipv4PeerAddress))
+                {
+                    yield return new ValidationResult(
+                        "A BGP peer address cannot be specified when the 'AddToAllBgpPeersInAttachmentSet' " +
+                        "argument is not specified or is set to 'true'. Include the 'AddToAllBgpPeersInAttachmentSet' argument with a value of " +
+                        "'false' in the request if you wish to associate the IP network with a specific BGP peer.");
+                }
+            }
+
+            if (!AddToAllBgpPeersInAttachmentSet.GetValueOrDefault())
+            {
+                if (string.IsNullOrEmpty(Ipv4PeerAddress))
+                {
+                    yield return new ValidationResult(
+                        "You must specify either a BGP peer address with the 'Ipv4PeerAddress' argument, or specify that " +
+                        "the IP network should be associated with all BGP peers in the attachment set with the " +
+                        "'AddToAllBgpPeersInAttachmentSet' argument.");
+                }
+            }
+        }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -57,6 +91,7 @@ namespace Mind.Api.Models
             sb.Append("class VpnTenantIpNetworkOutUpdate {\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
             sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
+            sb.Append("  AddToAllBgpPeersInAttachmentSet: ").Append(AddToAllBgpPeersInAttachmentSet).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -97,7 +132,12 @@ namespace Mind.Api.Models
                     Ipv4PeerAddress == other.Ipv4PeerAddress ||
                     Ipv4PeerAddress != null &&
                     Ipv4PeerAddress.Equals(other.Ipv4PeerAddress)
-                ) && 
+                ) &&
+                (
+                    AddToAllBgpPeersInAttachmentSet == other.AddToAllBgpPeersInAttachmentSet ||
+                    AddToAllBgpPeersInAttachmentSet != null &&
+                    AddToAllBgpPeersInAttachmentSet.Equals(other.AddToAllBgpPeersInAttachmentSet)
+                ) &&
                 (
                     AdvertisedIpRoutingPreference == other.AdvertisedIpRoutingPreference ||
                     AdvertisedIpRoutingPreference != null &&
@@ -119,6 +159,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Ipv4PeerAddress.GetHashCode();
                     if (AdvertisedIpRoutingPreference != null)
                     hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
+                    if (AddToAllBgpPeersInAttachmentSet != null)
+                    hashCode = hashCode * 59 + AddToAllBgpPeersInAttachmentSet.GetHashCode();
                 return hashCode;
             }
         }

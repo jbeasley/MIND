@@ -206,20 +206,6 @@ namespace Mind.Services
                        select result)
                        .Single();
 
-            //Get atachment sets to remove from the vpn
-            var vpnAttachmentSetsToDelete = vpn.VpnAttachmentSets
-                                                        .Where(
-                                                           vpnAttachmentSet =>
-                                                           !update.VpnAttachmentSets
-                                                        .Any(
-                                                           updateVpnAttachmentSet =>
-                                                           updateVpnAttachmentSet.AttachmentSetName == vpnAttachmentSet.AttachmentSet.Name));
-
-            foreach (var vpnAttachmentSet in vpnAttachmentSetsToDelete)
-            {
-                await this.UnitOfWork.VpnAttachmentSetRepository.DeleteAsync(vpnAttachmentSet.VpnAttachmentSetID);
-            }
-
             var updateDirector = _updateDirectorFactory(vpn);
             await updateDirector.UpdateAsync(vpnId, update);
             await this.UnitOfWork.SaveAsync();

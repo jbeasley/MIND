@@ -15,7 +15,18 @@ input,
 select,
 textarea {
     max-width: 380px;
+    background-color: #2184be !important;
+    font-size: large !important;
+    font-weight: bold !important;
+    color: white !important;
 }
+
+    input:disabled,
+    select:disabled,
+    textarea:disabled {
+        background-color: #515558 !important;
+        color: #aba2a2 !important;
+    }
 
 /* The following sets the list of items in a details view so that the label in the dt element 
     is in-line with the dl element
@@ -72,28 +83,44 @@ h5 {
     word-wrap: break-word;
 }
 
+.mind-grid tbody {
+    display: block;
+    overflow-y: scroll;
+}
+
+    .mind-grid thead, tbody tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed; /* even columns width , fix width of table too*/
+    }
+
+.mind-grid thead {
+    width: calc( 100% - 1em ) /* scrollbar is average 1em/16px width, remove it from thead width */
+}
+
 .mind-grid > thead > tr > th {
     vertical-align: top;
 }
 
-/* Style row text content for the grid */
-.mind-grid > tbody > tr > td > input[type="text"] {
-    border: none !important;
-    max-width: 100%;
-    width: 100%;
-    text-overflow: ellipsis;
-}
+    /* Style row text content for the grid */
+    .mind-grid > tbody > tr > td > input[type="text"] {
+        border: none !important;
+        max-width: 100%;
+        width: 100%;
+        text-overflow: ellipsis;
+    }
 
-.mind-grid > tbody > tr > td > input:read-only {
-    background: inherit;
- }
+    .mind-grid > tbody > tr > td > input:read-only {
+        background: inherit !important ;
+        color:black !important;
+    }
 
-/* Style row number content for the grid */
-.mind-grid > tbody > tr > td > input[type="number"] {
-    border: none !important;
-    max-width: 100%;
-    width: 100%;
-}
+    /* Style number input for the grid */
+    .mind-grid > tbody > tr > td > input[type="number"] {
+        border: none !important;
+        max-width: 100%;
+        width: 100%;
+    }
 
 .mind-grid > tbody > tr > td > div > label {
     margin-bottom: 2rem !important;
@@ -102,13 +129,6 @@ h5 {
 /* Cursor for when user hovers over the trash button of the grid */
 .mind-grid > tbody > tr > td > i {
     cursor: pointer;
-}
-
-/* Add Y-axis scroll to JQuery Bootgrid */
-.mind-grid-y-scrollable {
-    height: 255px;
-    overflow-y: scroll;
-    overflow-x: hidden;
 }
 
 /* Modify bootstrap checkbox background color when not checked */

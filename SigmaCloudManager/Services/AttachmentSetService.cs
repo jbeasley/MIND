@@ -84,57 +84,6 @@ namespace SCM.Services
 
         public async Task<AttachmentSet> UpdateAsync(int attachmentSetId, AttachmentSetUpdate update)
         {
-            var attachmentSet = (from result in await UnitOfWork.AttachmentSetRepository.GetAsync(
-                            q =>
-                            q.AttachmentSetID == attachmentSetId,
-                            query: q => q.IncludeDeleteValidationProperties(),
-                            AsTrackable: false)
-                            select result)
-                            .Single();
-
-             //Get routing instances to delete from the attachment set
-             var routingInstancesToDelete = attachmentSet.AttachmentSetRoutingInstances
-                                                         .Where(
-                                                            routingInstance =>
-                                                            !update.AttachmentSetRoutingInstances
-                                                         .Any(
-                                                            updateRoutingInstance =>
-                                                            updateRoutingInstance.RoutingInstanceName == routingInstance.RoutingInstance.Name));
-
-            foreach (var routingInstance in routingInstancesToDelete)
-            {
-                routingInstance.ValidateDelete();
-                await this.UnitOfWork.AttachmentSetRoutingInstanceRepository.DeleteAsync(routingInstance.AttachmentSetRoutingInstanceID);
-            }
-
-            // Get BGP IP network inbound policy items to remove from the attachment set
-            var bgpIpNetworkInboundPolicyItemsToDelete = attachmentSet.VpnTenantIpNetworksIn
-                                            .Where(
-                                               vpnTenantIpNetworkIn =>
-                                               !update.BgpIpNetworkInboundPolicy
-                                            .Any(
-                                               updateVpnTenantIpNetworkIn =>
-                                               updateVpnTenantIpNetworkIn.TenantIpNetworkCidrName == vpnTenantIpNetworkIn.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength));
-
-            foreach (var bgpIpNetworkInboundPolicyItem in bgpIpNetworkInboundPolicyItemsToDelete)
-            {
-                await this.UnitOfWork.VpnTenantIpNetworkInRepository.DeleteAsync(bgpIpNetworkInboundPolicyItem.VpnTenantIpNetworkInID);
-            }
-
-            // Get BGP IP network outbound policy items to remove from the attachment set
-            var bgpIpNetworkOutboundPolicyItemsToDelete = attachmentSet.VpnTenantIpNetworksOut
-                                            .Where(
-                                               vpnTenantIpNetworkOut =>
-                                               !update.BgpIpNetworkOutboundPolicy
-                                            .Any(
-                                               updateVpnTenantIpNetworkOut =>
-                                               updateVpnTenantIpNetworkOut.TenantIpNetworkCidrName == vpnTenantIpNetworkOut.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength));
-
-            foreach (var bgpIpNetworkOutboundPolicyItem in bgpIpNetworkOutboundPolicyItemsToDelete)
-            {
-                await this.UnitOfWork.VpnTenantIpNetworkOutRepository.DeleteAsync(bgpIpNetworkOutboundPolicyItem.VpnTenantIpNetworkOutID);
-            }
-
             // Perform updates to the attachment set and save
             await _updateDirector.UpdateAsync(attachmentSetId, update);
             await this.UnitOfWork.SaveAsync();

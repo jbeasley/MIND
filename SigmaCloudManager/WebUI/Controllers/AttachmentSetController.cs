@@ -68,6 +68,17 @@ namespace Mind.WebUI.Controllers
             return PartialView(_mapper.Map<List<SubRegionViewModel>>(subRegions));
         }
 
+        [HttpGet]
+        public async Task<PartialViewResult> TenantIpNetworks(int tenantId)
+        {
+            var tenantIpNetworks = await _unitOfWork.TenantIpNetworkRepository.GetAsync(
+                q =>
+                q.TenantID == tenantId,
+                query: q => q.IncludeDeepProperties());
+
+            return PartialView(_mapper.Map<List<TenantIpNetworkViewModel>>(tenantIpNetworks));
+        }
+
         [HttpPost]
         public IActionResult GetAttachmentSetRoutingInstancesGridData([FromBody]List<AttachmentSetRoutingInstanceRequestViewModel> attachmentSetRoutingInstanceRequests)
         { 
@@ -75,10 +86,17 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpPost]
-        public IActionResult GetBgpIpNetworkInboundPolicyGridData([FromBody]List<VpnTenantIpNetworkInRequestViewModel> bgpIpNetworkInboundPolicy)
+        public IActionResult GetBgpIpNetworkInboundPolicyGridData([FromBody]BgpIpNetworkInboundPolicyRequestViewModel bgpIpNetworkInboundPolicy)
         {
             return ViewComponent("BgpIpNetworkInboundPolicyGridData", new { bgpIpNetworkInboundPolicy });
         }
+
+        [HttpPost]
+        public IActionResult GetBgpIpNetworkOutboundPolicyGridData([FromBody]BgpIpNetworkOutboundPolicyRequestViewModel bgpIpNetworkOutboundPolicy)
+        {
+            return ViewComponent("BgpIpNetworkOutboundPolicyGridData", new { bgpIpNetworkOutboundPolicy });
+        }
+
 
         [HttpGet]
         [ValidateAttachmentSetExists]
@@ -127,7 +145,8 @@ namespace Mind.WebUI.Controllers
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             await PopulateRegionsDropDownList();
             await PopulateAttachmentRedundancyOptionsDropDownList();
-            await PopulateInboundIpNetworksList(tenantId.Value);
+            await PopulateInboundIpNetworksDropDownList(tenantId.Value);
+            await PopulateRemoteTenantsDropDownList();
 
             return View();
         }
@@ -174,7 +193,15 @@ namespace Mind.WebUI.Controllers
             await PopulateSubRegionsDropDownList(requestModel.Region?.ToString(), requestModel.SubRegion?.ToString());
             await PopulateRoutingInstancesDropDownList(tenantId.Value, requestModel.Region?.ToString(), requestModel.SubRegion);
             await PopulateAttachmentRedundancyOptionsDropDownList(requestModel.AttachmentRedundancy);
-            await PopulateInboundIpNetworksList(tenantId.Value);
+            await PopulateInboundIpNetworksDropDownList(tenantId.Value);
+            await PopulateRemoteTenantsDropDownList();
+            var bgpPeers = await GetBgpPeersList(requestModel.AttachmentSetRoutingInstances
+                                           .Select(
+                                                attachmentSetRoutingInstance =>
+                                                attachmentSetRoutingInstance.RoutingInstanceName)
+                                           .ToList());
+            requestModel.BgpIpNetworkInboundPolicy.BgpPeers = bgpPeers;
+            requestModel.BgpIpNetworkOutboundPolicy.BgpPeers = bgpPeers;
 
             return View(requestModel);
         }
@@ -190,7 +217,8 @@ namespace Mind.WebUI.Controllers
                 attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
             await PopulateAttachmentRedundancyOptionsDropDownList(attachmentSet.AttachmentRedundancy.Name);
             await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, attachmentSet.SubRegion.Name);
-            await PopulateInboundIpNetworksList(attachmentSet.TenantID);
+            await PopulateInboundIpNetworksDropDownList(attachmentSet.TenantID);
+            await PopulateRemoteTenantsDropDownList();
 
             return View(_mapper.Map<AttachmentSetUpdateViewModel>(attachmentSet));
         }
@@ -253,7 +281,15 @@ namespace Mind.WebUI.Controllers
                     attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
             await PopulateAttachmentRedundancyOptionsDropDownList(update.AttachmentRedundancy.ToString());
             await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, update.SubRegion);
-            await PopulateInboundIpNetworksList(attachmentSet.TenantID);
+            await PopulateInboundIpNetworksDropDownList(attachmentSet.TenantID);
+            var bgpPeers = await GetBgpPeersList(update.AttachmentSetRoutingInstances
+                                                       .Select(
+                                                            attachmentSetRoutingInstance => 
+                                                            attachmentSetRoutingInstance.RoutingInstanceName)
+                                                       .ToList());
+            update.BgpIpNetworkInboundPolicy.BgpPeers = bgpPeers;
+            update.BgpIpNetworkOutboundPolicy.BgpPeers = bgpPeers;
+            await PopulateRemoteTenantsDropDownList();
 
             return View(update);
         }
@@ -349,7 +385,7 @@ namespace Mind.WebUI.Controllers
                 "Name", "Name", selectedAttachmentRedundancyOption);
         }
 
-        private async Task PopulateInboundIpNetworksList(int tenantId, object selectedIpNetwork = null)
+        private async Task PopulateInboundIpNetworksDropDownList(int tenantId, object selectedIpNetwork = null)
         {
             var query = (from result in await _unitOfWork.TenantIpNetworkRepository.GetAsync(
                     q =>
@@ -359,6 +395,25 @@ namespace Mind.WebUI.Controllers
             var items = query.Select(x => new { Name = x.CidrNameIncludingIpv4LessThanOrEqualToLength, DisplayName = x.CidrNameIncludingIpv4LessThanOrEqualToLength });
 
             ViewBag.InboundIpNetwork = new SelectList(items, "Name", "DisplayName", selectedIpNetwork);
+        }
+
+        private async Task PopulateRemoteTenantsDropDownList(object selectedTenant = null)
+        {
+            var tenants = await _unitOfWork.TenantRepository.GetAsync();
+            ViewBag.RemoteTenant = new SelectList(tenants, "TenantID", "Name", selectedTenant);
+        }
+
+        private async Task<List<ProviderDomainBgpPeerViewModel>> GetBgpPeersList(List<string> routingInstanceNames)
+        {
+            var bgpPeers = (from result in await _unitOfWork.BgpPeerRepository.GetAsync(
+                            q =>
+                            routingInstanceNames.Contains(q.RoutingInstance.Name),
+                            AsTrackable: false)
+                            select result)
+                            .ToList();
+
+            return _mapper.Map<List<ProviderDomainBgpPeerViewModel>>(bgpPeers);
+
         }
     }
 }

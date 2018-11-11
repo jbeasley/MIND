@@ -53,6 +53,9 @@
     <Content Update="WebUI\Views\AttachmentSet\Edit.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
+    <Content Update="WebUI\Views\AttachmentSet\TenantIpNetworks.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
     <Content Update="WebUI\Views\AttachmentSet\_AttachmentSetScriptsPartial.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -60,6 +63,12 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\Shared\Components\AttachmentSetRoutingInstances\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\BgpIpNetworkOutboundPolicy\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\BgpIpNetworkOutboundPolicyGridData\Default.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\Shared\Components\BgpIpNetworkInboundPolicyGridData\Default.cshtml">

@@ -1,50 +1,59 @@
 ﻿@using Mind.WebUI.Models;
-@model IEnumerable<Mind.WebUI.Models.VpnTenantIpNetworkInRequestViewModel>
+@model BgpIpNetworkInboundPolicyRequestViewModel
 
 @if (Model != null)
 {
-    @for (var i = 0; i < Model.Count(); i++)
+    @for (var i = 0; i < Model.VpnTenantIpNetworkInRequests.Count(); i++)
     {
-        var item = Model.ToList()[i];
+        var item = Model.VpnTenantIpNetworkInRequests[i];
 <tr id="bgp-ip-network-inbound-policy-grid-row_@i" data-row-id="@i" data-tenant-id="@item.TenantId" data-cidr-name="@item.TenantIpNetworkCidrName" data-local-ip-routing-preference="@item.LocalIpRoutingPreference"
     data-ipv4-peer-address="@item.Ipv4PeerAddress" data-add-to-all-bgp-peers-in-attachment-set="@item.AddToAllBgpPeersInAttachmentSet">
     <td hidden>
-        <input type="text" name="BgpIpNetworkInboundPolicy[@i].TenantId" value="@item.TenantId" readonly />
+        <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].TenantId" value="@item.TenantId" readonly />
     </td>
-    <td width:20%>
-        <input type="text" name="BgpIpNetworkInboundPolicy[@i].TenantIpNetworkCidrName" value="@item.TenantIpNetworkCidrName" readonly />
+    <td width="20%">
+        <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].TenantIpNetworkCidrName" value="@item.TenantIpNetworkCidrName" readonly />
     </td>
-    <td width:20%>
+    <td width="20%">
         <div class="custom-control custom-checkbox">
-            <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="AddToAllBgpPeersInAttachmentSet_@i"
-                   name="BgpIpNetworkInboundPolicy[@i].AddToAllBgpPeersInAttachmentSet" checked="@item.AddToAllBgpPeersInAttachmentSet" value="@item.AddToAllBgpPeersInAttachmentSet.ToString()">
-            <label class="custom-control-label" for="AddToAllBgpPeersInAttachmentSet_@i"></label>
+            <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="BgpIpNetworkInboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"
+                   name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].AddToAllBgpPeersInAttachmentSet" 
+                   checked="@item.AddToAllBgpPeersInAttachmentSet" value="@item.AddToAllBgpPeersInAttachmentSet.ToString()">
+            <label class="custom-control-label" for="BgpIpNetworkInboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"></label>
         </div>
     </td>
     <td hidden>
-        <input type="text" name="BgpIpNetworkInboundPolicy[@i].AddToAllBgpPeersInAttachmentSet" value="false" />
+        <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].AddToAllBgpPeersInAttachmentSet" value="false" />
     </td>
-    <td width:20%>
-        <select class="form-control" name="BgpIpNetworkInboundPolicy[@i].Ipv4PeerAddress">
+    <td width="30%">
+        <select class="form-control" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].Ipv4PeerAddress">
             <option value="">-- Select BGP Peer --</option>
             @{
-                if (Context.Items["InboundBgpPeer"] != null)
+                if (Model.BgpPeers != null)
                 {
-                    var items = (List<ProviderDomainBgpPeerViewModel>) Context.Items["InboundBgpPeer"];
-                    foreach (var bgpPeer in items)
+                    foreach (var bgpPeer in Model.BgpPeers)
                     {
+                        if (bgpPeer.Ipv4PeerAddress == item.Ipv4PeerAddress)
+                        {
+                            <option value="@bgpPeer.Ipv4PeerAddress" selected>
+                                @bgpPeer.Name
+                            </option>
+                        }
+                        else
+                        {
                         <option value="@bgpPeer.Ipv4PeerAddress">
-                            @bgpPeer.Ipv4PeerAddress
+                            @bgpPeer.Name
                         </option>
+                            }
+                        }
                     }
                 }
-            }
         </select>
     </td>
-    <td width:15%>
-        <input type="number" name="BgpIpNetworkInboundPolicy[@i].LocalIpRoutingPreference" value="@item.LocalIpRoutingPreference" />
+    <td width="15%">
+        <input class="form-control" type="number" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].LocalIpRoutingPreference" value="@item.LocalIpRoutingPreference" />
     </td>
-    <td swidth:25%>
+    <td width="15%">
         <button type="button" id="Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
     </td>
 </tr>

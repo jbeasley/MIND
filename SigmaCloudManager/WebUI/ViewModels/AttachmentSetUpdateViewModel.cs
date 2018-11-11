@@ -78,18 +78,16 @@ namespace Mind.WebUI.Models
         public List<AttachmentSetRoutingInstanceRequestViewModel> AttachmentSetRoutingInstances { get; set; }
 
         /// <summary>
-        /// A list of tenant IP network associations with the bgp inbound policy of the attachment set
+        /// The bgp IP network inbound policy of the attachment set
         /// </summary>
-        /// <value>A list of VpnTenantIpNetworkInRequestViewModel objects</value>
-        [Display(Name = "BGP IP Network Inbound Policy")]
-        public List<VpnTenantIpNetworkInRequestViewModel> BgpIpNetworkInboundPolicy { get; set; }
+        /// <value>An instance of BgpIpNetworkInboundPolicyRequestViewModel</value>
+        public BgpIpNetworkInboundPolicyRequestViewModel BgpIpNetworkInboundPolicy { get; set; }
 
         /// <summary>
-        /// A list of tenant IP network associations with the bgp outbound policy of the attachment set
+        /// The bgp IP network outbound policy of the attachment set
         /// </summary>
-        /// <value>A list of VpnTenantIpNetworkOutRequestViewModel objects</value>
-        [Display(Name = "BGP IP Network Outbound Policy")]
-        public List<VpnTenantIpNetworkOutRequestViewModel> BgpIpNetworkOutboundPolicy { get; set; }
+        /// <value>An instance of BgpIpNetworkOutboundPolicyRequestViewModel</value>
+        public BgpIpNetworkOutboundPolicyRequestViewModel BgpIpNetworkOutboundPolicy { get; set; }
 
         /// <summary>
         /// Concurrency token for the model

@@ -68,6 +68,15 @@ namespace Mind.Api.Models
         public string Ipv4PeerAddress { get; private set; }
 
         /// <summary>
+        /// Denotes whether the tenant IP network is advertised on all BGP peers that are configured within the attachment set. This property 
+        /// cannot be used concurrently with the 'Ipv4PeerAddress' property.
+        /// </summary>
+        /// <value>Boolean denoting whether the tenant IP network is advertised on all BGP peers that exist within the attachment set</value>
+        /// <example>true</example>
+        [DataMember(Name = "associatedWithAllBgpPeersInAttachmentSet")]
+        public bool? AssociatedWithAllBgpPeersInAttachmentSet { get; private set; }
+
+        /// <summary>
         /// The routing preference advertised with the route for the tenant IP network
         /// </summary>
         /// <value>An integer denoting the advertised IP routing preference</value>
@@ -87,6 +96,7 @@ namespace Mind.Api.Models
             sb.Append("  TenantIpNetworkId: ").Append(TenantIpNetworkId).Append("\n");
             sb.Append("  CidrName: ").Append(CidrName).Append("\n");
             sb.Append("  Ipv4PeerAddress: ").Append(Ipv4PeerAddress).Append("\n");
+            sb.Append("  AssociatedWithAllBgpPeersInAttachmentSet: ").Append(AssociatedWithAllBgpPeersInAttachmentSet).Append("\n");
             sb.Append("  AdvertisedIpRoutingPreference: ").Append(AdvertisedIpRoutingPreference).Append("\n");
             sb.Append("  AttachmentSetName: ").Append(AttachmentSetName).Append("\n");
             sb.Append("}\n");
@@ -151,6 +161,11 @@ namespace Mind.Api.Models
                                 AdvertisedIpRoutingPreference.Equals(other.AdvertisedIpRoutingPreference)
                             ) &&
                             (
+                                AssociatedWithAllBgpPeersInAttachmentSet == other.AssociatedWithAllBgpPeersInAttachmentSet ||
+                                AssociatedWithAllBgpPeersInAttachmentSet != null &&
+                                AssociatedWithAllBgpPeersInAttachmentSet.Equals(other.AssociatedWithAllBgpPeersInAttachmentSet) 
+                            )&&
+                            (
                                 AttachmentSetName == other.AttachmentSetName ||
                                 AttachmentSetName != null &&
                                 AttachmentSetName.Equals(other.AttachmentSetName)
@@ -175,6 +190,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + CidrName.GetHashCode();
                 if (Ipv4PeerAddress != null)
                     hashCode = hashCode * 59 + Ipv4PeerAddress.GetHashCode();
+                if (AssociatedWithAllBgpPeersInAttachmentSet != null)
+                    hashCode = hashCode * 59 + AssociatedWithAllBgpPeersInAttachmentSet.GetHashCode();
                 if (AdvertisedIpRoutingPreference != null)
                     hashCode = hashCode * 59 + AdvertisedIpRoutingPreference.GetHashCode();
                 if (AttachmentSetName != null)

@@ -1,0 +1,86 @@
+﻿@using Mind.WebUI.Models;
+@model BgpIpNetworkOutboundPolicyRequestViewModel
+
+<h3>BGP IP Network Outbound Policy</h3>
+<section id="bgp-ip-network-inbound-policy">
+    <br />
+    <div class="alert alert-info" role="alert">
+        Select a tenant with networks that you wish to receive into this attachment set and advertise to the 
+        tenant domain directly attached to this attachment set.
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select class="form-control" id="RemoteTenantId" data-toggle="tooltip"
+                    title="Select a tenant with networks to add to the outbound policy" data-placement="right">
+                <option value="">-- Select a Tenant --</option>
+                @{
+                    if (ViewBag.RemoteTenant != null)
+                    {
+                        foreach (SelectListItem item in ViewBag.RemoteTenant)
+                        {
+                            <option value="@item.Value">
+                                @item.Text
+                            </option>
+                        }
+                    }
+                }
+            </select>
+        </div>
+    </div>
+    <div class="alert alert-info" role="alert">
+        Select IP networks to add to the outbound policy of the attachment set. The outbound policy allows networks received from
+        remote tenant domains to be advertised to the directly attached tenant domains of your attachment set.
+    </div>
+    <div class="form-group row">
+        <label class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select class="form-control" id="OutboundIpNetwork" data-toggle="tooltip"
+                    title="Select a CIDR block to add to the attachment set" data-placement="right">
+                <option value="">-- Select CIDR Block --</option>
+                @{
+                    if (ViewBag.OutboundIpNetwork != null)
+                    {
+                        foreach (SelectListItem item in ViewBag.OutboundIpNetwork)
+                        {
+                            <option value="@item.Value" data-cidr-name="@item.Value">
+                                @item.Text
+                            </option>
+                        }
+                    }
+                }
+            </select>
+        </div>
+    </div>
+    <div class="form-group row">
+        <span class="col-sm-2"></span>
+        <div class="col-sm-10">
+            <button type="button" id="addOutboundIpNetwork" class="btn btn-secondary btn-sm"><i class="fas fa-plus-square"></i>&nbsp;Add to Outbound Policy</button>
+        </div>
+    </div>
+    <div class="form-group row">
+        <div class="col-sm-12">
+            <table id="bgp-ip-network-outbound-policy-grid" class="table table-condensed table-hover table-striped mind-grid">
+                <thead>
+                    <tr>
+                        <th style="width:18%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkOutRequests[0].TenantName)</span></th>
+                        <th style="width:20%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkOutRequests[0].TenantIpNetworkCidrName)</span></th>
+                        <th style="width:10%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkOutRequests[0].AddToAllBgpPeersInAttachmentSet)</th>
+                        <th style="width:27%" valign="top">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkOutRequests[0].Ipv4PeerAddress)</th>
+                        <th style="width:15%">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkOutRequests[0].AdvertisedIpRoutingPreference)</th>
+                        <th style="width:10%" valign="top"></th>
+                    </tr>
+                </thead>
+                <tbody style="height: 80px;">
+                        <!-- View component for displaying the grid for the BGP IP Network Outbound Policy
+                 This is put into a separate view component so that the grid data can be reloaded from the server from the client
+                 whenever a new row is added or a row deleted -->
+                        @await Component.InvokeAsync("BgpIpNetworkOutboundPolicyGridData", new
+                        {
+                            bgpIpNetworkOutboundPolicy = Model
+                        })
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

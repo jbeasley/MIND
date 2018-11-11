@@ -117,7 +117,8 @@ namespace Mind.Api.Models
             CreateMap<SCM.Models.VpnTenantIpNetworkOut, Mind.Api.Models.VpnTenantIpNetworkOut>()
                 .ForMember(dst => dst.CidrName, conf => conf.MapFrom(src => src.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength))
                 .ForMember(dst => dst.Ipv4PeerAddress, conf => conf.MapFrom(src => src.BgpPeer.Ipv4PeerAddress))
-                .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name));
+                .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name))
+                .ForMember(dst => dst.AssociatedWithAllBgpPeersInAttachmentSet, conf => conf.MapFrom(src => src.AddToAllBgpPeersInAttachmentSet));
 
             CreateMap<SCM.Models.VpnTenantCommunityOut, Mind.Api.Models.VpnTenantCommunityOut>()
                 .ForMember(dst => dst.CommunityName, conf => conf.MapFrom(src => src.TenantCommunity.Name))

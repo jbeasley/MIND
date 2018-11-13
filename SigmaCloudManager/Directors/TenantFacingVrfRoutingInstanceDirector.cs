@@ -16,6 +16,13 @@ namespace Mind.Builders
             _builder = builder;
         }
 
+        /// <summary>
+        /// Builds a new routing instance for the specified device and (optionally) associated with a specified tenant.
+        /// </summary>
+        /// <param name="deviceId"></param>
+        /// <param name="tenantId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
         public async Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int? tenantId, RoutingInstanceRequest request)
         {
             return await _builder.ForDevice(deviceId)
@@ -24,6 +31,23 @@ namespace Mind.Builders
                                  .WithAdministratorSubField(request?.AdministratorSubField)
                                  .WithAssignedNumberSubField(request?.AssignedNumberSubField)
                                  .WithRoutingInstanceType(RoutingInstanceTypeEnum.TenantFacingVrf.ToString())
+                                 .WithBgpPeers(request?.BgpPeers)
+                                 .WithName(request?.Name)
+                                 .BuildAsync();
+        }
+
+        /// <summary>
+        /// Updates an existing routing instance.
+        /// </summary>
+        /// <param name="routingInstanceId"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<SCM.Models.RoutingInstance> BuildAsync(int routingInstanceId, RoutingInstanceRequest request)
+        {
+            return await _builder.ForRoutingInstance(routingInstanceId)
+                                 .WithAdministratorSubField(request?.AdministratorSubField)
+                                 .WithAssignedNumberSubField(request?.AssignedNumberSubField)
+                                 .WithBgpPeers(request?.BgpPeers)
                                  .WithName(request?.Name)
                                  .BuildAsync();
         }

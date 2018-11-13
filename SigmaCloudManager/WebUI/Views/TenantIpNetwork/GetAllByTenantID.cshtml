@@ -18,16 +18,15 @@
 <h2>IP Networks for Tenant '@ViewBag.Tenant.Name'</h2>
 
 <p>
-    <a asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
+    <a mind-create-btn-link="true" asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
        data-toggle="tooltip" data-placement="right"
        title="Create a new IP network">Create New</a>
 </p>
 <p>
 
-<table class="table table-striped table-hover">
+<table class="table table-striped table-hover mind-grid">
     <thead>
         <tr>
-            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.CidrNameIncludingIpv4LessThanOrEqualToLength)
             </th>
@@ -38,22 +37,20 @@
         </tr>
     </thead>
 
-    <tbody>
+    <tbody class="mind-grid-body-scroll-lg">
         @foreach (var item in Model)
         {
             <tr>
-                <td>
-                    <input type="checkbox" />
-                </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.CidrNameIncludingIpv4LessThanOrEqualToLength)
                 </td>
                 <td></td>
                 <td></td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { tenantIpNetworkId = item.TenantIpNetworkId }) |
-                    @Html.ActionLink("Details", "Details", new { tenantIpNetworkId = item.TenantIpNetworkId }) |
-                    @Html.ActionLink("Delete", "Delete", new { tenantIpNetworkId = item.TenantIpNetworkId })
+                <td></td>
+                <td align="right">
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-tenantIpNetworkId="@item.TenantIpNetworkId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-tenantIpNetworkId="@item.TenantIpNetworkId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-tenantIpNetworkId="@item.TenantIpNetworkId">Delete</a>
                 </td>
             </tr>
         }
@@ -61,7 +58,7 @@
 </table>
 <input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
 
-<a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
+<a mind-nav-link-back-btn="true" asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
 
 
 @section Scripts {

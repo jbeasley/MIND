@@ -30,9 +30,21 @@ namespace Mind.Builders
             return this;
         }
 
+        public IBgpPeerBuilder ForRoutingInstance(RoutingInstance routingInstance)
+        {
+            if (routingInstance != null) _args.Add(nameof(ForRoutingInstance), routingInstance);
+            return this;
+        }
+
         public IBgpPeerBuilder ForDevice(int? deviceId)
         {
             if (deviceId.HasValue) _args.Add(nameof(ForDevice), deviceId);
+            return this;
+        }
+
+        public IBgpPeerBuilder ForBgpPeer(int? bgpPeerId)
+        {
+            if (bgpPeerId.HasValue) _args.Add(nameof(ForBgpPeer), bgpPeerId);
             return this;
         }
 
@@ -74,8 +86,18 @@ namespace Mind.Builders
 
         public async Task<BgpPeer> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForRoutingInstance))) await SetRoutingInstanceAsync();
-            if (_args.ContainsKey(nameof(ForDevice))) await SetRoutingInstanceByDeviceAsync();
+            if (_args.ContainsKey(nameof(ForBgpPeer)))
+            {
+                // Update an existing BGP peer
+                await SetBgpPeerAsync();
+            }
+            else
+            {
+                // Create a new BGP peer
+                if (_args.ContainsKey(nameof(ForRoutingInstance))) await SetRoutingInstanceAsync();
+                if (_args.ContainsKey(nameof(ForDevice))) await SetRoutingInstanceByDeviceAsync();
+            }
+
             if (_args.ContainsKey(nameof(WithIpv4PeerAddress))) _bgpPeer.Ipv4PeerAddress = _args[nameof(WithIpv4PeerAddress)].ToString();
             if (_args.ContainsKey(nameof(WithMaximumRoutes))) _bgpPeer.MaximumRoutes = (int)_args[nameof(WithMaximumRoutes)];
             if (_args.ContainsKey(nameof(WithBfd))) _bgpPeer.IsBfdEnabled = (bool)_args[nameof(WithBfd)];
@@ -89,16 +111,24 @@ namespace Mind.Builders
 
         protected internal virtual async Task SetRoutingInstanceAsync()
         {
-            var routingInstanceId = (int)_args[nameof(ForRoutingInstance)];
-            var routingInstance = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
-                              x =>
-                                x.RoutingInstanceID == routingInstanceId,
-                                AsTrackable: true,
-                                query: q => q.IncludeValidationProperties())
-                                select result)
-                                .SingleOrDefault();
+            if (_args[nameof(ForRoutingInstance)].GetType() == typeof(RoutingInstance))
+            {
+                var routingInstance = (RoutingInstance)_args[nameof(ForRoutingInstance)];
+                _bgpPeer.RoutingInstance = routingInstance;
+            }
+            else
+            {
+                var routingInstanceId = (int)_args[nameof(ForRoutingInstance)];
+                var routingInstance = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                                    x =>
+                                       x.RoutingInstanceID == routingInstanceId,
+                                       AsTrackable: true,
+                                       query: q => q.IncludeValidationProperties())
+                                       select result)
+                                       .SingleOrDefault();
 
-            _bgpPeer.RoutingInstance = routingInstance;
+                _bgpPeer.RoutingInstance = routingInstance;
+            }
         }
 
         protected internal virtual async Task SetRoutingInstanceByDeviceAsync()
@@ -116,6 +146,20 @@ namespace Mind.Builders
                           .SingleOrDefault();
 
             _bgpPeer.RoutingInstance = routingInstance;
+        }
+
+        protected internal virtual async Task SetBgpPeerAsync()
+        {
+            var bgpPeerId = (int)_args[nameof(ForBgpPeer)];
+            var bgpPeer = (from result in await _unitOfWork.BgpPeerRepository.GetAsync(
+                              x =>
+                                x.BgpPeerID == bgpPeerId,
+                                AsTrackable: true,
+                                query: q => q.IncludeValidationProperties())
+                           select result)
+                                .SingleOrDefault();
+
+            _bgpPeer = bgpPeer ?? throw new BuilderUnableToCompleteException($"Could not find the BGP peer with ID '{bgpPeerId}'.");
         }
     }
 }

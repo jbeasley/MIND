@@ -99,7 +99,7 @@
             </div>
             <div class="alert alert-info" role="alert">
                 The topology of the VPN determines how sites connected ot the VPN are able to communicate.
-                For example, selecting the Meshed option for an IP-based VPN allows any site to communicate with 
+                For example, selecting the Meshed option for an IP-based VPN allows any site to communicate with
                 any other site.
             </div>
             <div class="form-group row">
@@ -116,8 +116,8 @@
         <section id="tenancyType">
             <br />
             <div class="alert alert-info" role="alert">
-               Select a tenancy type for the VPN. A tenancy type of 'single' means that only sites which belong to the tenant who owns
-                the VPN can be attached to the VPN. If the tenancy type is 'multi' then any site belonging to any tenant can 
+                Select a tenancy type for the VPN. A tenancy type of 'single' means that only sites which belong to the tenant who owns
+                the VPN can be attached to the VPN. If the tenancy type is 'multi' then any site belonging to any tenant can
                 be attached to the VPN.
             </div>
             <div class="form-group row">
@@ -151,8 +151,8 @@
         <section id="plane">
             <br />
             <div class="alert alert-info" role="alert">
-                Optionally select a provider network plane. If a plane option is selected then only sites which are 
-                attached to the designated plane can participate in the VPN. Typically the plane option is used for 
+                Optionally select a provider network plane. If a plane option is selected then only sites which are
+                attached to the designated plane can participate in the VPN. Typically the plane option is used for
                 'Live/Live' routing where two VPNs, one for each plane, are required.
             </div>
             <div class="form-group row">
@@ -167,10 +167,10 @@
         </section>
 
         <!-- View component for displaying a grid of attachment sets which belong to the vpn -->
-       @await Component.InvokeAsync("VpnAttachmentSets", new
-       {
-           vpnAttachmentSets = Model?.VpnAttachmentSets
-       })
+        @await Component.InvokeAsync("VpnAttachmentSets", new
+        {
+            vpnAttachmentSetRequests = Model?.VpnAttachmentSets
+        })
 
     </div>
 </form>
@@ -194,7 +194,7 @@
 </div>
 
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs List</a>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs</a>
 </div>
 
 @section Scripts {
@@ -230,7 +230,7 @@
                 },
                 onFinished: function (event, currentIndex) {
 
-                   $form.submit();
+                    $form.submit();
                 }
             });
 
@@ -239,15 +239,7 @@
                 $addressFamily = $('#AddressFamily'),
                 addressFamily = $addressFamily[0],
                 $topologyType = $('#TopologyType'),
-                topologyType = $topologyType[0],
-                $tenancyType = $('#TenancyType'),
-                $ownerTenantId = $('#TenantId'),
-                ownerTenantId = $ownerTenantId[0],
-                $participantTenant = $('#TenantName'),
-                participantTenant = $participantTenant[0],
-                $attachmentSet = $('#AttachmentSet'),
-                attachmentSet = $attachmentSet[0],
-                $addAttachmentSetBtn = $('#addAttachmentSet');
+                topologyType = $topologyType[0];
 
             // Handle changes to the protocol type dropdown list selection
             $protocolType.on('change', function (e) {
@@ -274,115 +266,12 @@
                 topologyType.disabled = true;
             }
 
-            $tenancyType.on('change', function (e) {
-
-                attachmentSet.selectedIndex = 0;
-                attachmentSet.disabled = true;
-
-                if (this.value === null || this.value === "") {
-
-                    participantTenant.selectedIndex = 0;
-                    participantTenant.disabled = true;
-                }
-                else {
-
-                    Mind.Utilities.populateElement($participantTenant, uri + "ParticipantTenants", {
-                        ownerTenantId: ownerTenantId.value, tenancyType: this.value
-                    });
-                }
-            });
-
-            $participantTenant.on('change', function (e) {
-
-                if (this.value === null || this.value === "") {
-
-                    attachmentSet.selectedIndex = 0;
-                    attachmentSet.disabled = true;
-                }
-                else {
-
-                    Mind.Utilities.populateElement($attachmentSet, uri + "AttachmentSets", {
-                        tenantName: this.value
-                    });
-                }
-            });
-
-            $addAttachmentSetBtn.on('click', function (e) {
-
-                if (attachmentSet.value !== null && attachmentSet.value !== "") {
-
-                    var $selected = $attachmentSet.find(":selected");
-                    var attachmentSetName = $selected.data('name');
-
-                    var exists = $('#grid')
-                        .find('td > input[type="text"]')
-                        .filter(function () {
-                            return this.value === attachmentSetName;
-                        })
-                        .length > 0;
-
-                    if (exists) {
-
-                        // The attachment set already exists in the table
-                        $("#duplicateItemModal").modal();
-                    }
-                    else {
-
-                        var attachmentRedundancy = $selected.data('attachment-redundancy');
-                        var tenantName = $selected.data('tenant-name');
-                        var regionName = $selected.data('region-name');
-                        var arrName = "VpnAttachmentSets";
-                        var rowId = 0;
-                        var rowCount = $('#grid').find('tbody tr').length;
-                        if (rowCount > 0) {
-                            rowId = rowCount;
-                        }
-
-                        // Create new row and append to the grid 
-                        var row = '<tr id="gridRow_' + rowId + '" data-row-id = ' + rowId + '>' +
-                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].AttachmentSetName" value="' + attachmentSetName + '"></input></td>' +
-                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].TenantName" value="' + tenantName + '"></input></td>' +
-                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].Region" value="' + regionName + '"></input></td>' +
-                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].AttachmentRedundancy" value="' + attachmentRedundancy + '"></input></td>';
-
-                        if (topologyType.value === "HubAndSpoke") {
-                            row = row + '<td><div class="custom-control custom-checkbox"> ' +
-                                '<input class="custom-control-input mind-grid-checkbox" id="IsHub_' + rowId + '" type="checkbox" name="' + arrName + '[' + rowId + '].IsHub" value="false">' +
-                                '<label class="custom-control-label" for="IsHub_' + rowId + '"></label>' +
-                                '</div></td>';
-                        }
-                        else {
-                            row = row + '<td></td>';
-                        }
-
-                        row = row + '<td><button type="button" id="Delete[' + rowId + ']" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id= ' + rowId + '><i class="fas fa-trash"></i></button></td>' +
-                                    '</tr>';
-                            
-                        $('#grid > tbody:last-child').append($(row));
-                    }
-                }
-            });
-
-            //Bind to click event of trash buttons in the grid rows
-            $('#grid').on('click', '.mind-grid-delete-row', function (e) {
-
-                var deleteRowId = $(this).data('row-id');
-                var $row = $('#gridRow_' + deleteRowId);
-                $row.remove();
-            });
-
-            // Bind to checkbox change event to set value - this is needed to send correct boolean value
-            // to the controller on form submit
-            $('#grid').on('change', '.mind-grid-checkbox', function (e) {
-
-                this.value = this.checked;
-            });
-
-
             // Initialise all tool-tips
             $('[data-toggle="tooltip"]').tooltip();
 
         }(jQuery));
 
     </script>
+
+    @{await Html.RenderPartialAsync("_VpnAttachmentSetScriptsPartial");}
 }

@@ -8,7 +8,9 @@ namespace Mind.Builders
 {
     public interface IBgpPeerBuilder
     {
+        IBgpPeerBuilder ForBgpPeer(int? bgpPeerId);
         IBgpPeerBuilder ForRoutingInstance(int? routingInstanceId);
+        IBgpPeerBuilder ForRoutingInstance(RoutingInstance routingInstance);
         IBgpPeerBuilder ForDevice(int? deviceId);
         IBgpPeerBuilder WithIpv4PeerAddress(string ipv4PeerAddess);
         IBgpPeerBuilder WithPeer2ByteAutonomousSystem(int? peer2ByteASNumber);

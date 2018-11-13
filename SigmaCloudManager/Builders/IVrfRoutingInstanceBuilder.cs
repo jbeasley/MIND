@@ -1,4 +1,5 @@
-﻿using SCM.Models;
+﻿using Mind.Models.RequestModels;
+using SCM.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +9,7 @@ namespace Mind.Builders
 {
     public interface IVrfRoutingInstanceBuilder : IRoutingInstanceBuilder
     {
+        IVrfRoutingInstanceBuilder ForRoutingInstance(int? routingInstanceId);
         IVrfRoutingInstanceBuilder ForDevice(int? deviceId);
         IVrfRoutingInstanceBuilder WithTenant(int? tenantId);
         IVrfRoutingInstanceBuilder WithRangeType(string rdRangeType);
@@ -15,5 +17,6 @@ namespace Mind.Builders
         IVrfRoutingInstanceBuilder WithAdministratorSubField(int? rdAdministratorNumberSubField);
         IVrfRoutingInstanceBuilder WithAssignedNumberSubField(int? rdAssignedNumberSubField);
         IVrfRoutingInstanceBuilder WithRoutingInstanceType(string routingInstanceTypeEnum);
+        IVrfRoutingInstanceBuilder WithBgpPeers(List<BgpPeerRequest> bgpPeerRequests);
     }
 }

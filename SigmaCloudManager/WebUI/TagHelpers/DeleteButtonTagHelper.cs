@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 namespace Mind.WebUI.TagHelpers
 {
     /// <summary>
-    /// Extends form action tag helper for a button to add label and image.
+    /// Tag helper for a button to add label and image.
     /// The helper looks for an attribute called 'is-delete-button' in the button markup
     /// </summary>
     [HtmlTargetElement("button", Attributes = "is-delete-button")]
-    public class DeleteButtonTagHelper : FormActionTagHelper
+    public class DeleteButtonTagHelper : TagHelper
     {
-        public DeleteButtonTagHelper(IUrlHelperFactory urlHelperFactory)  : base(urlHelperFactory)
+        public DeleteButtonTagHelper()
         {
         }
 

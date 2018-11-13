@@ -36,7 +36,7 @@
         <div class="form-actions no-color">
             <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button>
             </button> |
-            <a asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Attachments List</a>
+            <a mind-nav-link-back-btn="true"  asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Attachments</a>
         </div>
     </form>
 </div>

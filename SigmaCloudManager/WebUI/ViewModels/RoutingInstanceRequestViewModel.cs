@@ -14,8 +14,16 @@ namespace Mind.WebUI.Models
     /// <summary>
     /// Model of a routing instance request
     /// </summary>
-    public partial class RoutingInstanceRequestViewModel
+    public class RoutingInstanceRequestViewModel
     {
+        public RoutingInstanceRequestViewModel()
+        {
+            // Instantiate new list of BGP peer requests. In the case where all BGP peers have been removed 
+            // using the web UI this will ensure that the corresponding BGP peer records are removed from the database.
+            // An empty list will be passed to the application layer which will be processed as a request to remove all 
+            // existing BGP peers for hte routing instance.
+            BgpPeers = new List<BgpPeerRequestViewModel>();
+        }
 
         /// <summary>
         /// The requested name of the routing instance
@@ -49,6 +57,12 @@ namespace Mind.WebUI.Models
         [Range(1, 4294967295)]
         public int? AssignedNumberSubField { get; set; }
 
+        /// <summary>
+        /// A list of BGP peers to be created within the routing instance.
+        /// </summary>
+        /// <value>A list of BgpPeerRequestViewModel objects</value>
+        public List<BgpPeerRequestViewModel> BgpPeers { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (AdministratorSubField.HasValue)
@@ -56,7 +70,7 @@ namespace Mind.WebUI.Models
                 if (!AssignedNumberSubField.HasValue)
                 {
                     yield return new ValidationResult(
-                        "Both the 'AdministratorSubField' and 'AssignedNumberSubField' arguments are required in order to set a specific " +
+                        "Both the 'Administrator SubField' and 'Assigned Number SubField' arguments are required in order to set a specific " +
                         "route distinguisher value for the routing instance.");
                 }
             }
@@ -66,7 +80,7 @@ namespace Mind.WebUI.Models
                 if (!AdministratorSubField.HasValue)
                 {
                     yield return new ValidationResult(
-                        "Both the 'AdministratorSubField' and 'AssignedNumberSubField' arguments are required in order to set a specific " +
+                        "Both the 'Administrator SubField' and 'Assigned Number SubField' arguments are required in order to set a specific " +
                         "route distinguisher value for the routing instance.");
                 }
             }

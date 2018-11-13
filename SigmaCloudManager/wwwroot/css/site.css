@@ -58,24 +58,14 @@ h5 {
 }
 
 .card-img-top {
-    height: 40%;
-    object-fit:contain;
+    width: 70%;
+    height: 10vw;
 }
 
-.card-body {
-    height: 40%;
-}
-
-.card-footer {
-    height: 20%;
-}
-
-/* For Y-scrollable main content containers such as the list of tenants 
-   25 indicates the scrollable height expressed as a percentage of the element
-*/
-.mind-25-y-scrollable {
-    height: 25%;
-    overflow-y: scroll;
+a.custom-card,
+a.custom-card:hover {
+    color: inherit;
+    text-decoration: none;
 }
 
 .mind-grid {
@@ -83,24 +73,33 @@ h5 {
     word-wrap: break-word;
 }
 
-.mind-grid tbody {
+.mind-grid-body-scroll-md {
+    height:200px;
+}
+
+.mind-grid-body-scroll-lg {
+    height: 300px;
+}
+
+.mind-grid > tbody {
     display: block;
     overflow-y: scroll;
 }
 
-    .mind-grid thead, tbody tr {
-        display: table;
-        width: 100%;
-        table-layout: fixed; /* even columns width , fix width of table too*/
-    }
+.mind-grid > thead, .mind-grid > tbody > tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed; /* even columns width , fix width of table too*/
+ }
 
-.mind-grid thead {
+.mind-grid > thead {
     width: calc( 100% - 1em ) /* scrollbar is average 1em/16px width, remove it from thead width */
 }
 
-.mind-grid > thead > tr > th {
-    vertical-align: top;
-}
+    .mind-grid > thead > tr > th {
+        vertical-align: top;
+        word-wrap: normal;
+    }
 
     /* Style row text content for the grid */
     .mind-grid > tbody > tr > td > input[type="text"] {

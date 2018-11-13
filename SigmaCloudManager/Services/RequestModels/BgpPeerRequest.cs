@@ -1,10 +1,16 @@
 namespace Mind.Models.RequestModels
 { 
     /// <summary>
-    /// Model for BGP peer requests
+    /// Model for BGP peer requests and updates
     /// </summary>
     public class BgpPeerRequest
     {
+        /// <summary>
+        /// The ID of the BGP peer
+        /// </summary>
+        /// <value>Integer value denoting the ID of the BGP peer</value>
+        public int? BgpPeerId { get; set; }
+
         /// <summary>
         /// IPv4 address of the BGP peer
         /// </summary>

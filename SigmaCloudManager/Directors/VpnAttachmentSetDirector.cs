@@ -9,6 +9,8 @@ namespace Mind.Builders
 {
     public class VpnAttachmentSetDirector : IVpnAttachmentSetDirector
     {
+        // Factory for the vpn attachment set builder - the factory ensures we get a unique instance of the builder
+        // for each request which is necessary when constructing a collection of vpn attachment sets
         private readonly Func<IVpnAttachmentSetBuilder> _builderFactory;
 
         public VpnAttachmentSetDirector(Func<IVpnAttachmentSetBuilder> builderFactory)

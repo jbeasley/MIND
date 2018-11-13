@@ -14,7 +14,7 @@
 
 <h2>Edit Attachment Set '@Model.Name'</h2>
 
-<form id="editForm" asp-action="Edit">
+<form id="form" asp-action="Edit">
     <hr />
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <input type="hidden" asp-for="AttachmentSetId" />
@@ -25,7 +25,6 @@
     <div id="editAttachmentSetWizard">
         <h3>Attachment Redundancy</h3>
         <section id="attachment-redundancy">
-            <br />
             <div class="alert alert-info" role="alert">
                 Select a redundancy option.
             </div>
@@ -41,7 +40,6 @@
         </section>
         <h3>Geographic Region</h3>
         <section id="geographic-region">
-            <br />
             <div class="alert alert-info" role="alert">
                 For attachment sets with bronze, silver, or gold level attachment redundancy you must select a sub-region option.
             </div>
@@ -92,7 +90,7 @@
     </div>
 </div>
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachment Sets List</a>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachment Sets</a>
 </div>
 
 @section Scripts {
@@ -102,7 +100,7 @@
 
         (function ($) {
 
-            var $form = $("#editForm"),
+            var $form = $("#form"),
                 $wizard = $("#editAttachmentSetWizard");
 
             //Create wizard

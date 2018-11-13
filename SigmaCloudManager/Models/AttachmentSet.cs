@@ -344,10 +344,6 @@ namespace SCM.Models
             if (this.AttachmentRedundancy == null) throw new IllegalStateException($"An attachment redundancy option for attachment set " +
                 $"'{this.Name}' must be defined.");
 
-            if (this.VpnAttachmentSets.Any()) throw new IllegalStateException($"Attachment set '{this.Name}' is associated with " +
-                $"one or more vpns. Remove the association with the vpns first, then make changes to the attachment set, then re-associate the attachment set " +
-                $"with the vpns.");
-
             if (this.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Bronze ||
             this.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Silver ||
             this.AttachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Gold)
@@ -371,7 +367,7 @@ namespace SCM.Models
                     $"attachment set '{this.Name}'.");
             }
 
-            if (this.VpnAttachmentSets.Select(x => x.Vpn.IsMulticastVpn).Any())
+            if (this.VpnAttachmentSets.Where(x => x.Vpn.IsMulticastVpn).Any())
             {
                 if (this.MulticastVpnDomainType == null)
                 {

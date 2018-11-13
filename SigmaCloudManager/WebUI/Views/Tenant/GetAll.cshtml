@@ -16,132 +16,102 @@
 <h2>Tenants</h2>
 
 <p>
-    <a asp-action="Create">Create New</a>
+    <a asp-action="Create" mind-create-btn-link="true">Create New</a>
 </p>
-<div class="mind-25-y-scrollable">
-    <table class="table table-striped table-hover">
-        <thead>
-            <tr>
-                <th></th>
-                <th>
-                    @Html.DisplayNameFor(model => model.Name)
-                </th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model)
-            {
-                <tr>
-                    <td>
-                        <div class="form-check">
-                            <input class="form-check-input position-static" type="checkbox" aria-label="select-item" data-query-parameter="tenantId=@item.TenantId">
-                        </div>
-                    </td>
-                    <td>
-                        @Html.DisplayFor(modelItem => item.Name)
-                    </td>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                    <td>
-                        @Html.ActionLink("Edit", "Edit", new { tenantId = item.TenantId }) |
-                        @Html.ActionLink("Details", "Details", new { tenantId = item.TenantId }) |
-                        @Html.ActionLink("Delete", "Delete", new { tenantId = item.TenantId })
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
-</div>
+<table class="table table-striped table-hover mind-grid">
+    <thead>
+        <tr>
+            <th></th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody class="mind-grid-body-scroll-md">
+        @foreach (var item in Model)
+        {
+        <tr>
+            <td>
+                <div class="custom-control custom-checkbox">
+                    <input id="tenant_checkbox_@item.TenantId" type="checkbox" class="form-check-input custom-control-input" data-query-parameter="tenantId=@item.TenantId" />
+                    <label class="form-check-label custom-control-label" for="tenant_checkbox_@item.TenantId"></label>
+                </div>
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td align="right">
+                <a mind-grid-btn-link="true" asp-action="Edit" asp-route-tenantId="@item.TenantId">Edit</a>
+                <a mind-grid-btn-link="true" asp-action="Details" asp-route-tenantId="@item.TenantId">Details</a>
+                <a mind-grid-btn-link="true" asp-action="Delete" asp-route-tenantId="@item.TenantId">Delete</a>
+            </td>
+        </tr>
+        }
+    </tbody>
+</table>
 <hr />
 <div class="card-deck">
-    <div class="card">
-        <img class="card-img-top" src="~/images/devices.png" alt="Card image cap">
+    <a href="/#" data-href="/TenantDomainDevices/GetAllByTenantId?" class="card custom-card">
+        <img class="card-img-top mx-auto d-block" src="~/images/devices.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Devices</h5>
             <p class="card-text">Create and manage the lifecycle of devices</p>
         </div>
-        <div class="card-footer">
-            <a href="/#" data-href="/TenantDomainDevices/GetAllByTenantId?" class="btn btn-primary">Go to Devices</a>
-        </div>
-    </div>
-    <div class="card">
-        <img class="card-img-top" src="~/images/attachment.png" alt="Card image cap">
+
+    </a>
+    <a href="/#" data-href="/ProviderDomainAttachment/GetAllByTenantId?" class="card custom-card">
+        <img class="card-img-top mx-auto d-block" src="~/images/attachment.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Attachments</h5>
             <p class="card-text">Create and manage the lifecycle of Attachments to Sigma</p>
         </div>
-        <div class="card-footer">
-            <a href="/#" data-href="/ProviderDomainAttachment/GetAllByTenantId?" class="btn btn-primary">Go to Attachments</a>
-        </div>
-    </div>
-    <div class="card">
-        <img class="card-img-top" src="~/images/attachment-set.png" alt="Card image cap">
+    </a>
+    <a href="/#" data-href="/AttachmentSet/GetAllByTenantId?" class="card custom-card">
+        <img class="card-img-top mx-auto d-block" src="~/images/attachment-set.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Attachment Sets</h5>
             <p class="card-text">Create and manage the lifecycle of Attachment Sets</p>
         </div>
-        <div class="card-footer">
-            <a href="/#" data-href="/AttachmentSet/GetAllByTenantId?" class="btn btn-primary">Go to Attachment Sets</a>
-        </div>
-    </div>
-    <div class="card">
-        <img class="card-img-top" src="~/images/ip-networks.png" alt="Card image cap">
+    </a>
+    <a href="/#" data-href="/TenantIpNetwork/GetAllByTenantId?" class="card custom-card">
+        <img class="card-img-top mx-auto d-block" src="~/images/ip-networks.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">IP Networks</h5>
             <p class="card-text">Create and manage the lifecycle of IP Networks</p>
         </div>
-        <div class="card-footer">
-            <a href="/#" data-href="/TenantIpNetwork/GetAllByTenantId?" class="btn btn-primary">Go to IP Networks</a>
-        </div>
-    </div>
+    </a>
 </div>
 <br />
 <div class="card-deck">
-    <div class="card">
-        <img class="card-img-top" src="~/images/communities.png" alt="Card image cap">
+    <a href="/#" data-href="/TenantCommunity/GetAllByTenantId?" class="card custom-card">
+        <img class="card-img-top mx-auto d-block" src="~/images/communities.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Communities</h5>
             <p class="card-text">Create and manage the lifecycle of Communities</p>
         </div>
-        <div class="card-footer">
-            <a href="/#" data-href="/TenantCommunity/GetAllByTenantId?" class="btn btn-primary">Go to Communities</a>
-        </div>
-    </div>
-    <div class="card">
-        <img class="card-img-top" src="~/images/community-sets.png" alt="Card image cap">
+    </a>
+    <a href="/#" ata-href="/TenantCommunitySet/GetAllByTenantId?" class="card custom-card">
+        <img class="card-img-top mx-auto d-block" src="~/images/community-sets.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Community Sets</h5>
             <p class="card-text">Create and manage the lifecycle of Community Sets</p>
         </div>
-        <div class="card-footer">
-            <a href="/#" data-href="/TenantCommunitySet/GetAllByTenantId?" class="btn btn-primary">Go to Community Sets</a>
-        </div>
-    </div>
-    <div class="card">
-        <img class="card-img-top" src="~/images/router.png" alt="Card image cap">
+    </a>
+    <a href="/#" data-href="/TenantMulticastGroup/GetAllByTenantId?" class="card custom-card">
+        <img class="card-img-top mx-auto d-block" src="~/images/router.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Multicast Groups</h5>
             <p class="card-text">Create and manage the lifecycle of Multicast Groups</p>
         </div>
-        <div class="card-footer">
-            <a href="/#" data-href="/TenantMulticastGroup/GetAllByTenantId?" class="btn btn-primary">Go to Multicast Groups</a>
-        </div>
-    </div>
-    <div class="card">
-        <img class="card-img-top" src="~/images/network.png" alt="Card image cap">
+    </a>
+    <a href="/#" data-href="/VPN/GetAllByTenantId?" class="card custom-card">
+        <img class="card-img-top mx-auto d-block" src="~/images/network.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Virtual Private Networks</h5>
             <p class="card-text">Create and manage the lifecycle of VPNs</p>
         </div>
-        <div class="card-footer">
-            <a href="/#" data-href="/VPN/GetAllByTenantId?" class="btn btn-primary">Go to VPNs</a>
-        </div>
-    </div>
+    </a>
 </div>
 <div class="modal fade" id="selectItemModal" tabindex="-1" role="dialog" aria-labelledby="selectItemModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
@@ -196,7 +166,7 @@
                 }
             }
 
-            $(".btn-primary").click(function (e) {
+            $(".custom-card").click(function (e) {
                 e.preventDefault();
 
                 var $inputs = $(".form-check-input:checkbox:checked");

@@ -33,11 +33,12 @@
                     "RoutingInstanceName": routingInstanceName
                 });
 
-                // Refresh the routing instances grid, then the BGP IP network inbound policy
-                // grid must be refreshed in order to refresh the BGP peer dropdown list options
+                // Refresh the routing instances grid, then the BGP IP network inbound and outbound policy
+                // grids must be refreshed in order to refresh the BGP peer dropdown list options
                 RefreshRoutingInstanceGrid(arr)
                     .then(function () {
                         RefreshBgpIpNetworkInboundPolicyGrid();
+                        RefreshBgpIpNetworkOutboundPolicyGrid();
                 });
             }
         }
@@ -359,10 +360,10 @@
     // Re-apply validation to the form so that validation rules for the new inputs are created
     function RefreshValidation() {
 
-        var $form = $('#createForm');
+        var $form = $('#form');
         $form.removeData('validator');
         $form.removeData('unobtrusiveValidation');
-        $.validator.unobtrusive.parse('#createForm');
+        $.validator.unobtrusive.parse('#form');
     }
 
 }(jQuery));

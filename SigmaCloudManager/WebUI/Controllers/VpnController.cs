@@ -38,6 +38,12 @@ namespace Mind.WebUI.Controllers
             return View(_mapper.Map<VpnViewModel>(item));
         }
 
+        [HttpPost]
+        public IActionResult GetVpnAttachmentSetsGridData([FromBody]List<VpnAttachmentSetRequestViewModel> vpnAttachmentSetRequests)
+        {
+            return ViewComponent("VpnAttachmentSetsGridData", new { vpnAttachmentSetRequests });
+        }
+
         [HttpGet]
         public async Task<PartialViewResult> AddressFamilies (string protocolType)
         {

@@ -1,4 +1,6 @@
-﻿using SCM.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using Mind.Models.RequestModels;
+using SCM.Data;
 using SCM.Models;
 using SCM.Services;
 using System;
@@ -13,10 +15,15 @@ namespace Mind.Builders
     /// </summary>
     public class VrfRoutingInstanceBuilder : BaseBuilder, IVrfRoutingInstanceBuilder
     {
-        private readonly RoutingInstance _routingInstance;
+        private RoutingInstance _routingInstance;
+        private readonly IProviderDomainBgpPeerDirector _bgpPeerDirector;
+        private readonly IBgpPeerUpdateDirector _bgpPeerUpdateDirector;
 
-        public VrfRoutingInstanceBuilder(IUnitOfWork unitOfWork) : base (unitOfWork)
+        public VrfRoutingInstanceBuilder(IUnitOfWork unitOfWork, IProviderDomainBgpPeerDirector bgpPeerDirector, 
+            IBgpPeerUpdateDirector bgpPeerUpdateDirector) : base (unitOfWork)
         {
+            _bgpPeerDirector = bgpPeerDirector;
+            _bgpPeerUpdateDirector = bgpPeerUpdateDirector;
             _routingInstance = new RoutingInstance
             {
                 Name = Guid.NewGuid().ToString("N")
@@ -26,6 +33,12 @@ namespace Mind.Builders
         public virtual IVrfRoutingInstanceBuilder ForDevice(int? deviceId)
         {
             if (deviceId.HasValue) _args.Add(nameof(ForDevice), deviceId);
+            return this;
+        }
+
+        public virtual IVrfRoutingInstanceBuilder ForRoutingInstance(int? routingInstanceId)
+        {
+            if (routingInstanceId.HasValue) _args.Add(nameof(ForRoutingInstance), routingInstanceId);
             return this;
         }
 
@@ -65,11 +78,27 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IVrfRoutingInstanceBuilder WithBgpPeers(List<BgpPeerRequest> bgpPeerRequests) 
+        {
+            if (bgpPeerRequests != null) _args.Add(nameof(WithBgpPeers), bgpPeerRequests);
+            return this;
+        }
+
         public virtual async Task<RoutingInstance> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
-            if (_args.ContainsKey(nameof(WithTenant))) await SetTenantAsync();
-            if (_args.ContainsKey(nameof(WithRoutingInstanceType))) await SetRoutingInstanceTypeAsync();
+            if (_args.ContainsKey(nameof(ForRoutingInstance)))
+            {
+                // Update an existing routing instance
+                await SetRoutingInstanceAsync();
+            }
+            else
+            {
+                // Create a new routing instance
+                if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
+                if (_args.ContainsKey(nameof(WithTenant))) await SetTenantAsync();
+                if (_args.ContainsKey(nameof(WithRoutingInstanceType))) await SetRoutingInstanceTypeAsync();
+            }
+
             if (_args.ContainsKey(nameof(WithName))) SetName();
             if (_args.ContainsKey(nameof(WithAdministratorSubField)) &&
                 _args.ContainsKey(nameof(WithAssignedNumberSubField)))
@@ -80,21 +109,42 @@ namespace Mind.Builders
             {
                 await AssignRouteDistinguisherAsync();
             }
+            if (_args.ContainsKey(nameof(WithBgpPeers))) await ModifyBgpPeersAsync();
 
             _routingInstance.Validate();
             return _routingInstance;
+        }
+
+        /// <summary>
+        /// Get the existing routing instance from the database
+        /// </summary>
+        /// <returns></returns>
+        /// <remarks>The BgpPeers property must be included in order to perform any required updates
+        /// on the BGP peers</remarks>
+        protected internal virtual async Task SetRoutingInstanceAsync()
+        {
+            var routingInstanceId = (int)_args[nameof(ForRoutingInstance)];
+            var routingInstance = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                                q =>
+                                   q.RoutingInstanceID == routingInstanceId,
+                                   query: q => q.IncludeValidationProperties(),                           
+                                   AsTrackable: true)
+                                   select result)
+                                   .SingleOrDefault();
+
+            _routingInstance = routingInstance ?? throw new BuilderBadArgumentsException($"The routing instance with ID '{routingInstanceId}' was not found.");
         }
 
         protected internal virtual async Task SetDeviceAsync()
         {
             var deviceId = (int)_args[nameof(ForDevice)];
             var device = (from result in await _unitOfWork.DeviceRepository.GetAsync(
-                    q =>
-                        q.DeviceID == deviceId,
-                        query: q => q.IncludeValidationProperties(),
-                        AsTrackable: true)
+                        q =>
+                          q.DeviceID == deviceId,
+                          query: q => q.IncludeValidationProperties(),
+                          AsTrackable: true)
                           select result)
-                        .SingleOrDefault();
+                          .SingleOrDefault();
 
             _routingInstance.Device = device;
         }
@@ -103,7 +153,7 @@ namespace Mind.Builders
         {
             var tenantId = (int)_args[nameof(WithTenant)];
             var tenant = (from result in await _unitOfWork.TenantRepository.GetAsync(
-                     q =>
+                        q =>
                           q.TenantID == tenantId,
                           AsTrackable: true)
                           select result)
@@ -116,7 +166,7 @@ namespace Mind.Builders
         {
             var routingInstanceTypeName = _args[nameof(WithRoutingInstanceType)].ToString();
             var routingInstanceType = (from result in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
-                                q =>
+                                    q =>
                                        q.Type.ToString() == routingInstanceTypeName,
                                        AsTrackable: true)
                                        select result)
@@ -135,11 +185,11 @@ namespace Mind.Builders
         {
             var rdRangeType = _args[nameof(WithRangeType)].ToString();
             var rdRange = (from result in await _unitOfWork.RouteDistinguisherRangeRepository.GetAsync(
-                    q => 
-                        q.Type.ToString() == rdRangeType,
-                        AsTrackable: true)
-                        select result)
-                        .SingleOrDefault();
+                        q => 
+                          q.Type.ToString() == rdRangeType,
+                          AsTrackable: true)
+                          select result)
+                         .SingleOrDefault();
 
             if (rdRange == null)
             {
@@ -172,13 +222,13 @@ namespace Mind.Builders
             var rdAdministratorSubField = (int)_args[nameof(WithAdministratorSubField)];
             var rdAssignedNumberSubField = (int)_args[nameof(WithAssignedNumberSubField)];
             var rdRange = (from result in await _unitOfWork.RouteDistinguisherRangeRepository.GetAsync(
-                    q =>
-                        q.AdministratorSubField == rdAdministratorSubField &&
-                        rdAssignedNumberSubField >= q.AssignedNumberSubFieldStart && 
-                        rdAssignedNumberSubField < q.AssignedNumberSubFieldStart + q.AssignedNumberSubFieldCount,
-                        AsTrackable: true)
-                           select result)
-                        .SingleOrDefault();
+                        q =>
+                          q.AdministratorSubField == rdAdministratorSubField &&
+                          rdAssignedNumberSubField >= q.AssignedNumberSubFieldStart && 
+                          rdAssignedNumberSubField < q.AssignedNumberSubFieldStart + q.AssignedNumberSubFieldCount,
+                          AsTrackable: true)
+                          select result)
+                         .SingleOrDefault();
 
             if (rdRange == null)
             {
@@ -189,6 +239,44 @@ namespace Mind.Builders
             _routingInstance.AdministratorSubField = rdRange.AdministratorSubField;
             _routingInstance.AssignedNumberSubField = rdAssignedNumberSubField;
             _routingInstance.RouteDistinguisherRange = rdRange;
+        }
+
+        /// <summary>
+        /// Modify the BGPPeers collection of the routing instance.
+        /// </summary>
+        /// <returns></returns>
+        protected internal virtual async Task ModifyBgpPeersAsync() 
+        {
+            var requests = (List<BgpPeerRequest>)_args[nameof(WithBgpPeers)];
+
+            // Create new BGP peers
+            var newBgpRequests = requests.Where(x => !x.BgpPeerId.HasValue).ToList();
+            var newBgpPeers = await _bgpPeerDirector.BuildAsync(this._routingInstance, newBgpRequests);
+
+            // Update existing BGP peers
+            var updateBgpRequests = requests.Where(x => x.BgpPeerId.HasValue).ToList();
+            var updatedBgpPeers = await _bgpPeerUpdateDirector.UpdateAsync(updateBgpRequests);
+
+            // Validate requests to delete BGP peers
+            if (_routingInstance.BgpPeers.Any())
+            {
+                var deleteBgpPeers = _routingInstance.BgpPeers.Where(
+                                                               bgpPeer =>
+                                                               !requests.Select(
+                                                               request =>
+                                                               request.BgpPeerId)
+                                                               .Contains(bgpPeer.BgpPeerID)
+                );
+
+                foreach (var deleteBgpPeer in deleteBgpPeers)
+                {
+                    deleteBgpPeer.ValidateDelete();
+                }
+            }
+
+            // Modify the BGP peers collection on the routing instance
+            var bgpPeers = newBgpPeers.Concat(updatedBgpPeers);
+            this._routingInstance.BgpPeers = bgpPeers.ToList();
         }
     }
 }

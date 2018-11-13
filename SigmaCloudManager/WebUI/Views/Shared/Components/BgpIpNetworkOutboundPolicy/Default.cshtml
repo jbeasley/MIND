@@ -3,7 +3,6 @@
 
 <h3>BGP IP Network Outbound Policy</h3>
 <section id="bgp-ip-network-inbound-policy">
-    <br />
     <div class="alert alert-info" role="alert">
         Select a tenant with networks that you wish to receive into this attachment set and advertise to the 
         tenant domain directly attached to this attachment set.
@@ -12,7 +11,7 @@
         <label class="col-sm-2 col-form-label"></label>
         <div class="col-sm-10">
             <select class="form-control" id="RemoteTenantId" data-toggle="tooltip"
-                    title="Select a tenant with networks to add to the outbound policy" data-placement="right">
+                    title="Select a tenant with networks to add to the outbound policy" data-placement="left">
                 <option value="">-- Select a Tenant --</option>
                 @{
                     if (ViewBag.RemoteTenant != null)
@@ -32,9 +31,9 @@
         Select IP networks to add to the outbound policy of the attachment set. The outbound policy allows networks received from
         remote tenant domains to be advertised to the directly attached tenant domains of your attachment set.
     </div>
-    <div class="form-group row">
+    <div class="form-inline row">
         <label class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-10">
+        <div class="col-sm-3">
             <select class="form-control" id="OutboundIpNetwork" data-toggle="tooltip"
                     title="Select a CIDR block to add to the attachment set" data-placement="right">
                 <option value="">-- Select CIDR Block --</option>
@@ -51,13 +50,11 @@
                 }
             </select>
         </div>
-    </div>
-    <div class="form-group row">
-        <span class="col-sm-2"></span>
-        <div class="col-sm-10">
-            <button type="button" id="addOutboundIpNetwork" class="btn btn-secondary btn-sm"><i class="fas fa-plus-square"></i>&nbsp;Add to Outbound Policy</button>
+        <div class="col-sm-3">
+            <button type="button" id="addOutboundIpNetwork" class="btn btn-secondary btn-sm" is-add-button></button>
         </div>
     </div>
+    <br/>
     <div class="form-group row">
         <div class="col-sm-12">
             <table id="bgp-ip-network-outbound-policy-grid" class="table table-condensed table-hover table-striped mind-grid">
@@ -71,8 +68,8 @@
                         <th style="width:10%" valign="top"></th>
                     </tr>
                 </thead>
-                <tbody style="height: 80px;">
-                        <!-- View component for displaying the grid for the BGP IP Network Outbound Policy
+                <tbody style="height: 140px;">
+                 <!-- View component for displaying the grid for the BGP IP Network Outbound Policy
                  This is put into a separate view component so that the grid data can be reloaded from the server from the client
                  whenever a new row is added or a row deleted -->
                         @await Component.InvokeAsync("BgpIpNetworkOutboundPolicyGridData", new

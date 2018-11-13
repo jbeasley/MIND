@@ -14,7 +14,7 @@
 
 <h2>Create an Attachment Set for Tenant '@ViewBag.Tenant.Name'</h2>
 
-<form id="createForm" asp-action="Create">
+<form id="form" asp-action="Create">
     <hr />
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <input type="hidden" asp-for="TenantId" value="@ViewBag.Tenant.TenantId" />
@@ -22,7 +22,7 @@
         <h3>Attachment Redundancy</h3>
         <section id="attachment-redundancy">
             <br />
-            <div class="alert alert-info" role="alert">
+            <div class="alert alert-info form-text" aria-describedby="AttachmentRedundancy">
                 Select a redundancy option.
             </div>
             <div class="form-group row">
@@ -37,7 +37,6 @@
         </section>
         <h3>Protocol Layer Option</h3>
         <section id="protocol-layer">
-            <br />
             <div class="alert alert-info" role="alert">
                 Create a layer 2 attachment set for inter-connecting tenant domains via an Ethernet VPN.
                 Create a layer 3 attachment set for inter-connecting tenant domains with an IP VPN.
@@ -55,7 +54,6 @@
         </section>
         <h3>Geographic Region</h3>
         <section id="geographic-region">
-            <br />
             <div class="alert alert-info" role="alert">
                 Select a region for the attachment set. When you add routing instances to the attachment set they must
                 all belong to the designated region.
@@ -119,7 +117,7 @@
     </div>
 </div>
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachment Sets List</a>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachment Sets</a>
 </div>
 
 @section Scripts {
@@ -129,7 +127,7 @@
 
         (function ($) {
 
-            var $form = $("#createForm"),
+            var $form = $("#form"),
                 $wizard = $("#createAttachmentSetWizard");
 
             //Create wizard

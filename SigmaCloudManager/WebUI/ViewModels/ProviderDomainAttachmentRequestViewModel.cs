@@ -167,6 +167,5 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>An object of type RoutingInstanceRequest</value>
         public RoutingInstanceRequestViewModel RoutingInstance { get; set; }
-
     }
 }

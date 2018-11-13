@@ -18,7 +18,7 @@
 <h2>VPNs for Tenant '@ViewBag.Tenant.Name'</h2>
 
 <p>
-    <a asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
+    <a mind-create-btn-link="true" asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
        data-toggle="tooltip" data-placement="right"
        title="Create a new vpn">Create New</a>
 </p>
@@ -27,16 +27,12 @@
 <table class="table table-striped table-hover">
     <thead>
         <tr>
-            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.IsNovaVpn)
             </th>
-            <th></th>
-            <th></th>
-            <th></th>
             <th></th>
         </tr>
     </thead>
@@ -46,20 +42,15 @@
         {
             <tr>
                 <td>
-                    <input type="checkbox" />
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
                     @Html.DisplayFor(modelItem => item.IsNovaVpn)
                 </td>
-                <td></td>
-                <td></td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { vpnId = item.VpnId }) |
-                    @Html.ActionLink("Details", "Details", new { vpnId = item.VpnId }) |
-                    @Html.ActionLink("Delete", "Delete", new { vpnId = item.VpnId })
+                <td align="right">
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-vpnId="@item.VpnId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-vpnId="@item.VpnId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-vpnId="@item.VpnId">Delete</a>
                 </td>
             </tr>
         }
@@ -67,7 +58,7 @@
 </table>
 <input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
 
-<a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
+<a mind-nav-link-back-btn="true" asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
 
 
 @section Scripts {

@@ -18,6 +18,9 @@ namespace Mind.WebUI.Models
     {
         public ProviderDomainAttachmentUpdateViewModel()
         {
+            // Instantiate a new instance of the routing instance request model. This is necessary in order to 
+            // instantiate properties of the routing instance such as the list of BGP peers and handle user actions
+            // in the web UI such as the removal of all BGP peers which belong to the routing instance.
             RoutingInstance = new RoutingInstanceRequestViewModel();
         }
 
@@ -33,7 +36,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>string value denoting the name of the attachment</value>
         /// <example>TenGigabitEthernet0/0</example>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// The required contract bandwidth in Mbps
@@ -112,7 +115,8 @@ namespace Mind.WebUI.Models
         public List<Ipv4AddressAndMaskViewModel> Ipv4Addresses { get; set; }
 
         /// <summary>
-        /// Optional parameters for creating a new routing instance to be associated with the existing attachment.
+        /// Optional parameters for use when creating a new routing instance or for performing updates on the 
+        /// existing routing instance associated with the attachment set.
         /// </summary>
         /// <value>An object of type RoutingInstanceRequest</value>
         public RoutingInstanceRequestViewModel RoutingInstance { get; set; }

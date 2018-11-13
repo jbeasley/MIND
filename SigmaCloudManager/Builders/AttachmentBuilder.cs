@@ -47,7 +47,7 @@ namespace Mind.Builders
             return this;
         }
 
-        public IAttachmentBuilder<TAttachmentBuilder> ForAttachment(int? attachmentId)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> ForAttachment(int? attachmentId)
         {
             if (attachmentId.HasValue) _args.Add(nameof(ForAttachment), attachmentId);
             return this;
@@ -156,11 +156,24 @@ namespace Mind.Builders
 
                 if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
                 {
+                    // Associate a pre-existing routing instance with the attachment (may be the same routing instance as currently associated)
                     await AssociateExistingRoutingInstanceAsync();
+                    if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                    {
+                        // Perform any updates on the existing routing instance, e.g. add/modify/delete BGP peers
+                        await UpdateRoutingInstanceAsync();
+
+                    }
                 }
                 else if (_args.ContainsKey(nameof(WithNewRoutingInstance)) && (bool)_args[nameof(WithNewRoutingInstance)])
                 {
+                    // Create a new routing instance for the attachment
                     await CreateRoutingInstanceAsync();
+                }
+                else if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                {
+                    // Update the existing routing instance of the attachment, e.g.add/modify/delete BGP peers
+                    await UpdateRoutingInstanceAsync();
                 }
             }
             else
@@ -192,14 +205,17 @@ namespace Mind.Builders
 
                 if (_args.ContainsKey(nameof(UseDefaultRoutingInstance)))
                 {
+                    // Associate the default routing instance with teh attachment
                     await AssociateDefaultRoutingInstanceAsync();
                 }
                 else if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
                 {
+                    // Associate a pre-existing routing instance with the attachment
                     await AssociateExistingRoutingInstanceAsync();
                 }
                 else
                 {
+                    // Create a new routing instance for the attachment
                     await CreateRoutingInstanceAsync();
                 }
             }
@@ -225,6 +241,11 @@ namespace Mind.Builders
         /// </summary>
         protected abstract internal void SetNumberOfPortsRequired();
 
+        /// <summary>
+        /// Validate that the attachment role is valid. This method is implemented by derived classes and should be called
+        /// as part of the Build process prior to any attempt to allocate ports for the attachment. This prevents an attempt 
+        /// to allocate ports for an invalid requested attachment role which would result in generic 'no ports available' exception.
+        /// </summary>
         protected abstract internal void CheckAttachmentRoleIsValid();
 
         protected internal virtual async Task SetTenantAsync()
@@ -392,6 +413,22 @@ namespace Mind.Builders
 
                 _attachment.RoutingInstanceID = null;
                 _attachment.RoutingInstance = routingInstance;
+            }
+        }
+
+        protected internal virtual async Task UpdateRoutingInstanceAsync()
+        {
+            if (_attachment.AttachmentRole.RoutingInstanceType != null)
+            {
+                var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
+                                        q =>
+                                           q.RoutingInstanceTypeID == _attachment.AttachmentRole.RoutingInstanceType.RoutingInstanceTypeID)
+                                           select routingInstanceTypes)
+                                           .Single();
+
+                var routingInstanceRequest = (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)];
+                var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
+                await routingInstanceDirector.BuildAsync(routingInstanceId: _attachment.RoutingInstance.RoutingInstanceID, request: routingInstanceRequest);
             }
         }
 

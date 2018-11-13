@@ -216,7 +216,6 @@ namespace Mind
             // Validators to validate inbound requests from clients
             services.AddScoped<IPortValidator, PortValidator>();
             services.AddScoped<IRouteTargetValidator, RouteTargetValidator>();
-            services.AddScoped<IRoutingInstanceValidator, RoutingInstanceValidator>();
             services.AddScoped<IVpnValidator, VpnValidator>();
             services.AddScoped<IExtranetVpnMemberValidator, ExtranetVpnMemberValidator>();
             services.AddScoped<IExtranetVpnTenantCommunityInValidator, ExtranetVpnTenantCommunityInValidator>();
@@ -740,7 +739,6 @@ namespace Mind
             builder.RegisterType<VifBuilder>().As<IVifBuilder>();
             builder.RegisterType<IpVpnBuilder>().As<IIpVpnBuilder>();
             builder.RegisterType<BgpPeerBuilder>().As<IBgpPeerBuilder>();
-            builder.RegisterType<BgpPeerUpdateBuilder>().As<IBgpPeerUpdateBuilder>();
             builder.RegisterType<TenantIpNetworkBuilder>().As<ITenantIpNetworkBuilder>();
             builder.RegisterType<TenantCommunityBuilder>().As<ITenantCommunityBuilder>();
             builder.RegisterType<VpnAttachmentSetBuilder>().As<IVpnAttachmentSetBuilder>();

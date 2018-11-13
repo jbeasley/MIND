@@ -111,6 +111,12 @@ namespace Mind.WebUI.Controllers
             return PartialView(_mapper.Map<List<AttachmentRoleViewModel>>(attachmentRoles));
         }
 
+        [HttpPost]
+        public IActionResult GetBgpPeerGridData([FromBody]List<BgpPeerRequestViewModel> bgpPeerRequests)
+        {
+            return ViewComponent("BgpPeersGridData", new { bgpPeerRequests });
+        }
+
         [HttpGet]
         [ValidateProviderDomainAttachmentExists]
         public async Task<IActionResult> Details(int? attachmentId)
@@ -267,6 +273,11 @@ namespace Mind.WebUI.Controllers
                     }
 
                     catch (IllegalStateException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (IllegalDeleteAttemptException ex)
                     {
                         ModelState.AddModelError(string.Empty, ex.Message);
                     }

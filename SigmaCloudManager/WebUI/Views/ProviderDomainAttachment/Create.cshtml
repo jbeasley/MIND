@@ -120,7 +120,7 @@
             </div>
             <div class="alert alert-info" role="alert">
                 Selet an attachment role. The attachment determines certain parameters regarding how the attachment will be logically provisioned,
-                such as whether IP addressing and contract bandwidth is required. 
+                such as whether IP addressing and contract bandwidth is required.
             </div>
             <div class="form-group row">
                 <label asp-for="AttachmentRoleName" class="col-sm-2 col-form-label"></label>
@@ -186,6 +186,13 @@
                 </div>
             </div>
         </section>
+
+        <!-- View component for creating BGP peers -->
+        @await Component.InvokeAsync("BgpPeers", new
+        {
+            bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
+        })
+
         <h3>Description and Notes</h3>
         <section id="description-and-notes">
             <div class="alert alert-info" role="alert">
@@ -210,7 +217,7 @@
 </form>
 
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments List</a>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments</a>
 </div>
 
 @section Scripts {

@@ -25,8 +25,7 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.ProviderDomainAttachmentUpdateViewModel>()
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
                 .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
-                .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo))
-                .ForMember(dst => dst.RoutingInstance, conf => conf.Ignore());
+                .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
 
             CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.ProviderDomainAttachmentDeleteViewModel>()
                 .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
@@ -67,6 +66,9 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.ProviderDomainRoutingInstanceViewModel>()
                 .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
                 .ForMember(dst => dst.ProviderPlaneName, conf => conf.MapFrom(src => src.Device.Plane.Name));
+
+            CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.RoutingInstanceRequestViewModel>()
+                .ForMember(dst => dst.RangeType, conf => conf.MapFrom(src => src.RouteDistinguisherRange.Type));
 
             CreateMap<SCM.Models.AttachmentSet, Mind.WebUI.Models.AttachmentSetViewModel>()
                 .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name))

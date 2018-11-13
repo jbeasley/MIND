@@ -14,7 +14,7 @@
 
 <h2>Edit VPN '@Model.Name'</h2>
 
-<form id="editForm" asp-action="Edit">
+<form id="form" asp-action="Edit">
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <input type="hidden" asp-for="VpnId" />
     <input type="hidden" asp-for="TenantId" />
@@ -95,8 +95,7 @@
         <!-- View component for displaying a grid of attachment sets which belong to the vpn -->
         @await Component.InvokeAsync("VpnAttachmentSets", new
         {
-            vpnId = Model.VpnId,
-            vpnAttachmentSets = Model.VpnAttachmentSets
+            vpnAttachmentSetRequests = Model.VpnAttachmentSets
         })
 
     </div>
@@ -121,7 +120,7 @@
 </div>
 
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs List</a>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs</a>
 </div>
 
 @section Scripts {
@@ -131,7 +130,7 @@
 
         (function ($) {
 
-            var $form = $("#editForm"),
+            var $form = $("#form"),
                 $wizard = $("#editVpnWizard");
 
             const uri = "/Vpn/";
@@ -157,124 +156,8 @@
                 },
                 onFinished: function (event, currentIndex) {
 
-                   $form.submit();
+                    $form.submit();
                 }
-            });
-
-            var $tenancyType = $('#TenancyType'),
-                $ownerTenantId = $('#TenantId'),
-                ownerTenantId = $ownerTenantId[0],
-                $participantTenant = $('#TenantName'),
-                participantTenant = $participantTenant[0],
-                $attachmentSet = $('#AttachmentSet'),
-                attachmentSet = $attachmentSet[0],
-                $addAttachmentSetBtn = $('#addAttachmentSet'),
-                $topologyType = $('#TopologyType'),
-                topologyType = $topologyType[0];
-
-            $tenancyType.on('change', function (e) {
-
-                attachmentSet.selectedIndex = 0;
-                attachmentSet.disabled = true;
-
-                if (this.value === null || this.value === "") {
-
-                    participantTenant.selectedIndex = 0;
-                    participantTenant.disabled = true;
-                }
-                else {
-
-                    Mind.Utilities.populateElement($participantTenant, uri + "ParticipantTenants", {
-                        ownerTenantId: ownerTenantId.value, tenancyType: this.value
-                    });
-                }
-            });
-
-            $participantTenant.on('change', function (e) {
-
-                if (this.value === null || this.value === "") {
-
-                    attachmentSet.selectedIndex = 0;
-                    attachmentSet.disabled = true;
-                }
-                else {
-
-                    Mind.Utilities.populateElement($attachmentSet, uri + "AttachmentSets", {
-                        tenantName: this.value
-                    });
-                }
-            });
-
-            $addAttachmentSetBtn.on('click', function (e) {
-
-                if (attachmentSet.value !== null || attachmentSet.value !== "") {
-
-                    var $selected = $attachmentSet.find(":selected");
-                    var attachmentSetName = $selected.data('name');
-
-                    var exists = $('#grid')
-                        .find('td > input[type="text"]')
-                        .filter(function () {
-                            return this.value === attachmentSetName;
-                        })
-                        .length > 0;
-
-                    if (exists) {
-
-                        // The attachment set already exists in the table
-                        $("#duplicateItemModal").modal();
-                    }
-                    else {
-
-                        var attachmentRedundancy = $selected.data('attachment-redundancy');
-                        var tenantName = $selected.data('tenant-name');
-                        var regionName = $selected.data('region-name');
-                        var arrName = "VpnAttachmentSets";
-                        var rowId = $('#grid').find('tbody tr').length;
-                      
-                        // Create new row and append to the grid 
-                        var row = '<tr id="gridRow_' + rowId + '" data-row-id = ' + rowId + '>' +
-                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].AttachmentSetName" value="' + attachmentSetName + '"></input></td>' +
-                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].TenantName" value="' + tenantName + '"></input></td>' +
-                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].Region" value="' + regionName + '"></input></td>' +
-                            '<td><input type="text" readonly name="' + arrName + '[' + rowId + '].AttachmentRedundancy" value="' + attachmentRedundancy + '"></input></td>';
-
-                        if (topologyType.value === "HubAndSpoke") {
-                            row = row + '<td><div class="custom-control custom-checkbox"> ' +
-                                '<input class="custom-control-input mind-grid-checkbox" id="IsHub_' + rowId + '" type="checkbox" name="' + arrName + '[' + rowId + '].IsHub" value="false">' +
-                                '<label class="custom-control-label" for="IsHub_' + rowId + '"></label>' +
-                                '</div></td>';
-                        }
-                        else {
-                            row = row + '<td></td>';
-                        }
-
-                        row = row + '<td><button type="button" id="Delete[' + rowId + ']" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id= ' + rowId + '><i class="fas fa-trash"></i></button></td>' +
-                                    '</tr>';
-                            
-                        $('#grid > tbody:last-child').append($(row));
-                    }
-                }
-            });
-
-            //Bind to click event of trash buttons in the grid rows
-            $('#grid').on('click', '.mind-grid-delete-row', function (e) {
-
-                var deleteRowId = $(this).data('row-id');
-                var $row = $('#gridRow_' + deleteRowId);
-                $row.remove();
-            });
-
-            // Bind to checkbox change event to set value - this is needed to send correct boolean value
-            // to the controller on form submit
-            $('#grid').on('change', '.mind-grid-checkbox', function (e) {
-
-                this.value = this.checked;
-            });
-
-            $('.mind-grid-checkbox').each(function () {
-
-                this.value = this.checked;
             });
 
             // Initialise all tool-tips
@@ -283,4 +166,6 @@
         }(jQuery));
 
     </script>
+
+    @{await Html.RenderPartialAsync("_VpnAttachmentSetScriptsPartial");}
 }

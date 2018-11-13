@@ -1,0 +1,85 @@
+﻿@using Mind.WebUI.Models;
+@model BgpPeerRequestViewModel
+
+<!-- Modal form for creating a BGP peer -->
+<div class="modal fade" id="createBgpPeerModal" tabindex="-1" role="dialog" aria-labelledby="createBgpPeerModalTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg" role="document">
+        <div class="modal-content">
+            <form id="createBgpPeerForm">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="createBgpPeerModalTitle">Create a new BGP Peer</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group row">
+                        <label asp-for="Ipv4PeerAddress" class="col-sm-4 col-form-label"> </label>
+                        <div class="col-sm-8">
+                            <input asp-for="Ipv4PeerAddress" class="form-control" />
+                            <span asp-validation-for="Ipv4PeerAddress" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="Peer2ByteAutonomousSystem" class="col-sm-4 col-form-label"> </label>
+                        <div class="col-sm-8">
+                            <input asp-for="Peer2ByteAutonomousSystem" class="form-control" />
+                            <span asp-validation-for="Peer2ByteAutonomousSystem" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="PeerPassword" class="col-sm-4 col-form-label"> </label>
+                        <div class="col-sm-8">
+                            <input asp-for="PeerPassword" class="form-control" />
+                            <span asp-validation-for="PeerPassword" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        Select this checkbox if you want Bidirectional Forwarding Detection (BFD) enabled for this BGP peer.
+                        BFD enables very fast detection of network failuress which can cause the BGP protocol to fail. You should enable
+                        this option if you care about fast failure detection and failover of routing to an alternate path.
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-sm-4" asp-for="IsBfdEnabled"></label>
+                        <div class="col-sm-8">
+                            <div class="custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input" type="checkbox" asp-for="IsBfdEnabled" data-toggle="tooltip"
+                                       data-placement="right" title="Enable BFD for this BGP peer" data-default-value="@Model.IsBfdEnabled">
+                                <label class="form-check-label custom-control-label" for="IsBfdEnabled"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        Select this checkbox if the BGP speaker within the tenant domain is not within the same IP subnet
+                        as the provider side of the BGP peering connection. You should enable this option if there is one or more IP hop
+                        between the provider BGP speaker and the tenant BGP speaker, such as a router or firewall.
+                    </div>
+                    <div class="form-group row">
+                        <label class="col-form-label col-sm-4" asp-for="IsMultiHop"></label>
+                        <div class="col-sm-8">
+                            <div class="custom-control custom-checkbox">
+                                <input class="form-check-input custom-control-input" type="checkbox" asp-for="IsMultiHop" data-toggle="tooltip"
+                                       data-placement="right" title="Enable multi-hop for this BGP peer">
+                                <label class="form-check-label custom-control-label" for="IsMultiHop"></label>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="alert alert-info" role="alert">
+                        Specify the maximum number of routes which will be accepted.
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="MaximumRoutes" class="col-sm-4 col-form-label"> </label>
+                        <div class="col-sm-8">
+                            <input asp-for="MaximumRoutes" class="form-control" data-default-value="@Model.MaximumRoutes" />
+                            <span asp-validation-for="MaximumRoutes" class="text-danger"></span>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="button" id="saveBgpPeer" class="btn btn-success" is-save-button></button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

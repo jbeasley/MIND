@@ -111,6 +111,10 @@ namespace SCM.Models
                         .ThenInclude(x => x.TenantMulticastGroup)
                         .Include(x => x.VpnAttachmentSets)
                         .ThenInclude(x => x.AttachmentSet.MulticastVpnDomainType)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.AttachmentRedundancy)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.Region)
                         .Include(x => x.RouteTargets)
                         .ThenInclude(x => x.RouteTargetRange)
                         .Include(x => x.AddressFamily);

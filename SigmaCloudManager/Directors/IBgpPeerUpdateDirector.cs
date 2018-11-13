@@ -11,5 +11,6 @@ namespace Mind.Builders
     public interface IBgpPeerUpdateDirector
     {
         Task<BgpPeer> UpdateAsync(int bgpPeerId, BgpPeerRequest request);
+        Task<List<BgpPeer>> UpdateAsync(List<BgpPeerRequest> requests);
     }
 }

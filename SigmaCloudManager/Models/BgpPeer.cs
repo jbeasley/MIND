@@ -39,6 +39,14 @@ namespace SCM.Models
                         .ThenInclude(x => x.TenantIpNetwork);
         }
 
+        /// <summary>
+        /// Include delete validation properties in query results.
+        /// </summary>
+        /// <param name="query"></param>
+        /// <returns></returns>
+        /// <remarks>The IncludeValidationProperties method of the RoutingInstance entity must also be updated when this 
+        /// method is updated with the same set of BGP properties. This is needed because BGP peers can be deleted as a result 
+        /// of modifying the BGP peers collection of a routign instance.</remarks>
         public static IQueryable<BgpPeer> IncludeDeleteValidationProperties(this IQueryable<BgpPeer> query)
         {
             return query.Include(x => x.VpnTenantCommunitiesIn)
@@ -116,12 +124,13 @@ namespace SCM.Models
         public virtual void Validate()
         {
             if (this.RoutingInstance == null) throw new IllegalStateException("A routing instance for the BGP peer is required.");
-            if (this.Peer2ByteAutonomousSystem < 1 || this.Peer2ByteAutonomousSystem > 65535)
-                throw new IllegalStateException("The 2 byte autonomous system number requested is not valid. The number must be between " +
-                    "1 and 65535.");
-
+ 
             if (!IPAddress.TryParse(this.Ipv4PeerAddress, out IPAddress peerIpv4Address))
                 throw new IllegalStateException("The peer address is not a valid IPv4 address");
+
+            if (this.Peer2ByteAutonomousSystem < 1 || this.Peer2ByteAutonomousSystem > 65535)
+                throw new IllegalStateException($"The 2 byte autonomous system number requested is not valid for BGP peer '{this.Ipv4PeerAddress}'. The number must be between " +
+                    "1 and 65535.");
 
             // For non-multihop peers, the peer IP address must be reachable from at least one vif or attachment which
             // belongs to the routing instance
@@ -166,7 +175,7 @@ namespace SCM.Models
                .ToList()
                .ForEach(x =>
                     {
-                        sb.Append("The BGP Peer cannot be deleted because community " +
+                        sb.Append($"BGP Peer '{this.Ipv4PeerAddress}' cannot be deleted because community " +
                         $"'{x.TenantCommunity.Name}' is applied to the inbound policy of ");
 
                         if (x.AttachmentSet != null)
@@ -184,7 +193,7 @@ namespace SCM.Models
                 .ToList()
                 .ForEach(x =>
                     {
-                        sb.Append("The BGP Peer cannot be deleted because community " +
+                        sb.Append($"BGP Peer '{this.Ipv4PeerAddress}' cannot be deleted because community " +
                         $"'{x.TenantCommunity.Name}' is applied to the outbound policy of ");
 
                         if (x.AttachmentSet != null)
@@ -202,7 +211,7 @@ namespace SCM.Models
                 .ToList()
                 .ForEach(x =>
                     {
-                        sb.Append("The BGP Peer cannot be deleted because IP network " +
+                        sb.Append($"BGP Peer '{this.Ipv4PeerAddress}' cannot be deleted because IP network " +
                         $"'{x.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is applied to the inbound policy of ");
 
                         if (x.AttachmentSet != null)
@@ -220,7 +229,7 @@ namespace SCM.Models
                 .ToList()
                 .ForEach(x =>
                     {
-                        sb.Append("The BGP Peer cannot be deleted because IP network " +
+                        sb.Append($"BGP Peer '{this.Ipv4PeerAddress}' cannot be deleted because IP network " +
                         $"'{x.TenantIpNetwork.CidrNameIncludingIpv4LessThanOrEqualToLength}' is applied to the outbound policy of ");
 
                         if (x.AttachmentSet != null)

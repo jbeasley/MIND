@@ -1,4 +1,6 @@
 
+using System.Collections.Generic;
+
 namespace Mind.Models.RequestModels
 {
     /// <summary>
@@ -29,5 +31,11 @@ namespace Mind.Models.RequestModels
         /// </summary>
         /// <value>An integer value denoting the requested assigned-number sub-field of the routing instance</value>
         public int? AssignedNumberSubField { get; set; }
+
+        /// <summary>
+        /// A list of BGP peer requests for BGP peers to be associated with the routing instance
+        /// </summary>
+        /// <value>A list of BgpPeerRequest objects</value>
+        public List<BgpPeerRequest> BgpPeers { get; set; }
     }
 }

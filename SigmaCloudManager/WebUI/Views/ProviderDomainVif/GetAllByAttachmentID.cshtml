@@ -30,14 +30,14 @@
 <h2>VIFs for Attachment '@ViewBag.Attachment.Name'</h2>
 
 <p>
-    <a asp-action="Create" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId"
+    <a mind-create-btn-link="true" asp-action="Create" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId"
        data-toggle="tooltip" data-placement="right"
        title="Create a VIF to connect a Tenant Domain to the Provider Domain across the tagged Attachment.
        For example, create a VIF on a PE to connect the PE to a data-center.">Create New</a>
 </p>
 <p>
 
-<table class="table table-striped table-hover" id="vifsTable">
+<table class="table table-striped table-hover mind-grid" id="vifsTable">
     <thead>
         <tr>
             <th>
@@ -47,13 +47,10 @@
                 @Html.DisplayNameFor(model => model.IsLayer3)
             </th>
             <th></th>
-            <th></th>
-            <th></th>
-            <th></th>
         </tr>
     </thead>
 
-    <tbody>
+    <tbody class="mind-grid-body-scroll-lg">
         @foreach (var item in Model)
         {
             <tr>
@@ -63,13 +60,10 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.IsLayer3)
                 </td>
-                <td></td>
-                <td></td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { vifId = item.VifId }) |
-                    @Html.ActionLink("Details", "Details", new { vifId = item.VifId }) |
-                    @Html.ActionLink("Delete", "Delete", new { vifID = item.VifId }) |
-                    @Html.ActionLink("Vlans", "GetAllByVifID", new { vifId = item.VifId })
+                <td align="right">
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-vifId="@item.VifId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-vifId="@item.VifId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-vifId="@item.VifId">Delete</a>
                 </td>
             </tr>
         }
@@ -77,7 +71,7 @@
 </table>
 <input type="hidden" name="attachmentId" id="attachmentId" value="@ViewBag.Attachment.TenantId" />
 
-<a asp-controller="ProviderDomainAttachment" asp-action="GetAllByTenantID" asp-route-tenantId="@ViewBag.Attachment.TenantId">Back to Attachments</a>
+<a mind-nav-link-back-btn="true" asp-controller="ProviderDomainAttachment" asp-action="GetAllByTenantID" asp-route-tenantId="@ViewBag.Attachment.TenantId">Back to Attachments</a>
 
 
 @section Scripts {

@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 namespace Mind.WebUI.TagHelpers
 {
     /// <summary>
-    /// Extends form action tag helper for a button to add label and image.
+    /// Tag helper for a button to add label and image.
     /// The helper looks for an attribute called 'is-save-button' in the button markup
     /// </summary>
     [HtmlTargetElement("button", Attributes = "is-save-button")]
-    public class SaveButtonTagHelper : FormActionTagHelper
+    public class SaveButtonTagHelper : TagHelper
     {
-        public SaveButtonTagHelper(IUrlHelperFactory urlHelperFactory)  : base(urlHelperFactory)
+        public SaveButtonTagHelper()
         {
         }
 

@@ -11,5 +11,7 @@ namespace Mind.Builders
     public interface IProviderDomainBgpPeerDirector
     {
         Task<BgpPeer> BuildAsync(int routingInstanceId, BgpPeerRequest request);
+        Task<BgpPeer> BuildAsync(RoutingInstance routingInstance, BgpPeerRequest request);
+        Task<List<BgpPeer>> BuildAsync(RoutingInstance routingInstance, List<BgpPeerRequest> requests);
     }
 }

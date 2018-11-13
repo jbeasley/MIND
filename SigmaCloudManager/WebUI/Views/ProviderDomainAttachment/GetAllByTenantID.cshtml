@@ -29,22 +29,18 @@
 <h2>Attachments for Tenant '@ViewBag.Tenant.Name'</h2>
 
 <p>
-    <a asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
+    <a mind-create-btn-link="true" asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
        data-toggle="tooltip" data-placement="right"
        title="Create an Attachment to connect a Tenant Domain to the Provider Domain
        For example, create an Attachment on a PE to connect the PE to a data-center.">Create New</a>
 </p>
 <p>
 
-<table class="table table-striped table-hover" id="attachmentsTable">
+<table class="table table-striped table-hover mind-grid" id="attachmentsTable">
     <thead>
         <tr>
-            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.InfrastructureDeviceName)
             </th>
             <th>
                 @Html.DisplayNameFor(model => model.AttachmentRoleName)
@@ -57,52 +53,41 @@
             </th>
             <th></th>
             <th></th>
-            <th></th>
-            <th></th>
         </tr>
     </thead>
 
-    <tbody>
+    <tbody class="mind-grid-body-scroll-lg">
         @foreach (var item in Model)
         {
-            <tr>
-                <td>
-                    <input type="checkbox" />
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Name)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.InfrastructureDeviceName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.AttachmentRoleName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsTagged)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.IsLayer3)
-                </td>
-                <td></td>
-                <td></td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { attachmentId = item.AttachmentId }) |
-                    @Html.ActionLink("Details", "Details", new { attachmentId = item.AttachmentId }) |
-                    @Html.ActionLink("Delete", "Delete", new { attachmentID = item.AttachmentId }) |
-                    @Html.ActionLink("Interfaces", "GetAllByAttachmentID", "ProviderDomainInterface", new { attachmentId = item.AttachmentId })
-                    @if (item.IsTagged)
-                    {
-                        <span>|</span> @Html.ActionLink("VIFs", "GetAllByAttachmentID", "ProviderDomainVif", new { attachmentId = item.AttachmentId })
-                    }
-                </td>
-            </tr>
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.Name)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AttachmentRoleName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsTagged)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IsLayer3)
+            </td>
+            <td colspan="2" align="right">
+                @if (item.IsTagged)
+                {
+                    <a mind-grid-btn-link="true" asp-action="GetAllByAttachmentId" asp-controller="ProviderDomainVif" asp-route-attachmentId="@item.AttachmentId">Vifs</a>
+                }
+                <a mind-grid-btn-link="true" asp-action="Edit" asp-route-attachmentId="@item.AttachmentId">Edit</a>
+                <a mind-grid-btn-link="true" asp-action="Details" asp-route-attachmentId="@item.AttachmentId">Details</a>
+                <a mind-grid-btn-link="true" asp-action="Delete" asp-route-attachmentId="@item.AttachmentId">Delete</a>
+            </td>
+        </tr>
         }
     </tbody>
 </table>
 <input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
 
-<a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
+<a mind-nav-link-back-btn="true" asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
 
 
 @section Scripts {

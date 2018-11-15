@@ -17,6 +17,12 @@ namespace Mind.WebUI.Models
     public class VpnAttachmentSetRequestViewModel
     {
         /// <summary>
+        /// The topology type of the VPN for which the attachment set is to be associated.
+        /// </summary>
+        /// <value>Enum of type TopologyTypeEnum denoting the topology type of the vpn</value>
+        public TopologyTypeEnum VpnTopologyType { get; set; }
+
+        /// <summary>
         /// /The name of the tenant owner of the attachment set
         /// </summary>
         /// <value>String value denoting the name of the tenant</value>

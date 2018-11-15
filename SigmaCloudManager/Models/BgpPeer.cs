@@ -136,26 +136,31 @@ namespace SCM.Models
             // belongs to the routing instance
             if (!this.IsMultiHop)
             {
-                var vlan = this.RoutingInstance.Vifs.SelectMany(
+                var vlan = this.RoutingInstance.Vifs?.SelectMany(
                     x =>
                     x.Vlans)
                      .ToList()
                      .FirstOrDefault(
                         x =>
                         {
-                            var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
-                            return network.Contains(peerIpv4Address);
+                            if (IPNetwork.TryParse(x.IpAddress, x.SubnetMask, out IPNetwork network)) {
+                                return network.Contains(peerIpv4Address);
+                            }
+                            return false;
                         });
 
-                var iface = this.RoutingInstance.Attachments.SelectMany(
+                var iface = this.RoutingInstance.Attachments?.SelectMany(
                     x =>
                     x.Interfaces)
                      .ToList()
                      .FirstOrDefault(
                         x =>
                         {
-                            var network = IPNetwork.Parse(x.IpAddress, x.SubnetMask);
-                            return network.Contains(peerIpv4Address);
+                            if (IPNetwork.TryParse(x.IpAddress, x.SubnetMask, out IPNetwork network))
+                            {
+                                return network.Contains(peerIpv4Address);
+                            }
+                            return false;
                         });
 
                 if (vlan == null && iface == null)

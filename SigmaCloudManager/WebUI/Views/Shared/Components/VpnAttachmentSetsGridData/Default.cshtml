@@ -1,4 +1,5 @@
-﻿@model IEnumerable<Mind.WebUI.Models.VpnAttachmentSetRequestViewModel>
+﻿@using Mind.WebUI.Models;
+@model IEnumerable<Mind.WebUI.Models.VpnAttachmentSetRequestViewModel>
 
 
 @if (Model != null)
@@ -8,6 +9,7 @@
         var item = Model.ToList()[i];
         <tr id="attachment-set-grid-row_@i" data-row-id="@i" data-name="@item.AttachmentSetName" data-attachment-redundancy="@item.AttachmentRedundancy"
             data-is-hub="@item.IsHub" data-region="@item.Region" data-tenant-name="@item.TenantName">
+            <td hidden><input type="text" name="VpnAttachmentSets[@i].VpnTopologyType" value="@item.VpnTopologyType"/></td>
             <td width="30%">
                 <input type="text" name="VpnAttachmentSets[@i].AttachmentSetName" value="@item.AttachmentSetName" readonly />
             </td>
@@ -21,12 +23,15 @@
                 <input type="text" name="VpnAttachmentSets[@i].AttachmentRedundancy" value="@item.AttachmentRedundancy" readonly />
             </td>
             <td width="10%">
-                <div class="custom-control custom-checkbox">
-                    <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="IsHub_@i"
-                           name="VpnAttachmentSets[@i].IsHub" checked="@item.IsHub" value="@item.IsHub">
-                    <label class="custom-control-label" for="IsHub_@i"></label>
-                </div>
-            </td>
+                @if (item.VpnTopologyType == Mind.WebUI.TopologyTypeEnum.HubAndSpoke)
+                {
+                    <div class="custom-control custom-checkbox">
+                        <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="IsHub_@i"
+                               name="VpnAttachmentSets[@i].IsHub" checked="@item.IsHub" value="@item.IsHub.ToString()">
+                        <label class="custom-control-label" for="IsHub_@i"></label>
+                    </div>
+                }
+                </td>
             <td width="10%">
                 <button type="button" id="Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
             </td>

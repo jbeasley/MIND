@@ -154,6 +154,8 @@ namespace Mind.Builders
                 // Find and update an existing attachment
                 await SetAttachmentAsync();
 
+                SetIpv4();
+
                 if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
                 {
                     // Associate a pre-existing routing instance with the attachment (may be the same routing instance as currently associated)
@@ -162,7 +164,6 @@ namespace Mind.Builders
                     {
                         // Perform any updates on the existing routing instance, e.g. add/modify/delete BGP peers
                         await UpdateRoutingInstanceAsync();
-
                     }
                 }
                 else if (_args.ContainsKey(nameof(WithNewRoutingInstance)) && (bool)_args[nameof(WithNewRoutingInstance)])
@@ -202,6 +203,7 @@ namespace Mind.Builders
 
                 await AllocatePortsAsync();
                 CreateInterfaces();
+                SetIpv4();
 
                 if (_args.ContainsKey(nameof(UseDefaultRoutingInstance)))
                 {
@@ -220,7 +222,6 @@ namespace Mind.Builders
                 }
             }
 
-            SetIpv4();
             await SetMtuAsync();
 
             if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
@@ -407,8 +408,7 @@ namespace Mind.Builders
 
                 var routingInstanceRequest = _args.ContainsKey(nameof(WithRoutingInstance)) ? (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)] : null;
                 var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
-                var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _attachment.Device.DeviceID,
-                                                                               tenantId: _attachment.Tenant?.TenantID,
+                var routingInstance = await routingInstanceDirector.BuildAsync(attachment: this._attachment,
                                                                                request: routingInstanceRequest);
 
                 _attachment.RoutingInstanceID = null;

@@ -24,6 +24,22 @@ namespace Mind.WebUI.Models
         public string AttachmentSetName { get; private set; }
 
         /// <summary>
+        /// The name of the region to which the attachment set belongs
+        /// </summary>
+        /// <value>A string denoting the name of the region</value>
+        /// <example>EMEA</example>
+        [Display(Name = "Region")]
+        public string Region { get; set; }
+
+        /// <summary>
+        /// The redundancy setting configured for the attachment set
+        /// </summary>
+        /// <value>A string denoting the redundancy setting</value>
+        /// <example>Bronze</example>
+        [Display(Name = "Attachment Redundancy")]
+        public string AttachmentRedundancy { get; set; }
+
+        /// <summary>
         /// Denotes whether the attachment set is designated as a hub for a hub-and-spoke vpn to which the attachment set is bound.
         /// </summary>
         /// <value>Boolean value denoting whether the attachment set is a hub</value>

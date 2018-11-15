@@ -250,6 +250,11 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
+            catch (IllegalDeleteAttemptException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();

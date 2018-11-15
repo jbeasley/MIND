@@ -156,8 +156,8 @@ namespace Mind.WebUI.Models
         /// <summary>
         /// Attachment Sets which are bound to the vpn
         /// </summary>
-        /// <value>A list of AttachmentSetViewModel objects</value>
-        [Display(Name = "Attachment Set")]
-        public List<AttachmentSetViewModel> AttachmentSets { get; private set; }
+        /// <value>A list of VpnAttachmentSetViewModel objects</value>
+        [Display(Name = "Attachment Sets")]
+        public List<VpnAttachmentSetViewModel> VpnAttachmentSets { get; private set; }
     }
 }

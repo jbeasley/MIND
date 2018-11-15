@@ -26,13 +26,22 @@ namespace Mind.Builders
             _bgpPeerUpdateDirector = bgpPeerUpdateDirector;
             _routingInstance = new RoutingInstance
             {
-                Name = Guid.NewGuid().ToString("N")
+                Name = Guid.NewGuid().ToString("N"),
+                Attachments = new List<Attachment>(),
+                Vifs = new List<Vif>(),
+                BgpPeers = new List<BgpPeer>()
             };
         }
 
         public virtual IVrfRoutingInstanceBuilder ForDevice(int? deviceId)
         {
             if (deviceId.HasValue) _args.Add(nameof(ForDevice), deviceId);
+            return this;
+        }
+
+        public virtual IVrfRoutingInstanceBuilder ForAttachment(Attachment attachment)
+        {
+            if (attachment != null) _args.Add(nameof(ForAttachment), attachment);
             return this;
         }
 
@@ -96,6 +105,7 @@ namespace Mind.Builders
                 // Create a new routing instance
                 if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
                 if (_args.ContainsKey(nameof(WithTenant))) await SetTenantAsync();
+                if (_args.ContainsKey(nameof(ForAttachment))) SetAttachment();
                 if (_args.ContainsKey(nameof(WithRoutingInstanceType))) await SetRoutingInstanceTypeAsync();
             }
 
@@ -148,7 +158,25 @@ namespace Mind.Builders
 
             _routingInstance.Device = device;
         }
-         
+
+        protected internal virtual void SetAttachment()
+        {
+            var attachment = (Attachment)_args[nameof(ForAttachment)];
+            // Add the attachment to the Attachments collection of the routing instance here.
+            // This supports validation checks such as validation of any BGP peers where the Ip addressing assigned to the attachment
+            // is checked against the BGP peer address (see the BgpPeer model Validation method)
+            _routingInstance.Attachments.Add(attachment);
+
+            // Override any previous device association with the device association of the attachment. The attachment is more specific and 
+            // must take precedence in order to avoid conflict (e.g. device of the attachment is not the same as the supplied device argument
+            _routingInstance.Device = attachment.Device;
+            _routingInstance.DeviceID = attachment.Device.DeviceID;
+
+            // Similarly override any previous tenant association to ensure consistency
+            _routingInstance.Tenant = attachment.Tenant;
+            _routingInstance.TenantID = attachment.TenantID;
+        }
+
         protected internal virtual async Task SetTenantAsync()
         {
             var tenantId = (int)_args[nameof(WithTenant)];

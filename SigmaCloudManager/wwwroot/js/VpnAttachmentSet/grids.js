@@ -2,7 +2,9 @@
 (function ($) {
 
     var $attachmentSet = $('#AttachmentSet'),
-        attachmentSet = $attachmentSet[0];
+        attachmentSet = $attachmentSet[0],
+        $vpnTopologyType = $('#TopologyType'),
+        vpnTopologyType = $vpnTopologyType[0];
 
     // Handle addition of attachment set to vpn
     $('#addAttachmentSet').on('click', function (e) {
@@ -33,6 +35,7 @@
 
                 var arr = [];
                 arr.push({
+                    "VpnTopologyType": vpnTopologyType.value,
                     "AttachmentSetName": attachmentSetName,
                     "tenantName": tenantName,
                     "region": region,
@@ -53,7 +56,7 @@
         $row.remove();
 
         // Refresh the attachment set grid
-        RefreshAttachmentSetGrid();
+        RefreshAttachmentSetsGrid();
     });
 
     // Bind to checkbox change event for all grids to set boolen value - this is needed to send correct boolean value
@@ -61,6 +64,8 @@
     $('.mind-grid').on('change', '.mind-grid-checkbox', function (e) {
 
         this.value = this.checked;
+        var $row = $(this).parents('tr');
+        $row.data('is-hub', this.value);
     });
 
     var $tenancyType = $('#TenancyType'),
@@ -150,10 +155,11 @@
             var region = $row.data('region');
             var redundancy = $row.data('attachment-redundancy');
             arr.push({
+                "VpnTopologyType": vpnTopologyType.value,
                 "AttachmentSetName": attachmentSetName,
                 "tenantName": tenantName,
                 "IsHub": isHub,
-                "region": region,
+                "Region": region,
                 "AttachmentRedundancy": redundancy
             });
         });

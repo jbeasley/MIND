@@ -148,7 +148,7 @@ namespace Mind.WebUI.Controllers
             await PopulateInboundIpNetworksDropDownList(tenantId.Value);
             await PopulateRemoteTenantsDropDownList();
 
-            return View();
+            return View(new AttachmentSetRequestViewModel());
         }
 
         [HttpPost]

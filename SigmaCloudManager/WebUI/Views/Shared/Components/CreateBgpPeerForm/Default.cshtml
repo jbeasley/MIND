@@ -13,6 +13,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
+                    <!-- Store the ID of the row from the grid if we're editing an existing BGP peer  -->
+                    <input type="text" id="RowId" hidden />
                     <div class="form-group row">
                         <label asp-for="Ipv4PeerAddress" class="col-sm-4 col-form-label"> </label>
                         <div class="col-sm-8">
@@ -59,7 +61,7 @@
                         <div class="col-sm-8">
                             <div class="custom-control custom-checkbox">
                                 <input class="form-check-input custom-control-input" type="checkbox" asp-for="IsMultiHop" data-toggle="tooltip"
-                                       data-placement="right" title="Enable multi-hop for this BGP peer">
+                                       data-placement="right" title="Enable multi-hop for this BGP peer" data-default-value="@Model.IsMultiHop">
                                 <label class="form-check-label custom-control-label" for="IsMultiHop"></label>
                             </div>
                         </div>

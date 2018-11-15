@@ -216,6 +216,11 @@
     </div>
 </form>
 
+<!--Component for a form allowing the user to enter data to create or edit a BGP peer
+    The component HTML must be placed outside of other page elements to avoid nesting because browser will
+    remove the <form> element from the component otherwise -->
+@await Component.InvokeAsync("CreateBgpPeerForm")
+
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments</a>
 </div>
@@ -275,9 +280,6 @@
                 $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent");
 
             const uri = "/ProviderDomainAttachment/";
-
-            // Initialise all tool-tips
-            $('[data-toggle="tooltip"]').tooltip();
 
             $attachmentBandwidthGbps.on('change', function (e) {
 
@@ -360,7 +362,7 @@
                     location.selectedIndex = 0;
                     location.disabled = true;
 
-                    Mind.Utilities.populateElement($subregion, uri + "SubRegions", { regionId : regionId });
+                    Mind.Utilities.populateElement($subregion, uri + "SubRegions", { regionId: regionId });
                 }
             });
 
@@ -430,6 +432,19 @@
             }
 
         }(jQuery));
-    
+
+    </script>
+
+    @{await Html.RenderPartialAsync("_ProviderDomainAttachmentScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips - do this after all components are loaded
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
     </script>
 }

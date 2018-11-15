@@ -35,6 +35,23 @@ namespace Mind.Builders
         }
 
         /// <summary>
+        /// Builds a new routing instance for the specified attachment.
+        /// </summary>
+        /// <param name="attachment"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<SCM.Models.RoutingInstance> BuildAsync(Attachment attachment, RoutingInstanceRequest request)
+        {
+            return await _builder.ForAttachment(attachment)
+                                 .WithRangeType(request?.RangeType?.ToString())
+                                 .WithAdministratorSubField(request?.AdministratorSubField)
+                                 .WithAssignedNumberSubField(request?.AssignedNumberSubField)
+                                 .WithRoutingInstanceType(RoutingInstanceTypeEnum.InfrastructureVrf.ToString())
+                                 .WithName(request?.Name)
+                                 .BuildAsync();
+        }
+
+        /// <summary>
         /// Update an existing routing instance
         /// </summary>
         /// <param name="routingInstanceId"></param>

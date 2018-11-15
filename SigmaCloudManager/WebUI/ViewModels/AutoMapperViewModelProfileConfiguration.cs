@@ -123,11 +123,18 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.Region.Name))
                 .ForMember(dst => dst.TopologyType, conf => conf.MapFrom(src => src.VpnTopologyType.Name));
 
-            CreateMap<SCM.Models.VpnAttachmentSet, Mind.WebUI.Models.VpnAttachmentSetRequestViewModel>()
+            CreateMap<SCM.Models.VpnAttachmentSet, Mind.WebUI.Models.VpnAttachmentSetViewModel>()
                 .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.AttachmentSet.Tenant.Name))
                 .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentSet.AttachmentRedundancy.Name))
                 .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name))
                 .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.AttachmentSet.Region.Name));
+
+            CreateMap<SCM.Models.VpnAttachmentSet, Mind.WebUI.Models.VpnAttachmentSetRequestViewModel>()
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.AttachmentSet.Tenant.Name))
+                .ForMember(dst => dst.AttachmentRedundancy, conf => conf.MapFrom(src => src.AttachmentSet.AttachmentRedundancy.Name))
+                .ForMember(dst => dst.AttachmentSetName, conf => conf.MapFrom(src => src.AttachmentSet.Name))
+                .ForMember(dst => dst.Region, conf => conf.MapFrom(src => src.AttachmentSet.Region.Name))
+                .ForMember(dst => dst.VpnTopologyType, conf => conf.MapFrom(src => src.Vpn.VpnTopologyType.Name));
 
             CreateMap<SCM.Models.RouteTarget, Mind.WebUI.Models.RouteTargetViewModel>()
                 .ForMember(dst => dst.RangeName, conf => conf.MapFrom(src => src.RouteTargetRange.Name))

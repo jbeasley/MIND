@@ -10,6 +10,7 @@ namespace Mind.Builders
     public interface IVrfRoutingInstanceDirector
     {
         Task<SCM.Models.RoutingInstance> BuildAsync(int deviceId, int? tenantId, RoutingInstanceRequest request = null);
-        Task<SCM.Models.RoutingInstance> BuildAsync(int routingInstanceId, RoutingInstanceRequest request);
+        Task<SCM.Models.RoutingInstance> BuildAsync(Attachment attachment, RoutingInstanceRequest request = null);
+        Task<SCM.Models.RoutingInstance> BuildAsync(int routingInstanceId, RoutingInstanceRequest request = null);
     }
 }

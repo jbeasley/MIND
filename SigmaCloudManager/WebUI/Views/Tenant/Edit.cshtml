@@ -4,11 +4,13 @@
     ViewData["Title"] = "Edit";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item active">Edit - [@Model.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="#"><i class="fa" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
+    </ul>
+</div>
 
 <h2>Edit</h2>
 
@@ -18,24 +20,23 @@
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
         <input type="hidden" asp-for="TenantId" />
         <input type="hidden" asp-for="RowVersion" />
-        <div class="form-group">
-            <label asp-for="Name" class="col-md-2 control-label"></label>
+        <div class="form-group row">
+            <label asp-for="Name" class="col-md-2 col-form-label"></label>
             <div class="col-md-10">
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
         </div>
-        <div class="form-group">
+        <div class="form-group row">
             <div class="col-md-offset-2 col-md-10">
-                <button type="submit" id="Edit" class="btn btn-success" asp-action="Edit" is-save-button>
-                </button>
+                <a asp-action="Edit"></a>
             </div>
         </div>
     </div>
 </form>
 
 <div>
-    <a asp-action="GetAll">Back to List</a>
+    <a mind-nav-link-back-btn="true" asp-action="GetAll">Back to List</a>
 </div>
 
 @section Scripts {

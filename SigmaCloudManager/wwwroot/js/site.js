@@ -8,22 +8,13 @@ Mind.Constants = (function () {
     "use strict";
 
     const uris = {
+        PROVIDER_DOMAIN_ATTACHMENT: "ProviderDomainAttachment/",
         ATTACHMENT_SET: "AttachmentSet/"
     };
 
-    const bgp = {
-        LOCAL_IP_ROUTING_PREFERENCE_DEFAULT: 100,
-        ADVERTISED_IP_ROUTING_PREFERENCE_DEFAULT: 1,
-        LOCAL_IP_ROUTING_PREFERENCE_MIN_VALUE: 1,
-        LOCAL_IP_ROUTING_PREFERENCE_MAX_VALUE: 500,
-        ADVERTISED_IP_ROUTING_PREFERENCE_MIN_VALUE: 1,
-        ADVERTISED_IP_ROUTING_PREFERENCE_MAX_VALUE: 20
-    };  
-
     return {
 
-        uris: uris,
-        bgp: bgp
+        uris: uris
     };
 
 }(jQuery));
@@ -61,10 +52,39 @@ Mind.Utilities = (function () {
             });
     };
 
+    var createWizard = function ($wizard, $form) {
+
+        $wizard.steps({
+            headerTag: "h3",
+            bodyTag: "section",
+            transitionEffect: "fade",
+            onStepChanging: function (event, currentIndex, newIndex) {
+
+                // Allways allow previous action even if the current form is not valid!
+                if (currentIndex > newIndex) {
+                    return true;
+                }
+
+                $form.validate().settings.ignore = ":disabled,:hidden";
+                return $form.valid();
+            },
+            onFinishing: function (event, currentIndex) {
+                $form.validate().settings.ignore = ":disabled";
+                return $form.valid();
+            },
+            onFinished: function (event, currentIndex) {
+
+                $('#loadingSpinner').modal('show');
+                $form.submit();
+            }
+        });
+    };
+
     return {
 
         getCookie: getCookie,
-        populateElement: populateElement
+        populateElement: populateElement,
+        createWizard: createWizard
     };
 
 }(jQuery));

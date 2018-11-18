@@ -7,7 +7,6 @@ using System.Net;
 using AutoMapper;
 using SCM.Models;
 using SCM.Data;
-using SCM.Factories;
 
 namespace SCM.Services
 {

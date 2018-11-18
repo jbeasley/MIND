@@ -7,7 +7,6 @@ using AutoMapper;
 using SCM.Data;
 using SCM.Models;
 using SCM.Models.RequestModels;
-using SCM.Factories;
 using SCM.Validators;
 using Mind.Builders;
 

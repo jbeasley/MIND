@@ -15,12 +15,16 @@ namespace Mind.WebUI.TagHelpers
     {
         private const string GridBtnLinkAttributeName = "mind-grid-btn-link";
         private const string CreateBtnLinkAttributeName = "mind-create-btn-link";
+        private const string EditBtnLinkAttributeName = "mind-edit-btn-link";
 
         [HtmlAttributeName(GridBtnLinkAttributeName)]
         public bool GridBtnLink { get; set; }
 
         [HtmlAttributeName(CreateBtnLinkAttributeName)]
         public bool CreateBtnLink { get; set; }
+
+        [HtmlAttributeName(EditBtnLinkAttributeName)]
+        public bool EditBtnLink { get; set; }
 
         public LinkButtonTagHelper()
         {
@@ -31,8 +35,13 @@ namespace Mind.WebUI.TagHelpers
             if (GridBtnLink) output.Attributes.SetAttribute("class", "btn btn-sm btn-secondary");
             if (CreateBtnLink)
             {
-                output.Attributes.SetAttribute("class", "btn btn-sm btn-secondary");
+                output.Attributes.SetAttribute("class", "btn btn-sm btn-primary");
                 output.PreContent.SetHtmlContent("<i class='fas fa-plus-circle'></i>&nbsp;");
+            }
+            if (EditBtnLink)
+            {
+                output.Attributes.SetAttribute("class", "btn btn-sm btn-secondary");
+                output.PreContent.SetHtmlContent("<i class='fas fa-edit'></i>&nbsp;");
             }
         }
     }

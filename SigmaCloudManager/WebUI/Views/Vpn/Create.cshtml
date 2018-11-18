@@ -5,12 +5,14 @@
     ViewData["Title"] = "Create VPN";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/Vpn/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">VPNs - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Create</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/Vpn/GetAllByTenantId?tenantId=@ViewBag.Tenant.TenantId"><i class="fa active" aria-hidden="true"></i>VPNs - [@ViewBag.Tenant.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Create</a></li>
+    </ul>
+</div>
 
 <h2>Create a VPN for Tenant '@ViewBag.Tenant.Name'</h2>
 
@@ -197,6 +199,9 @@
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs</a>
 </div>
 
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
@@ -207,32 +212,8 @@
             var $form = $("#createForm"),
                 $wizard = $("#createVpnWizard");
 
-            const uri = "/Vpn/";
-
             //Create wizard
-            $wizard.steps({
-                headerTag: "h3",
-                bodyTag: "section",
-                transitionEffect: "fade",
-                onStepChanging: function (event, currentIndex, newIndex) {
-
-                    // Allways allow previous action even if the current form is not valid!
-                    if (currentIndex > newIndex) {
-                        return true;
-                    }
-
-                    $form.validate().settings.ignore = ":disabled,:hidden";
-                    return $form.valid();
-                },
-                onFinishing: function (event, currentIndex) {
-                    $form.validate().settings.ignore = ":disabled";
-                    return $form.valid();
-                },
-                onFinished: function (event, currentIndex) {
-
-                    $form.submit();
-                }
-            });
+            Mind.Utilities.createWizard($wizard, $form);
 
             var $protocolType = $('#ProtocolType'),
                 protocolType = $protocolType[0],
@@ -253,8 +234,8 @@
                 }
                 else {
 
-                    Mind.Utilities.populateElement($addressFamily, uri + "AddressFamilies", { protocolType: this.value });
-                    Mind.Utilities.populateElement($topologyType, uri + "TopologyTypes", { protocolType: this.value });
+                    Mind.Utilities.populateElement($addressFamily, "AddressFamilies", { protocolType: this.value });
+                    Mind.Utilities.populateElement($topologyType, "TopologyTypes", { protocolType: this.value });
                 }
             });
 

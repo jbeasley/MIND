@@ -98,6 +98,7 @@ namespace Mind.WebUI.Controllers
             var vpns = await _unitOfWork.VpnRepository.GetAsync(
                     q =>
                     q.TenantID == tenantId.Value,
+                    query: q => q.IncludeDeepProperties(),
                     AsTrackable: false);
 
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);               

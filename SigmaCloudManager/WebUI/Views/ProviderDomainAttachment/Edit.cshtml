@@ -5,12 +5,14 @@
     ViewData["Title"] = "Edit Attachment";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantId=@ViewBag.Tenant.TenantId">Provider Domain Attachments - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Edit - [@Model.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/ProviderDomainAttachment/GetAllByTenantId?tenantId=@ViewBag.Tenant.TenantId"><i class="fa active" aria-hidden="true"></i>Attachments - [@ViewBag.Tenant.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
+    </ul>
+</div>
 
 <h2>Edit Attachment '@Model.Name'</h2>
 
@@ -112,13 +114,18 @@
                         </div>
                     </div>
                 </section>
-
-                <!-- View component for displaying/changing the BGP peers which belong to the routing instance of the attachment -->
-                @await Component.InvokeAsync("BgpPeers", new
-                {
-                    bgpPeerRequests = Model.RoutingInstance?.BgpPeers
-                })
             }
+            <h3>BGP Peers</h3>
+            <section>
+                <div id="bgpPeersComponent">
+                    <!-- View component for creating/updating BGP peers -->
+                    @await Component.InvokeAsync("AttachmentBgpPeers", new
+               {
+                   attachmentId = Model.AttachmentId,
+                   bgpPeerRequests = Model.RoutingInstance?.BgpPeers
+               });
+                </div>
+            </section>
             <h3>MTU Options</h3>
             <section id="mtu-options">
                 <br />
@@ -166,11 +173,14 @@
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
     The component HTML must be placed outside of other page elements to avoid nesting because browser will
     remove the <form> element from the component otherwise -->
-@await Component.InvokeAsync("CreateBgpPeerForm")
+@await Component.InvokeAsync("BgpPeerForm")
 
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments</a>
 </div>
+
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -183,30 +193,7 @@
                 $wizard = $("#editAttachmentWizard");
 
             //Create wizard
-            $wizard.steps({
-                headerTag: "h3",
-                bodyTag: "section",
-                transitionEffect: "fade",
-                enableAllSteps: true,
-                onStepChanging: function (event, currentIndex, newIndex) {
-
-                    // Allways allow previous action even if the current form is not valid!
-                    if (currentIndex > newIndex) {
-                        return true;
-                    }
-
-                    $form.validate().settings.ignore = ":disabled,:hidden";
-                    return $form.valid();
-                },
-                onFinishing: function (event, currentIndex) {
-                    $form.validate().settings.ignore = ":disabled";
-                    return $form.valid();
-                },
-                onFinished: function (event, currentIndex) {
-
-                    $form.submit();
-                }
-            });
+            Mind.Utilities.createWizard($wizard, $form);
 
             var $routingInstance = $('#ExistingRoutingInstanceName'),
                 routingInstance = $routingInstance[0],

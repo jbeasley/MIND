@@ -101,6 +101,16 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
+        public IActionResult GetBgpPeersComponent(string portPoolName, string attachmentRoleName)
+        {
+            return ViewComponent("AttachmentBgpPeers", new
+            {
+                portPoolName,
+                attachmentRoleName
+            });
+        }
+
+        [HttpGet]
         public async Task<PartialViewResult> AttachmentRoles(string portPoolName)
         {
             var attachmentRoles = await _unitOfWork.AttachmentRoleRepository.GetAsync(

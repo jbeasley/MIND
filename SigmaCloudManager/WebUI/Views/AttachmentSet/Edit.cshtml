@@ -5,12 +5,14 @@
     ViewData["Title"] = "Update Attachment Set";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">Attachment Sets - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Update - [@Model.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i>Tenants</a></li>
+        <li><a href="/AttachmentSet/GetAllByTenantId=@ViewBag.Tenant.TenantId"><i class="fa" aria-hidden="true"></i>Attachment Sets - [@ViewBag.Tenant.Name]</a></li>
+        <li><a href="#"><i class="fa active" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
+    </ul>
+</div>
 
 <h2>Edit Attachment Set '@Model.Name'</h2>
 
@@ -93,6 +95,9 @@
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachment Sets</a>
 </div>
 
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
@@ -103,30 +108,7 @@
             var $form = $("#form"),
                 $wizard = $("#editAttachmentSetWizard");
 
-            //Create wizard
-            $wizard.steps({
-                headerTag: "h3",
-                bodyTag: "section",
-                transitionEffect: "fade",
-                onStepChanging: function (event, currentIndex, newIndex) {
-
-                    // Allways allow previous action even if the current form is not valid!
-                    if (currentIndex > newIndex) {
-                        return true;
-                    }
-
-                    $form.validate().settings.ignore = ":disabled,:hidden";
-                    return $form.valid();
-                },
-                onFinishing: function (event, currentIndex) {
-                    $form.validate().settings.ignore = ":disabled";
-                    return $form.valid();
-                },
-                onFinished: function (event, currentIndex) {
-
-                    $form.submit();
-                }
-            });
+            Mind.Utilities.createWizard($wizard, $form);
 
             var $region = $('#Region'),
                 region = $region[0],

@@ -4,11 +4,13 @@
     ViewData["Title"] = "VPNs";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item active">VPNs - [@ViewBag.Tenant.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="#"><i class="fa active" aria-hidden="true"></i>VPNs - [@ViewBag.Tenant.Name]</a></li>
+    </ul>
+</div>
 
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
@@ -31,7 +33,7 @@
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
-                @Html.DisplayNameFor(model => model.IsNovaVpn)
+                @Html.DisplayNameFor(model => model.TopologyType)
             </th>
             <th></th>
         </tr>
@@ -45,7 +47,7 @@
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
                 <td>
-                    @Html.DisplayFor(modelItem => item.IsNovaVpn)
+                    @Html.DisplayFor(modelItem => item.TopologyType)
                 </td>
                 <td align="right">
                     <a mind-grid-btn-link="true" asp-action="Edit" asp-route-vpnId="@item.VpnId">Edit</a>

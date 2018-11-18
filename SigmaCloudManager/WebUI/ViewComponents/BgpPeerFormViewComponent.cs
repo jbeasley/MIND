@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Mind.WebUI.ViewComponents
 {
-    public class CreateBgpPeerFormViewComponent : ViewComponent
+    public class BgpPeerFormViewComponent : ViewComponent
     {
         public Task<IViewComponentResult> InvokeAsync(BgpPeerRequestViewModel bgpPeerRequest)
         {

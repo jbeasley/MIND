@@ -24,6 +24,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Include="Styles\breadcrumb.css" />
+    <Content Include="Styles\breadcrumb.min.css" />
+    <Content Include="Styles\breadcrumb.scss" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="Autofac" Version="4.8.1" />
     <PackageReference Include="Autofac.Extensions.DependencyInjection" Version="4.2.2" />
     <PackageReference Include="AutoMapper" Version="7.0.1" />
@@ -50,6 +56,12 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Reference Include="IO.Swagger">
+      <HintPath>bin\IO.Swagger.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Update="WebUI\Views\AttachmentSet\Edit.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -62,7 +74,13 @@
     <Content Update="WebUI\Views\ProviderDomainAttachment\_ProviderDomainAttachmentScriptsPartial.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="WebUI\Views\Shared\Components\CreateBgpPeerForm\Default.cshtml">
+    <Content Update="WebUI\Views\ProviderDomainVif\_ProviderDomainVifScriptsPartial.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\VifBgpPeers\Default.cshtml">
+      <Pack>$(IncludeRazorContentInPack)</Pack>
+    </Content>
+    <Content Update="WebUI\Views\Shared\Components\BgpPeerForm\Default.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\Shared\Components\AttachmentSetRoutingInstancesGridData\Default.cshtml">
@@ -71,7 +89,7 @@
     <Content Update="WebUI\Views\Shared\Components\AttachmentSetRoutingInstances\Default.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="WebUI\Views\Shared\Components\BgpPeers\Default.cshtml">
+    <Content Update="WebUI\Views\Shared\Components\AttachmentBgpPeers\Default.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\Shared\Components\BgpPeersGridData\Default.cshtml">

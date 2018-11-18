@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
-using SCM.Factories;
 using SCM.Data;
 using SCM.Models;
 using SCM.Models.RequestModels;

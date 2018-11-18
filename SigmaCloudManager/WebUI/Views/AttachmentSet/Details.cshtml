@@ -4,12 +4,14 @@
     ViewData["Title"] = "Attachment Set Details";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/AttachmentSet/GetAllByTenantID?tenantId=@Model.TenantId">Attachment Sets - [@Model.TenantName]</a></li>
-    <li class="breadcrumb-item active">Details - [@Model.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i>Tenants</a></li>
+        <li><a href="/AttachmentSet/GetAllByTenantId?tenantId=@Model.TenantId"><i class="fa" aria-hidden="true"></i>Attachment Sets - [@Model.TenantName]</a></li>
+        <li><a href="#"><i class="fa active" aria-hidden="true"></i>Details - [@Model.Name]</a></li>
+    </ul>
+</div>
 
 <h2>Details for Attachment Set '@Model.Name'</h2>
 
@@ -79,6 +81,7 @@
     </div>
 <form asp-action="">
     <div class="form-actions no-color">
+        <a mind-edit-btn-link="true" asp-action="Edit" asp-route-attachmentSetId="@Model.AttachmentSetId">Edit</a> |
         <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Attachment Sets</a>
     </div>
 </form>

@@ -4,12 +4,14 @@
     ViewData["Title"] = "Tenant IP Network Details";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID?tenantId=@Model.TenantId">Tenant IP Network - [@Model.TenantName]</a></li>
-    <li class="breadcrumb-item active">Details - [@Model.CidrNameIncludingIpv4LessThanOrEqualToLength]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/TenantIpNetwork/GetAllByTenantId?tenantId=@Model.TenantId"><i class="fa active" aria-hidden="true"></i>Tenant IP Networks - [@Model.TenantName]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Details - [@Model.CidrNameIncludingIpv4LessThanOrEqualToLength]</a></li>
+    </ul>
+</div>
 
 <h2>Details for Tenant IP Network '@Model.CidrNameIncludingIpv4LessThanOrEqualToLength'</h2>
 
@@ -55,9 +57,11 @@
             @Html.DisplayFor(model => model.IpRoutingBehaviour)
         </dd>
     </dl>
-    </div>
+ </div>
+<hr />
 <form asp-action="">
     <div class="form-actions no-color">
+        <a mind-edit-btn-link="true" asp-action="Edit" asp-route-tenantIpNetworkId="@Model.TenantIpNetworkId">Edit</a> |
         <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Tenant IP Networks</a>
     </div>
 </form>

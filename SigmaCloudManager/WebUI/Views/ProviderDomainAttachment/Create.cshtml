@@ -5,12 +5,14 @@
     ViewData["Title"] = "Create Attachment";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">Provider Domain Attachments - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Create</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/ProviderDomainAttachment/GetAllByTenantId?tenantId=@ViewBag.Tenant.TenantId"><i class="fa active" aria-hidden="true"></i>Attachments - [@ViewBag.Tenant.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Create</a></li>
+    </ul>
+</div>
 
 <h2>Create an Attachment to the Provider Domain for Tenant '@ViewBag.Tenant.Name'</h2>
 
@@ -155,7 +157,7 @@
                 @if (Model != null)
                 {
                     @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
-               {
+                {
                    portPoolName = Model.PortPoolName,
                    attachmentRoleName = Model.AttachmentRoleName,
                    attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
@@ -186,13 +188,18 @@
                 </div>
             </div>
         </section>
-
-        <!-- View component for creating BGP peers -->
-        @await Component.InvokeAsync("BgpPeers", new
-        {
-            bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
-        })
-
+        <h3>BGP Peers</h3>
+        <section id="bgp-peers">
+            <div id="bgpPeersComponent">
+                <!-- View component for creating BGP peers -->
+                @await Component.InvokeAsync("AttachmentBgpPeers", new
+           {
+               portPoolName = Model?.PortPoolName,
+               attachmentRoleName = Model?.AttachmentRoleName,
+               bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
+           });
+            </div>
+        </section>
         <h3>Description and Notes</h3>
         <section id="description-and-notes">
             <div class="alert alert-info" role="alert">
@@ -219,11 +226,14 @@
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
     The component HTML must be placed outside of other page elements to avoid nesting because browser will
     remove the <form> element from the component otherwise -->
-@await Component.InvokeAsync("CreateBgpPeerForm")
+@await Component.InvokeAsync("BgpPeerForm")
 
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments</a>
 </div>
+
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -235,30 +245,8 @@
             var $form = $("#createForm"),
                 $wizard = $("#createAttachmentWizard");
 
-            //Create wizard
-            $wizard.steps({
-                headerTag: "h3",
-                bodyTag: "section",
-                transitionEffect: "fade",
-                onStepChanging: function (event, currentIndex, newIndex) {
-
-                    // Allways allow previous action even if the current form is not valid!
-                    if (currentIndex > newIndex) {
-                        return true;
-                    }
-
-                    $form.validate().settings.ignore = ":disabled,:hidden";
-                    return $form.valid();
-                },
-                onFinishing: function (event, currentIndex) {
-                    $form.validate().settings.ignore = ":disabled";
-                    return $form.valid();
-                },
-                onFinished: function (event, currentIndex) {
-
-                    $form.submit();
-                }
-            });
+            // Create the wizard
+            Mind.Utilities.createWizard($wizard, $form);
 
             var $region = $('#RegionId'),
                 region = $region[0],
@@ -277,9 +265,8 @@
                 $attachmentBandwidthGbps = $('#AttachmentBandwidthGbps'),
                 attachmentBandwidthGbps = $attachmentBandwidthGbps[0],
                 $ipAddressingComponent = $("#ipAddressingComponent"),
-                $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent");
-
-            const uri = "/ProviderDomainAttachment/";
+                $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent"),
+                $bgpPeersComponent = $('#bgpPeersComponent');
 
             $attachmentBandwidthGbps.on('change', function (e) {
 
@@ -311,7 +298,7 @@
                 }
                 else {
 
-                    Mind.Utilities.populateElement($attachmentRole, uri + "AttachmentRoles", {
+                    Mind.Utilities.populateElement($attachmentRole, "AttachmentRoles", {
                         portPoolName: portPoolVal
                     });
                 }
@@ -324,6 +311,7 @@
 
                     GetIpAddressingComponent();
                     GetContractBandwidthPoolComponent();
+                    GetBgpPeersComponent();
                 }
             });
 
@@ -362,33 +350,33 @@
                     location.selectedIndex = 0;
                     location.disabled = true;
 
-                    Mind.Utilities.populateElement($subregion, uri + "SubRegions", { regionId: regionId });
+                    Mind.Utilities.populateElement($subregion, "SubRegions", { regionId: regionId });
                 }
             });
 
             $subregion.on('change', function (e) {
 
                 var subRegionId = this.value;
-                Mind.Utilities.populateElement($location, uri + "Locations", { subRegionId: subRegionId });
+                Mind.Utilities.populateElement($location, "Locations", { subRegionId: subRegionId });
             });
 
             $multiportRequired.on('click', function (e) {
 
                 bundleRequired.checked = false;
-                Mind.Utilities.populateElement($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
+                Mind.Utilities.populateElement($attachmentBandwidthGbps, "AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
             });
 
             $bundleRequired.on('click', function (e) {
 
                 multiportRequired.checked = false;
-                Mind.Utilities.populateElement($attachmentBandwidthGbps, uri + "AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
+                Mind.Utilities.populateElement($attachmentBandwidthGbps, "AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
             });
 
             function GetIpAddressingComponent() {
 
                 $ipAddressingComponent.fadeOut().empty();
 
-                $.get(uri + "GetIpAddressingComponent", {
+                $.get("GetIpAddressingComponent", {
                     portPoolName: portPool.value,
                     attachmentRoleName: attachmentRole.value,
                     attachmentBandwidthGbps: attachmentBandwidthGbps.value,
@@ -397,14 +385,7 @@
                     .done(function (data) {
 
                         $ipAddressingComponent.html(data).fadeIn();
-                        // Initialise new tool-tips
-                        $('[data-toggle="tooltip"]').tooltip();
-
-                        // Re-initialise unobtrusive validation on the form
-                        var $form = $('#createForm')
-                            .removeData("validator")
-                            .removeData("unobtrusiveValidation");
-                        $.validator.unobtrusive.parse($form);
+                        InitToolTipsAndValidation();
                     });
             }
 
@@ -412,7 +393,7 @@
 
                 $contractBandwidthPoolComponent.fadeOut().empty();
 
-                $.get(uri + "GetContractBandwidthPoolComponent", {
+                $.get("GetContractBandwidthPoolComponent", {
                     portPoolName: portPool.value,
                     attachmentRoleName: attachmentRole.value,
                     attachmentBandwidthGbps: attachmentBandwidthGbps.value
@@ -420,15 +401,35 @@
                     .done(function (data) {
 
                         $contractBandwidthPoolComponent.html(data).fadeIn();
-                        // Initialise new tool-tips
-                        $('[data-toggle="tooltip"]').tooltip();
-
-                        // Re-initialise unobtrusive validation on the form
-                        var $form = $('#createForm')
-                            .removeData("validator")
-                            .removeData("unobtrusiveValidation");
-                        $.validator.unobtrusive.parse($form);
+                        InitToolTipsAndValidation();
                     });
+            }
+
+            function GetBgpPeersComponent() {
+
+                $bgpPeersComponent.fadeOut().empty();
+
+                $.get("GetBgpPeersComponent", {
+                    portPoolName: portPool.value,
+                    attachmentRoleName: attachmentRole.value,
+                })
+                    .done(function (data) {
+
+                        $bgpPeersComponent.html(data).fadeIn();
+                        InitToolTipsAndValidation();
+                    });
+            }
+
+            function InitToolTipsAndValidation() {
+
+                // Initialise new tool-tips
+                $('[data-toggle="tooltip"]').tooltip();
+
+                // Re-initialise unobtrusive validation on the form
+                var $form = $('#createForm')
+                    .removeData("validator")
+                    .removeData("unobtrusiveValidation");
+                $.validator.unobtrusive.parse($form);
             }
 
         }(jQuery));

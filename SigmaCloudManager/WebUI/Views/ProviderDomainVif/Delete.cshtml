@@ -5,13 +5,15 @@
     ViewData["Title"] = "Delete VIF";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantId">Provider Domain Attachments - [@ViewBag.Attachment.TenantName]</a></li>
-    <li class="breadcrumb-item"><a href="/ProviderDomainVif/GetAllByAttachmentID?attachmentID=@ViewBag.Attachment.AttachmentId">VIFs - [@ViewBag.Attachment.Name]</a></li>
-    <li class="breadcrumb-item active">Delete - [@Model.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/ProviderDomainAttachment/GetAllByTenantId?tenantId=@ViewBag.Attachment.TenantId"><i class="fa active" aria-hidden="true"></i>Attachments - [@ViewBag.Attachment.TenantName]</a></li>
+        <li><a href="/ProviderDomainVif/GetAllByAttachmentId?attachmentId=@ViewBag.Attachment.AttachmentId"><i class="fa active" aria-hidden="true"></i>VIFs - [@ViewBag.Attachment.Name]</a></li>
+        <li><a href="#"><i class="fa active" aria-hidden="true"></i>Delete - [@Model.Name]</a></li>
+    </ul>
+</div>
 
 <h2>Delete VIF '@Model.Name'</h2>
 

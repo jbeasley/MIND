@@ -37,8 +37,7 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.Vif, Mind.WebUI.Models.ProviderDomainVifUpdateViewModel>()
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
                 .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
-                .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo))
-                .ForMember(dst => dst.RoutingInstance, conf => conf.Ignore());
+                .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
 
             CreateMap<SCM.Models.Vlan, Mind.WebUI.Models.VlanViewModel>();
 

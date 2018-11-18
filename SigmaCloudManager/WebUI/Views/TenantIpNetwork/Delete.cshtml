@@ -5,12 +5,14 @@
     ViewData["Title"] = "Delete Tenant IP Network";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID?tenantId=@Model.TenantId">Tenant IP Networks - [@Model.TenantName]</a></li>
-    <li class="breadcrumb-item active">Delete - [@Model.CidrNameIncludingIpv4LessThanOrEqualToLength]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/TenantIpNetwork/GetAllByTenantId?tenantId=@ViewBag.Tenant.TenantId"><i class="fa active" aria-hidden="true"></i>Tenant IP Networks - [@ViewBag.Tenant.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Delete - [@Model.CidrNameIncludingIpv4LessThanOrEqualToLength]</a></li>
+    </ul>
+</div>
 
 <h2>Delete IP Network '@Model.CidrNameIncludingIpv4LessThanOrEqualToLength'</h2>
 

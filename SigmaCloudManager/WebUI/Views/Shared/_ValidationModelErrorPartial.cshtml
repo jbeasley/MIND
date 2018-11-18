@@ -2,12 +2,12 @@
 @{
     if (!ViewData.ModelState.IsValid && ViewData.ModelState.Any())
     {
-        <div class="alert alert-danger message-container" role="alert">
-            <div class="message-glyph">
-                <i class="fas fa-times fa-3x"></i>
+        <div class="alert alert-danger row" role="alert">
+            <div class="col-sm-1 my-auto">
+                <i class="fas fa-exclamation-triangle fa-3x"></i>
                 <span class="sr-only">Error:</span>
             </div>
-            <div class="message-content" asp-validation-summary="All"></div>
+            <div class="col-sm-11" asp-validation-summary="All"></div>
         </div>
     }
 }

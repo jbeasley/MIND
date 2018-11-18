@@ -18,6 +18,9 @@ namespace Mind.WebUI.Models
     {
         public ProviderDomainVifUpdateViewModel()
         {
+            // Instantiate a new instance of the routing instance request model. This is necessary in order to 
+            // instantiate properties of the routing instance such as the list of BGP peers and handle user actions
+            // in the web UI such as the removal of all BGP peers which belong to the routing instance.
             RoutingInstance = new RoutingInstanceRequestViewModel();
         }
 

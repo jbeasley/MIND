@@ -4,11 +4,13 @@
     ViewData["Title"] = "Tenant Communities";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item active">Tenant Communities - [@ViewBag.Tenant.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Tenant Communities - [@ViewBag.Tenant.Name]</a></li>
+    </ul>
+</div>
 
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
@@ -18,7 +20,7 @@
 <h2>Communities for Tenant '@ViewBag.Tenant.Name'</h2>
 
 <p>
-    <a asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
+    <a mind-create-btn-link="true" asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
        data-toggle="tooltip" data-placement="right"
        title="Create a new community">Create New</a>
 </p>
@@ -27,13 +29,9 @@
 <table class="table table-striped table-hover">
     <thead>
         <tr>
-            <th></th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
-            <th></th>
-            <th></th>
-            <th></th>
             <th></th>
         </tr>
     </thead>
@@ -43,17 +41,12 @@
         {
             <tr>
                 <td>
-                    <input type="checkbox" />
-                </td>
-                <td>
                     @Html.DisplayFor(modelItem => item.Name)
                 </td>
-                <td></td>
-                <td></td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { tenantCommunityId = item.TenantCommunityId }) |
-                    @Html.ActionLink("Details", "Details", new { tenantCommunityId = item.TenantCommunityId }) |
-                    @Html.ActionLink("Delete", "Delete", new { tenantCommunityId = item.TenantCommunityId })
+                <td align="right">
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-tenantCommunityId="@item.TenantCommunityId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-tenantCommunityId="@item.TenantCommunityId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-tenantCommunityId="@item.TenantCommunityId">Delete</a>
                 </td>
             </tr>
         }
@@ -61,7 +54,7 @@
 </table>
 <input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
 
-<a asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
+<a mind-nav-link-back-btn="true" asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
 
 
 @section Scripts {

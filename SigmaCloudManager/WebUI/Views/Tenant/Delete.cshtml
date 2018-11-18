@@ -4,11 +4,13 @@
     ViewData["Title"] = "Delete";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item active">Delete - [@Model.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="#"><i class="fa" aria-hidden="true"></i>Delete - [@Model.Name]</a></li>
+    </ul>
+</div>
 
 <h2>Delete Tenant '@Model.Name'</h2>
 
@@ -26,6 +28,7 @@
             @Html.DisplayFor(model => model.Name)
         </dd>
     </dl>
+    <hr />
 
     <form asp-action="Delete">
         <input type="hidden" asp-for="TenantId" />
@@ -34,7 +37,7 @@
         <div class="form-actions no-color">
             <button type="submit" id="Delete" class="btn btn-info btn-danger" asp-action="Delete" is-delete-button>
             </button> |
-            <a asp-action="GetAll">Back to List</a>
+            <a mind-nav-link-back-btn="true" asp-action="GetAll">Back to List</a>
         </div>
     </form>
 </div>

@@ -5,12 +5,14 @@
     ViewData["Title"] = "Edit Tenant Community";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantCommunity/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">Communities - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Edit - [@Model.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/TenantCommunity/GetAllByTenantId?tenantId=@ViewBag.Tenant.TenantId"><i class="fa active" aria-hidden="true"></i>Tenant Communities - [@ViewBag.Tenant.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
+    </ul>
+</div>
 
 <h2>Edit Community '@Model.Name'</h2>
 
@@ -37,7 +39,7 @@
         <div class="form-group row">
             <label class="col-form-label col-sm-2"></label>
             <div class="col-sm-10">
-                <div class="custom-control-inline custom-checkbox">
+                <div class="custom-control custom-checkbox">
                     <input class="form-check-input custom-control-input" type="checkbox" asp-for="AllowExtranet" data-toggle="tooltip" title="Enable the community to participate in extranet services">
                     <label class="form-check-label custom-control-label" asp-for="AllowExtranet"></label>
                 </div>
@@ -62,7 +64,7 @@
 </form>
 
 <div>
-    <a asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Tenant Communities List</a>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Tenant Communities</a>
 </div>
 
 @section Scripts {

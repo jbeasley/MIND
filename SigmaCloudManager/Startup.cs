@@ -13,7 +13,6 @@ using SCM.Models.RequestModels;
 using SCM.Models.ViewModels;
 using SCM.Data;
 using SCM.Services;
-using SCM.Factories;
 using SCM.Validators;
 using Newtonsoft.Json;
 using SCM.Hubs;
@@ -149,7 +148,6 @@ namespace Mind
             services.AddScoped<IPortStatusService, PortStatusService>();
             services.AddScoped<IPortPoolService, PortPoolService>();
             services.AddScoped<IInterfaceService, InterfaceService>();
-            services.AddScoped<ILogicalInterfaceService, LogicalInterfaceService>();
             services.AddScoped<IMtuService, MtuService>();
             services.AddScoped<IPortBandwidthService, PortBandwidthService>();
             services.AddScoped<ITenantService, TenantService>();
@@ -164,7 +162,6 @@ namespace Mind
             services.AddScoped<IExtranetVpnMemberService, ExtranetVpnMemberService>();
             services.AddScoped<IExtranetVpnTenantCommunityInService, ExtranetVpnTenantCommunityInService>();
             services.AddScoped<IExtranetVpnTenantNetworkInService, ExtranetVpnTenantNetworkInService>();
-            services.AddScoped<IRouteTargetService, RouteTargetService>();
             services.AddScoped<IRouteTargetRangeService, RouteTargetRangeService>();
             services.AddScoped<IRouteDistinguisherRangeService, RouteDistinguisherRangeService>();
             services.AddScoped<IAttachmentSetService, AttachmentSetService>();
@@ -207,11 +204,6 @@ namespace Mind
             services.AddScoped<IMulticastGeographicalScopeService, MulticastGeographicalScopeService>();
             services.AddScoped<ITenantMulticastGroupService, TenantMulticastGroupService>();
             services.AddScoped<IVpnTenantMulticastGroupService, VpnTenantMulticastGroupService>();
-
-            // Factories for creating complex objects
-            services.AddScoped<IRouteTargetFactory, RouteTargetFactory>();
-            services.AddScoped<IContractBandwidthPoolFactory, ContractBandwidthPoolFactory>();
-            services.AddScoped<ILogicalInterfaceFactory, LogicalInterfaceFactory>();
 
             // Validators to validate inbound requests from clients
             services.AddScoped<IPortValidator, PortValidator>();

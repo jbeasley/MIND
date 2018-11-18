@@ -4,11 +4,12 @@
     ViewData["Title"] = "Tenants";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item active">Tenants</li>
-</ol>
-
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="#"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+    </ul>
+</div>
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
@@ -67,7 +68,7 @@
         </div>
     </a>
     <a href="/#" data-href="/AttachmentSet/GetAllByTenantId?" class="card custom-card bg-light">
-        <img class="card-img-top mx-auto d-block" src="~/images/attachment-set.png" alt="Card image cap">
+        <img class="card-img-top mx-auto d-block" src="~/images/attachment-sets.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Attachment Sets</h5>
             <p class="card-text">Create and manage the lifecycle of Attachment Sets</p>
@@ -82,7 +83,7 @@
     </a>
 </div>
 <br />
-<div class="card-deck">
+<div class="card-deck" style="width: 77%">
     <a href="/#" data-href="/TenantCommunity/GetAllByTenantId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/communities.png" alt="Card image cap">
         <div class="card-body">
@@ -97,15 +98,8 @@
             <p class="card-text">Create and manage the lifecycle of Community Sets</p>
         </div>
     </a>
-    <a href="/#" data-href="/TenantMulticastGroup/GetAllByTenantId?" class="card custom-card bg-light">
-        <img class="card-img-top mx-auto d-block" src="~/images/router.png" alt="Card image cap">
-        <div class="card-body">
-            <h5 class="card-title">Multicast Groups</h5>
-            <p class="card-text">Create and manage the lifecycle of Multicast Groups</p>
-        </div>
-    </a>
     <a href="/#" data-href="/VPN/GetAllByTenantId?" class="card custom-card bg-light">
-        <img class="card-img-top mx-auto d-block" src="~/images/network.png" alt="Card image cap">
+        <img class="card-img-top mx-auto d-block" src="~/images/vpn.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">Virtual Private Networks</h5>
             <p class="card-text">Create and manage the lifecycle of VPNs</p>
@@ -156,6 +150,8 @@
 
         (function ($) {
 
+            // Set the checked state of the checkbox for an item in the table from stored value
+            // in the cookie (if present)
             var tenantId = Mind.Utilities.getCookie("tenantId");
             if (tenantId !== "") {
 
@@ -165,6 +161,8 @@
                 }
             }
 
+            // Handle click event for the cards and using the current tenant item context
+            // link off to the relevant page
             $(".custom-card").click(function (e) {
                 e.preventDefault();
 

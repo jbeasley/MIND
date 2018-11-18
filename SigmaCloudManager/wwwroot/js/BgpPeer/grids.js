@@ -2,13 +2,14 @@
 (function ($) {
 
     // The modal containing the BGP peer form
-    var $modal = $('#createBgpPeerModal');
+    var $modal = $('#bgpPeerModal');
 
     // The actual form
-    var $form = $('#createBgpPeerForm');
+    var $form = $('#bgpPeerForm');
 
     // Input controls of the BGP peer form
-    var $ipv4PeerAddressInput = $('#Ipv4PeerAddress'),
+    var $bgpPeerId = $('#BgpPeerId'),
+        $ipv4PeerAddressInput = $('#Ipv4PeerAddress'),
         $peer2ByteAsInput = $('#Peer2ByteAutonomousSystem'),
         $peerPasswordInput = $('#PeerPassword'),
         $maximumRoutesInput = $('#MaximumRoutes'),
@@ -16,13 +17,25 @@
         $isMultiHopInput = $('#IsMultiHop'),
         $rowId = $('#RowId');
 
-    var ipv4PeerAddress = $ipv4PeerAddressInput[0],
+    var bgpPeerId = $bgpPeerId[0],
+        ipv4PeerAddress = $ipv4PeerAddressInput[0],
         peer2ByteAs = $peer2ByteAsInput[0],
         peerPassword = $peerPasswordInput[0],
         maximumRoutes = $maximumRoutesInput[0],
         isBfdEnabled = $isBfdEnabledInput[0],
         isMultiHop = $isMultiHopInput[0],
         rowId = $rowId[0];
+
+    var $bgpPeerComponent = $('#bgpPeersComponent');
+
+    // Bind to cliek event of button to show the BGP form
+    $bgpPeerComponent.on('click', '#showBgpPeerFormBtn', function () {
+
+        $modal.modal('show').off('hidden.bs.modal').on('hidden.bs.modal', function () {
+
+            ResetBgpPeerForm();
+        });
+    });
 
     // Handle click of save button to create a new BGP peer
     $('#saveBgpPeer').on('click', function (e) {
@@ -43,6 +56,7 @@
         // Create a new entry from the form data
         var arr = [];
         arr.push({
+            "BgpPeerId": bgpPeerId.value,
             "Ipv4PeerAddress": ipv4PeerAddress.value,
             "PeerPassword": peerPassword.value,
             "Peer2ByteAutonomousSystem": peer2ByteAs.value,
@@ -55,20 +69,8 @@
         RefreshBgpPeerGrid(arr);
     });
 
-    // Reset form inputs when the modal is closed
-    $modal.on('hidden-bs-modal', function () {
-
-        ipv4PeerAddress.value = "";
-        peerPassword.value = "";
-        peer2ByteAs.value = "";
-        rowId.value = "";
-        maximumRoutes.value = $maximumRoutesInput.data('default-value');
-        isBfdEnabled.checked = (/true/i).test($isBfdEnabledInput.data('default-value'));
-        isMultiHop.checked = (/true/i).test($isMultiHopInput.data('default-value'));
-    });
-
     //Bind to click event of trash buttons in the bgp peer grid rows
-    $('#bgp-peer-grid').on('click', '.mind-grid-delete-row', function (e) {
+    $bgpPeerComponent.on('click', '.mind-grid-delete-row', function (e) {
 
         // Remove the row
         var removeRowId = $(this).data('row-id');
@@ -79,13 +81,14 @@
     });
 
     //Bind to click event of edit buttons in the bgp peer grid rows
-    $('#bgp-peer-grid').on('click', '.mind-grid-edit-row', function (e) {
+    $bgpPeerComponent.on('click', '.mind-grid-edit-row', function (e) {
 
         var editRowId = $(this).data('row-id');
         var $row = $('#bgp-peer-grid-row_' + editRowId);
         var data = GetRowData($row);
 
         // Populate the form and then show it
+        bgpPeerId.value = data.BgpPeerId,
         ipv4PeerAddress.value = data.Ipv4PeerAddress;
         peer2ByteAs.value = data.Peer2ByteAutonomousSystem;
         peerPassword.value = data.PeerPassword;
@@ -94,12 +97,16 @@
         maximumRoutes.value = data.MaximumRoutes;
         rowId.value = editRowId;
 
-        $modal.modal('show');
+        $modal.modal('show').off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
+
+            // Reset form inputs when the modal is hidden (i.e. when the user saves or closes the form)
+            ResetBgpPeerForm();
+        });
     });
 
-    // Bind to checkbox change event for all grids to set boolen value - this is needed to send correct boolean value
+    // Bind to checkbox change event to set boolen value - this is needed to send correct boolean value
     // to the controller on form submit
-    $('.mind-grid').on('change', '.mind-grid-checkbox', function (e) {
+    $bgpPeerComponent.on('change', '.mind-grid-checkbox', function (e) {
 
         this.value = this.checked;
     });
@@ -176,6 +183,20 @@
         };
 
         return data;
+    }
+
+
+    // Reset the BGP peer form inputs
+    function ResetBgpPeerForm() {
+
+        bgpPeerId.value = "";
+        ipv4PeerAddress.value = "";
+        peerPassword.value = "";
+        peer2ByteAs.value = "";
+        rowId.value = "";
+        maximumRoutes.value = $maximumRoutesInput.data('default-value');
+        isBfdEnabled.checked = (/true/i).test($isBfdEnabledInput.data('default-value'));
+        isMultiHop.checked = (/true/i).test($isMultiHopInput.data('default-value'));
     }
 
 }(jQuery));

@@ -4,12 +4,13 @@
     ViewData["Title"] = "Provider Domain Attachments";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item active">Provider Domain Attachments - [@ViewBag.Tenant.Name]</li>
-</ol>
-
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="#"><i class="fa active" aria-hidden="true"></i>Attachments - [@ViewBag.Tenant.Name]</a></li>
+    </ul>
+</div>
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
@@ -20,8 +21,7 @@
     {
         <input type="hidden" name="tenantId" value="@ViewBag.Tenant.TenantId" />
         <p>
-            <button type="submit" class="btn btn-info btn-default" is-clear-alerts-button>
-            </button>
+            <button type="submit" class="btn btn-info btn-default" is-clear-alerts-button></button>
         </p>
     }
 }
@@ -34,11 +34,11 @@
        title="Create an Attachment to connect a Tenant Domain to the Provider Domain
        For example, create an Attachment on a PE to connect the PE to a data-center.">Create New</a>
 </p>
-<p>
-
 <table class="table table-striped table-hover mind-grid" id="attachmentsTable">
     <thead>
         <tr>
+            <th>
+            </th>
             <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
@@ -59,36 +59,102 @@
     <tbody class="mind-grid-body-scroll-lg">
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AttachmentRoleName)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsTagged)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IsLayer3)
-            </td>
-            <td colspan="2" align="right">
-                @if (item.IsTagged)
-                {
-                    <a mind-grid-btn-link="true" asp-action="GetAllByAttachmentId" asp-controller="ProviderDomainVif" asp-route-attachmentId="@item.AttachmentId">Vifs</a>
-                }
-                <a mind-grid-btn-link="true" asp-action="Edit" asp-route-attachmentId="@item.AttachmentId">Edit</a>
-                <a mind-grid-btn-link="true" asp-action="Details" asp-route-attachmentId="@item.AttachmentId">Details</a>
-                <a mind-grid-btn-link="true" asp-action="Delete" asp-route-attachmentId="@item.AttachmentId">Delete</a>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    <div class="custom-control custom-checkbox">
+                        <input id="attachment_checkbox_@item.AttachmentId" type="checkbox" class="form-check-input custom-control-input" data-is-tagged="@item.IsTagged"
+                               data-query-parameter="attachmentId=@item.AttachmentId" />
+                        <label class="form-check-label custom-control-label" for="attachment_checkbox_@item.AttachmentId"></label>
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AttachmentRoleName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsTagged)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsLayer3)
+                </td>
+                <td colspan="2" align="right">
+
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-attachmentId="@item.AttachmentId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-attachmentId="@item.AttachmentId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-attachmentId="@item.AttachmentId">Delete</a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
 <input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
-
+<div class="card-deck" style="width: 25%">
+    <a href="/#" data-href="/ProviderDomainVif/GetAllByAttachmentId?" class="card custom-card bg-light">
+        <img class="card-img-top mx-auto d-block" src="~/images/vif.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">VIFs</h5>
+            <p class="card-text">Create and manage the lifecycle of virtual interfaces (vifs)</p>
+        </div>
+    </a>
+</div>
+<br />
 <a mind-nav-link-back-btn="true" asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
-
+<div class="modal fade" id="selectItemModal" tabindex="-1" role="dialog" aria-labelledby="selectItemModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="selectItemModalLabel">No items are selected</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Select an attachment item from the list by clicking the checkbox
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="multipleItemsSelectedModal" tabindex="-1" role="dialog" aria-labelledby="multipleItemsSelectedModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="multipleItemsSelectedModalLabel">Multiple items are selected</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Select only one attachment item from the list
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="untaggedItemSelectedModal" tabindex="-1" role="dialog" aria-labelledby="untaggedItemSelectedModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="untaggedItemSelectedModalLabel">Untagged item selected</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Select a tagged attachment item from the list
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 @section Scripts {
     <script type="text/javascript">
@@ -96,10 +162,50 @@
         (function ($) {
 
             // Initialise all tool-tips
-
             $('[data-toggle="tooltip"]').tooltip();
+
+            // Set the checked state of the checkbox for an item in the table from stored value
+            // in the cookie (if present)
+            var attachmentId = Mind.Utilities.getCookie("attachmentId");
+            if (attachmentId !== "") {
+
+                var $input = $('.form-check-input[data-query-parameter = "attachmentId=' + attachmentId + '"]');
+                if ($input.length === 1) {
+                    $input[0].checked = true;
+                }
+            }
+
+            // Handle click event for the card and using the current attachment item context
+            // link off to the relevant page
+            $(".custom-card").click(function (e) {
+                e.preventDefault();
+
+                var $inputs = $(".form-check-input:checkbox:checked");
+                if ($inputs.length === 0) {
+
+                    // No attachment items are checked
+                    $("#selectItemModal").modal();
+
+                }
+                else if ($inputs.length > 1) {
+
+                    // More than one checked attachment item
+                    $("#multipleItemsSelectedModal").modal();
+                }
+                else if ((/false/i).test($inputs.data('is-tagged'))) {
+
+                    // An untagged attachment item is selected
+                    $("#untaggedItemSelectedModal").modal();
+                }
+                else {
+
+                    var href = $(this).data("href");
+                    var queryParameter = $inputs.data('query-parameter');
+                    window.location.href = href + queryParameter;
+                }
+            });
 
         }(jQuery));
 
     </script>
- }
+}

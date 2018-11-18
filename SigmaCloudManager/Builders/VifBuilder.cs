@@ -119,22 +119,36 @@ namespace Mind.Builders
         {
             if (_args.ContainsKey(nameof(ForVif)))
             {
+
+                // Update an existing vif
                 await SetVifAsync();
                 if (_args.ContainsKey(nameof(WithContractBandwidth))) await UpdateContractBandwidthPoolAsync();
                 if (_vif.VifRole.RoutingInstanceType.IsVrf)
                 {
                     if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
                     {
+                        // Associate a pre-existing routing instance with the vif (may be the same routing instance as currently associated)
                         await AssociateExistingRoutingInstanceAsync();
+                        if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                        {
+                            // Perform any updates on the existing routing instance, e.g. add/modify/delete BGP peers
+                            await UpdateRoutingInstanceAsync();
+                        }
                     }
                     else if (_args.ContainsKey(nameof(WithNewRoutingInstance)))
                     {
                         await CreateRoutingInstanceAsync();
                     }
+                    else if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                    {
+                        // Update the existing routing instance of the vif, e.g.add/modify/delete BGP peers
+                        await UpdateRoutingInstanceAsync();
+                    }
                 }
             }
             else
             {
+                // Create a new vif
                 if (_args.ContainsKey(nameof(ForAttachment))) await SetAttachmentAsync();
                 if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
                 if (_args.ContainsKey(nameof(WithVifRole))) await SetVifRoleAsync();
@@ -157,6 +171,11 @@ namespace Mind.Builders
                     if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
                     {
                         await AssociateExistingRoutingInstanceAsync();
+                        if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                        {
+                            // Perform any updates on the existing routing instance, e.g. add/modify/delete BGP peers
+                            await UpdateRoutingInstanceAsync();
+                        }
                     }
                     else
                     {
@@ -382,6 +401,22 @@ namespace Mind.Builders
 
             _vif.RoutingInstance = defaultRoutingInstance ?? throw new BuilderUnableToCompleteException("Could not find the default routing " +
                 $"instance for device '{_vif.Attachment.Device.Name}'. Please report this issue to your system administrator.");
+        }
+
+        protected internal virtual async Task UpdateRoutingInstanceAsync()
+        {
+            if (_vif.VifRole.RoutingInstanceType != null)
+            {
+                var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
+                                        q =>
+                                           q.RoutingInstanceTypeID == _vif.VifRole.RoutingInstanceType.RoutingInstanceTypeID)
+                                           select routingInstanceTypes)
+                                           .Single();
+
+                var routingInstanceRequest = (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)];
+                var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
+                await routingInstanceDirector.BuildAsync(routingInstanceId: _vif.RoutingInstance.RoutingInstanceID, request: routingInstanceRequest);
+            }
         }
 
         protected internal virtual void CreateVlans()

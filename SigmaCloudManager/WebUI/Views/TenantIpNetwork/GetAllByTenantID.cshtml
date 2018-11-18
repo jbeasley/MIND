@@ -4,12 +4,13 @@
     ViewData["Title"] = "Tenant IP Networks";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item active">Tenant IP Networks - [@ViewBag.Tenant.Name]</li>
-</ol>
-
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Tenant IP Networks - [@ViewBag.Tenant.Name]</a></li>
+    </ul>
+</div>
 
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}

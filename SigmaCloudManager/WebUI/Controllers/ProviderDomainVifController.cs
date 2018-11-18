@@ -53,6 +53,22 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
+        public IActionResult GetBgpPeersComponent(int? attachmentId, string vifRoleName)
+        {
+            return ViewComponent("VifBgpPeers", new
+            {
+                attachmentId,
+                vifRoleName
+            });
+        }
+
+        [HttpPost]
+        public IActionResult GetBgpPeerGridData([FromBody]List<BgpPeerRequestViewModel> bgpPeerRequests)
+        {
+            return ViewComponent("BgpPeersGridData", new { bgpPeerRequests });
+        }
+
+        [HttpGet]
         [ValidateProviderDomainVifExists]
         public async Task<IActionResult> Details(int? vifId)
         {
@@ -241,7 +257,7 @@ namespace Mind.WebUI.Controllers
 
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
 
-            return View(_mapper.Map<ProviderDomainVifUpdateViewModel>(vif));
+            return View(update);
         }
 
         [HttpGet]

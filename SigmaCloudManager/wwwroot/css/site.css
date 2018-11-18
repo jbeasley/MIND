@@ -28,6 +28,7 @@ textarea {
         color: #aba2a2 !important;
     }
 
+
 /* The following sets the list of items in a details view so that the label in the dt element 
     is in-line with the dl element
 */
@@ -39,7 +40,7 @@ dl {
 }
 
 dt {
-    clear:left; 
+    clear: left;
     float: left;
     width: 35%;
     padding: 0;
@@ -58,8 +59,7 @@ h5 {
 }
 
 .card-img-top {
-    width: 70%;
-    height: 10vw;
+    width: 80%;
 }
 
 a.custom-card,
@@ -74,7 +74,7 @@ a.custom-card:hover {
 }
 
 .mind-grid-body-scroll-md {
-    height:200px;
+    height: 200px;
 }
 
 .mind-grid-body-scroll-lg {
@@ -86,11 +86,11 @@ a.custom-card:hover {
     overflow-y: scroll;
 }
 
-.mind-grid > thead, .mind-grid > tbody > tr {
-    display: table;
-    width: 100%;
-    table-layout: fixed; /* even columns width , fix width of table too*/
- }
+    .mind-grid > thead, .mind-grid > tbody > tr {
+        display: table;
+        width: 100%;
+        table-layout: fixed; /* even columns width , fix width of table too*/
+    }
 
 .mind-grid > thead {
     width: calc( 100% - 1em ) /* scrollbar is average 1em/16px width, remove it from thead width */
@@ -101,25 +101,25 @@ a.custom-card:hover {
         word-wrap: normal;
     }
 
-    /* Style row text content for the grid */
-    .mind-grid > tbody > tr > td > input[type="text"] {
-        border: none !important;
-        max-width: 100%;
-        width: 100%;
-        text-overflow: ellipsis;
-    }
+/* Style row text content for the grid */
+.mind-grid > tbody > tr > td > input[type="text"] {
+    border: none !important;
+    max-width: 100%;
+    width: 100%;
+    text-overflow: ellipsis;
+}
 
-    .mind-grid > tbody > tr > td > input:read-only {
-        background: inherit !important ;
-        color:black !important;
-    }
+.mind-grid > tbody > tr > td > input:read-only {
+    background: inherit !important;
+    color: black !important;
+}
 
-    /* Style number input for the grid */
-    .mind-grid > tbody > tr > td > input[type="number"] {
-        border: none !important;
-        max-width: 100%;
-        width: 100%;
-    }
+/* Style number input for the grid */
+.mind-grid > tbody > tr > td > input[type="number"] {
+    border: none !important;
+    max-width: 100%;
+    width: 100%;
+}
 
 .mind-grid > tbody > tr > td > div > label {
     margin-bottom: 2rem !important;
@@ -148,34 +148,42 @@ a.custom-card:hover {
     }
 }
 
-.modalBackground {
-    background-color: #EBEBEB;
-    filter: alpha(opacity=70);
-    opacity: 0.7;
-}
-
-.spinner-element {
+/* Spinner creation */
+.mind-loading-spinner-modal .mind-loader {
     position: relative;
+    text-align: center;
+    margin: 15px auto 35px auto;
+    z-index: 9999;
+    display: block;
+    width: 80px;
+    height: 80px;
+    border: 10px solid rgba(0, 0, 0, .3);
+    border-radius: 50%;
+    border-top-color: #000;
+    animation: spin 1s ease-in-out infinite;
+    -webkit-animation: spin 1s ease-in-out infinite;
 }
 
-.glyphicon-lg {
-    font-size: 50px;
+@keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
 }
 
-.message-container {
-    width: 100%;
-    height:100%;
-    overflow:hidden;
+@-webkit-keyframes spin {
+    to {
+        -webkit-transform: rotate(360deg);
+    }
 }
 
-.message-glyph {
-    width: 5%;
-    float: left;
+/* Styling for the modal loading spinner */
+.mind-loading-spinner-modal .modal-content {
+    border-radius: 0px;
+    box-shadow: 0 0 20px 8px rgba(0, 0, 0, 0.7);
 }
 
-.message-content {
-    width: 80%;
-    margin-left: 5%;
+.mind-loading-spinner-modal .modal-backdrop.show {
+    opacity: 0.75;
 }
 
 .btn-margin-2 {

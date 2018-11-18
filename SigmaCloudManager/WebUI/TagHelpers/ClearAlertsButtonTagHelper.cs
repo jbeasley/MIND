@@ -21,7 +21,8 @@ namespace Mind.WebUI.TagHelpers
 
         public override void Process(TagHelperContext context, TagHelperOutput output)
         {
-            output.Content.SetHtmlContent("<i class='fas fa-minus-circle'></i>&nbsp;Clear Alerts");
+            output.Attributes.SetAttribute("class", "btn btn-sm btn-secondary");
+            output.Content.SetHtmlContent("<i class='fas fa-eraser'></i>&nbsp;Clear Alerts");
             output.Attributes.RemoveAll("is-clear-alerts-button");
         }
     }

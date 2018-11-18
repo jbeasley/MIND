@@ -5,13 +5,15 @@
     ViewData["Title"] = "Create VIF";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/ProviderDomainAttachment/GetAllByTenantID?tenantID=@ViewBag.Attachment.TenantId">Provider Domain Attachments - [@ViewBag.Attachment.TenantName]</a></li>
-    <li class="breadcrumb-item"><a href="/ProviderDomainVif/GetAllByAttachmentID?attachmentID=@ViewBag.Attachment.AttachmentId">VIFs - [@ViewBag.Attachment.Name]</a></li>
-    <li class="breadcrumb-item active">Create</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/ProviderDomainAttachment/GetAllByTenantId?tenantId=@ViewBag.Attachment.TenantId"><i class="fa active" aria-hidden="true"></i>Attachments - [@ViewBag.Attachment.TenantName]</a></li>
+        <li><a href="/ProviderDomainVif/GetAllByAttachmentId?attachmentId=@ViewBag.Attachment.AttachmentId"><i class="fa active" aria-hidden="true"></i>VIFs - [@ViewBag.Attachment.Name]</a></li>
+        <li><a href="#"><i class="fa active" aria-hidden="true"></i>Create</a></li>
+    </ul>
+</div>
 
 <h2>Create a VIF for Attachment '@ViewBag.Attachment.Name'</h2>
 
@@ -86,12 +88,32 @@
                 }
             </div>
         </section>
+        <h3>BGP Peers</h3>
+        <section id="bgp-peers">
+            <div id="bgpPeersComponent">
+                <!-- View component for creating BGP peers -->
+                @await Component.InvokeAsync("VifBgpPeers", new
+           {
+               attachmentId = Model?.AttachmentId,
+               vifRoleName = Model?.VifRoleName,
+               bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
+           })
+            </div>
+        </section>
     </div>
 </form>
 
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByAttachmentID" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId">Back to VIFs</a>
 </div>
+
+<!--Component for a form allowing the user to enter data to create or edit a BGP peer
+    The component HTML must be placed outside of other page elements to avoid nesting because browser will
+    remove the <form> element from the component otherwise -->
+@await Component.InvokeAsync("BgpPeerForm")
+
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
@@ -104,41 +126,15 @@
                 $wizard = $("#createVifWizard");
 
             //Create wizard
-            $wizard.steps({
-                headerTag: "h3",
-                bodyTag: "section",
-                transitionEffect: "fade",
-                onStepChanging: function (event, currentIndex, newIndex) {
-
-                    // Allways allow previous action even if the current form is not valid!
-                    if (currentIndex > newIndex) {
-                        return true;
-                    }
-
-                    $form.validate().settings.ignore = ":disabled,:hidden";
-                    return $form.valid();
-                },
-                onFinishing: function (event, currentIndex) {
-                    $form.validate().settings.ignore = ":disabled";
-                    return $form.valid();
-                },
-                onFinished: function (event, currentIndex) {
-
-                    $form.submit();
-                }
-            });
+            Mind.Utilities.createWizard($wizard, $form);
 
             var $attachmentId = $('#AttachmentId'),
                 attachmentId = $attachmentId[0],
                 $vifRole = $('#VifRoleName'),
                 vifRole = $vifRole[0],
                 $ipAddressingComponent = $("#ipAddressingComponent"),
-                $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent");
-
-            const uri = "/ProviderDomainVif/";
-
-            // Initialise all tool-tips
-            $('[data-toggle="tooltip"]').tooltip();
+                $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent"),
+                $bgpPeersComponent = $('#bgpPeersComponent');
 
             $vifRole.on('change', function (e) {
 
@@ -147,28 +143,22 @@
 
                     GetIpAddressingComponent();
                     GetContractBandwidthPoolComponent();
+                    GetBgpPeersComponent();
                 }
-            });           
+            });
 
             function GetIpAddressingComponent() {
 
                 $ipAddressingComponent.fadeOut().empty();
 
-                $.get(uri + "GetIpAddressingComponent", {
+                $.get("GetIpAddressingComponent", {
                     attachmentId: attachmentId.value,
                     vifRoleName: vifRole.value
                 })
                     .done(function (data) {
 
                         $ipAddressingComponent.html(data).fadeIn();
-                        // Initialise new tool-tips
-                        $('[data-toggle="tooltip"]').tooltip();
-
-                        // Re-initialise unobtrusive validation on the form
-                        var $form = $('#createForm')
-                            .removeData("validator")
-                            .removeData("unobtrusiveValidation");
-                        $.validator.unobtrusive.parse($form);
+                        InitToolTipsAndValidation();
                     });
             }
 
@@ -176,25 +166,58 @@
 
                 $contractBandwidthPoolComponent.fadeOut().empty();
 
-                $.get(uri + "GetContractBandwidthPoolComponent", {
+                $.get("GetContractBandwidthPoolComponent", {
                     attachmentId: attachmentId.value,
                     vifRoleName: vifRole.value
                 })
                     .done(function (data) {
 
                         $contractBandwidthPoolComponent.html(data).fadeIn();
-                        // Initialise new tool-tips
-                        $('[data-toggle="tooltip"]').tooltip();
-
-                        // Re-initialise unobtrusive validation on the form
-                        var $form = $('#createForm')
-                            .removeData("validator")
-                            .removeData("unobtrusiveValidation");
-                        $.validator.unobtrusive.parse($form);
+                        InitToolTipsAndValidation();
                     });
             }
 
+            function GetBgpPeersComponent() {
+
+                $bgpPeersComponent.fadeOut().empty();
+
+                $.get("GetBgpPeersComponent", {
+                    attachmentId: attachmentId.value,
+                    vifRoleName: vifRole.value,
+                })
+                    .done(function (data) {
+
+                        $bgpPeersComponent.html(data).fadeIn();
+                        InitToolTipsAndValidation();
+                    });
+            }
+
+            function InitToolTipsAndValidation() {
+
+                // Initialise new tool-tips
+                $('[data-toggle="tooltip"]').tooltip();
+
+                // Re-initialise unobtrusive validation on the form
+                var $form = $('#createForm')
+                    .removeData("validator")
+                    .removeData("unobtrusiveValidation");
+                $.validator.unobtrusive.parse($form);
+            }
+
         }(jQuery));
-    
+
+    </script>
+
+    @{await Html.RenderPartialAsync("_ProviderDomainVifScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            // Initialise all tool-tips - do this after all components are loaded
+            $('[data-toggle="tooltip"]').tooltip();
+
+        }(jQuery));
+
     </script>
 }

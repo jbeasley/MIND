@@ -5,12 +5,14 @@
     ViewData["Title"] = "Edit VPN";
 }
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/Vpn/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">VPNs - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Edit - [@Model.Name]</li>
-</ol>
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/Vpn/GetAllByTenantId?tenantId=@ViewBag.Tenant.TenantId"><i class="fa active" aria-hidden="true"></i>VPNs - [@ViewBag.Tenant.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
+    </ul>
+</div>
 
 <h2>Edit VPN '@Model.Name'</h2>
 
@@ -86,7 +88,7 @@
                 <label asp-for="Region" class="col-sm-2 col-form-label"></label>
                 <div class="col-sm-10">
                     <select asp-for="Region" class="form-control" asp-items="ViewBag.Region">
-                        <option value="">-- Optionally Select Region --</option>
+                        <option value="None">-- Optionally Select Region --</option>
                     </select>
                     <span asp-validation-for="Region" class="text-danger"></span>
                 </div>
@@ -123,6 +125,9 @@
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs</a>
 </div>
 
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
@@ -133,32 +138,8 @@
             var $form = $("#form"),
                 $wizard = $("#editVpnWizard");
 
-            const uri = "/Vpn/";
-
             //Create wizard
-            $wizard.steps({
-                headerTag: "h3",
-                bodyTag: "section",
-                transitionEffect: "fade",
-                onStepChanging: function (event, currentIndex, newIndex) {
-
-                    // Allways allow previous action even if the current form is not valid!
-                    if (currentIndex > newIndex) {
-                        return true;
-                    }
-
-                    $form.validate().settings.ignore = ":disabled,:hidden";
-                    return $form.valid();
-                },
-                onFinishing: function (event, currentIndex) {
-                    $form.validate().settings.ignore = ":disabled";
-                    return $form.valid();
-                },
-                onFinished: function (event, currentIndex) {
-
-                    $form.submit();
-                }
-            });
+            Mind.Utilities.createWizard($wizard, $form);
 
             // Initialise all tool-tips
             $('[data-toggle="tooltip"]').tooltip();

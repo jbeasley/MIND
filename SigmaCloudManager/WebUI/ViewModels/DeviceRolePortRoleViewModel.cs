@@ -4,12 +4,11 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace SCM.Models.ViewModels
+namespace Mind.WebUI.Models
 {
     public class DeviceRolePortRoleViewModel
     {
-        [Display(AutoGenerateField = false)]
-        public int DeviceRolePortRoleID { get; set; }
+        public int DeviceRolePortRoleId { get; set; }
         [Display(Name ="Device Role")]
         public DeviceRoleViewModel DeviceRole { get; set; }
         [Display(Name = "Port Role")]

@@ -91,7 +91,7 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
             }

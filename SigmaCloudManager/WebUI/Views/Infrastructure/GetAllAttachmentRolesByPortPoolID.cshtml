@@ -1,4 +1,4 @@
-@model IEnumerable<SCM.Models.ViewModels.AttachmentRoleViewModel>
+@model IEnumerable<Mind.WebUI.Models.AttachmentRoleViewModel>
 
 @{
     ViewData["Title"] = "Attachment Roles";
@@ -39,12 +39,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.SupportedByMultiPort)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoutingInstanceType.IsVrf)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoutingInstanceType.IsDefault)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -73,15 +67,9 @@
                 @Html.DisplayFor(modelItem => item.SupportedByMultiPort)
             </td>
             <td>
-                @Html.DisplayFor(modelItem => item.RoutingInstanceType.IsVrf)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoutingInstanceType.IsDefault)
-            </td>
-            <td>
             @if (item.IsTaggedRole)
             {
-            <a asp-action="GetAllVifRolesByAttachmentRoleID" asp-route-attachmentRoleID="@item.AttachmentRoleID" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleID">VIF Roles</a>
+            <a asp-action="GetAllVifRolesByAttachmentRoleID" asp-route-attachmentRoleID="@item.AttachmentRoleId" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleID">VIF Roles</a>
             }
             </td>
         </tr>

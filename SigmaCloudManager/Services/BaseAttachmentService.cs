@@ -7,7 +7,6 @@ using AutoMapper;
 using SCM.Data;
 using SCM.Models;
 using SCM.Models.RequestModels;
-using SCM.Validators;
 using Mind.Builders;
 
 namespace SCM.Services
@@ -17,10 +16,6 @@ namespace SCM.Services
     /// </summary>
     public abstract class BaseAttachmentService : BaseService
     {
-        public BaseAttachmentService(IUnitOfWork unitOfWork, IMapper mapper, IValidator validator) : base(unitOfWork, mapper, validator)
-        {
-        }
-
         public BaseAttachmentService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
         }

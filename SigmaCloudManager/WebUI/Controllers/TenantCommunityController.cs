@@ -221,7 +221,7 @@ namespace Mind.WebUI.Controllers
                 ViewData.AddDeleteValidationFailedMessage(ex.Message);
             }
 
-            catch (DbUpdateException ex)
+            catch (DbUpdateException)
             {
                 ViewData.AddDatabaseUpdateExceptionMessage();
             }

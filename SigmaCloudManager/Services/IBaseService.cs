@@ -1,5 +1,4 @@
 ﻿using SCM.Data;
-using SCM.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +8,6 @@ namespace SCM.Services
 {
     public interface IBaseService
     {
-        IValidator Validator { get; }
         IUnitOfWork UnitOfWork { get; }
     }
 }

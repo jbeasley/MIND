@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Data;
 using Microsoft.EntityFrameworkCore;
-using SCM.Validators;
 using SCM.Services;
 
 namespace Mind.Services

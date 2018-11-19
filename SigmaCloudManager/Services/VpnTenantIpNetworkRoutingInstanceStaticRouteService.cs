@@ -4,7 +4,6 @@ using System.Linq;
 using SCM.Data;
 using SCM.Models;
 using System.Threading.Tasks;
-using SCM.Validators;
 using Mind.Services;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models.RequestModels;

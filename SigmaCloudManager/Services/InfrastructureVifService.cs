@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Mind.Builders;
 using Mind.Models.RequestModels;
-using Mind.Validators;
 using SCM.Data;
 using SCM.Models;
 

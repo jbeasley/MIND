@@ -8,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Mind.Services;
 using Mind.Models.RequestModels;
 using Mind.Builders;
-using SCM.Validators;
 using AutoMapper;
 
 namespace SCM.Services

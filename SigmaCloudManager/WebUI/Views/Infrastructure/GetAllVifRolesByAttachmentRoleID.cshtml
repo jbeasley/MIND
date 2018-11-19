@@ -1,4 +1,4 @@
-@model IEnumerable<SCM.Models.ViewModels.VifRoleViewModel>
+@model IEnumerable<Mind.WebUI.Models.VifRoleViewModel>
 
 @{
     ViewData["Title"] = "VIF Roles";
@@ -31,12 +31,6 @@
             <th>
                 @Html.DisplayNameFor(model => model.RequireContractBandwidth)
             </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoutingInstanceType.IsVrf)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.RoutingInstanceType.IsDefault)
-            </th>
             <th></th>
         </tr>
     </thead>
@@ -55,14 +49,8 @@
             <td>
                 @Html.DisplayFor(modelItem => item.RequireContractBandwidth)
             </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoutingInstanceType.IsVrf)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.RoutingInstanceType.IsDefault)
-            </td>
         </tr>
 }
     </tbody>
 </table>
-<a asp-action="GetAllAttachmentRolesByPortPoolID" asp-route-portPoolID="@ViewBag.AttachmentRole.PortPoolID" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleID">Back to Attachment Roles</a>
+<a asp-action="GetAllAttachmentRolesByPortPoolID" asp-route-portPoolID="@ViewBag.AttachmentRole.PortPoolId" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleId">Back to Attachment Roles</a>

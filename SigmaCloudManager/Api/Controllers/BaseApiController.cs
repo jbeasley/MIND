@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SCM.Validators;
 using SCM.Services;
 using AutoMapper;
 
@@ -29,23 +28,6 @@ namespace Mind.Api.Controllers
         {
             Service = service;
             Mapper = mapper;
-        }
-
-        /// <summary>
-        /// Executed before each action method is executed.
-        /// Sets the validation dictionary for this controller's service validator (if present)
-        /// to the current modelstate object.
-        /// </summary>
-        /// <param name="context"></param>
-        public override void OnActionExecuting(ActionExecutingContext context)
-        {
-            base.OnActionExecuting(context);
-
-            if (Service.Validator != null)
-            {
-                var validationDic = new ModelStateWrapper(context.ModelState);
-                Service.Validator.ValidationDictionary = validationDic;
-            }
         }
     }
 }

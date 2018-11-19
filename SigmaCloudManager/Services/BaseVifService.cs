@@ -3,7 +3,6 @@ using Microsoft.EntityFrameworkCore;
 using SCM.Data;
 using SCM.Models;
 using SCM.Services;
-using SCM.Validators;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -16,10 +15,6 @@ namespace Mind.Services
     /// </summary>
     public abstract class BaseVifService : BaseService
     {
-        public BaseVifService(IUnitOfWork unitOfWork, IMapper mapper, IValidator validator) : base(unitOfWork, mapper, validator)
-        {
-        }
-
         public BaseVifService(IUnitOfWork unitOfWork, IMapper mapper) : base(unitOfWork, mapper)
         {
         }

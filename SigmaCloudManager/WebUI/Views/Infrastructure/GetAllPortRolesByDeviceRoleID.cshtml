@@ -1,4 +1,4 @@
-@model IEnumerable<SCM.Models.ViewModels.DeviceRolePortRoleViewModel>
+@model IEnumerable<Mind.WebUI.Models.DeviceRolePortRoleViewModel>
 
 @{
     ViewData["Title"] = "Device Role Port Roles";
@@ -41,7 +41,7 @@
                 @Html.DisplayFor(modelItem => item.PortRole.Description)
             </td>
             <td>
-                <a asp-action="GetAllPortPoolsByPortRoleID" asp-route-portRoleID="@item.PortRole.PortRoleID" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleID">Port Pools</a>
+                <a asp-action="GetAllPortPoolsByPortRoleID" asp-route-portRoleID="@item.PortRole.PortRoleId" asp-route-deviceRoleID="@ViewBag.DeviceRole.DeviceRoleID">Port Pools</a>
             </td>
         </tr>
 }

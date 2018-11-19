@@ -9,7 +9,6 @@ using SCM.Data;
 using SCM.Models;
 using SCM.Models.RequestModels;
 using SCM.Services;
-using Mind.Validators;
 using Mind.Builders;
 
 namespace Mind.Services

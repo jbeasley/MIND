@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SCM.Validators;
 using SCM.Services;
 using AutoMapper;
 using SCM.Data;
@@ -16,11 +15,6 @@ namespace SCM.Controllers
     /// </summary>
     public abstract class BaseViewController : Controller
     {
-
-        /// <summary>
-        /// Reference to a validator class.
-        /// </summary>
-        protected internal IValidator Validator { get; set; }
 
         /// <summary>
         /// Automapper

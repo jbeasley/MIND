@@ -13,7 +13,6 @@ using SCM.Models.RequestModels;
 using SCM.Models.ViewModels;
 using SCM.Data;
 using SCM.Services;
-using SCM.Validators;
 using Newtonsoft.Json;
 using SCM.Hubs;
 using Newtonsoft.Json.Serialization;
@@ -28,7 +27,6 @@ using Mind.Builders;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Autofac;
-using Mind.Validators;
 using Microsoft.AspNetCore.Mvc.Versioning;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc;
@@ -204,27 +202,6 @@ namespace Mind
             services.AddScoped<IMulticastGeographicalScopeService, MulticastGeographicalScopeService>();
             services.AddScoped<ITenantMulticastGroupService, TenantMulticastGroupService>();
             services.AddScoped<IVpnTenantMulticastGroupService, VpnTenantMulticastGroupService>();
-
-            // Validators to validate inbound requests from clients
-            services.AddScoped<IPortValidator, PortValidator>();
-            services.AddScoped<IRouteTargetValidator, RouteTargetValidator>();
-            services.AddScoped<IVpnValidator, VpnValidator>();
-            services.AddScoped<IExtranetVpnMemberValidator, ExtranetVpnMemberValidator>();
-            services.AddScoped<IExtranetVpnTenantCommunityInValidator, ExtranetVpnTenantCommunityInValidator>();
-            services.AddScoped<IExtranetVpnTenantNetworkInValidator, ExtranetVpnTenantNetworkInValidator>();
-            services.AddScoped<IMulticastVpnRpValidator, MulticastVpnRpValidator>();
-            services.AddScoped<IVpnTenantMulticastGroupValidator, VpnTenantMulticastGroupValidator>();
-            services.AddScoped<IVpnTenantIpNetworkStaticRouteRoutingInstanceValidator, VpnTenantIpNetworkStaticRouteRoutingInstanceValidator>();
-            services.AddScoped<IAttachmentSetValidator, AttachmentSetValidator>();
-            services.AddScoped<IAttachmentSetRoutingInstanceValidator, AttachmentSetRoutingInstanceValidator>();
-            services.AddScoped<IVpnAttachmentSetValidator, VpnAttachmentSetValidator>();
-            services.AddScoped<ITenantIpNetworkValidator, TenantIpNetworkValidator>();
-            services.AddScoped<ITenantCommunityValidator, TenantCommunityValidator>();
-            services.AddScoped<ITenantCommunitySetValidator, TenantCommunitySetValidator>();
-            services.AddScoped<ITenantMulticastGroupValidator, TenantMulticastGroupValidator>();
-            services.AddScoped<IBgpPeerValidator, BgpPeerValidator>();
-            services.AddScoped<IProviderDomainAttachmentValidator, ProviderDomainAttachmentValidator>();
-            services.AddScoped<IProviderDomainVifValidator, ProviderDomainVifValidator>();
 
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());

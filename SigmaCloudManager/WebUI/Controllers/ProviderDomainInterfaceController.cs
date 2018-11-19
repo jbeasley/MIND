@@ -24,6 +24,7 @@ namespace Mind.WebUI.Controllers
         public ProviderDomainInterfaceController(IProviderDomainInterfaceService interfaceService, IUnitOfWork unitOfWork, IMapper mapper) : 
             base(unitOfWork, mapper)
         {
+            _interfaceService = interfaceService;
         }
 
         [HttpGet]

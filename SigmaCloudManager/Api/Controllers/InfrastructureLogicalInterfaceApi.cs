@@ -209,9 +209,9 @@ namespace Mind.Api.Controllers
         /// Update an existing infrastructure logical interface
         /// </summary>
 
-        /// <param name="deviceId">ID of the infrastructure device/param>
+        /// <param name="deviceId">ID of the infrastructure device</param>
         /// <param name="logicalInterfaceId">ID of the infrastructure logical interface</param>
-        /// <param name="body">Infrastructure logical interfcae update object that updates an existing logical interface</param>
+        /// <param name="body">Infrastructure logical interface update object that updates an existing logical interface</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>

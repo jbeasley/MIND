@@ -60,7 +60,7 @@ namespace Mind.WebUI.Models
         /// <summary>
         /// The type of routing instance which must be associated with any attachments which belong to this attachment role.
         /// </summary>
-        /// <value>Integer value denoting the ID of the routing instance type<value>
+        /// <value>Integer value denoting the ID of the routing instance type</value>
         public int? RoutingInstanceTypeID { get; private set; }
 
         /// <summary>

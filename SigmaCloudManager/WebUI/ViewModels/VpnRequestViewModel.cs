@@ -15,6 +15,7 @@ namespace Mind.WebUI.Models
 {
     /// <summary>
     /// Model for requesting a vpn
+    /// </summary>
     public class VpnRequestViewModel : IValidatableObject
     {
         public VpnRequestViewModel()

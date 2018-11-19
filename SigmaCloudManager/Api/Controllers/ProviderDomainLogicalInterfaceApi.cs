@@ -211,7 +211,7 @@ namespace Mind.Api.Controllers
         /// Update an existing logical interface in the provider domain
         /// </summary>
 
-        /// <param name="routingInstanceId">ID of the routing instance to which the logical interface belongs/param>
+        /// <param name="routingInstanceId">ID of the routing instance to which the logical interface belongs</param>
         /// <param name="logicalInterfaceId">ID of the logical interface in the provider domain</param>
         /// <param name="body">ProviderDomain logical interfcae update object that updates an existing logical interface</param>
         /// <response code="204">Successful operation</response>

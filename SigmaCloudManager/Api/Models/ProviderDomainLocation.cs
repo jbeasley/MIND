@@ -46,7 +46,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// The name of the geographic subregion to which the provider domain location belongs.
         /// </summary>
-        /// <value>String value denoting the name of the geographic subregion/value>
+        /// <value>String value denoting the name of the geographic subregion</value>
         /// <example>UK</example>
         [DataMember(Name = "subRegionName")]
         public string SubRegionName { get; private set; }
@@ -54,7 +54,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// The name of the major geographic rregion to which the provider domain location belongs.
         /// </summary>
-        /// <value>String value denoting the name of the major geographic region/value>
+        /// <value>String value denoting the name of the major geographic region</value>
         /// <example>EMEA</example>
         [DataMember(Name = "regionName")]
         public string RegionName { get; private set; }
@@ -62,7 +62,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// The name of the locale community assigned to the provider domain location.
         /// </summary>
-        /// <value>String value denoting the name of the locale community/value>
+        /// <value>String value denoting the name of the locale community</value>
         /// <example>8718:10010</example>
         [DataMember(Name = "localeCommunityName")]
         public string LocaleCommunityName { get; private set; }

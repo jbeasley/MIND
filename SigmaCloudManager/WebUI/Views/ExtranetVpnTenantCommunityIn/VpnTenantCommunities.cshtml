@@ -1,8 +1,0 @@
-@model IEnumerable<SCM.Models.ViewModels.VpnTenantCommunityInViewModel>
-
-<option value="">-- Select a Community --</option>
-
-@foreach (var item in Model)
-{
-    <option value="@item.VpnTenantCommunityInID">@item.TenantCommunity.Name</option>
-}

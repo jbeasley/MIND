@@ -24,6 +24,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Content Remove="WebUI\Views\InfrastructureAttachment\AttachmentDeleted.cshtml" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Styles\breadcrumb.css" />
     <Content Include="Styles\breadcrumb.min.css" />
     <Content Include="Styles\breadcrumb.scss" />

@@ -1,8 +1,0 @@
-@model IEnumerable<SCM.Models.ViewModels.PortViewModel>
-
-<option value="">-- Select Port --</option>
-
-@foreach (var item in Model)
-{
-    <option value="@item.ID">@item.FullName</option>
-}

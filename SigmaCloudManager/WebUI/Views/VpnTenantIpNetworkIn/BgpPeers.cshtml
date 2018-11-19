@@ -1,8 +1,0 @@
-@model IEnumerable<SCM.Models.ViewModels.BgpPeerViewModel>
-
-<option value="">-- Select BGP Peer --</option>
-
-@foreach (var item in Model)
-{
-    <option value="@item.BgpPeerID">@item.Name</option>
-}

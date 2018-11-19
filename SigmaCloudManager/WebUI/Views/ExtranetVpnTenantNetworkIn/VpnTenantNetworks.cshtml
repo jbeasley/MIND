@@ -1,8 +1,0 @@
-@model IEnumerable<SCM.Models.ViewModels.VpnTenantIpNetworkInViewModel>
-
-<option value="">-- Select an IP Network --</option>
-
-@foreach (var item in Model)
-{
-    <option value="@item.VpnTenantIpNetworkInID">@item.TenantIpNetwork.CidrName</option>
-}

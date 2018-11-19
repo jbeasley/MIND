@@ -10,19 +10,6 @@ namespace Mind.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
-                name: "AddressFamily",
-                columns: table => new
-                {
-                    AddressFamilyID = table.Column<int>(nullable: false)
-                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(maxLength: 50, nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_AddressFamily", x => x.AddressFamilyID);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AttachmentBandwidth",
                 columns: table => new
                 {
@@ -604,6 +591,27 @@ namespace Mind.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "AddressFamily",
+                columns: table => new
+                {
+                    AddressFamilyID = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    Name = table.Column<string>(maxLength: 50, nullable: false),
+                    RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
+                    VpnProtocolTypeID = table.Column<int>(nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_AddressFamily", x => x.AddressFamilyID);
+                    table.ForeignKey(
+                        name: "FK_AddressFamily_VpnProtocolType_VpnProtocolTypeID",
+                        column: x => x.VpnProtocolTypeID,
+                        principalTable: "VpnProtocolType",
+                        principalColumn: "VpnProtocolTypeID",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "VpnTopologyType",
                 columns: table => new
                 {
@@ -792,7 +800,6 @@ namespace Mind.Migrations
                     ShowCreatedAlert = table.Column<bool>(nullable: false),
                     ShowRequiresSyncAlert = table.Column<bool>(nullable: false),
                     TenantID = table.Column<int>(nullable: false),
-                    TenantID1 = table.Column<int>(nullable: true),
                     VpnTenancyTypeID = table.Column<int>(nullable: false),
                     VpnTopologyTypeID = table.Column<int>(nullable: false)
                 },
@@ -832,12 +839,6 @@ namespace Mind.Migrations
                     table.ForeignKey(
                         name: "FK_Vpn_Tenant_TenantID",
                         column: x => x.TenantID,
-                        principalTable: "Tenant",
-                        principalColumn: "TenantID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Vpn_Tenant_TenantID1",
-                        column: x => x.TenantID1,
                         principalTable: "Tenant",
                         principalColumn: "TenantID",
                         onDelete: ReferentialAction.Restrict);
@@ -1120,8 +1121,7 @@ namespace Mind.Migrations
                     MulticastGeographicalScopeID = table.Column<int>(nullable: true),
                     MulticastVpnRpID = table.Column<int>(nullable: true),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
-                    TenantMulticastGroupID = table.Column<int>(nullable: false),
-                    TenantMulticastGroupID1 = table.Column<int>(nullable: true)
+                    TenantMulticastGroupID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1147,12 +1147,6 @@ namespace Mind.Migrations
                     table.ForeignKey(
                         name: "FK_VpnTenantMulticastGroup_TenantMulticastGroup_TenantMulticastGroupID",
                         column: x => x.TenantMulticastGroupID,
-                        principalTable: "TenantMulticastGroup",
-                        principalColumn: "TenantMulticastGroupID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantMulticastGroup_TenantMulticastGroup_TenantMulticastGroupID1",
-                        column: x => x.TenantMulticastGroupID1,
                         principalTable: "TenantMulticastGroup",
                         principalColumn: "TenantMulticastGroupID",
                         onDelete: ReferentialAction.Restrict);
@@ -1222,7 +1216,6 @@ namespace Mind.Migrations
                     IsMultiPort = table.Column<bool>(nullable: false),
                     IsTagged = table.Column<bool>(nullable: false),
                     MtuID = table.Column<int>(nullable: false),
-                    MtuID1 = table.Column<int>(nullable: true),
                     Notes = table.Column<string>(maxLength: 250, nullable: true),
                     RequiresSync = table.Column<bool>(nullable: false),
                     RoutingInstanceID = table.Column<int>(nullable: true),
@@ -1261,12 +1254,6 @@ namespace Mind.Migrations
                     table.ForeignKey(
                         name: "FK_Attachment_Mtu_MtuID",
                         column: x => x.MtuID,
-                        principalTable: "Mtu",
-                        principalColumn: "MtuID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Attachment_Mtu_MtuID1",
-                        column: x => x.MtuID1,
                         principalTable: "Mtu",
                         principalColumn: "MtuID",
                         onDelete: ReferentialAction.Restrict);
@@ -1376,7 +1363,6 @@ namespace Mind.Migrations
                     RoutingInstanceID = table.Column<int>(nullable: false),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
                     TenantCommunityID = table.Column<int>(nullable: true),
-                    TenantCommunityID1 = table.Column<int>(nullable: true),
                     TenantCommunitySetID = table.Column<int>(nullable: true)
                 },
                 constraints: table =>
@@ -1401,12 +1387,6 @@ namespace Mind.Migrations
                         principalColumn: "TenantCommunityID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_VpnTenantCommunityRoutingInstance_TenantCommunity_TenantCommunityID1",
-                        column: x => x.TenantCommunityID1,
-                        principalTable: "TenantCommunity",
-                        principalColumn: "TenantCommunityID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_VpnTenantCommunityRoutingInstance_TenantCommunitySet_TenantCommunitySetID",
                         column: x => x.TenantCommunitySetID,
                         principalTable: "TenantCommunitySet",
@@ -1424,8 +1404,7 @@ namespace Mind.Migrations
                     LocalIpRoutingPreference = table.Column<int>(nullable: false),
                     RoutingInstanceID = table.Column<int>(nullable: false),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
-                    TenantIpNetworkID = table.Column<int>(nullable: false),
-                    TenantIpNetworkID1 = table.Column<int>(nullable: true)
+                    TenantIpNetworkID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1448,12 +1427,6 @@ namespace Mind.Migrations
                         principalTable: "TenantIpNetwork",
                         principalColumn: "TenantIpNetworkID",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantIpNetworkRoutingInstance_TenantIpNetwork_TenantIpNetworkID1",
-                        column: x => x.TenantIpNetworkID1,
-                        principalTable: "TenantIpNetwork",
-                        principalColumn: "TenantIpNetworkID",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1468,8 +1441,7 @@ namespace Mind.Migrations
                     IsBfdEnabled = table.Column<bool>(nullable: false),
                     RoutingInstanceID = table.Column<int>(nullable: true),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
-                    TenantIpNetworkID = table.Column<int>(nullable: false),
-                    TenantIpNetworkID1 = table.Column<int>(nullable: true)
+                    TenantIpNetworkID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1489,12 +1461,6 @@ namespace Mind.Migrations
                     table.ForeignKey(
                         name: "FK_VpnTenantIpNetworkRoutingInstanceStaticRoute_TenantIpNetwork_TenantIpNetworkID",
                         column: x => x.TenantIpNetworkID,
-                        principalTable: "TenantIpNetwork",
-                        principalColumn: "TenantIpNetworkID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantIpNetworkRoutingInstanceStaticRoute_TenantIpNetwork_TenantIpNetworkID1",
-                        column: x => x.TenantIpNetworkID1,
                         principalTable: "TenantIpNetwork",
                         principalColumn: "TenantIpNetworkID",
                         onDelete: ReferentialAction.Restrict);
@@ -1540,7 +1506,6 @@ namespace Mind.Migrations
                     Created = table.Column<bool>(nullable: false),
                     IsLayer3 = table.Column<bool>(nullable: false),
                     MtuID = table.Column<int>(nullable: false),
-                    MtuID1 = table.Column<int>(nullable: true),
                     RequiresSync = table.Column<bool>(nullable: false),
                     RoutingInstanceID = table.Column<int>(nullable: true),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
@@ -1548,7 +1513,6 @@ namespace Mind.Migrations
                     ShowRequiresSyncAlert = table.Column<bool>(nullable: false),
                     TenantID = table.Column<int>(nullable: true),
                     VifRoleID = table.Column<int>(nullable: false),
-                    VifRoleID1 = table.Column<int>(nullable: true),
                     VlanTag = table.Column<int>(nullable: false),
                     VlanTagRangeID = table.Column<int>(nullable: true)
                 },
@@ -1574,12 +1538,6 @@ namespace Mind.Migrations
                         principalColumn: "MtuID",
                         onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
-                        name: "FK_Vif_Mtu_MtuID1",
-                        column: x => x.MtuID1,
-                        principalTable: "Mtu",
-                        principalColumn: "MtuID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_Vif_RoutingInstance_RoutingInstanceID",
                         column: x => x.RoutingInstanceID,
                         principalTable: "RoutingInstance",
@@ -1594,12 +1552,6 @@ namespace Mind.Migrations
                     table.ForeignKey(
                         name: "FK_Vif_VifRole_VifRoleID",
                         column: x => x.VifRoleID,
-                        principalTable: "VifRole",
-                        principalColumn: "VifRoleID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_Vif_VifRole_VifRoleID1",
-                        column: x => x.VifRoleID1,
                         principalTable: "VifRole",
                         principalColumn: "VifRoleID",
                         onDelete: ReferentialAction.Restrict);
@@ -1622,8 +1574,7 @@ namespace Mind.Migrations
                     BgpPeerID = table.Column<int>(nullable: true),
                     LocalIpRoutingPreference = table.Column<int>(nullable: true),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
-                    TenantCommunityID = table.Column<int>(nullable: false),
-                    TenantCommunityID1 = table.Column<int>(nullable: true)
+                    TenantCommunityID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1646,12 +1597,6 @@ namespace Mind.Migrations
                         principalTable: "TenantCommunity",
                         principalColumn: "TenantCommunityID",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantCommunityIn_TenantCommunity_TenantCommunityID1",
-                        column: x => x.TenantCommunityID1,
-                        principalTable: "TenantCommunity",
-                        principalColumn: "TenantCommunityID",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1664,8 +1609,7 @@ namespace Mind.Migrations
                     AttachmentSetID = table.Column<int>(nullable: true),
                     BgpPeerID = table.Column<int>(nullable: false),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
-                    TenantCommunityID = table.Column<int>(nullable: false),
-                    TenantCommunityID1 = table.Column<int>(nullable: true)
+                    TenantCommunityID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1688,12 +1632,6 @@ namespace Mind.Migrations
                         principalTable: "TenantCommunity",
                         principalColumn: "TenantCommunityID",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantCommunityOut_TenantCommunity_TenantCommunityID1",
-                        column: x => x.TenantCommunityID1,
-                        principalTable: "TenantCommunity",
-                        principalColumn: "TenantCommunityID",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1704,12 +1642,10 @@ namespace Mind.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     AddToAllBgpPeersInAttachmentSet = table.Column<bool>(nullable: false),
                     AttachmentSetID = table.Column<int>(nullable: true),
-                    AttachmentSetID1 = table.Column<int>(nullable: true),
                     BgpPeerID = table.Column<int>(nullable: true),
                     LocalIpRoutingPreference = table.Column<int>(nullable: true),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
-                    TenantIpNetworkID = table.Column<int>(nullable: false),
-                    TenantIpNetworkID1 = table.Column<int>(nullable: true)
+                    TenantIpNetworkID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1720,12 +1656,6 @@ namespace Mind.Migrations
                         principalTable: "AttachmentSet",
                         principalColumn: "AttachmentSetID",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantIpNetworkIn_AttachmentSet_AttachmentSetID1",
-                        column: x => x.AttachmentSetID1,
-                        principalTable: "AttachmentSet",
-                        principalColumn: "AttachmentSetID",
-                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_VpnTenantIpNetworkIn_BgpPeer_BgpPeerID",
                         column: x => x.BgpPeerID,
@@ -1738,12 +1668,6 @@ namespace Mind.Migrations
                         principalTable: "TenantIpNetwork",
                         principalColumn: "TenantIpNetworkID",
                         onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantIpNetworkIn_TenantIpNetwork_TenantIpNetworkID1",
-                        column: x => x.TenantIpNetworkID1,
-                        principalTable: "TenantIpNetwork",
-                        principalColumn: "TenantIpNetworkID",
-                        onDelete: ReferentialAction.Restrict);
                 });
 
             migrationBuilder.CreateTable(
@@ -1752,13 +1676,12 @@ namespace Mind.Migrations
                 {
                     VpnTenantIpNetworkOutID = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    AddToAllBgpPeersInAttachmentSet = table.Column<bool>(nullable: false),
                     AdvertisedIpRoutingPreference = table.Column<int>(nullable: false),
                     AttachmentSetID = table.Column<int>(nullable: true),
-                    AttachmentSetID1 = table.Column<int>(nullable: true),
-                    BgpPeerID = table.Column<int>(nullable: false),
+                    BgpPeerID = table.Column<int>(nullable: true),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
-                    TenantIpNetworkID = table.Column<int>(nullable: false),
-                    TenantIpNetworkID1 = table.Column<int>(nullable: true)
+                    TenantIpNetworkID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
@@ -1770,26 +1693,14 @@ namespace Mind.Migrations
                         principalColumn: "AttachmentSetID",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_VpnTenantIpNetworkOut_AttachmentSet_AttachmentSetID1",
-                        column: x => x.AttachmentSetID1,
-                        principalTable: "AttachmentSet",
-                        principalColumn: "AttachmentSetID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
                         name: "FK_VpnTenantIpNetworkOut_BgpPeer_BgpPeerID",
                         column: x => x.BgpPeerID,
                         principalTable: "BgpPeer",
                         principalColumn: "BgpPeerID",
-                        onDelete: ReferentialAction.Cascade);
+                        onDelete: ReferentialAction.Restrict);
                     table.ForeignKey(
                         name: "FK_VpnTenantIpNetworkOut_TenantIpNetwork_TenantIpNetworkID",
                         column: x => x.TenantIpNetworkID,
-                        principalTable: "TenantIpNetwork",
-                        principalColumn: "TenantIpNetworkID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantIpNetworkOut_TenantIpNetwork_TenantIpNetworkID1",
-                        column: x => x.TenantIpNetworkID1,
                         principalTable: "TenantIpNetwork",
                         principalColumn: "TenantIpNetworkID",
                         onDelete: ReferentialAction.Restrict);
@@ -1957,7 +1868,6 @@ namespace Mind.Migrations
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
                     RowVersion = table.Column<byte[]>(rowVersion: true, nullable: true),
                     TenantCommunityID = table.Column<int>(nullable: false),
-                    TenantCommunityID1 = table.Column<int>(nullable: true),
                     VpnTenantIpNetworkInID = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
@@ -1966,12 +1876,6 @@ namespace Mind.Migrations
                     table.ForeignKey(
                         name: "FK_VpnTenantIpNetworkCommunityIn_TenantCommunity_TenantCommunityID",
                         column: x => x.TenantCommunityID,
-                        principalTable: "TenantCommunity",
-                        principalColumn: "TenantCommunityID",
-                        onDelete: ReferentialAction.Restrict);
-                    table.ForeignKey(
-                        name: "FK_VpnTenantIpNetworkCommunityIn_TenantCommunity_TenantCommunityID1",
-                        column: x => x.TenantCommunityID1,
                         principalTable: "TenantCommunity",
                         principalColumn: "TenantCommunityID",
                         onDelete: ReferentialAction.Restrict);
@@ -1988,6 +1892,11 @@ namespace Mind.Migrations
                 table: "AddressFamily",
                 column: "Name",
                 unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_AddressFamily_VpnProtocolTypeID",
+                table: "AddressFamily",
+                column: "VpnProtocolTypeID");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Attachment_AttachmentBandwidthID",
@@ -2013,11 +1922,6 @@ namespace Mind.Migrations
                 name: "IX_Attachment_MtuID",
                 table: "Attachment",
                 column: "MtuID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Attachment_MtuID1",
-                table: "Attachment",
-                column: "MtuID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Attachment_RoutingInstanceID",
@@ -2515,11 +2419,6 @@ namespace Mind.Migrations
                 column: "MtuID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Vif_MtuID1",
-                table: "Vif",
-                column: "MtuID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Vif_RoutingInstanceID",
                 table: "Vif",
                 column: "RoutingInstanceID");
@@ -2533,11 +2432,6 @@ namespace Mind.Migrations
                 name: "IX_Vif_VifRoleID",
                 table: "Vif",
                 column: "VifRoleID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Vif_VifRoleID1",
-                table: "Vif",
-                column: "VifRoleID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Vif_VlanTagRangeID",
@@ -2607,11 +2501,6 @@ namespace Mind.Migrations
                 column: "TenantID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Vpn_TenantID1",
-                table: "Vpn",
-                column: "TenantID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_Vpn_VpnTenancyTypeID",
                 table: "Vpn",
                 column: "VpnTenancyTypeID");
@@ -2655,11 +2544,6 @@ namespace Mind.Migrations
                 column: "BgpPeerID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantCommunityIn_TenantCommunityID1",
-                table: "VpnTenantCommunityIn",
-                column: "TenantCommunityID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantCommunityIn_TenantCommunityID_AttachmentSetID_AddToAllBgpPeersInAttachmentSet_BgpPeerID",
                 table: "VpnTenantCommunityIn",
                 columns: new[] { "TenantCommunityID", "AttachmentSetID", "AddToAllBgpPeersInAttachmentSet", "BgpPeerID" },
@@ -2676,11 +2560,6 @@ namespace Mind.Migrations
                 column: "BgpPeerID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantCommunityOut_TenantCommunityID1",
-                table: "VpnTenantCommunityOut",
-                column: "TenantCommunityID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantCommunityOut_TenantCommunityID_AttachmentSetID_BgpPeerID",
                 table: "VpnTenantCommunityOut",
                 columns: new[] { "TenantCommunityID", "AttachmentSetID", "BgpPeerID" },
@@ -2695,11 +2574,6 @@ namespace Mind.Migrations
                 name: "IX_VpnTenantCommunityRoutingInstance_RoutingInstanceID",
                 table: "VpnTenantCommunityRoutingInstance",
                 column: "RoutingInstanceID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantCommunityRoutingInstance_TenantCommunityID1",
-                table: "VpnTenantCommunityRoutingInstance",
-                column: "TenantCommunityID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantCommunityRoutingInstance_TenantCommunityID_AttachmentSetID",
@@ -2721,11 +2595,6 @@ namespace Mind.Migrations
                 column: "TenantCommunityID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantIpNetworkCommunityIn_TenantCommunityID1",
-                table: "VpnTenantIpNetworkCommunityIn",
-                column: "TenantCommunityID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantIpNetworkCommunityIn_VpnTenantIpNetworkInID_TenantCommunityID",
                 table: "VpnTenantIpNetworkCommunityIn",
                 columns: new[] { "VpnTenantIpNetworkInID", "TenantCommunityID" },
@@ -2737,19 +2606,9 @@ namespace Mind.Migrations
                 column: "AttachmentSetID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantIpNetworkIn_AttachmentSetID1",
-                table: "VpnTenantIpNetworkIn",
-                column: "AttachmentSetID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantIpNetworkIn_BgpPeerID",
                 table: "VpnTenantIpNetworkIn",
                 column: "BgpPeerID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantIpNetworkIn_TenantIpNetworkID1",
-                table: "VpnTenantIpNetworkIn",
-                column: "TenantIpNetworkID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantIpNetworkIn_TenantIpNetworkID_AttachmentSetID_AddToAllBgpPeersInAttachmentSet_BgpPeerID",
@@ -2763,19 +2622,9 @@ namespace Mind.Migrations
                 column: "AttachmentSetID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantIpNetworkOut_AttachmentSetID1",
-                table: "VpnTenantIpNetworkOut",
-                column: "AttachmentSetID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantIpNetworkOut_BgpPeerID",
                 table: "VpnTenantIpNetworkOut",
                 column: "BgpPeerID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantIpNetworkOut_TenantIpNetworkID1",
-                table: "VpnTenantIpNetworkOut",
-                column: "TenantIpNetworkID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantIpNetworkOut_TenantIpNetworkID_AttachmentSetID_BgpPeerID",
@@ -2794,11 +2643,6 @@ namespace Mind.Migrations
                 column: "RoutingInstanceID");
 
             migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantIpNetworkRoutingInstance_TenantIpNetworkID1",
-                table: "VpnTenantIpNetworkRoutingInstance",
-                column: "TenantIpNetworkID1");
-
-            migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantIpNetworkRoutingInstance_TenantIpNetworkID_AttachmentSetID",
                 table: "VpnTenantIpNetworkRoutingInstance",
                 columns: new[] { "TenantIpNetworkID", "AttachmentSetID" },
@@ -2813,11 +2657,6 @@ namespace Mind.Migrations
                 name: "IX_VpnTenantIpNetworkRoutingInstanceStaticRoute_RoutingInstanceID",
                 table: "VpnTenantIpNetworkRoutingInstanceStaticRoute",
                 column: "RoutingInstanceID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantIpNetworkRoutingInstanceStaticRoute_TenantIpNetworkID1",
-                table: "VpnTenantIpNetworkRoutingInstanceStaticRoute",
-                column: "TenantIpNetworkID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantIpNetworkRoutingInstanceStaticRoute_TenantIpNetworkID_AttachmentSetID",
@@ -2839,11 +2678,6 @@ namespace Mind.Migrations
                 name: "IX_VpnTenantMulticastGroup_MulticastVpnRpID",
                 table: "VpnTenantMulticastGroup",
                 column: "MulticastVpnRpID");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_VpnTenantMulticastGroup_TenantMulticastGroupID1",
-                table: "VpnTenantMulticastGroup",
-                column: "TenantMulticastGroupID1");
 
             migrationBuilder.CreateIndex(
                 name: "IX_VpnTenantMulticastGroup_TenantMulticastGroupID_AttachmentSetID",

@@ -44,7 +44,7 @@ namespace SCM.Data
 
             var addressFamilies = new List<AddressFamily>
             {
-                new AddressFamily {Name = "IPv4" }
+                new AddressFamily { VpnProtocolTypeID = vpnProtocolTypes.Single(x => x.Name == "IP").VpnProtocolTypeID, Name = "IPv4" }
             };
 
             foreach (var v in addressFamilies)

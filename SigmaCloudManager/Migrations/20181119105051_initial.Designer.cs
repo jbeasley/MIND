@@ -12,8 +12,8 @@ using System;
 namespace Mind.Migrations
 {
     [DbContext(typeof(SigmaContext))]
-    [Migration("20181031171039_update2")]
-    partial class update2
+    [Migration("20181119105051_initial")]
+    partial class initial
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -31,10 +31,18 @@ namespace Mind.Migrations
                         .IsRequired()
                         .HasMaxLength(50);
 
+                    b.Property<byte[]>("RowVersion")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<int>("VpnProtocolTypeID");
+
                     b.HasKey("AddressFamilyID");
 
                     b.HasIndex("Name")
                         .IsUnique();
+
+                    b.HasIndex("VpnProtocolTypeID");
 
                     b.ToTable("AddressFamily");
                 });
@@ -1889,11 +1897,13 @@ namespace Mind.Migrations
                     b.Property<int>("VpnTenantIpNetworkOutID")
                         .ValueGeneratedOnAdd();
 
+                    b.Property<bool>("AddToAllBgpPeersInAttachmentSet");
+
                     b.Property<int>("AdvertisedIpRoutingPreference");
 
                     b.Property<int?>("AttachmentSetID");
 
-                    b.Property<int>("BgpPeerID");
+                    b.Property<int?>("BgpPeerID");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -2031,6 +2041,14 @@ namespace Mind.Migrations
                         .IsUnique();
 
                     b.ToTable("VpnTopologyType");
+                });
+
+            modelBuilder.Entity("SCM.Models.AddressFamily", b =>
+                {
+                    b.HasOne("SCM.Models.VpnProtocolType", "VpnProtocolType")
+                        .WithMany("AddressFamilies")
+                        .HasForeignKey("VpnProtocolTypeID")
+                        .OnDelete(DeleteBehavior.Cascade);
                 });
 
             modelBuilder.Entity("SCM.Models.Attachment", b =>
@@ -2623,8 +2641,7 @@ namespace Mind.Migrations
 
                     b.HasOne("SCM.Models.BgpPeer", "BgpPeer")
                         .WithMany("VpnTenantIpNetworksOut")
-                        .HasForeignKey("BgpPeerID")
-                        .OnDelete(DeleteBehavior.Cascade);
+                        .HasForeignKey("BgpPeerID");
 
                     b.HasOne("SCM.Models.TenantIpNetwork", "TenantIpNetwork")
                         .WithMany("VpnTenantIpNetworksOut")

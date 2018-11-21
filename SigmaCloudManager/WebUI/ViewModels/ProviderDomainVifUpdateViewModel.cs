@@ -36,7 +36,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>string value denoting the name of the vif</value>
         /// <example>TenGigabitEthernet0/0.10</example>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// If specified, the vif should be associated with an existing routing instance

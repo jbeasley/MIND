@@ -2,6 +2,8 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp2.0</TargetFramework>
+<!-- Necessary to add this line for docker image to run - see https://github.com/aspnet/IISIntegration/issues/476 -->
+    <PublishWithAspNetCoreTargetManifest>false</PublishWithAspNetCoreTargetManifest>
     <Authors>Jon Beasley</Authors>
     <Company>Refinitiv</Company>
     <Product>RAID</Product>
@@ -53,6 +55,7 @@
     <PackageReference Include="Swashbuckle.AspNetCore" Version="3.0.0" />
     <PackageReference Include="Swashbuckle.AspNetCore.Annotations" Version="3.0.0" />
     <PackageReference Include="twitter-bootstrap-wizard" Version="1.4.2" />
+    <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
   </ItemGroup>
 
   <ItemGroup>

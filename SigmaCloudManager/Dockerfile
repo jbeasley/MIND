@@ -1,18 +1,16 @@
-FROM microsoft/dotnet:2.0-sdk AS build
+FROM microsoft/aspnetcore-build:2.0.0 AS build
 WORKDIR /app
 
 # copy csproj and restore as distinct layers
-COPY *.sln .
-COPY aspnetapp/*.csproj ./aspnetapp/
+COPY *.csproj ./
 RUN dotnet restore
 
 # copy everything else and build app
-COPY aspnetapp/. ./aspnetapp/
-WORKDIR /app/aspnetapp
+COPY . ./
 RUN dotnet publish -c Release -o out
 
 
-FROM microsoft/dotnet:2.0-aspnetcore-runtime AS runtime
+FROM microsoft/aspnetcore:2.0.0
 WORKDIR /app
-COPY --from=build /app/aspnetapp/out ./
-ENTRYPOINT ["dotnet", "mind.dll"]
+COPY --from=build /app/out ./
+ENTRYPOINT ["dotnet", "Mind.dll"]

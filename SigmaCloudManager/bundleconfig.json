@@ -6,6 +6,12 @@
     ]
   },
   {
+    "outputFileName": "wwwroot/css/breadcrumb.min.css",
+    "inputFiles": [
+      "wwwroot/css/breadcrumb.css"
+    ]
+  },
+  {
     "outputFileName": "wwwroot/js/site.min.js",
     "inputFiles": [
       "wwwroot/js/site.js"
@@ -16,9 +22,33 @@
     }
   },
   {
-    "outputFileName": "wwwroot/js/showspinner.min.js",
+    "outputFileName": "wwwroot/js/AttachmentSet/grids.min.js",
     "inputFiles": [
-      "wwwroot/js/showspinner.js"
-    ]
+      "wwwroot/js/AttachmentSet/grids.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/VpnAttachmentSet/grids.min.js",
+    "inputFiles": [
+      "wwwroot/js/VpnAttachmentSet/grids.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/BgpPeer/grids.min.js",
+    "inputFiles": [
+      "wwwroot/js/BgpPeer/grids.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
   }
 ]

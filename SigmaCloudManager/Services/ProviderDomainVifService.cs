@@ -87,6 +87,8 @@ namespace Mind.Services
                        select result)
                        .Single();
 
+            vif.ValidateDelete();
+
             if (vif.RoutingInstance != null)
             {
                 if (vif.RoutingInstance.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)

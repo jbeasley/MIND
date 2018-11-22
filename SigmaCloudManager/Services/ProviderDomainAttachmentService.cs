@@ -10,6 +10,8 @@ using SCM.Models;
 using SCM.Models.RequestModels;
 using SCM.Services;
 using Mind.Builders;
+using IO.Swagger.Api;
+using IO.Swagger.Client;
 
 namespace Mind.Services
 {
@@ -20,14 +22,17 @@ namespace Mind.Services
     {
         private readonly Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> _directorFactory;
         private readonly Func<Attachment, IProviderDomainAttachmentUpdateDirector> _updateDirectorFactory;
+        private readonly IDataApi _novaApiClient;
 
         public ProviderDomainAttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
             Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> directorFactory,
-            Func<Attachment, IProviderDomainAttachmentUpdateDirector> updateDirectorFactory) : base(unitOfWork, mapper)
+            Func<Attachment, IProviderDomainAttachmentUpdateDirector> updateDirectorFactory,
+            IDataApi novaApiClient) : base(unitOfWork, mapper)
         {
             _directorFactory = directorFactory;
             _updateDirectorFactory = updateDirectorFactory;
+            _novaApiClient = novaApiClient;
         }
 
         /// <summary>
@@ -73,8 +78,15 @@ namespace Mind.Services
             var director = _directorFactory(request, attachmentRole);
             var attachment = await director.BuildAsync(tenantId, request);
             UnitOfWork.AttachmentRepository.Insert(attachment);
-            await UnitOfWork.SaveAsync();
 
+            // Update the network
+            var dto = attachment.ToNovaTaggedAttachmentDto();
+            if (dto != null)
+            {
+                await _novaApiClient.DataAttachmentAttachmentPePePeNamePatchAsync(attachment.Device.Name, dto);
+            }
+
+            await UnitOfWork.SaveAsync();
             return await base.GetByIDAsync(attachment.AttachmentID, PortRoleTypeEnum.TenantFacing, deep: true, asTrackable: false);
         }
 
@@ -120,6 +132,13 @@ namespace Mind.Services
                     await UnitOfWork.ContractBandwidthPoolRepository.DeleteAsync(attachment.ContractBandwidthPoolID);
             }
 
+            // Update the network
+            var dto = updatedAttachment.ToNovaTaggedAttachmentDto();
+            if (dto != null) 
+            {
+                await _novaApiClient.DataAttachmentAttachmentPePePeNamePatchAsync(updatedAttachment.Device.Name, dto);
+            }
+
             await UnitOfWork.SaveAsync();
             return await base.GetByIDAsync(attachment.AttachmentID, PortRoleTypeEnum.TenantFacing, deep: true, asTrackable: false);
         }
@@ -132,8 +151,8 @@ namespace Mind.Services
         {
             var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
                             q => 
-                             q.AttachmentID == attachmentId,
-                             query: q => q.IncludeDeleteValidationProperties(),
+                              q.AttachmentID == attachmentId,
+                              query: q => q.IncludeDeleteValidationProperties(),
                               AsTrackable: true)
                               select attachments)
                               .Single();
@@ -147,7 +166,7 @@ namespace Mind.Services
                                                 .ToList();
 
             var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(
-                                q => 
+                                  q => 
                                     q.PortStatusType == PortStatusTypeEnum.Free, 
                                     AsTrackable: true)
                                     select portStatuses)
@@ -177,10 +196,11 @@ namespace Mind.Services
 
             foreach (var routingInstance in attachment.Vifs.Select(
                                                                 x => 
-                                                                x.RoutingInstance)
-                                                                .Where(
+                                                                    x.RoutingInstance)
+                                                                    .Where(
                                                                     x => 
-                                                                    x != null && x.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf))
+                                                                    x != null && x.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
+                                                                  )
             {
                 // For each vif configured under the attachment being deleted, check if the associated routing instance can be deleted. 
                 // If there are no attachments which share the routing instance, and the
@@ -190,7 +210,7 @@ namespace Mind.Services
                     routingInstance.Vifs
                                    .Intersect(
                                         attachment.Vifs, new VifComparer())
-                                        .Count() == routingInstance.Vifs.Count())
+                                   .Count() == routingInstance.Vifs.Count())
                 {
                     UnitOfWork.RoutingInstanceRepository.Delete(routingInstance);
                 }
@@ -208,10 +228,18 @@ namespace Mind.Services
 
             if (attachment.ContractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(attachment.ContractBandwidthPool);
 
+            if (!attachment.IsBundle && !attachment.IsMultiPort && attachment.IsTagged)
+            {
+                // Remove the attachment from the network
+                await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdDeleteAsync(
+                    attachment.Device.Name, attachment.PortType, attachment.PortName);
+            }
+
             UnitOfWork.AttachmentRepository.Delete(attachment);
             await UnitOfWork.SaveAsync();
         }
 
+        /// Comparer for VIFs - basically just looks for matching Vif IDs
         private class VifComparer : IEqualityComparer<Vif>
         {
             public bool Equals(Vif x, Vif y)

@@ -23,6 +23,7 @@ Mind.Utilities = (function () {
 
     "use strict";
 
+    /// Get the current cookie
     var getCookie = function (cname) {
         var name = cname + "=";
         var decodedCookie = decodeURIComponent(document.cookie);
@@ -39,6 +40,7 @@ Mind.Utilities = (function () {
         return "";
     };
 
+    /// Populate an element with html from the server
     var populateElement = function ($e, url, data) {
 
         $e[0].disabled = true;
@@ -52,6 +54,16 @@ Mind.Utilities = (function () {
             });
     };
 
+    /// Show the spinner
+    var showSpinner = function () {
+
+        var $loadingSpinner = $('#loadingSpinner');
+        if ($loadingSpinner.length > 0) {
+            $loadingSpinner.modal('show');
+        }
+    }
+
+    /// Create a wizard
     var createWizard = function ($wizard, $form) {
 
         $wizard.steps({
@@ -74,7 +86,7 @@ Mind.Utilities = (function () {
             },
             onFinished: function (event, currentIndex) {
 
-                $('#loadingSpinner').modal('show');
+                showSpinner();
                 $form.submit();
             }
         });
@@ -84,7 +96,8 @@ Mind.Utilities = (function () {
 
         getCookie: getCookie,
         populateElement: populateElement,
-        createWizard: createWizard
+        createWizard: createWizard,
+        showSpinner: showSpinner
     };
 
 }(jQuery));

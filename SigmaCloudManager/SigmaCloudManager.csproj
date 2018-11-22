@@ -57,11 +57,11 @@
     <PackageReference Include="twitter-bootstrap-wizard" Version="1.4.2" />
     <PackageReference Include="BuildBundlerMinifier" Version="2.8.391" />
   </ItemGroup>
-
+  
   <ItemGroup>
     <DotNetCliToolReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Tools" Version="2.0.1" />
   </ItemGroup>
-
+    
   <ItemGroup>
     <None Include="wwwroot\js\AttachmentSet\grids.js" />
   </ItemGroup>
@@ -251,5 +251,13 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
   </ItemGroup>
-
+ 
+  <ItemGroup>
+    <Reference Include="IO.Swagger">
+      <HintPath>..\csharp_api_client\bin\IO.Swagger.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\csharp_api_client\bin\RestSharp.dll</HintPath>
+    </Reference>
+  </ItemGroup>
 </Project>

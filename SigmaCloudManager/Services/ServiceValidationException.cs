@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 namespace Mind.Services
 {
     /// <summary>
-    /// Exceptions which is raised by a service upon failure of a validation check.
+    /// Exception which is raised by a service upon failure of a validation check.
     /// </summary>
     public class ServiceValidationException : Exception
     {

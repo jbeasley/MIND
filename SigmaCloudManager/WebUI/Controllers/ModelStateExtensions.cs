@@ -34,5 +34,11 @@ namespace Mind.WebUI.Controllers
             modelState.AddModelError(string.Empty, "An error occurred while updating the database. " +
                  "Try again, and if the problem persists report it to your system administrator.");
         }
+
+        public static void AddNovaClientApiExceptionMessage(this ModelStateDictionary modelState)
+        {
+            modelState.AddModelError(string.Empty, "An error occurred while updating the network. " +
+                 "No changes have been applied. Try again, and if the problem persists report it to your system administrator.");
+        }
     }
 }

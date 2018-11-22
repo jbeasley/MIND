@@ -216,7 +216,7 @@ namespace Mind.WebUI.Controllers
             await PopulateRoutingInstancesDropDownList(tenant.TenantID, attachmentSet.Region.Name, attachmentSet.SubRegion?.Name,
                 attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
             await PopulateAttachmentRedundancyOptionsDropDownList(attachmentSet.AttachmentRedundancy.Name);
-            await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, attachmentSet.SubRegion.Name);
+            await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, attachmentSet.SubRegion?.Name);
             await PopulateInboundIpNetworksDropDownList(attachmentSet.TenantID);
             await PopulateRemoteTenantsDropDownList();
 
@@ -282,7 +282,7 @@ namespace Mind.WebUI.Controllers
             await PopulateAttachmentRedundancyOptionsDropDownList(update.AttachmentRedundancy.ToString());
             await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, update.SubRegion);
             await PopulateInboundIpNetworksDropDownList(attachmentSet.TenantID);
-            var bgpPeers = await GetBgpPeersList(update.AttachmentSetRoutingInstances
+            var bgpPeers = await GetBgpPeersList(update.AttachmentSetRoutingInstances?
                                                        .Select(
                                                             attachmentSetRoutingInstance => 
                                                             attachmentSetRoutingInstance.RoutingInstanceName)

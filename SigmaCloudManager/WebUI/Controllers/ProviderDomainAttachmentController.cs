@@ -19,7 +19,7 @@ using Mind.Builders;
 using Mind.WebUI.Attributes;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
-using Mind.WebUI.ViewComponents;
+using IO.Swagger.Client;
 
 namespace Mind.WebUI.Controllers
 {
@@ -216,6 +216,11 @@ namespace Mind.WebUI.Controllers
                 {
                     ModelState.AddDatabaseUpdateExceptionMessage();
                 }
+
+                catch (ApiException)
+                {
+                    ModelState.AddNovaClientApiExceptionMessage();
+                }
             }
 
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
@@ -350,6 +355,11 @@ namespace Mind.WebUI.Controllers
             catch (DbUpdateException)
             {
                 ViewData.AddDatabaseUpdateExceptionMessage();
+            }
+
+            catch (ApiException)
+            {
+                ModelState.AddNovaClientApiExceptionMessage();
             }
 
             return View(_mapper.Map<ProviderDomainAttachmentDeleteViewModel>(attachment));

@@ -74,7 +74,7 @@ namespace Mind.Builders
 
         public virtual IAttachmentSetBuilder WithRoutingInstances(List<RoutingInstanceForAttachmentSetRequest> routingInstanceRequests)
         {
-            if (routingInstanceRequests.Any()) _args.Add(nameof(WithRoutingInstances), routingInstanceRequests);
+            if (routingInstanceRequests != null) _args.Add(nameof(WithRoutingInstances), routingInstanceRequests);
             return this;
         }
 

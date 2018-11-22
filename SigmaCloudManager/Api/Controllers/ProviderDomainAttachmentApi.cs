@@ -25,11 +25,11 @@ using Mind.Api.Attributes;
 using Mind.Api.Models;
 using Mind.Services;
 using AutoMapper;
-using SCM.Data;
 using Microsoft.EntityFrameworkCore;
 using Mind.Builders;
 using Mind.Models;
 using Swashbuckle.AspNetCore.Annotations;
+using IO.Swagger.Client;
 
 namespace Mind.Api.Controllers
 { 
@@ -100,6 +100,11 @@ namespace Mind.Api.Controllers
             {
                 return new DatabaseUpdateFailedResult();
             }
+
+            catch (ApiException)
+            {
+                return new NetworkUpdateFailedResult();
+            }
         }
 
         /// <summary>
@@ -137,6 +142,11 @@ namespace Mind.Api.Controllers
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
+            }
+
+            catch (ApiException)
+            {
+                return new NetworkUpdateFailedResult();
             }
         }
 

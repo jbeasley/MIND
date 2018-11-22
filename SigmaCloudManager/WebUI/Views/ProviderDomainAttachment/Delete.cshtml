@@ -1,10 +1,8 @@
 @model Mind.WebUI.Models.ProviderDomainAttachmentDeleteViewModel
 
-
 @{
     ViewData["Title"] = "Delete Attachment";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -13,12 +11,9 @@
         <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Delete - [@Model.Name]</a></li>
     </ul>
 </div>
-
 <h2>Delete Attachment '@Model.Name'</h2>
-
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-
 <h3>Are you sure you want to delete this?</h3>
 <div>
     <hr />
@@ -36,12 +31,26 @@
         <input type="hidden" asp-for="TenantId" />
         <input type="hidden" asp-for="RowVersion" />
         <div class="form-actions no-color">
-            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button>
-            </button> |
-            <a mind-nav-link-back-btn="true"  asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Attachments</a>
+            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button></button> |
+            <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Attachments</a>
         </div>
     </form>
 </div>
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            $('#Delete').on('click', function() {
+
+                Mind.Utilities.showSpinner();
+            });
+
+        }(jQuery));
+
+    </script>
 }

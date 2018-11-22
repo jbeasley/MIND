@@ -6,9 +6,54 @@ using System.Linq;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
+using IO.Swagger.Model;
 
 namespace SCM.Models
 {
+    /// <summary>
+    /// Attachment nova client dto extensions.
+    /// </summary>
+    public static class AttachmentNovaClientDtoExtensions {
+
+        /// <summary>
+        /// Tos the nova tagged attachment dto.
+        /// </summary>
+        /// <returns>The nova tagged attachment dto.</returns>
+        /// <param name="attachment">Attachment.</param>
+        public static DataAttachmentAttachmentPePePeName ToNovaTaggedAttachmentDto(this Attachment attachment) {
+
+            if (!attachment.IsBundle && !attachment.IsMultiPort && attachment.IsTagged)
+            {
+                var data = new DataAttachmentAttachmentPePePeName
+                {
+                    Attachmentpe = new List<DataAttachmentAttachmentPePepenameAttachmentpe> {
+                    new DataAttachmentAttachmentPePepenameAttachmentpe
+                    {
+                        PeName = attachment.Device.Name,
+                        TaggedAttachmentInterface = new List<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface>
+                        {
+                            new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
+                            {
+                                AttachmentBandwidth = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
+                                                          .AttachmentBandwidthEnum>(attachment.AttachmentBandwidth.BandwidthGbps.ToString()),
+                                InterfaceId = attachment.Interfaces.SingleOrDefault()?.Ports.SingleOrDefault()?.Name,
+                                InterfaceType = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
+                                                    .InterfaceTypeEnum>(attachment.Interfaces.SingleOrDefault()?.Ports.SingleOrDefault()?.Type),
+                                InterfaceMtu = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
+                                                   .InterfaceMtuEnum>(attachment.Mtu.MtuValue.ToString())
+                            }
+                        }
+                    }
+                }
+                };
+
+                return data;
+            }
+
+            return null;
+        }
+    }
+
     public static class AttachmentQueryableExtensions
     {
         public static IQueryable<Attachment> IncludeValidationProperties(this IQueryable<Attachment> query)
@@ -30,7 +75,8 @@ namespace SCM.Models
 
         public static IQueryable<Attachment> IncludeDeleteValidationProperties(this IQueryable<Attachment> query)
         {
-            return query.Include(x => x.ContractBandwidthPool.Attachments)
+            return query.Include(x => x.Device)
+                                     .Include(x => x.ContractBandwidthPool.Attachments)
                                      .Include(x => x.ContractBandwidthPool.Vifs)
                                      .Include(x => x.Interfaces)
                                      .ThenInclude(x => x.Ports)
@@ -76,6 +122,11 @@ namespace SCM.Models
     {
         [Key]
         public int AttachmentID { get; private set; }
+
+        /// <summary>
+        /// Gets the name of the attachment.
+        /// </summary>
+        /// <value>String value denoting the name of the attachment</value>
         [NotMapped]
         public string Name
         {
@@ -95,6 +146,42 @@ namespace SCM.Models
                     if (port != null) return $"{port.Type} {port.Name}";
                     return string.Empty;
                 }
+            }
+        }
+        /// <summary>
+        /// Convenience method - gets the type of the underlying port for single attachments.
+        /// For bundle or multiport attachments this method returns an empty string.
+        /// </summary>
+        /// <value>String denoting the name of port type</value>
+        [NotMapped]
+        public string PortType {
+            get {
+                if (!IsBundle && !IsMultiPort)
+                {
+
+                    var port = Interfaces?.SingleOrDefault()?.Ports?.SingleOrDefault();
+                    if (port != null) return port.Type;
+                }
+                return string.Empty;
+            }
+        }
+        /// <summary>
+        /// Convenience method - gets the name of the underlying port for single attachments.
+        /// For bundle or multiport attachments this method returns an empty string.
+        /// </summary>
+        /// <value>String denoting the name of port name</value>
+        [NotMapped]
+        public string PortName
+        {
+            get
+            {
+                if (!IsBundle && !IsMultiPort)
+                {
+
+                    var port = Interfaces?.SingleOrDefault()?.Ports?.SingleOrDefault();
+                    if (port != null) return port.Name;
+                }
+                return string.Empty;
             }
         }
         [MaxLength(250)]

@@ -31,6 +31,11 @@ using Microsoft.AspNetCore.Mvc;
 using Mind;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Mind.WebUI.Models;
+using Microsoft.Extensions.DependencyModel.Resolution;
+using Microsoft.Extensions.DependencyModel;
+using Microsoft.DotNet.PlatformAbstractions;
+using System.Reflection;
+using IO.Swagger.Api;
 
 namespace Mind
 {
@@ -58,22 +63,24 @@ namespace Mind
             // DB context for our Sigma repository
             services.AddDbContext<SigmaContext>(options =>
                 options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
-
-            // Get application configuration options
-            services.Configure<SCM.ApplicationConfiguration>(Configuration.GetSection("ApplicationConfiguration"));
-
+                                                
             // SignalR - library for async updates to clients. This is used by the API controllers to 
             // update clients on progress during network sync/checksync operations
             services.AddSignalR();
 
             //register the MyViewLocationExpander into ViewLocationExpanders  
+            // This is needed because our MVC views are located in a non-default location (i.e. in the WebUI folder)
             services.Configure<RazorViewEngineOptions>(options =>
             {
                 options.ViewLocationExpanders.Add(new WebUIViewLocationExpander());
             });
 
+
             // Add framework services.
-            services.AddMvc();
+            var mvcBuilder = services.AddMvc();
+            // Following is needed so that MVC can find external libraries, such as the IO.Swagger DLL which provides
+            // the API towards NSO
+            new MvcConfiguration().ConfigureMvc(mvcBuilder);
 
             services.AddMvcCore()
                     .AddVersionedApiExplorer(o =>
@@ -107,7 +114,7 @@ namespace Mind
                                 .GetRequiredService<IApiVersionDescriptionProvider>();
 
                   options.TagActionsBy(api => api.GroupName);
-                  foreach ( var description in provider.ApiVersionDescriptions)
+                  foreach (var description in provider.ApiVersionDescriptions)
                   {
                       options.SwaggerDoc(
                       description.GroupName,
@@ -137,22 +144,29 @@ namespace Mind
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Services containing all of our service logic
-            services.AddScoped<IPortService, PortService>();           
-            services.AddScoped<ITenantService, TenantService>();          
+            services.AddScoped<IPortService, PortService>();
+            services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<IVpnService, VpnService>();
             services.AddScoped<IAttachmentSetService, AttachmentSetService>();
             services.AddScoped<IAttachmentSetRoutingInstanceService, AttachmentSetRoutingInstanceService>();
             services.AddScoped<IVpnAttachmentSetService, VpnAttachmentSetService>();
             services.AddScoped<IBgpPeerService, BgpPeerService>();
             services.AddScoped<ITenantIpNetworkService, TenantIpNetworkService>();
-            services.AddScoped<ITenantCommunityService, TenantCommunityService>();        
+            services.AddScoped<ITenantCommunityService, TenantCommunityService>();
             services.AddScoped<IVpnTenantIpNetworkInService, VpnTenantIpNetworkInService>();
             services.AddScoped<IVpnTenantIpNetworkRoutingInstanceStaticRouteService, VpnTenantIpNetworkRoutingInstanceStaticRouteService>();
-            services.AddScoped<IVpnTenantIpNetworkOutService, VpnTenantIpNetworkOutService>();         
+            services.AddScoped<IVpnTenantIpNetworkOutService, VpnTenantIpNetworkOutService>();
             services.AddScoped<IInfrastructureAttachmentService, InfrastructureAttachmentService>();
 
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());
+
+            // Swagger client API for accessing the API of NSO 
+            services.AddScoped<IDataApi>(sp => new DataApi(new IO.Swagger.Client.Configuration
+            {
+                Username = "admin",
+                Password = "admin"               
+            }));
         }
 
         /// <summary>
@@ -662,7 +676,7 @@ namespace Mind
             builder.RegisterType<RoutingInstanceStaticRouteBuilder>().As<IRoutingInstanceStaticRouteBuilder>();
             builder.RegisterType<LogicalInterfaceBuilder>().As<ILogicalInterfaceBuilder>();
         }
- 
+
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApiVersionDescriptionProvider provider)
         {
@@ -703,6 +717,64 @@ namespace Mind
                     name: "default",
                     template: "{controller=Home}/{action=Index}/{id?}");
             });
+        }
+    }
+
+    public class MvcConfiguration : IDesignTimeMvcBuilderConfiguration
+    {
+        public void ConfigureMvc(IMvcBuilder builder)
+        {
+            // .NET Core SDK v1 does not pick up reference assemblies so
+            // they have to be added for Razor manually. Resolved for
+            // SDK v2 by https://github.com/dotnet/sdk/pull/876 OR SO WE THOUGHT
+            /*builder.AddRazorOptions(razor =>
+            {
+                razor.AdditionalCompilationReferences.Add(
+                    MetadataReference.CreateFromFile(
+                        typeof(PdfHttpHandler).Assembly.Location));
+            });*/
+
+            // .NET Core SDK v2 does not resolve reference assemblies' paths
+            // at all, so we have to hack around with reflection
+            typeof(CompilationLibrary)
+                .GetTypeInfo()
+                .GetDeclaredField("<DefaultResolver>k__BackingField")
+                .SetValue(null, new CompositeCompilationAssemblyResolver(new ICompilationAssemblyResolver[]
+                {
+                    new DirectReferenceAssemblyResolver(),
+                    new AppBaseCompilationAssemblyResolver(),
+                    new ReferenceAssemblyPathResolver(),
+                    new PackageCompilationAssemblyResolver(),
+                }));
+        }
+
+        private class DirectReferenceAssemblyResolver : ICompilationAssemblyResolver
+        {
+            public bool TryResolveAssemblyPaths(CompilationLibrary library, List<string> assemblies)
+            {
+                if (!string.Equals(library.Type, "reference", StringComparison.OrdinalIgnoreCase))
+                {
+                    return false;
+                }
+
+                var paths = new List<string>();
+
+                foreach (var assembly in library.Assemblies)
+                {
+                    var path = Path.Combine(ApplicationEnvironment.ApplicationBasePath, assembly);
+
+                    if (!File.Exists(path))
+                    {
+                        return false;
+                    }
+
+                    paths.Add(path);
+                }
+
+                assemblies.AddRange(paths);
+
+                return true;
+            }
         }
     }
 }

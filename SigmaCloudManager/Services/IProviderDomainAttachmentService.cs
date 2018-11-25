@@ -17,5 +17,6 @@ namespace Mind.Services
         Task<Attachment> AddAsync(int tenantId, ProviderDomainAttachmentRequest request);
         Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update);
         Task DeleteAsync(int attachmentId);
+        Task SyncToNetworkAsync(int attachmentId);
     }
 }

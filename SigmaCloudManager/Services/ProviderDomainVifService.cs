@@ -8,113 +8,85 @@ using Mind.Builders;
 using Mind.Models.RequestModels;
 using SCM.Data;
 using SCM.Models;
+using Mind.Directors;
+using IO.Swagger.Api;
 
 namespace Mind.Services
 {
     public class ProviderDomainVifService : BaseVifService, IProviderDomainVifService
     {
         private readonly IProviderDomainVifDirector _director;
-        private readonly IProviderDomainVifUpdateDirector _updateDirector;
+        private readonly IDestroyable<Vif> _destroyableVifDirector;
+        private readonly IDataApi _novaApiClient;
+      
 
         public ProviderDomainVifService(IUnitOfWork unitOfWork, IMapper mapper,
-            IProviderDomainVifDirector director, 
-            IProviderDomainVifUpdateDirector updateDirector) : base (unitOfWork, mapper)
+            IProviderDomainVifDirector director,
+            IDestroyable<Vif> destroyableVifDirector,
+            IDataApi novaApiClient) : base (unitOfWork, mapper)
         {
             _director = director;
-            _updateDirector = updateDirector;
+            _destroyableVifDirector = destroyableVifDirector;
+            _novaApiClient = novaApiClient;
         }
 
         public async Task<Vif> AddAsync(int attachmentId, ProviderDomainVifRequest request)
         {
-            var vif = await _director.BuildAsync(attachmentId, request);
+            var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+
+            // Create the vif, and add to the network if the parent attachment is non-bundle, non-multiport.
+            var vif = await _director.BuildAsync(attachmentId, request, !attachment.IsBundle && !attachment.IsMultiPort);
             UnitOfWork.VifRepository.Insert(vif);
+
+            // Save changes to the db
             await UnitOfWork.SaveAsync();
 
             return await base.GetByIDAsync(vif.VifID, deep: true, asTrackable: false);
         }
 
+        /// <summary>
+        /// Update a vif
+        /// </summary>
+        /// <returns>A task</returns>
+        /// <param name="vifId">The ID of the vif to update</param>
+        /// <param name="update">Update object containing the updates to apply to the vif</param>
         public async Task<Vif> UpdateAsync(int vifId, ProviderDomainVifUpdate update)
         {
             var vif = (from result in await UnitOfWork.VifRepository.GetAsync(
                     q =>
                        q.VifID == vifId,
-                       query: q => q.Include(x => x.RoutingInstance.Attachments)
-                                    .Include(x => x.RoutingInstance.Vifs)
-                                    .Include(x => x.RoutingInstance.RoutingInstanceType)
-                                    .Include(x => x.ContractBandwidthPool.Attachments)
-                                    .Include(x => x.ContractBandwidthPool.Vifs),
+                       query: q => q.Include(x => x.Attachment),
                        AsTrackable: false)
                        select result)
                        .Single();
 
-            var updatedVif = await _updateDirector.UpdateAsync(vifId, update);
-
-
-            // Cleanup old contract bandwidth pool is there are no attachments or vifs (other than the current vif) which are using it
-            if (vif.ContractBandwidthPool != null &&
-                vif.ContractBandwidthPool.ContractBandwidthPoolID != updatedVif.ContractBandwidthPool.ContractBandwidthPoolID)
-            {
-                if (!vif.ContractBandwidthPool.Attachments.Any() &&
-                    !vif.ContractBandwidthPool.Vifs.Any(x => x.VifID != vifId))
-                {
-                    await UnitOfWork.ContractBandwidthPoolRepository.DeleteAsync(vif.ContractBandwidthPoolID);
-                }
-            }
-
-            // Cleanup old routing instance if there are no attachment or vifs (other than the current vif) which are using it.
-            if (vif.RoutingInstance != null &&
-                vif.RoutingInstance.RoutingInstanceID != updatedVif.RoutingInstance.RoutingInstanceID &&
-                vif.RoutingInstance.RoutingInstanceType.IsTenantFacingVrf)
-            {
-                if (!vif.RoutingInstance.Attachments.Any() &&
-                    !vif.RoutingInstance.Vifs.Any(x => x.VifID != vifId))
-                {
-                    await UnitOfWork.RoutingInstanceRepository.DeleteAsync(vif.RoutingInstance.RoutingInstanceID);
-                }
-            }
+            // Update the vif and add to the network if the parent attachment is non-bundle, non-multiport
+            var updatedVif = await _director.UpdateAsync(vifId, update, !vif.Attachment.IsBundle && ! vif.Attachment.IsMultiPort);
 
             await UnitOfWork.SaveAsync();
             return await GetByIDAsync(vifId, deep: true, asTrackable: false);
         }
 
+        /// <summary>
+        /// Deletes a vif.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        /// <param name="vifId">The ID of the vif to delete</param>
         public async Task DeleteAsync(int vifId)
         {
             var vif = (from result in await UnitOfWork.VifRepository.GetAsync(
-                    q => 
+                    q =>
                        q.VifID == vifId,
-                       query: q => q.IncludeDeleteValidationProperties(),          
-                       AsTrackable: true)
+                       query: q => q.Include(x => x.Attachment),
+                       AsTrackable: false)
                        select result)
                        .Single();
+                
+            // Destroy the vif and conditionally clean up the network.
+            // Only vifs configured under non-bundle, non-multiport tagged attachment are currently provisioned to the network and therefore
+            // require the network to be cleaned up when destroyed.
+            await _destroyableVifDirector.DestroyAsync(vif, !vif.Attachment.IsBundle && !vif.Attachment.IsMultiPort);
 
-            vif.ValidateDelete();
-
-            if (vif.RoutingInstance != null)
-            {
-                if (vif.RoutingInstance.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
-                {
-                    // Check if the current vif is the only vif using the routing instance and no 
-                    // attachments are using the routing instance. If so delete the routing instance.
-                    if (!vif.RoutingInstance.Vifs.Any(x => x.VifID != vifId) && 
-                        !vif.RoutingInstance.Attachments.Any())
-                    {
-                        UnitOfWork.RoutingInstanceRepository.Delete(vif.RoutingInstance);
-                    }
-                }
-            }
-
-            if (vif.ContractBandwidthPool != null)
-            {
-                // Check if the current vif is the only vif using the contract bandwidth pool and no 
-                // attachments are using the contract bandwidth pool. If so delete the contract bandwidth pool.
-                if (!vif.ContractBandwidthPool.Vifs.Any(x => x.VifID != vifId) && 
-                    !vif.ContractBandwidthPool.Attachments.Any())
-                {
-                    UnitOfWork.ContractBandwidthPoolRepository.Delete(vif.ContractBandwidthPool);
-                }
-            }
-
-            UnitOfWork.VifRepository.Delete(vif);
             await UnitOfWork.SaveAsync();
         }
     }

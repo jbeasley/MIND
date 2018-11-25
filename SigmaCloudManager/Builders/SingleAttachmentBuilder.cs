@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mind.Directors;
+using IO.Swagger.Api;
 
 namespace Mind.Builders
 {
@@ -13,15 +15,32 @@ namespace Mind.Builders
     /// </summary>
     public class SingleAttachmentBuilder : AttachmentBuilder<SingleAttachmentBuilder>, IAttachmentBuilder<SingleAttachmentBuilder>
     {
-        public SingleAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) : 
-            base(unitOfWork, routingInstanceDirectorFactory)
+        public SingleAttachmentBuilder(IUnitOfWork unitOfWork, 
+                                       Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                                       Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
+                                       IDataApi novaApiClient) : 
+            base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)
         {
         }
 
+        /// <summary>
+        /// Build the attachment
+        /// </summary>
+        /// <returns>The attachment</returns>
         public async override Task<Attachment> BuildAsync()
         {
             await base.BuildAsync();
+
+            // Has the attachment been built correctly?
             base._attachment.Validate();
+
+            // Check to sync the attachment to the network
+            if (_args.ContainsKey(nameof(SyncToNetwork)))
+            {
+                var syncToNetwork = (bool?)_args[nameof(SyncToNetwork)];
+                if (syncToNetwork.GetValueOrDefault()) await base.SyncAttachmentToNetworkAsync();
+            }
+
             return base._attachment;
         }
 

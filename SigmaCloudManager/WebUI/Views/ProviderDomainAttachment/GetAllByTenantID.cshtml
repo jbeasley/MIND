@@ -63,7 +63,7 @@
                 <td>
                     <div class="custom-control custom-checkbox">
                         <input id="attachment_checkbox_@item.AttachmentId" type="checkbox" class="form-check-input custom-control-input" data-is-tagged="@item.IsTagged"
-                               data-query-parameter="attachmentId=@item.AttachmentId" />
+                                data-id="@item.AttachmentId" data-query-parameter="attachmentId=" />
                         <label class="form-check-label custom-control-label" for="attachment_checkbox_@item.AttachmentId"></label>
                     </div>
                 </td>
@@ -90,12 +90,19 @@
     </tbody>
 </table>
 <input type="hidden" name="tenantId" id="tenantId" value="@ViewBag.Tenant.TenantId" />
-<div class="card-deck" style="width: 25%">
+<div class="card-deck" style="width: 50%">
     <a href="/#" data-href="/ProviderDomainVif/GetAllByAttachmentId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/vif.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title">VIFs</h5>
             <p class="card-text">Create and manage the lifecycle of virtual interfaces (vifs)</p>
+        </div>
+    </a>
+    <a id="syncToNetworkCard" href="/#" data-href="/ProviderDomainAttachment/SyncToNetwork" data-show-spinner="true" data-http-post="true" class="card custom-card bg-light">
+        <img class="card-img-top mx-auto d-block" src="~/images/network-sync.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title">Synchronize with Sigma</h5>
+            <p class="card-text">Synchronise the configuration of the attachment with the Sigma network</p>
         </div>
     </a>
 </div>
@@ -155,9 +162,31 @@
         </div>
     </div>
 </div>
+<div class="modal fade" id="networkSyncCompleteModal" tabindex="-1" role="dialog" aria-labelledby="networkSyncCompleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="networkSyncCompleteModal">Synchronisation with Sigma Complete</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body text-center">
+                The attachment has been synchronised with the Sigma network.
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
 
 @section Scripts {
-    <script type="text/javascript">
+
+<script type="text/javascript">
 
         (function ($) {
 
@@ -178,6 +207,7 @@
             // Handle click event for the card and using the current attachment item context
             // link off to the relevant page
             $(".custom-card").click(function (e) {
+
                 e.preventDefault();
 
                 var $inputs = $(".form-check-input:checkbox:checked");
@@ -199,13 +229,36 @@
                 }
                 else {
 
-                    var href = $(this).data("href");
+                    var $this = $(this);
+                    var href = $this.data("href");
+                    var showSpinner = $this.data('show-spinner');
                     var queryParameter = $inputs.data('query-parameter');
-                    window.location.href = href + queryParameter;
+                    var id = $inputs.data('id');
+                    var httpPost = $this.data("http-post");
+
+
+                    if ((/true/i).test(showSpinner)) {
+
+                        Mind.Utilities.showSpinner();
+                    }
+
+                    if ((/true/i).test(httpPost)) {
+
+                        $.post(href, {attachmentId: id},
+                            function(data, status) {
+                                Mind.Utilities.hideSpinner();
+                                // Show success message
+                                $('#networkSyncCompleteModal').modal('show');
+                        });
+                    }
+                    else {
+
+                        window.location.href = href + queryParameter + id;
+                    }
                 }
             });
 
         }(jQuery));
 
-    </script>
+</script>
 }

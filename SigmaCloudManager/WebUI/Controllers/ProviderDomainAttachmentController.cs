@@ -365,6 +365,36 @@ namespace Mind.WebUI.Controllers
             return View(_mapper.Map<ProviderDomainAttachmentDeleteViewModel>(attachment));
         }
 
+        /// <summary>
+        /// Sync an attachment to the network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        /// <param name="attachmentId">The ID of the attachment</param>
+        [HttpPost]
+        [ValidateProviderDomainAttachmentExists]
+        public async Task<IActionResult> SyncToNetwork(int? attachmentId)
+        {
+            var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value);
+            try
+            {
+                await _attachmentService.SyncToNetworkAsync(attachmentId.Value);
+            }
+
+            catch (BuilderBadArgumentsException ex)
+            {
+                ModelState.AddModelError(string.Empty, ex.Message);
+            }
+
+            catch (ApiException)
+            {
+                ModelState.AddNovaClientApiExceptionMessage();
+            }
+
+            ViewData.AddNetworkSyncSuccessMessage();
+            return Ok();
+        }
+
+
         private async Task PopulatePortPoolsDropDownList(object selectedPortPool = null)
         {
             var portPools = await _unitOfWork.PortPoolRepository.GetAsync(
@@ -385,10 +415,8 @@ namespace Mind.WebUI.Controllers
             if (deviceRoleId.HasValue) query = query.Where(
                                                         x =>
                                                         x.DeviceRoleAttachmentRoles
-                                                    .Where(
-                                                        q =>
-                                                        q.DeviceRoleID == deviceRoleId)
-                                                    .Any());
+                                                    .Any(q => 
+                                                         q.DeviceRoleID == deviceRoleId));
 
             var attachmentRoles = query.ToList();
             ViewBag.AttachmentRole = new SelectList(_mapper.Map<List<AttachmentRoleViewModel>>(attachmentRoles),

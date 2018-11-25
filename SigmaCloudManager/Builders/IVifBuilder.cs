@@ -24,6 +24,13 @@ namespace Mind.Builders
         IVifBuilder WithTrustReceivedCosAndDscp(bool? trustReceivedCosAndDscp);
         IVifBuilder WithIpv4(List<Ipv4AddressAndMask> ipv4AddressesAndMask);
         IVifBuilder WithJumboMtu(bool? useJumboMtu);
+        IVifBuilder CleanUpRoutingInstance();
+        IVifBuilder CleanUpContractBandwidthPool();
+        IVifBuilder SyncToNetwork(bool? syncToNetwork);
+        IVifBuilder CleanUpNetwork(bool? cleanUpNetwork);
+
         Task<Vif> BuildAsync();
+        Task DestroyAsync();
+        Task<Vif> SyncToNetworkAsync();
     }
 }

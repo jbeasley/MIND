@@ -7,6 +7,8 @@ using SCM.Services;
 using SCM.Data;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models.RequestModels;
+using Mind.Directors;
+using IO.Swagger.Api;
 
 namespace Mind.Builders
 {
@@ -22,8 +24,13 @@ namespace Mind.Builders
         protected internal Attachment _attachment;
 
         private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
+        private readonly Func<PortRole, IDestroyable<Vif>> _vifDirectorFactory;
+        private readonly IDataApi _novaApiClient;
 
-        public AttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) : base(unitOfWork)
+        public AttachmentBuilder(IUnitOfWork unitOfWork,
+                                 Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                                 Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
+                                 IDataApi novaApiClient) : base(unitOfWork)
         {
             _attachment = new Attachment
             {
@@ -33,6 +40,8 @@ namespace Mind.Builders
             };
 
             _routingInstanceDirectorFactory = routingInstanceDirectorFactory;
+            _vifDirectorFactory = vifDirectorFactory;
+            _novaApiClient = novaApiClient;
         }
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> ForTenant(int? tenantId)
@@ -143,6 +152,30 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IAttachmentBuilder<TAttachmentBuilder> SyncToNetwork(bool? syncToNetwork)
+        {
+            _args.Add(nameof(SyncToNetwork), syncToNetwork);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> CleanUpRoutingInstance()
+        {
+            _args.Add(nameof(CleanUpRoutingInstance), null);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> CleanUpNetwork(bool? cleanUpNetwork)
+        {
+            _args.Add(nameof(CleanUpNetwork), cleanUpNetwork);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> ReleasePorts()
+        {
+            _args.Add(nameof(ReleasePorts), null);
+            return this;
+        }
+
         /// <summary>
         /// Build the attachment
         /// </summary>
@@ -233,6 +266,52 @@ namespace Mind.Builders
         }
 
         /// <summary>
+        /// Destroy the attachment.
+        /// </summary>
+        /// <returns>A task</returns>
+        public async Task DestroyAsync()
+        {
+            if (_args.ContainsKey(nameof(ForAttachment)))
+            {
+                await SetAttachmentToDeleteAsync();
+
+                // Are we allowed to destroy the attachment?
+                _attachment.ValidateDelete();
+
+                // Destroy vifs of the attachment first
+                await DestroyVifsAsync();
+
+                // Release ports back to inventory and check to clean up the routing instance
+                if (_args.ContainsKey(nameof(ReleasePorts))) await ReleasePortsAsync();
+                if (_args.ContainsKey(nameof(CleanUpRoutingInstance))) CheckDeleteRoutingInstanceFromDb();
+
+                // Check to delete the attachment from the network
+                if (_args.ContainsKey(nameof(CleanUpNetwork)))
+                {
+                    var cleanUpNetwork = (bool?)_args[nameof(CleanUpNetwork)];
+                    if (cleanUpNetwork.GetValueOrDefault()) await DeleteAttachmentFromNetworkAsync();
+                }
+
+                _unitOfWork.AttachmentRepository.Delete(_attachment);
+            }
+        }
+
+        /// <summary>
+        /// Sync the attachment to the network.
+        /// </summary>
+        /// <returns>The attachment</returns>
+        public async Task<Attachment> SyncToNetworkAsync() 
+        {
+            if (_args.ContainsKey(nameof(ForAttachment)))
+            {
+                await SetAttachmentAsync();
+                await SyncAttachmentToNetworkAsync();
+            }
+
+            return _attachment;
+        }
+
+        /// <summary>
         /// Set the bandwidth of each port required. This method must be implemented by derived classes.
         /// </summary>
         protected abstract internal void SetPortBandwidthRequired();
@@ -281,7 +360,7 @@ namespace Mind.Builders
                 $"matching the requirements. {_numPortsRequired} ports of {_portBandwidthRequired} Gbps are required but {_ports.Count()} free ports were found.");
 
             var assignedPortStatus = (from portStatus in await _unitOfWork.PortStatusRepository.GetAsync(
-                                      q => 
+                                      q =>
                                       q.PortStatusType == SCM.Models.PortStatusTypeEnum.Assigned)
                                       select portStatus)
                                       .Single();
@@ -324,7 +403,7 @@ namespace Mind.Builders
             var attachmentRole = (from attachmentRoles in await _unitOfWork.AttachmentRoleRepository.GetAsync(
                             q =>
                                   q.PortPool.Name == portPoolName && q.Name == attachmentRoleName,
-                                  query: q => 
+                                  query: q =>
                                          q.Include(x => x.RoutingInstanceType)
                                           .Include(x => x.PortPool.PortRole),
                                   AsTrackable: true)
@@ -439,7 +518,7 @@ namespace Mind.Builders
                                     x =>
                                            x.Name == routingInstanceName &&
                                            x.TenantID == _attachment.Tenant.TenantID &&
-                                           x.DeviceID == _attachment.Device.DeviceID, 
+                                           x.DeviceID == _attachment.Device.DeviceID,
                                            query: q => q.IncludeValidationProperties(),
                                            AsTrackable: true)
                                            select routingInstances)
@@ -457,7 +536,7 @@ namespace Mind.Builders
                                            x.DeviceID == _attachment.Device.DeviceID &&
                                            x.RoutingInstanceType.IsDefault,
                                            AsTrackable: true)
-                                           select routingInstances)
+                                          select routingInstances)
                                            .SingleOrDefault();
 
             _attachment.RoutingInstance = defaultRoutingInstance ?? throw new BuilderUnableToCompleteException("Could not find the default routing " +
@@ -522,7 +601,7 @@ namespace Mind.Builders
             if (string.IsNullOrEmpty(locationName)) throw new BuilderBadArgumentsException("A location is required but none was supplied.");
 
             var location = (from locations in await _unitOfWork.LocationRepository.GetAsync(
-                        q => 
+                        q =>
                             q.SiteName == locationName)
                             select locations)
                             .SingleOrDefault();
@@ -533,12 +612,12 @@ namespace Mind.Builders
             // required Attachment Role
 
             var query = from d in await _unitOfWork.DeviceRepository.GetAsync(
-                        q => 
+                        q =>
                         q.DeviceStatus.DeviceStatusType == SCM.Models.DeviceStatusTypeEnum.Production
                         && q.LocationID == location.LocationID
                         && q.DeviceRole.DeviceRoleAttachmentRoles
                        .Where(
-                            x => 
+                            x =>
                             x.AttachmentRoleID == _attachment.AttachmentRole.AttachmentRoleID)
                             .Any(),
                         query: q => q.IncludeValidationProperties(),
@@ -603,6 +682,100 @@ namespace Mind.Builders
         {
             var notes = _args[nameof(WithNotes)].ToString();
             _attachment.Notes = notes;
+        }
+
+        protected async internal virtual Task SetAttachmentToDeleteAsync()
+        {
+            var attachmentId = (int)_args[nameof(ForAttachment)];
+            var attachment = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(
+                            q =>
+                              q.AttachmentID == attachmentId,
+                              query: q => q.IncludeDeleteValidationProperties(),
+                              AsTrackable: true)
+                              select attachments)
+                              .SingleOrDefault();
+
+            _attachment = attachment ?? throw new BuilderBadArgumentsException($"Could not find attachment with ID '{attachmentId}' to delete.");
+        }
+
+        /// <summary>
+        /// Destroy any vifs which belong to the attachment
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected async internal virtual Task DestroyVifsAsync()
+        {
+            var vifDirector = _vifDirectorFactory(_attachment.AttachmentRole.PortPool.PortRole);
+            bool? cleanUpNetwork = false;
+            if (_args.ContainsKey(nameof(CleanUpNetwork)))
+            {
+                cleanUpNetwork = (bool?)_args[nameof(CleanUpNetwork)];
+            }
+
+            await vifDirector.DestroyAsync(_attachment.Vifs.ToList(), cleanUpNetwork.GetValueOrDefault());
+        }
+
+     
+        /// <summary>
+        /// Release ports of the attachment back to inventory.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected async internal virtual Task ReleasePortsAsync()
+        {
+            var ports = _attachment.Interfaces.SelectMany(
+                                               q =>
+                                               q.Ports)
+                                               .ToList();
+
+            var portStatusFreeId = (from portStatuses in await _unitOfWork.PortStatusRepository.GetAsync(
+                                  q =>
+                                    q.PortStatusType == SCM.Models.PortStatusTypeEnum.Free,
+                                    AsTrackable: true)
+                                    select portStatuses)
+                                    .Single().PortStatusID;
+
+            // Update ports to release back to inventory
+            foreach (var port in ports)
+            {
+                port.TenantID = null;
+                port.PortStatusID = portStatusFreeId;
+                port.InterfaceID = null;
+            }
+        }
+
+        /// <summary>
+        /// Check the routing instance of the attachment can be deleted and delete.
+        /// The routing instance can be deleted only if it is not shared by any other attachment or vif.
+        /// </summary>
+        protected internal virtual void CheckDeleteRoutingInstanceFromDb()
+        {
+            if (_attachment.RoutingInstance != null && _attachment.RoutingInstance.RoutingInstanceType.IsTenantFacingVrf)
+            {
+                if (!_attachment.RoutingInstance.Attachments.Any(x => x.AttachmentID != _attachment.AttachmentID) &&
+                    !_attachment.RoutingInstance.Vifs.Any())
+                {
+                    _unitOfWork.RoutingInstanceRepository.Delete(_attachment.RoutingInstance);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sync the attachment to network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected async internal virtual Task SyncAttachmentToNetworkAsync()
+        {
+            var dto = _attachment.ToNovaTaggedAttachmentDto();
+            await _novaApiClient.DataAttachmentAttachmentPePePeNamePatchAsync(_attachment.Device.Name, dto);
+        }
+
+        /// <summary>
+        /// Delete the attachment from the network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected async internal virtual Task DeleteAttachmentFromNetworkAsync() 
+        {
+            await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdDeleteAsync(
+                _attachment.Device.Name, _attachment.PortType, _attachment.PortName);
         }
     }
 }

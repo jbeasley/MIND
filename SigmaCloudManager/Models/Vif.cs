@@ -7,9 +7,87 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using System.Net;
 using System.Text;
+using IO.Swagger.Model;
 
 namespace SCM.Models
 {
+    /// <summary>
+    /// Vif nova client dto extensions.
+    /// </summary>
+    public static class VifNovaClientDtoExtensions
+    {
+        /// <summary>
+        /// Create an instance of the nova vif dto.
+        /// </summary>
+        /// <returns>The nova vif dto.</returns>
+        /// <param name="vif">An instance of Vif</param>
+        public static DataAttachmentAttachmentPePePeName ToNovaVifDto(this Vif vif)
+        {
+            var vifs = (from vlan in vif.Vlans
+                        select new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidVifVifvlanidAttachmentvif
+                        {
+                            VlanId = vif.VlanTag,
+                            VrfName = vif.RoutingInstance.Name,
+                            ContractBandwidthPoolName = vif.ContractBandwidthPool.Name,
+                            EnableIpv4 = vif.RoutingInstance.RoutingInstanceType.IsLayer3.ToString().ToLower(),
+                            Ipv4 = new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidVifVifvlanidIpv4Attachmentipv4
+                            {
+                                Ipv4Address = vlan.IpAddress,
+                                Ipv4SubnetMask = vlan.SubnetMask
+                            }
+                        }).ToList();
+
+            var data = new DataAttachmentAttachmentPePePeName
+            {
+                Attachmentpe = new List<DataAttachmentAttachmentPePepenameAttachmentpe>
+                {
+                    new DataAttachmentAttachmentPePepenameAttachmentpe
+                    {
+                        PeName = vif.Attachment.Device.Name,
+                        Vrf = new List<DataAttachmentAttachmentPePepenameVrfVrfvrfnameAttachmentvrf>
+                        {
+                            new DataAttachmentAttachmentPePepenameVrfVrfvrfnameAttachmentvrf
+                            {
+                                VrfName = vif.RoutingInstance.Name,
+                                RdAdministratorSubfield = vif.RoutingInstance.AdministratorSubField,
+                                RdAssignedNumberSubfield = vif.RoutingInstance.AssignedNumberSubField
+                            }
+                        },
+                        TaggedAttachmentInterface = new List<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface>
+                        {
+                            new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
+                            {
+                                InterfaceId = vif.Attachment.PortName,
+                                InterfaceType = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
+                                                    .InterfaceTypeEnum>(vif.Attachment.PortType),
+                                AttachmentBandwidth = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
+                                                          .AttachmentBandwidthEnum>(vif.Attachment.AttachmentBandwidth.BandwidthGbps.ToString()),
+                                InterfaceMtu = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
+                                                   .InterfaceMtuEnum>(vif.Attachment.Mtu.MtuValue.ToString()),
+
+                                Vif = vifs,
+                                ContractBandwidthPool = new List<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidContractbandwidthpoolContractbandwidthpoolnameAttachmentcontractbandwidthpool>
+                                {
+                                    new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidContractbandwidthpoolContractbandwidthpoolnameAttachmentcontractbandwidthpool
+                                    {
+                                        Name = vif.ContractBandwidthPool.Name,
+                                        ContractBandwidth = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidContractbandwidthpoolContractbandwidthpoolnameAttachmentcontractbandwidthpool
+                                                                .ContractBandwidthEnum>(vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps.ToString()),
+                                        TrustReceivedCosAndDscp = vif.ContractBandwidthPool.TrustReceivedCosAndDscp.ToString().ToLower(),
+                                        
+                                        // TO-DO - add service classes
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            };
+
+            return data;
+        }
+    }
+
     public static class VifQueryableExtensions
     {
         public static IQueryable<Vif> IncludeValidationProperties(this IQueryable<Vif> query)
@@ -19,6 +97,7 @@ namespace SCM.Models
                         .Include(x => x.Attachment.AttachmentBandwidth)
                         .Include(x => x.Attachment.Device)
                         .Include(x => x.Attachment.Interfaces)
+                        .Include(x => x.Attachment.Mtu)
                         .Include(x => x.Vlans)
                         .Include(x => x.VifRole.AttachmentRole.PortPool.PortRole)
                         .Include(x => x.VifRole.RoutingInstanceType)
@@ -29,7 +108,8 @@ namespace SCM.Models
 
         public static IQueryable<Vif> IncludeDeleteValidationProperties(this IQueryable<Vif> query)
         {
-            return query.Include(x => x.Attachment.Interfaces)
+            return query.Include(x => x.Attachment.Device)
+                        .Include(x => x.Attachment.Interfaces)
                         .ThenInclude(x => x.Ports)
                         .Include(x => x.RoutingInstance.Vifs)
                         .Include(x => x.RoutingInstance.Attachments)

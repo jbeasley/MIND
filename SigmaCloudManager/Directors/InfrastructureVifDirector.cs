@@ -4,29 +4,61 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Mind.Directors;
 
 namespace Mind.Builders
 {
-    public class InfrastructureVifDirector : IInfrastructureVifDirector
+    public class InfrastructureVifDirector : IInfrastructureVifDirector, IDestroyable<SCM.Models.Vif>
     {
-        private readonly IVifBuilder _builder;
+        private readonly Func<IVifBuilder> _builderFactory;
 
-        public InfrastructureVifDirector(IVifBuilder builder)
+        public InfrastructureVifDirector(Func<IVifBuilder> builderFactory)
         {
-            _builder = builder;
+            _builderFactory = builderFactory;
         }
 
         public async Task<SCM.Models.Vif> BuildAsync(int attachmentId, InfrastructureVifRequest request)
         {
-            return await _builder.ForAttachment(attachmentId)
-                                 .WithRequestedVlanTag(request.RequestedVlanTag)
-                                 .WithVifRole(request.VifRoleName)
-                                 .WithContractBandwidth(request.ContractBandwidthMbps)
-                                 .WithExistingContractBandwidthPool(request.ExistingContractBandwidthPoolName)
-                                 .UseExistingRoutingInstance(request.ExistingRoutingInstanceName)
-                                 .WithRoutingInstance(request.RoutingInstance)
-                                 .WithIpv4(request.Ipv4Addresses)
-                                 .BuildAsync();
+            var builder = _builderFactory();
+            return await builder.ForAttachment(attachmentId)
+                                .WithRequestedVlanTag(request.RequestedVlanTag)
+                                .WithVifRole(request.VifRoleName)
+                                .WithContractBandwidth(request.ContractBandwidthMbps)
+                                .WithExistingContractBandwidthPool(request.ExistingContractBandwidthPoolName)
+                                .UseExistingRoutingInstance(request.ExistingRoutingInstanceName)
+                                .WithRoutingInstance(request.RoutingInstance)
+                                .WithIpv4(request.Ipv4Addresses)
+                                .BuildAsync();
+        }
+
+        /// <summary>
+        /// Destroys a vif
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        /// <param name="vif">The vif to destroy</param>
+        /// <param name="cleanUpNetwork">If true clean up the network. Default is false.</param>
+        public async Task DestroyAsync(SCM.Models.Vif vif, bool cleanUpNetwork = false)
+        {
+            var builder = _builderFactory();
+            await builder.ForVif(vif.VifID)
+                         .CleanUpRoutingInstance()
+                         .CleanUpContractBandwidthPool()
+                         .CleanUpNetwork(cleanUpNetwork)
+                         .DestroyAsync();
+        }
+
+        /// <summary>
+        /// Destroys a collection of vifs
+        /// </summary>
+        /// <param name="vifs">The collection of vifs to destroy</param>
+        /// <param name="cleanUpNetwork">If true clean up the network. Default is false.</param>
+        public async Task DestroyAsync(List<SCM.Models.Vif> vifs, bool cleanUpNetwork = false)
+        {
+            var tasks = vifs.Select(
+                async vif =>
+                    await DestroyAsync(vif, cleanUpNetwork));
+
+            await Task.WhenAll(tasks);
         }
     }
 }

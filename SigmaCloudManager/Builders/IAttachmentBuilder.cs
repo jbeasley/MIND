@@ -28,6 +28,14 @@ namespace Mind.Builders
         IAttachmentBuilder<TAttachmentBuilder> UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
         IAttachmentBuilder<TAttachmentBuilder> WithDescription(string description);
         IAttachmentBuilder<TAttachmentBuilder> WithNotes(string notes);
+        IAttachmentBuilder<TAttachmentBuilder> CleanUpRoutingInstance();
+        IAttachmentBuilder<TAttachmentBuilder> ReleasePorts();
+        IAttachmentBuilder<TAttachmentBuilder> SyncToNetwork(bool? syncToNetwork);
+        IAttachmentBuilder<TAttachmentBuilder> CleanUpNetwork(bool? cleanUpNetwork);
+
         Task<Attachment> BuildAsync();
+        Task DestroyAsync();
+        Task<Attachment> SyncToNetworkAsync();
+
     }
 }

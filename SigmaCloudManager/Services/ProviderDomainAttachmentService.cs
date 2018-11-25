@@ -11,7 +11,7 @@ using SCM.Models.RequestModels;
 using SCM.Services;
 using Mind.Builders;
 using IO.Swagger.Api;
-using IO.Swagger.Client;
+using Mind.Directors;
 
 namespace Mind.Services
 {
@@ -20,18 +20,22 @@ namespace Mind.Services
     /// </summary>
     public class ProviderDomainAttachmentService : BaseAttachmentService, IProviderDomainAttachmentService
     {
-        private readonly Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> _directorFactory;
-        private readonly Func<Attachment, IProviderDomainAttachmentUpdateDirector> _updateDirectorFactory;
+        private readonly Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> _createAttachmentDirectorFactory;
+        private readonly Func<Attachment, IProviderDomainAttachmentDirector> _attachmentDirectorFactory;
+        private readonly Func<Attachment, INetworkSynchronizable<Attachment>> _networkSyncAttachmentDirectorFactory;
         private readonly IDataApi _novaApiClient;
 
         public ProviderDomainAttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
-            Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> directorFactory,
-            Func<Attachment, IProviderDomainAttachmentUpdateDirector> updateDirectorFactory,
+            Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> createAttachmentDirectorFactory,
+            Func<Attachment, IProviderDomainAttachmentDirector> attachmentDirectorFactory,
+            Func<Attachment, INetworkSynchronizable<Attachment>> networkSyncAttachmentDirectorFactory,
             IDataApi novaApiClient) : base(unitOfWork, mapper)
         {
-            _directorFactory = directorFactory;
-            _updateDirectorFactory = updateDirectorFactory;
+            _createAttachmentDirectorFactory = createAttachmentDirectorFactory;
+            _attachmentDirectorFactory = attachmentDirectorFactory;
+            _networkSyncAttachmentDirectorFactory = networkSyncAttachmentDirectorFactory;
+
             _novaApiClient = novaApiClient;
         }
 
@@ -75,17 +79,16 @@ namespace Mind.Services
 
             if (attachmentRole == null) throw new ServiceBadArgumentsException($"Could not find attachment role with name '{request.AttachmentRoleName}'.");
 
-            var director = _directorFactory(request, attachmentRole);
-            var attachment = await director.BuildAsync(tenantId, request);
+            var director = _createAttachmentDirectorFactory(request, attachmentRole);
+
+            // Create the attachment, and add to the network for non-bundle, non-multiport tagged attachments only
+            var attachment = await director.BuildAsync(tenantId, request, attachmentRole.IsTaggedRole && 
+                                                       !request.BundleRequired.GetValueOrDefault() && 
+                                                       !request.MultiportRequired.GetValueOrDefault());
+
             UnitOfWork.AttachmentRepository.Insert(attachment);
 
-            // Update the network
-            var dto = attachment.ToNovaTaggedAttachmentDto();
-            if (dto != null)
-            {
-                await _novaApiClient.DataAttachmentAttachmentPePePeNamePatchAsync(attachment.Device.Name, dto);
-            }
-
+            // Save changes to the db
             await UnitOfWork.SaveAsync();
             return await base.GetByIDAsync(attachment.AttachmentID, PortRoleTypeEnum.TenantFacing, deep: true, asTrackable: false);
         }
@@ -98,46 +101,12 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update)
         {
-            // Get the current attachment as a non-tracked entity. This is necessary because we check the 
-            // routing instance ID and contract bandwidth pool ID of the updated attachment later and these may have changed during the update
-            var attachment = (from result in await UnitOfWork.AttachmentRepository.GetAsync(
-                            q =>
-                              q.AttachmentID == attachmentId,
-                              query: q => q.Include(x => x.RoutingInstance.Attachments)
-                                           .Include(x => x.RoutingInstance.Vifs)
-                                           .Include(x => x.ContractBandwidthPool.Attachments)
-                                           .Include(x => x.ContractBandwidthPool.Vifs)
-                                           .Include(x => x.AttachmentRole),
-                                            AsTrackable: false)
-                                            select result)
-                                            .Single();
+            // Get the current attachment as a non-tracked entity.
+            var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+            var director = _attachmentDirectorFactory(attachment);
 
-            var director = _updateDirectorFactory(attachment);
-            var updatedAttachment = await director.UpdateAsync(attachment, update);
-
-            // Cleanup routing instance if there are no attachment or vifs which are using it.
-            if (attachment.RoutingInstanceID != null && attachment.RoutingInstanceID != updatedAttachment.RoutingInstanceID)
-            {
-                if (!attachment.RoutingInstance.Attachments.Any(x => x.AttachmentID != attachmentId) && 
-                    !attachment.RoutingInstance.Vifs.Any())
-                {
-                    await UnitOfWork.RoutingInstanceRepository.DeleteAsync(attachment.RoutingInstanceID);
-                }
-            }
-
-            // Cleanup contract bandwidth pool if the attachment is no longer using it.
-            if (attachment.ContractBandwidthPoolID != null && attachment.ContractBandwidthPoolID != updatedAttachment.ContractBandwidthPoolID)
-            {
-                if (!attachment.ContractBandwidthPool.Attachments.Any(x => x.AttachmentID != attachmentId))
-                    await UnitOfWork.ContractBandwidthPoolRepository.DeleteAsync(attachment.ContractBandwidthPoolID);
-            }
-
-            // Update the network
-            var dto = updatedAttachment.ToNovaTaggedAttachmentDto();
-            if (dto != null) 
-            {
-                await _novaApiClient.DataAttachmentAttachmentPePePeNamePatchAsync(updatedAttachment.Device.Name, dto);
-            }
+            // Update the attachment, and update the network if the attachment is a non-bundle, non-multiport tagged attachment
+            var updatedAttachment = await director.UpdateAsync(attachment, update, attachment.IsTagged && !attachment.IsBundle && !attachment.IsMultiPort);
 
             await UnitOfWork.SaveAsync();
             return await base.GetByIDAsync(attachment.AttachmentID, PortRoleTypeEnum.TenantFacing, deep: true, asTrackable: false);
@@ -149,116 +118,24 @@ namespace Mind.Services
         /// <param name="attachmentId"></param>
         public async Task DeleteAsync(int attachmentId)
         {
-            var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
-                            q => 
-                              q.AttachmentID == attachmentId,
-                              query: q => q.IncludeDeleteValidationProperties(),
-                              AsTrackable: true)
-                              select attachments)
-                              .Single();
+            var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+            var director = _attachmentDirectorFactory(attachment);
 
-            // Validate the attachment can be deleted
-            attachment.ValidateDelete();
-
-            var ports = attachment.Interfaces.SelectMany(
-                                                q => 
-                                                q.Ports)
-                                                .ToList();
-
-            var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(
-                                  q => 
-                                    q.PortStatusType == PortStatusTypeEnum.Free, 
-                                    AsTrackable: true)
-                                    select portStatuses)
-                                    .Single().PortStatusID;
-
-            // Update ports to release back to inventory
-            foreach (var port in ports)
-            {
-                port.TenantID = null;
-                port.PortStatusID = portStatusFreeId;
-                port.InterfaceID = null;
-            }
-
-            if (attachment.RoutingInstance != null)
-            {
-                if (attachment.RoutingInstance.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
-                {
-                    // Check if the current attachment is the only attachment using the routing instance and no 
-                    // vifs are using the routing instance. If so delete the routing instance.
-                    if (!attachment.RoutingInstance.Attachments.Any(x => x.AttachmentID != attachmentId) && 
-                        !attachment.RoutingInstance.Vifs.Any())
-                    {
-                        UnitOfWork.RoutingInstanceRepository.Delete(attachment.RoutingInstance);
-                    }
-                }
-            }
-
-            foreach (var routingInstance in attachment.Vifs.Select(
-                                                                x => 
-                                                                    x.RoutingInstance)
-                                                                    .Where(
-                                                                    x => 
-                                                                    x != null && x.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
-                                                                  )
-            {
-                // For each vif configured under the attachment being deleted, check if the associated routing instance can be deleted. 
-                // If there are no attachments which share the routing instance, and the
-                // only vifs which share the routing instance are those which belong to the attachment being deleted then the routing instance can be 
-                // deleted.
-                if (!routingInstance.Attachments.Any() && 
-                    routingInstance.Vifs
-                                   .Intersect(
-                                        attachment.Vifs, new VifComparer())
-                                   .Count() == routingInstance.Vifs.Count())
-                {
-                    UnitOfWork.RoutingInstanceRepository.Delete(routingInstance);
-                }
-            }
-
-            // Delete each contract bandwidth pool associated with a vif configured under the attachment being deleted.
-            // These can be deleted without any further validation - contract bandwidth pools cannot be shared between vifs configured 
-            // under different attachments.
-            foreach (var contractBandwidthPool in attachment.Vifs.Select(
-                                                                    x => 
-                                                                    x.ContractBandwidthPool))
-            {
-                if (contractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(contractBandwidthPool);
-            }
-
-            if (attachment.ContractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(attachment.ContractBandwidthPool);
-
-            if (!attachment.IsBundle && !attachment.IsMultiPort && attachment.IsTagged)
-            {
-                // Remove the attachment from the network
-                await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdDeleteAsync(
-                    attachment.Device.Name, attachment.PortType, attachment.PortName);
-            }
-
-            UnitOfWork.AttachmentRepository.Delete(attachment);
+            // Destroy the attachment
+            await director.DestroyAsync(attachment, cleanUpNetwork: !attachment.IsBundle && !attachment.IsMultiPort);
             await UnitOfWork.SaveAsync();
         }
 
-        /// Comparer for VIFs - basically just looks for matching Vif IDs
-        private class VifComparer : IEqualityComparer<Vif>
+        /// <summary>
+        /// Sync an attachment to the network
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        /// <param name="attachmentId">The ID of the attachment</param>
+        public async Task SyncToNetworkAsync(int attachmentId)
         {
-            public bool Equals(Vif x, Vif y)
-            {
-                return
-                 (
-                     x.VifID == y.VifID ||
-                     x.VifID.Equals(y.VifID)
-                 );
-            }
-
-            public int GetHashCode(Vif obj)
-            {
-                var hashCode = 41;
-
-                // Just had on the vifID - two instance are considered 'same' if the IDs are the same
-                hashCode = hashCode * 59 + obj.VifID.GetHashCode();
-                return hashCode;
-            }
+            var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+            var director = _networkSyncAttachmentDirectorFactory(attachment);
+            if (director != null) await director.SyncToNetworkAsync(attachment);
         }
     }
 }

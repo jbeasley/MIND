@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using IO.Swagger.Api;
 
 namespace Mind.Builders
 {
@@ -18,8 +19,12 @@ namespace Mind.Builders
         protected internal Vif _vif;
         private const string _defaultVlanTagRange = "Default";
         private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
+        private readonly IDataApi _novaApiClient;
 
-        public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) : base(unitOfWork)
+
+        public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, 
+                          IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                          IDataApi novaApiClient) : base(unitOfWork)
         {
             _vif = new Vif
             {
@@ -29,6 +34,7 @@ namespace Mind.Builders
             };
 
             _routingInstanceDirectorFactory = routingInstanceDirectorFactory;
+            _novaApiClient = novaApiClient;
         }
 
         public virtual IVifBuilder ForAttachment(int? attachmentId)
@@ -115,6 +121,30 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IVifBuilder CleanUpRoutingInstance()
+        {
+            _args.Add(nameof(CleanUpRoutingInstance), null);
+            return this;
+        }
+
+        public virtual IVifBuilder CleanUpContractBandwidthPool()
+        {
+            _args.Add(nameof(CleanUpContractBandwidthPool), null);
+            return this;
+        }
+
+        public virtual IVifBuilder SyncToNetwork(bool? syncToNetwork)
+        {
+            _args.Add(nameof(SyncToNetwork), syncToNetwork);
+            return this;
+        }
+
+        public virtual IVifBuilder CleanUpNetwork(bool? cleanUpNetwork)
+        {
+            if (cleanUpNetwork.HasValue )_args.Add(nameof(CleanUpNetwork), cleanUpNetwork);
+            return this;
+        }
+
         public async virtual Task<Vif> BuildAsync()
         {
             if (_args.ContainsKey(nameof(ForVif)))
@@ -192,7 +222,62 @@ namespace Mind.Builders
             await SetMtuAsync();
             if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
 
+            // Has the vif been created correctly
             _vif.Validate();
+
+            // Check to sync the vif to the network
+            if (_args.ContainsKey(nameof(SyncToNetwork)))
+            {
+                var syncToNetwork = (bool?)_args[nameof(SyncToNetwork)];
+                if (syncToNetwork.GetValueOrDefault()) await SyncVifToNetworkAsync();
+            }
+
+            return _vif;
+        }
+
+        /// <summary>
+        /// Destroy the vif
+        /// </summary>
+        /// <returns>A task</returns>
+        public async Task DestroyAsync()
+        {
+            if (_args.ContainsKey(nameof(ForVif)))
+            {
+                await SetVifToDeleteAsync();
+
+                // Can we delete the vif?
+                _vif.ValidateDelete();
+
+                if (_args.ContainsKey(nameof(CleanUpRoutingInstance))) CheckDeleteRoutingInstanceFromDb();
+                if (_args.ContainsKey(nameof(CleanUpContractBandwidthPool))) CheckDeleteContractBandwidthPoolFromDb();
+
+                // Check to delete the vif from the network
+                if (_args.ContainsKey(nameof(CleanUpNetwork)))
+                {
+                    var cleanUpNetwork = (bool?)_args[nameof(CleanUpNetwork)];
+                    if (cleanUpNetwork.GetValueOrDefault())
+                    {
+                        await DeleteVifFromNetworkAsync();
+                        await CheckDeleteRoutingInstanceFromNetworkAsync();
+                        await CheckDeleteContractBandwidthPoolFromNetworkAsync();
+                    }
+                }
+
+                _unitOfWork.VifRepository.Delete(_vif);
+            }
+        }
+
+        /// <summary>
+        /// Sync the vif to the network.
+        /// </summary>
+        /// <returns>The vif</returns>
+        public async Task<Vif> SyncToNetworkAsync()
+        {
+            if (_args.ContainsKey(nameof(ForVif)))
+            {
+                await SetVifAsync();
+                await SyncVifToNetworkAsync();
+            }
 
             return _vif;
         }
@@ -224,7 +309,8 @@ namespace Mind.Builders
                                       .ThenInclude(x => x.ContractBandwidthPool.ContractBandwidth)
                                       .Include(x => x.AttachmentRole)
                                       .Include(x => x.Interfaces)
-                                      .ThenInclude(x => x.Vlans),
+                                      .ThenInclude(x => x.Vlans)
+                                      .Include(x => x.Mtu),
                               AsTrackable: true)
                               select result)
                               .SingleOrDefault();
@@ -327,12 +413,11 @@ namespace Mind.Builders
             var contractBandwidthPoolName = _args[nameof(WithExistingContractBandwidthPool)].ToString();
             var contractBandwidthPool = _vif.Attachment.Vifs
                                                        .Select(
-                                                        x => 
-                                                        x.ContractBandwidthPool)
-                                                       .Where(
-                                                        x => 
-                                                        x.Name == contractBandwidthPoolName)
-                                                       .SingleOrDefault();
+                                                        vif =>
+                                                        vif.ContractBandwidthPool)
+                                                       .SingleOrDefault(
+                                                        pool =>
+                                                        pool.Name == contractBandwidthPoolName);
 
             _vif.ContractBandwidthPool = contractBandwidthPool ?? throw new BuilderBadArgumentsException($"The requested association to contract bandwidth pool '{contractBandwidthPoolName}' is not valid. " +
                     $"The contract bandwidth pool was not found. Check that the specified contract bandwidth pool name is correct and that it belongs to " +
@@ -470,6 +555,127 @@ namespace Mind.Builders
             _vif.ContractBandwidthPool.ContractBandwidthID = contractBandwidth.ContractBandwidthID;
         }
 
+        protected internal virtual async Task SetVifToDeleteAsync() 
+        {
+            var vifId = (int)_args[nameof(ForVif)];
+            var vif = (from result in await _unitOfWork.VifRepository.GetAsync(
+                    q =>
+                       q.VifID == vifId,
+                       query: q => q.IncludeDeleteValidationProperties(),
+                       AsTrackable: true)
+                       select result)
+                       .SingleOrDefault();
+
+            _vif = vif ?? throw new BuilderBadArgumentsException($"Could not find vif with ID '{vifId}' to delete");
+        }
+
+        /// <summary>
+        /// Check to delete the routing instanc for the vif from the database. If the routing instance
+        /// is not used by any other attachment or vif than the current vif then the routing instance
+        /// can be deleted.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected internal virtual void CheckDeleteRoutingInstanceFromDb() 
+        {
+            if (_vif.RoutingInstance != null && _vif.RoutingInstance.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
+            {
+                // Check if the current vif is the only vif using the routing instance and no 
+                // attachments are using the routing instance. If so delete the routing instance.
+                if (!_vif.RoutingInstance.Vifs.Any(x => x.VifID != _vif.VifID) &&
+                    !_vif.RoutingInstance.Attachments.Any())
+                {
+                    // Delete the routing instance from the db
+                    _unitOfWork.RoutingInstanceRepository.Delete(_vif.RoutingInstance);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check to delete the contract bandwidth pool for the vif from the database. If the contract bandwidth pool
+        /// is not used by any other attachment or vif than the current vif then the contract bandwidth pool
+        /// can be deleted.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected internal virtual void CheckDeleteContractBandwidthPoolFromDb() 
+        {
+            if (_vif.ContractBandwidthPool != null)
+            {
+                // Check if the current vif is the only vif using the contract bandwidth pool and no 
+                // attachments are using the contract bandwidth pool. If so delete the contract bandwidth pool.
+                if (!_vif.ContractBandwidthPool.Vifs.Any(x => x.VifID != _vif.VifID) &&
+                    !_vif.ContractBandwidthPool.Attachments.Any())
+                {
+                    // Delete the contract bandwidth pool from the db
+                    _unitOfWork.ContractBandwidthPoolRepository.Delete(_vif.ContractBandwidthPool);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Sync the vif to the network
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected internal virtual async Task SyncVifToNetworkAsync()
+        {
+            var dto = _vif.ToNovaVifDto();
+            await _novaApiClient.DataAttachmentAttachmentPePePeNamePatchAsync(_vif.Attachment.Device.Name, dto);    
+        }
+
+        /// <summary>
+        /// Delete the vif from the network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected internal virtual async Task DeleteVifFromNetworkAsync()
+        {
+            await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdVifVifVlanIdDeleteAsync(
+               _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.VlanTag);                
+        }
+
+        /// <summary>
+        /// Check to delete the routing instance for the vif from the network. If the routing instance
+        /// is not used by any other attachment or vif than the current vif then the routing instance
+        /// can be deleted.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected internal virtual async Task CheckDeleteRoutingInstanceFromNetworkAsync()
+        {
+            if (_vif.RoutingInstance != null && _vif.RoutingInstance.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
+            {
+                // Check if the current vif is the only vif using the routing instance and no 
+                // attachments are using the routing instance. If so delete the routing instance from the network
+                if (!_vif.RoutingInstance.Vifs.Any(x => x.VifID != _vif.VifID) &&
+                    !_vif.RoutingInstance.Attachments.Any())
+                {
+                    await _novaApiClient.DataAttachmentAttachmentPePePeNameVrfVrfVrfNameDeleteAsync(
+                        _vif.Attachment.Device.Name, _vif.RoutingInstance.Name);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check to delete the contract bandwidth pool for the vif from the network. If the contract bandwidth pool
+        /// is not used by any other attachment or vif than the current vif then the contract bandwidth pool
+        /// can be deleted.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected async Task CheckDeleteContractBandwidthPoolFromNetworkAsync()
+        {
+            if (_vif.ContractBandwidthPool != null)
+            {
+                // Check if the current vif is the only vif using the contract bandwidth pool and no 
+                // attachments are using the contract bandwidth pool. If so delete the contract bandwidth pool.
+                if (!_vif.ContractBandwidthPool.Vifs.Any(x => x.VifID != _vif.VifID) &&
+                    !_vif.ContractBandwidthPool.Attachments.Any())
+                {
+                    await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdContractBandwidthPoolContractBandwidthPoolNameDeleteAsync(
+                        _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.ContractBandwidthPool.Name);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Set IPv4 properties for the vif
+        /// </summary>
         private void SetIpv4()
         {
             var ipv4Addresses = (List<SCM.Models.RequestModels.Ipv4AddressAndMask>)_args[nameof(WithIpv4)];

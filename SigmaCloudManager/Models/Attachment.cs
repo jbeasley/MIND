@@ -16,41 +16,80 @@ namespace SCM.Models
     public static class AttachmentNovaClientDtoExtensions {
 
         /// <summary>
-        /// Tos the nova tagged attachment dto.
+        /// Create an instance of the nova tagged attachment dto.
         /// </summary>
         /// <returns>The nova tagged attachment dto.</returns>
-        /// <param name="attachment">Attachment.</param>
-        public static DataAttachmentAttachmentPePePeName ToNovaTaggedAttachmentDto(this Attachment attachment) {
+        /// <param name="attachment">An instance of Attachment</param>
+        public static DataAttachmentAttachmentPePePeName ToNovaTaggedAttachmentDto(this Attachment attachment)
+        {
+            // Create the dto only for tagged non-bundle, non-multiport attachments - currently we don't support
+            // network updates for anything else!
+            if (attachment.IsBundle || attachment.IsMultiPort || !attachment.IsTagged) return null;
 
-            if (!attachment.IsBundle && !attachment.IsMultiPort && attachment.IsTagged)
+            var vifs = (from vif in attachment.Vifs
+                        from vlan in vif.Vlans
+                        select new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidVifVifvlanidAttachmentvif
+                        {
+                            VlanId = vif.VlanTag,
+                            VrfName = vif.RoutingInstance.Name,
+                            ContractBandwidthPoolName = vif.ContractBandwidthPool.Name,
+                            EnableIpv4 = vif.RoutingInstance.RoutingInstanceType.IsLayer3.ToString().ToLower(),
+                            Ipv4 = new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidVifVifvlanidIpv4Attachmentipv4
+                            {
+                                Ipv4Address = vlan.IpAddress,
+                                Ipv4SubnetMask = vlan.SubnetMask
+                            }
+                        }).ToList();
+
+            var contractBandwidthPools = (from vif in attachment.Vifs
+                                          select new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidContractbandwidthpoolContractbandwidthpoolnameAttachmentcontractbandwidthpool
+                                          {
+                                              Name = vif.ContractBandwidthPool.Name,
+                                              ContractBandwidth = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidContractbandwidthpoolContractbandwidthpoolnameAttachmentcontractbandwidthpool
+                                                                      .ContractBandwidthEnum>(vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps.ToString()),
+                                              TrustReceivedCosAndDscp = vif.ContractBandwidthPool.TrustReceivedCosAndDscp.ToString().ToLower(),
+
+                                              // TO-DO - add service classes
+
+                                          }).ToList();
+
+            var vrfs = (from vif in attachment.Vifs
+                        select new DataAttachmentAttachmentPePepenameVrfVrfvrfnameAttachmentvrf
+                        {
+                            VrfName = vif.RoutingInstance.Name,
+                            RdAdministratorSubfield = vif.RoutingInstance.AdministratorSubField,
+                            RdAssignedNumberSubfield = vif.RoutingInstance.AssignedNumberSubField
+                        }).ToList();
+
+
+            var data = new DataAttachmentAttachmentPePePeName
             {
-                var data = new DataAttachmentAttachmentPePePeName
+                Attachmentpe = new List<DataAttachmentAttachmentPePepenameAttachmentpe>
                 {
-                    Attachmentpe = new List<DataAttachmentAttachmentPePepenameAttachmentpe> {
                     new DataAttachmentAttachmentPePepenameAttachmentpe
                     {
                         PeName = attachment.Device.Name,
+                        Vrf = vrfs,
                         TaggedAttachmentInterface = new List<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface>
                         {
                             new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
                             {
                                 AttachmentBandwidth = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
                                                           .AttachmentBandwidthEnum>(attachment.AttachmentBandwidth.BandwidthGbps.ToString()),
-                                InterfaceId = attachment.Interfaces.SingleOrDefault()?.Ports.SingleOrDefault()?.Name,
+                                InterfaceId = attachment.PortName,
                                 InterfaceType = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
-                                                    .InterfaceTypeEnum>(attachment.Interfaces.SingleOrDefault()?.Ports.SingleOrDefault()?.Type),
+                                                    .InterfaceTypeEnum>(attachment.PortType),
                                 InterfaceMtu = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface
-                                                   .InterfaceMtuEnum>(attachment.Mtu.MtuValue.ToString())
+                                                   .InterfaceMtuEnum>(attachment.Mtu.MtuValue.ToString()),
+                                 Vif = vifs,
+                                 ContractBandwidthPool = contractBandwidthPools
                             }
                         }
                     }
                 }
-                };
+            };
 
-                return data;
-            }
-
-            return null;
+            return data;
         }
     }
 
@@ -59,23 +98,30 @@ namespace SCM.Models
         public static IQueryable<Attachment> IncludeValidationProperties(this IQueryable<Attachment> query)
         {
             return query.Include(x => x.Tenant)
-                            .Include(x => x.Device.DeviceRole.DeviceRoleAttachmentRoles)
-                            .Include(x => x.RoutingInstance.Attachments)
-                            .Include(x => x.RoutingInstance.Vifs)
-                            .Include(x => x.RoutingInstance.RoutingInstanceType)
-                            .Include(x => x.RoutingInstance.RouteDistinguisherRange)
-                            .Include(x => x.ContractBandwidthPool)
-                            .Include(x => x.AttachmentRole.PortPool.PortRole)
-                            .Include(x => x.AttachmentBandwidth)
-                            .Include(x => x.Interfaces)
-                            .ThenInclude(x => x.Ports)
-                            .ThenInclude(x => x.PortBandwidth)
-                            .Include(x => x.Vifs);
+                        .Include(x => x.Device.DeviceRole.DeviceRoleAttachmentRoles)
+                        .Include(x => x.RoutingInstance.Attachments)
+                        .Include(x => x.RoutingInstance.Vifs)
+                        .Include(x => x.RoutingInstance.RoutingInstanceType)
+                        .Include(x => x.RoutingInstance.RouteDistinguisherRange)
+                        .Include(x => x.ContractBandwidthPool)
+                        .Include(x => x.AttachmentRole.PortPool.PortRole)
+                        .Include(x => x.AttachmentBandwidth)
+                        .Include(x => x.Interfaces)
+                        .ThenInclude(x => x.Ports)
+                        .ThenInclude(x => x.PortBandwidth)
+                        .Include(x => x.Mtu)
+                        .Include(x => x.Vifs)
+                        .ThenInclude(x => x.ContractBandwidthPool.ContractBandwidth)
+                        .Include(x => x.Vifs)
+                        .ThenInclude(x => x.Vlans)
+                        .Include(x => x.Vifs)
+                        .ThenInclude(x => x.RoutingInstance.RoutingInstanceType);
         }
 
         public static IQueryable<Attachment> IncludeDeleteValidationProperties(this IQueryable<Attachment> query)
         {
             return query.Include(x => x.Device)
+                                     .Include(x => x.AttachmentRole.PortPool.PortRole)
                                      .Include(x => x.ContractBandwidthPool.Attachments)
                                      .Include(x => x.ContractBandwidthPool.Vifs)
                                      .Include(x => x.Interfaces)

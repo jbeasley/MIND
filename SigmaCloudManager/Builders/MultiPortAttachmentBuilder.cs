@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using SCM.Data;
-using SCM.Services;
 using SCM.Models;
+using Mind.Directors;
+using IO.Swagger.Api;
 
 
 namespace Mind.Builders
@@ -14,8 +15,11 @@ namespace Mind.Builders
     /// </summary>
     public class MultiPortAttachmentBuilder : AttachmentBuilder<MultiPortAttachmentBuilder>, IAttachmentBuilder<MultiPortAttachmentBuilder>
     {
-        public MultiPortAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) : 
-            base(unitOfWork, routingInstanceDirectorFactory)
+        public MultiPortAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, 
+                                          IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                                          Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
+                                          IDataApi novaApiClient) : 
+            base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)
         {
         }
 
@@ -28,6 +32,8 @@ namespace Mind.Builders
                 await CreateMultiPortIdAsync();
                 _attachment.IsMultiPort = true;
             }
+
+            // Has the attachment been built correctly?
             _attachment.Validate();
 
             return _attachment;

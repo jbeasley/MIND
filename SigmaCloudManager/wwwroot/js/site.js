@@ -63,6 +63,15 @@ Mind.Utilities = (function () {
         }
     }
 
+    /// Hide the spinner
+    var hideSpinner = function () {
+
+        var $loadingSpinner = $('#loadingSpinner');
+        if ($loadingSpinner.length > 0) {
+            $loadingSpinner.modal('hide');
+        }
+    }
+
     /// Create a wizard
     var createWizard = function ($wizard, $form) {
 
@@ -97,7 +106,8 @@ Mind.Utilities = (function () {
         getCookie: getCookie,
         populateElement: populateElement,
         createWizard: createWizard,
-        showSpinner: showSpinner
+        showSpinner: showSpinner,
+        hideSpinner: hideSpinner
     };
 
 }(jQuery));

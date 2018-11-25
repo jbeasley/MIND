@@ -29,6 +29,7 @@ using Mind.Services;
 using Mind.Builders;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
+using IO.Swagger.Client;
 
 namespace Mind.Api.Controllers
 {
@@ -96,6 +97,11 @@ namespace Mind.Api.Controllers
             {
                 return new DatabaseUpdateFailedResult();
             }
+
+            catch (ApiException) 
+            {
+                return new NetworkUpdateFailedResult();
+            }
         }
 
         /// <summary>
@@ -132,6 +138,11 @@ namespace Mind.Api.Controllers
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
+            }
+
+            catch (ApiException)
+            {
+                return new NetworkUpdateFailedResult();
             }
         }
 
@@ -244,6 +255,11 @@ namespace Mind.Api.Controllers
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
+            }
+
+            catch (ApiException)
+            {
+                return new NetworkUpdateFailedResult();
             }
         }
     }

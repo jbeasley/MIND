@@ -18,7 +18,7 @@ namespace Mind.Builders
             _builderFactory = builderFactory;
         }
 
-        public async Task<SCM.Models.Attachment> UpdateAsync(SCM.Models.Attachment attachment, ProviderDomainAttachmentUpdate update)
+        public async Task<SCM.Models.Attachment> UpdateAsync(SCM.Models.Attachment attachment, ProviderDomainAttachmentUpdate update, bool addToNetwork = false)
         {
             var builder = _builderFactory(attachment);
             return await builder.ForAttachment(attachment.AttachmentID)

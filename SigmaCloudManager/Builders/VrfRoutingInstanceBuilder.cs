@@ -195,7 +195,7 @@ namespace Mind.Builders
             var routingInstanceTypeName = _args[nameof(WithRoutingInstanceType)].ToString();
             var routingInstanceType = (from result in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
                                     q =>
-                                       q.Type.ToString() == routingInstanceTypeName,
+                                       q.Type == Enum.Parse<RoutingInstanceTypeEnum>(routingInstanceTypeName),
                                        AsTrackable: true)
                                        select result)
                                        .SingleOrDefault();
@@ -214,7 +214,7 @@ namespace Mind.Builders
             var rdRangeType = _args[nameof(WithRangeType)].ToString();
             var rdRange = (from result in await _unitOfWork.RouteDistinguisherRangeRepository.GetAsync(
                         q => 
-                          q.Type.ToString() == rdRangeType,
+                          q.Type == Enum.Parse<SCM.Models.RouteDistinguisherRangeTypeEnum>(rdRangeType),
                           AsTrackable: true)
                           select result)
                          .SingleOrDefault();

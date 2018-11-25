@@ -7,6 +7,8 @@ using SCM.Services;
 using SCM.Models;
 using SCM.Models.RequestModels;
 using Mind.Models.RequestModels;
+using Mind.Directors;
+using IO.Swagger.Api;
 
 namespace Mind.Builders
 {
@@ -15,8 +17,11 @@ namespace Mind.Builders
     /// </summary>
     public class BundleAttachmentBuilder : AttachmentBuilder<BundleAttachmentBuilder>, IBundleAttachmentBuilder
     {
-        public BundleAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory) : 
-            base(unitOfWork, routingInstanceDirectorFactory)
+        public BundleAttachmentBuilder(IUnitOfWork unitOfWork,
+                                       Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                                       Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
+                                       DataApi novaApiClient) :
+            base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)
         {
         }
 
@@ -60,7 +65,7 @@ namespace Mind.Builders
         {
             if (minLinks != null) _args.Add(nameof(minLinks), minLinks);
             if (maxLinks != null) _args.Add(nameof(maxLinks), maxLinks);
-           
+
             return this;
         }
 
@@ -136,15 +141,41 @@ namespace Mind.Builders
             return this;
         }
 
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.CleanUpRoutingInstance()
+        {
+            base.CleanUpRoutingInstance();
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.ReleasePorts()
+        {
+            base.ReleasePorts();
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.SyncToNetwork(bool? syncToNetwork)
+        {
+            base.SyncToNetwork(syncToNetwork);
+            return this;
+        }
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.CleanUpNetwork(bool? cleanUpNetwork)
+        {
+            base.CleanUpNetwork(cleanUpNetwork);
+            return this;
+        }
+   
         public override async Task<Attachment> BuildAsync()
         {
             await base.BuildAsync();
-            _attachment.IsBundle = true;
+            base._attachment.IsBundle = true;
             SetBundleLinks();
             await CreateBundleIdAsync();
-            _attachment.Validate();
 
-            return _attachment;
+            // Has the attachment been created correctly?
+            base._attachment.Validate();
+
+            return base._attachment;
         }
 
         protected internal override void SetNumberOfPortsRequired()
@@ -189,9 +220,9 @@ namespace Mind.Builders
         private async Task CreateBundleIdAsync()
         {
             var usedBundleIds = (from attachments in await _unitOfWork.AttachmentRepository.GetAsync(
-                            q => 
+                            q =>
                                 q.DeviceID == _attachment.DeviceID && q.IsBundle)
-                                select attachments)
+                                 select attachments)
                                 .Select(q => q.ID)
                                 .Where(q => q != null)
                                 .ToList();

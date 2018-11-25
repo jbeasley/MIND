@@ -28,6 +28,7 @@
     <Compile Remove="Migrations\20180903162807_update14.Designer.cs" />
     <Compile Remove="Migrations\20181031154916_update31.cs" />
     <Compile Remove="Migrations\20181031154916_update31.Designer.cs" />
+    <Compile Remove="Directors\ProviderDomainUntaggedAttachmentUpdateDirector.cs" />
   </ItemGroup>
 
   <ItemGroup>

@@ -29,6 +29,12 @@ namespace Mind.Builders
         IBundleAttachmentBuilder UseDefaultRoutingInstance(bool? useDefaultRoutingInstance);
         IBundleAttachmentBuilder WithDescription(string description);
         IBundleAttachmentBuilder WithNotes(string notes);
+        IBundleAttachmentBuilder CleanUpRoutingInstance();
+        IBundleAttachmentBuilder ReleasePorts();
+        IBundleAttachmentBuilder SyncToNetwork(bool? syncToNetwork);
+        IBundleAttachmentBuilder CleanUpNetwork(bool? cleanUpNetwork);
+
         Task<Attachment> BuildAsync();
+        Task DestroyAsync();
     }
 }

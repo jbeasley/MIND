@@ -143,10 +143,7 @@ namespace SCM.Models
                      .FirstOrDefault(
                         x =>
                         {
-                            if (IPNetwork.TryParse(x.IpAddress, x.SubnetMask, out IPNetwork network)) {
-                                return network.Contains(peerIpv4Address);
-                            }
-                            return false;
+                            return IPNetwork.TryParse(x.IpAddress, x.SubnetMask, out IPNetwork network) && network.Contains(peerIpv4Address);
                         });
 
                 var iface = this.RoutingInstance.Attachments?.SelectMany(
@@ -156,11 +153,7 @@ namespace SCM.Models
                      .FirstOrDefault(
                         x =>
                         {
-                            if (IPNetwork.TryParse(x.IpAddress, x.SubnetMask, out IPNetwork network))
-                            {
-                                return network.Contains(peerIpv4Address);
-                            }
-                            return false;
+                            return IPNetwork.TryParse(x.IpAddress, x.SubnetMask, out IPNetwork network) && network.Contains(peerIpv4Address);
                         });
 
                 if (vlan == null && iface == null)

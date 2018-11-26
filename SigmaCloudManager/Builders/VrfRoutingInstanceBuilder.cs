@@ -45,6 +45,13 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IVrfRoutingInstanceBuilder ForVif(Vif vif)
+        {
+            if (vif != null) _args.Add(nameof(ForVif), vif);
+            return this;
+        }
+
+
         public virtual IVrfRoutingInstanceBuilder ForRoutingInstance(int? routingInstanceId)
         {
             if (routingInstanceId.HasValue) _args.Add(nameof(ForRoutingInstance), routingInstanceId);
@@ -106,6 +113,7 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
                 if (_args.ContainsKey(nameof(WithTenant))) await SetTenantAsync();
                 if (_args.ContainsKey(nameof(ForAttachment))) SetAttachment();
+                if (_args.ContainsKey(nameof(ForVif))) SetVif();
                 if (_args.ContainsKey(nameof(WithRoutingInstanceType))) await SetRoutingInstanceTypeAsync();
             }
 
@@ -163,7 +171,7 @@ namespace Mind.Builders
         {
             var attachment = (Attachment)_args[nameof(ForAttachment)];
             // Add the attachment to the Attachments collection of the routing instance here.
-            // This supports validation checks such as validation of any BGP peers where the Ip addressing assigned to the attachment
+            // This supports validation checks such as validation of any BGP peers where the IP addressing assigned to the attachment
             // is checked against the BGP peer address (see the BgpPeer model Validation method)
             _routingInstance.Attachments.Add(attachment);
 
@@ -175,6 +183,24 @@ namespace Mind.Builders
             // Similarly override any previous tenant association to ensure consistency
             _routingInstance.Tenant = attachment.Tenant;
             _routingInstance.TenantID = attachment.TenantID;
+        }
+
+        protected internal virtual void SetVif()
+        {
+            var vif = (Vif)_args[nameof(ForVif)];
+            // Add the vif to the Vifs collection of the routing instance here.
+            // This supports validation checks such as validation of any BGP peers where the IO addressing assigned to the vif
+            // is checked against the BGP peer address (see the BgpPeer model Validation method)
+            _routingInstance.Vifs.Add(vif);
+
+            // Override any previous device association with the device association of the vif. The vif is more specific and 
+            // must take precedence in order to avoid conflict (e.g. device of the vif is not the same as the supplied device argument
+            _routingInstance.Device = vif.Attachment.Device;
+            _routingInstance.DeviceID = vif.Attachment.Device.DeviceID;
+
+            // Similarly override any previous tenant association to ensure consistency
+            _routingInstance.Tenant = vif.Tenant;
+            _routingInstance.TenantID = vif.TenantID;
         }
 
         protected internal virtual async Task SetTenantAsync()

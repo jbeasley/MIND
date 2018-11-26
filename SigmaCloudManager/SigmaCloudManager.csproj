@@ -254,11 +254,14 @@
   </ItemGroup>
  
   <ItemGroup>
+    <Reference Include="RestSharp">
+      <HintPath>..\csharp_api_client\bin\RestSharp.dll</HintPath>
+    </Reference>
     <Reference Include="IO.Swagger">
       <HintPath>..\csharp_api_client\bin\IO.Swagger.dll</HintPath>
     </Reference>
-    <Reference Include="RestSharp">
-      <HintPath>..\csharp_api_client\bin\RestSharp.dll</HintPath>
+    <Reference Include="IO.NovaVpnSwagger">
+      <HintPath>..\novaVpnApiClient\bin\IO.NovaVpnSwagger.dll</HintPath>
     </Reference>
   </ItemGroup>
 </Project>

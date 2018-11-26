@@ -53,14 +53,26 @@ namespace SCM.Models
 
                                           }).ToList();
 
+            var bgpPeers = (from vif in attachment.Vifs
+                            from bgpPeer in vif.RoutingInstance.BgpPeers
+                            select new DataAttachmentAttachmentPePepenameVrfVrfvrfnameBgppeerBgppeerpeeripv4addressAttachmentbgppeer
+                            {
+                                PeerIpv4Address = bgpPeer.Ipv4PeerAddress,
+                                PeerPassword = bgpPeer.PeerPassword,
+                                PeerAutonomousSystem = bgpPeer.Peer2ByteAutonomousSystem,
+                                IsBfdEnabled = bgpPeer.IsBfdEnabled.ToString().ToLower(),
+                                IsMultiHop = bgpPeer.IsMultiHop.ToString().ToLower(),
+                                MaxPeerRoutes = bgpPeer.MaximumRoutes
+                            }).ToList();
+
             var vrfs = (from vif in attachment.Vifs
                         select new DataAttachmentAttachmentPePepenameVrfVrfvrfnameAttachmentvrf
                         {
                             VrfName = vif.RoutingInstance.Name,
                             RdAdministratorSubfield = vif.RoutingInstance.AdministratorSubField,
-                            RdAssignedNumberSubfield = vif.RoutingInstance.AssignedNumberSubField
+                            RdAssignedNumberSubfield = vif.RoutingInstance.AssignedNumberSubField,
+                            BgpPeer = bgpPeers
                         }).ToList();
-
 
             var data = new DataAttachmentAttachmentPePePeName
             {
@@ -115,7 +127,9 @@ namespace SCM.Models
                         .Include(x => x.Vifs)
                         .ThenInclude(x => x.Vlans)
                         .Include(x => x.Vifs)
-                        .ThenInclude(x => x.RoutingInstance.RoutingInstanceType);
+                        .ThenInclude(x => x.RoutingInstance.RoutingInstanceType)
+                        .Include(x => x.Vifs)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers);
         }
 
         public static IQueryable<Attachment> IncludeDeleteValidationProperties(this IQueryable<Attachment> query)

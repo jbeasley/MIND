@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Mind.Models.RequestModels;
 using SCM.Data;
 using SCM.Models;
+using IO.NovaVpnSwagger.Api;
 
 namespace Mind.Builders
 {
@@ -16,7 +17,7 @@ namespace Mind.Builders
     {
         private readonly IVpnAttachmentSetDirector _vpnAttachmentSetDirector;
 
-        public IpVpnBuilder(IUnitOfWork unitOfWork, IVpnAttachmentSetDirector vpnAttachmentSetDirector) : base(unitOfWork)
+        public IpVpnBuilder(IUnitOfWork unitOfWork, IVpnAttachmentSetDirector vpnAttachmentSetDirector, IDataApi novaApiClient ) : base(unitOfWork, novaApiClient)
         {
             _vpnAttachmentSetDirector = vpnAttachmentSetDirector;
         }
@@ -339,7 +340,7 @@ namespace Mind.Builders
             await Task.WhenAll(tasks);
         }
 
-        protected virtual internal async Task SetVpnAsync()
+        protected override internal async Task SetVpnAsync()
         {
             var vpnId = (int)_args[nameof(ForVpn)];
             var vpn = (from result in await _unitOfWork.VpnRepository.GetAsync(

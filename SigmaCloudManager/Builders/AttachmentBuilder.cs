@@ -8,7 +8,6 @@ using SCM.Data;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models.RequestModels;
 using Mind.Directors;
-using IO.Swagger.Api;
 
 namespace Mind.Builders
 {
@@ -25,12 +24,12 @@ namespace Mind.Builders
 
         private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
         private readonly Func<PortRole, IDestroyable<Vif>> _vifDirectorFactory;
-        private readonly IDataApi _novaApiClient;
+        private readonly IO.Swagger.Api.IDataApi _novaApiClient;
 
         public AttachmentBuilder(IUnitOfWork unitOfWork,
                                  Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
                                  Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
-                                 IDataApi novaApiClient) : base(unitOfWork)
+                                 IO.Swagger.Api.IDataApi novaApiClient) : base(unitOfWork)
         {
             _attachment = new Attachment
             {

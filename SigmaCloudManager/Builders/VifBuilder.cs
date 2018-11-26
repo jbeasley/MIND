@@ -19,12 +19,12 @@ namespace Mind.Builders
         protected internal Vif _vif;
         private const string _defaultVlanTagRange = "Default";
         private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
-        private readonly IDataApi _novaApiClient;
+        private readonly IO.Swagger.Api.IDataApi _novaApiClient;
 
 
         public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, 
                           IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
-                          IDataApi novaApiClient) : base(unitOfWork)
+                          IO.Swagger.Api.IDataApi novaApiClient) : base(unitOfWork)
         {
             _vif = new Vif
             {
@@ -149,10 +149,10 @@ namespace Mind.Builders
         {
             if (_args.ContainsKey(nameof(ForVif)))
             {
-
                 // Update an existing vif
                 await SetVifAsync();
                 if (_args.ContainsKey(nameof(WithContractBandwidth))) await UpdateContractBandwidthPoolAsync();
+                if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
                 if (_vif.VifRole.RoutingInstanceType.IsVrf)
                 {
                     if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
@@ -183,6 +183,7 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
                 if (_args.ContainsKey(nameof(WithVifRole))) await SetVifRoleAsync();
                 CreateVlans();
+                if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
                 if (_args.ContainsKey(nameof(WithRequestedVlanTag)))
                 {
                     SetRequestedVlanTag();
@@ -220,7 +221,6 @@ namespace Mind.Builders
             }
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
             await SetMtuAsync();
-            if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
 
             // Has the vif been created correctly
             _vif.Validate();
@@ -302,15 +302,7 @@ namespace Mind.Builders
             var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
                         q =>
                               q.AttachmentID == attachmentId,
-                              query: q => 
-                                     q.Include(x => x.Device)
-                                      .Include(x => x.AttachmentBandwidth)
-                                      .Include(x => x.Vifs)
-                                      .ThenInclude(x => x.ContractBandwidthPool.ContractBandwidth)
-                                      .Include(x => x.AttachmentRole)
-                                      .Include(x => x.Interfaces)
-                                      .ThenInclude(x => x.Vlans)
-                                      .Include(x => x.Mtu),
+                              query: q => q.IncludeValidationProperties(),
                               AsTrackable: true)
                               select result)
                               .SingleOrDefault();
@@ -447,8 +439,7 @@ namespace Mind.Builders
 
             var routingInstanceRequest = _args.ContainsKey(nameof(WithRoutingInstance)) ? (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)] : null;
             var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
-            var routingInstance = await routingInstanceDirector.BuildAsync(deviceId: _vif.Attachment.DeviceID,
-                                                                           tenantId: _vif.Tenant?.TenantID,
+            var routingInstance = await routingInstanceDirector.BuildAsync(vif: _vif,
                                                                            request: routingInstanceRequest);
             
             _vif.RoutingInstanceID = null;

@@ -18,7 +18,7 @@ namespace Mind.Builders
         public SingleAttachmentBuilder(IUnitOfWork unitOfWork, 
                                        Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
                                        Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
-                                       IDataApi novaApiClient) : 
+                                       IO.Swagger.Api.IDataApi novaApiClient) : 
             base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)
         {
         }

@@ -51,6 +51,24 @@ namespace Mind.Builders
                                  .BuildAsync();
         }
 
+
+        /// <summary>
+        /// Builds a new routing instance for the specified vif.
+        /// </summary>
+        /// <param name="vif"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public async Task<SCM.Models.RoutingInstance> BuildAsync(Vif vif, RoutingInstanceRequest request)
+        {
+            return await _builder.ForVif(vif)
+                                 .WithRangeType(request?.RangeType?.ToString())
+                                 .WithAdministratorSubField(request?.AdministratorSubField)
+                                 .WithAssignedNumberSubField(request?.AssignedNumberSubField)
+                                 .WithRoutingInstanceType(RoutingInstanceTypeEnum.InfrastructureVrf.ToString())
+                                 .WithName(request?.Name)
+                                 .BuildAsync();
+        }
+
         /// <summary>
         /// Update an existing routing instance
         /// </summary>

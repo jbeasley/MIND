@@ -17,13 +17,13 @@ namespace Mind.Services
     {
         private readonly IProviderDomainVifDirector _director;
         private readonly IDestroyable<Vif> _destroyableVifDirector;
-        private readonly IDataApi _novaApiClient;
+        private readonly IO.Swagger.Api.IDataApi _novaApiClient;
       
 
         public ProviderDomainVifService(IUnitOfWork unitOfWork, IMapper mapper,
             IProviderDomainVifDirector director,
             IDestroyable<Vif> destroyableVifDirector,
-            IDataApi novaApiClient) : base (unitOfWork, mapper)
+            IO.Swagger.Api.IDataApi novaApiClient) : base (unitOfWork, mapper)
         {
             _director = director;
             _destroyableVifDirector = destroyableVifDirector;

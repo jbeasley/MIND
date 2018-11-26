@@ -37,6 +37,17 @@ namespace SCM.Models
                             }
                         }).ToList();
 
+            var bgpPeers = (from bgpPeer in vif.RoutingInstance.BgpPeers
+                            select new DataAttachmentAttachmentPePepenameVrfVrfvrfnameBgppeerBgppeerpeeripv4addressAttachmentbgppeer
+                            {
+                                PeerIpv4Address = bgpPeer.Ipv4PeerAddress,
+                                PeerPassword = bgpPeer.PeerPassword,
+                                PeerAutonomousSystem = bgpPeer.Peer2ByteAutonomousSystem,
+                                IsBfdEnabled = bgpPeer.IsBfdEnabled.ToString().ToLower(),
+                                IsMultiHop = bgpPeer.IsMultiHop.ToString().ToLower(),
+                                MaxPeerRoutes = bgpPeer.MaximumRoutes
+                            }).ToList();
+
             var data = new DataAttachmentAttachmentPePePeName
             {
                 Attachmentpe = new List<DataAttachmentAttachmentPePepenameAttachmentpe>
@@ -50,7 +61,8 @@ namespace SCM.Models
                             {
                                 VrfName = vif.RoutingInstance.Name,
                                 RdAdministratorSubfield = vif.RoutingInstance.AdministratorSubField,
-                                RdAssignedNumberSubfield = vif.RoutingInstance.AssignedNumberSubField
+                                RdAssignedNumberSubfield = vif.RoutingInstance.AssignedNumberSubField,
+                                BgpPeer = bgpPeers
                             }
                         },
                         TaggedAttachmentInterface = new List<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidAttachmenttaggedattachmentinterface>
@@ -103,7 +115,8 @@ namespace SCM.Models
                         .Include(x => x.VifRole.RoutingInstanceType)
                         .Include(x => x.Tenant)
                         .Include(x => x.ContractBandwidthPool)
-                        .Include(x => x.Mtu);
+                        .Include(x => x.Mtu)
+                        .Include(x => x.RoutingInstance.BgpPeers);
         }
 
         public static IQueryable<Vif> IncludeDeleteValidationProperties(this IQueryable<Vif> query)
@@ -209,12 +222,12 @@ namespace SCM.Models
 
             if (this.IsLayer3)
             {
-                if (this.Vlans.Where(x => !string.IsNullOrEmpty(x.IpAddress) && !string.IsNullOrEmpty(x.SubnetMask)).Count() != this.Vlans.Count)
+                if (this.Vlans.Count(x => !string.IsNullOrEmpty(x.IpAddress) && !string.IsNullOrEmpty(x.SubnetMask)) != this.Vlans.Count)
                 {
                     throw new IllegalStateException("The vif is enabled for layer 3 but insufficient IPv4 addresses have been requested.");
                 }
             }
-            else if (this.Vlans.Where(x => !string.IsNullOrEmpty(x.IpAddress) || !string.IsNullOrEmpty(x.SubnetMask)).Any())
+            else if (this.Vlans.Any(x => !string.IsNullOrEmpty(x.IpAddress) || !string.IsNullOrEmpty(x.SubnetMask)))
             {
                 throw new IllegalStateException("The vif is NOT enabled for layer 3 but IPv4 addresses have been requested.");
             }

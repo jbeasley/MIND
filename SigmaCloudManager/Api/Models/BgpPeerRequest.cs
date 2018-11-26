@@ -54,6 +54,9 @@ namespace Mind.Api.Models
         /// <value>A string representing the authentication password for the BGP peer</value>
         /// <example>pAs5w0rd!</example>
         [DataMember(Name="PeerPassword")]
+        [Required(AllowEmptyStrings = false)]
+        [RegularExpression(@"^[a-zA-Z0-9@\#\$%&\*\-\(\)\+\?\!\s\\/]+$")]
+        [StringLength(30)]
         public string PeerPassword { get; set; }
 
         /// <summary>

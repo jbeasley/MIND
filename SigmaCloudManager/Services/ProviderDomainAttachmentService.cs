@@ -23,14 +23,14 @@ namespace Mind.Services
         private readonly Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> _createAttachmentDirectorFactory;
         private readonly Func<Attachment, IProviderDomainAttachmentDirector> _attachmentDirectorFactory;
         private readonly Func<Attachment, INetworkSynchronizable<Attachment>> _networkSyncAttachmentDirectorFactory;
-        private readonly IDataApi _novaApiClient;
+        private readonly IO.Swagger.Api.IDataApi _novaApiClient;
 
         public ProviderDomainAttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
             Func<ProviderDomainAttachmentRequest, AttachmentRole, IProviderDomainAttachmentDirector> createAttachmentDirectorFactory,
             Func<Attachment, IProviderDomainAttachmentDirector> attachmentDirectorFactory,
             Func<Attachment, INetworkSynchronizable<Attachment>> networkSyncAttachmentDirectorFactory,
-            IDataApi novaApiClient) : base(unitOfWork, mapper)
+            IO.Swagger.Api.DataApi novaApiClient) : base(unitOfWork, mapper)
         {
             _createAttachmentDirectorFactory = createAttachmentDirectorFactory;
             _attachmentDirectorFactory = attachmentDirectorFactory;

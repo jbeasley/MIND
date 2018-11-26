@@ -50,6 +50,9 @@ namespace Mind.WebUI.Models
         /// <value>A string representing the authentication password for the BGP peer</value>
         /// <example>pAs5w0rd!</example>
         [Display(Name = "Peer Password")]
+        [Required(AllowEmptyStrings = false)]
+        [RegularExpression(@"^[a-zA-Z0-9@\#\$%&\*\-\(\)\+\?\!\s\\/]+$")]
+        [StringLength(30)]
         public string PeerPassword { get; set; }
 
         /// <summary>

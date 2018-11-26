@@ -6,6 +6,7 @@ using SCM.Models;
 using SCM.Services;
 using SCM.Data;
 using Microsoft.EntityFrameworkCore;
+using IO.NovaVpnSwagger.Api;
 
 namespace Mind.Builders
 {
@@ -14,9 +15,10 @@ namespace Mind.Builders
     /// </summary>
     public abstract class VpnBuilder : BaseBuilder, IVpnBuilder
     {
+        private readonly IDataApi _novaApiClient;
         protected internal Vpn _vpn;
 
-        public VpnBuilder(IUnitOfWork unitOfWork) : base(unitOfWork)
+        public VpnBuilder(IUnitOfWork unitOfWork, IDataApi novaApiClient) : base(unitOfWork)
         {
             _vpn = new Vpn
             {
@@ -27,6 +29,7 @@ namespace Mind.Builders
                 ExtranetVpnMembers = new List<ExtranetVpnMember>(),
                 ExtranetVpns = new List<ExtranetVpnMember>()
             };
+            _novaApiClient = novaApiClient;
         }
 
         public virtual IVpnBuilder ForTenant(int? tenantId)
@@ -77,15 +80,27 @@ namespace Mind.Builders
             return this;
         }
 
-        public IVpnBuilder AsNovaVpn(bool? isNovaVpn)
+        public virtual IVpnBuilder AsNovaVpn(bool? isNovaVpn)
         {
             if (isNovaVpn.HasValue) _args.Add(nameof(AsNovaVpn), isNovaVpn);
             return this;
         }
 
-        public IVpnBuilder WithAddressFamily(string addressFamilyName)
+        public virtual IVpnBuilder WithAddressFamily(string addressFamilyName)
         {
             if (!string.IsNullOrEmpty(addressFamilyName)) _args.Add(nameof(WithAddressFamily), addressFamilyName);
+            return this;
+        }
+
+        public virtual IVpnBuilder SyncToNetwork(bool? syncToNetwork)
+        {
+            _args.Add(nameof(SyncToNetwork), syncToNetwork);
+            return this;
+        }
+
+        public virtual IVpnBuilder CleanUpNetwork()
+        {
+            _args.Add(nameof(CleanUpNetwork), null);
             return this;
         }
 
@@ -95,15 +110,61 @@ namespace Mind.Builders
         /// <returns></returns>
         public virtual async Task<Vpn> BuildAsync()
         {
-            if (_args.ContainsKey(nameof(WithName))) SetName();
-            if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
-            if (_args.ContainsKey(nameof(AsNovaVpn))) SetNovaVpn();
-            if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
-            if (_args.ContainsKey(nameof(WithTenancyType))) await SetTenancyTypeAsync();
-            if (_args.ContainsKey(nameof(WithTopologyType))) await SetTopologyTypeAsync();
-            if (_args.ContainsKey(nameof(WithAddressFamily))) await SetAddressFamilyAsync();
-            if (_args.ContainsKey(nameof(WithPlane))) await SetPlaneAsync();
-            if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
+            if (_args.ContainsKey(nameof(ForVpn)))
+            {
+                await SetVpnAsync();
+            }
+            else
+            {
+                if (_args.ContainsKey(nameof(WithName))) SetName();
+                if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
+                if (_args.ContainsKey(nameof(AsNovaVpn))) SetNovaVpn();
+                if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
+                if (_args.ContainsKey(nameof(WithTenancyType))) await SetTenancyTypeAsync();
+                if (_args.ContainsKey(nameof(WithTopologyType))) await SetTopologyTypeAsync();
+                if (_args.ContainsKey(nameof(WithAddressFamily))) await SetAddressFamilyAsync();
+                if (_args.ContainsKey(nameof(WithPlane))) await SetPlaneAsync();
+                if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
+            }
+
+            return _vpn;
+        }
+
+        /// <summary>
+        /// Destroy the vpn.
+        /// </summary>
+        /// <returns>A task</returns>
+        public async Task DestroyAsync()
+        {
+            if (_args.ContainsKey(nameof(ForVpn)))
+            {
+                await SetVpnToDeleteAsync();
+
+                // Are we allowed to destroy the attachment?
+                _vpn.ValidateDelete();                             
+
+                // Check to delete the attachment from the network
+                if (_args.ContainsKey(nameof(CleanUpNetwork)))
+                {
+                    var cleanUpNetwork = (bool?)_args[nameof(CleanUpNetwork)];
+                    if (cleanUpNetwork.GetValueOrDefault()) await DeleteVpnFromNetworkAsync();
+                }
+
+                _unitOfWork.VpnRepository.Delete(_vpn);
+            }
+        }
+
+        /// <summary>
+        /// Sync the vpn to the network.
+        /// </summary>
+        /// <returns>The attachment</returns>
+        public async Task<Vpn> SyncToNetworkAsync()
+        {
+            if (_args.ContainsKey(nameof(ForVpn)))
+            {
+                await SetVpnAsync();
+                await SyncVpnToNetworkAsync();
+            }
 
             return _vpn;
         }
@@ -214,6 +275,55 @@ namespace Mind.Builders
         protected internal virtual void SetNovaVpn()
         {
             _vpn.IsNovaVpn = (bool)_args[nameof(AsNovaVpn)];
+        }
+
+        protected virtual internal async Task SetVpnAsync()
+        {
+            var vpnId = (int)_args[nameof(ForVpn)];
+            var vpn = (from result in await _unitOfWork.VpnRepository.GetAsync(
+                    q =>
+                       q.VpnID == vpnId,
+                       query:
+                       q =>
+                          q.IncludeBaseValidationProperties(),
+                       AsTrackable: true)
+                       select result)
+                       .SingleOrDefault();
+
+            _vpn = vpn ?? throw new BuilderBadArgumentsException($"Unable to find the vpn with ID '{vpnId}'.");
+        }
+
+        protected async internal virtual Task SetVpnToDeleteAsync()
+        {
+            var vpnId = (int)_args[nameof(ForVpn)];
+            var vpn = (from vpns in await _unitOfWork.VpnRepository.GetAsync(
+                            q =>
+                              q.VpnID == vpnId,
+                              query: q => q.IncludeDeleteValidationProperties(),
+                              AsTrackable: true)
+                              select vpns)
+                              .SingleOrDefault();
+
+            _vpn = vpn ?? throw new BuilderBadArgumentsException($"Could not find vpn with ID '{vpnId}' to delete.");
+        }
+
+        /// <summary>
+        /// Sync the vpn to network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected async internal virtual Task SyncVpnToNetworkAsync()
+        {
+            var dto = _vpn.ToNovaVpnDto();
+            await _novaApiClient.DataVpnVpnInstanceInstanceNamePatchAsync(_vpn.Name, dto);
+        }
+
+        /// <summary>
+        /// Delete the vpn from the network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected async internal virtual Task DeleteVpnFromNetworkAsync()
+        {
+            await _novaApiClient.DataVpnVpnInstanceInstanceNameDeleteAsync(_vpn.Name);
         }
     }
 }

@@ -1,65 +1,61 @@
 ﻿@using Mind.WebUI.Models;
 @model BgpIpNetworkOutboundPolicyRequestViewModel
-
-@if (Model != null)
+@for (var i = 0; i < Model?.VpnTenantIpNetworkOutRequests?.Count(); i++)
 {
-    @for (var i = 0; i < Model.VpnTenantIpNetworkOutRequests.Count(); i++)
-    {
-        var item = Model.VpnTenantIpNetworkOutRequests[i];
-<tr id="bgp-ip-network-outbound-policy-grid-row_@i" data-row-id="@i" data-tenant-id="@item.TenantId" data-tenant-name="@item.TenantName" 
-    data-cidr-name="@item.TenantIpNetworkCidrName" data-advertised-ip-routing-preference="@item.AdvertisedIpRoutingPreference"
-    data-ipv4-peer-address="@item.Ipv4PeerAddress" data-add-to-all-bgp-peers-in-attachment-set="@item.AddToAllBgpPeersInAttachmentSet">
-    <td hidden>
-        <input type="text" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].TenantId" value="@item.TenantId" readonly />
-    </td>
-    <td width="18%">
-        <input type="text" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].TenantName" value="@item.TenantName" readonly />
-    </td>
-    <td width="20%">
-        <input type="text" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].TenantIpNetworkCidrName" value="@item.TenantIpNetworkCidrName" readonly />
-    </td>
-    <td width="10%">
-        <div class="custom-control custom-checkbox">
-            <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="BgpIpNetworkOutboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"
-                   name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].AddToAllBgpPeersInAttachmentSet"
-                   checked="@item.AddToAllBgpPeersInAttachmentSet" value="@item.AddToAllBgpPeersInAttachmentSet.ToString()">
-            <label class="custom-control-label" for="BgpIpNetworkOutboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"></label>
-        </div>
-    </td>
-    <td hidden>
-        <input type="text" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].AddToAllBgpPeersInAttachmentSet" value="false" />
-    </td>
-    <td width="27%">
-        <select class="form-control" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].Ipv4PeerAddress">
-            <option value="">-- Select BGP Peer --</option>
-            @{
-                if (Model.BgpPeers != null)
-                {
-                    foreach (var bgpPeer in Model.BgpPeers)
+    var item = Model.VpnTenantIpNetworkOutRequests[i];
+    <tr id="bgp-ip-network-outbound-policy-grid-row_@i" data-row-id="@i" data-tenant-id="@item.TenantId" data-tenant-name="@item.TenantName"
+        data-cidr-name="@item.TenantIpNetworkCidrName" data-advertised-ip-routing-preference="@item.AdvertisedIpRoutingPreference"
+        data-ipv4-peer-address="@item.Ipv4PeerAddress" data-add-to-all-bgp-peers-in-attachment-set="@item.AddToAllBgpPeersInAttachmentSet">
+        <td hidden>
+            <input type="text" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].TenantId" value="@item.TenantId" readonly />
+        </td>
+        <td width="18%">
+            <input type="text" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].TenantName" value="@item.TenantName" readonly />
+        </td>
+        <td width="20%">
+            <input type="text" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].TenantIpNetworkCidrName" value="@item.TenantIpNetworkCidrName" readonly />
+        </td>
+        <td width="10%">
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="BgpIpNetworkOutboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"
+                       name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].AddToAllBgpPeersInAttachmentSet"
+                       checked="@item.AddToAllBgpPeersInAttachmentSet" value="@item.AddToAllBgpPeersInAttachmentSet.ToString()">
+                <label class="custom-control-label" for="BgpIpNetworkOutboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"></label>
+            </div>
+        </td>
+        <td hidden>
+            <input type="text" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].AddToAllBgpPeersInAttachmentSet" value="false" />
+        </td>
+        <td width="27%">
+            <select class="form-control" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].Ipv4PeerAddress">
+                <option value="">-- Select BGP Peer --</option>
+                @{
+                    if (Model.BgpPeers != null)
                     {
-                        if (bgpPeer.Ipv4PeerAddress == item.Ipv4PeerAddress)
+                        foreach (var bgpPeer in Model.BgpPeers)
                         {
-                            <option value="@bgpPeer.Ipv4PeerAddress" selected>
-                                @bgpPeer.Name
-                            </option>
-                        }
-                        else
-                        {
-                            <option value="@bgpPeer.Ipv4PeerAddress">
-                                @bgpPeer.Name
-                            </option>
+                            if (bgpPeer.Ipv4PeerAddress == item.Ipv4PeerAddress)
+                            {
+                                <option value="@bgpPeer.Ipv4PeerAddress" selected>
+                                    @bgpPeer.Name
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@bgpPeer.Ipv4PeerAddress">
+                                    @bgpPeer.Name
+                                </option>
+                            }
                         }
                     }
                 }
-            }
-        </select>
-    </td>
-    <td width="15%">
-        <input class="form-control" type="number" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].AdvertisedIpRoutingPreference" value="@item.AdvertisedIpRoutingPreference" />
-    </td>
-    <td width="10%">
-        <button type="button" id="Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
-    </td>
-</tr>
-    }
+            </select>
+        </td>
+        <td width="15%">
+            <input class="form-control" type="number" name="BgpIpNetworkOutboundPolicy.VpnTenantIpNetworkOutRequests[@i].AdvertisedIpRoutingPreference" value="@item.AdvertisedIpRoutingPreference" />
+        </td>
+        <td width="10%">
+            <button type="button" id="Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
+        </td>
+    </tr>
 }

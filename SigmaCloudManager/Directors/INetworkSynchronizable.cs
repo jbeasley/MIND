@@ -9,6 +9,6 @@ namespace Mind.Directors
     /// </summary>
     public interface INetworkSynchronizable<T>
     {
-        Task<T> SyncToNetworkAsync(T item);
+        Task<T> SyncToNetworkPutAsync(T item);
     }
 }

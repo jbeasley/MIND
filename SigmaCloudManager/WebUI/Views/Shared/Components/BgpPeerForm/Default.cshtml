@@ -38,10 +38,10 @@
                             <span asp-validation-for="PeerPassword" class="text-danger"></span>
                         </div>
                     </div>
-                    <div class="alert alert-info" role="alert">
+                    <div mind-alert="info" message="
                         Select this checkbox if you want Bidirectional Forwarding Detection (BFD) enabled for this BGP peer.
                         BFD enables very fast detection of network failuress which can cause the BGP protocol to fail. You should enable
-                        this option if you care about fast failure detection and failover of routing to an alternate path.
+                        this option if you care about fast failure detection and failover of routing to an alternate path.">
                     </div>
                     <div class="form-group row">
                         <label class="col-form-label col-sm-4" asp-for="IsBfdEnabled"></label>
@@ -53,10 +53,10 @@
                             </div>
                         </div>
                     </div>
-                    <div class="alert alert-info" role="alert">
+                    <div mind-alert="info" message="
                         Select this checkbox if the BGP speaker within the tenant domain is not within the same IP subnet
                         as the provider side of the BGP peering connection. You should enable this option if there is one or more IP hop
-                        between the provider BGP speaker and the tenant BGP speaker, such as a router or firewall.
+                        between the provider BGP speaker and the tenant BGP speaker, such as a router or firewall.">
                     </div>
                     <div class="form-group row">
                         <label class="col-form-label col-sm-4" asp-for="IsMultiHop"></label>
@@ -68,8 +68,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="alert alert-info" role="alert">
-                        Specify the maximum number of routes which will be accepted.
+                    <div mind-alert="info" message="
+                        Specify the maximum number of routes which will be accepted.">
                     </div>
                     <div class="form-group row">
                         <label asp-for="MaximumRoutes" class="col-sm-4 col-form-label"> </label>

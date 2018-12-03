@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using SCM.Data;
 using SCM.Models;
 using Mind.Directors;
-using IO.Swagger.Api;
+using IO.NovaAttSwagger.Api;
 
 
 namespace Mind.Builders

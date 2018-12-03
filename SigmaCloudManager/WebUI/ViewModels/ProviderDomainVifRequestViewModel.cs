@@ -110,6 +110,20 @@ namespace Mind.WebUI.Models
         /// <value>A list of Ipv4AddressAndMask objects</value>
         public List<Ipv4AddressAndMaskViewModel> Ipv4Addresses { get; set; }
 
+        /// <summary>
+        /// Stage the vif ready for synchronisation with the network
+        /// </summary>
+        /// <value>Booelan denoting whether the vif should be staged.</value>
+        /// <example>true</example>
+        public bool? Stage { get; set; }
+
+        /// <summary>
+        /// Synchronise the vif with the network
+        /// </summary>
+        /// <value>Boolean denoting whether the vif should be synchronised with the network</value>
+        /// <example>true</example>
+        public bool? SyncToNetwork { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (ContractBandwidthMbps != null)

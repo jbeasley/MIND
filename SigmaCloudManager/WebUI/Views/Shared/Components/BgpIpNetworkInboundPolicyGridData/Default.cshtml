@@ -1,61 +1,57 @@
 ﻿@using Mind.WebUI.Models;
 @model BgpIpNetworkInboundPolicyRequestViewModel
-
-@if (Model != null)
+@for (var i = 0; i < Model?.VpnTenantIpNetworkInRequests?.Count(); i++)
 {
-    @for (var i = 0; i < Model.VpnTenantIpNetworkInRequests.Count(); i++)
-    {
-        var item = Model.VpnTenantIpNetworkInRequests[i];
-<tr id="bgp-ip-network-inbound-policy-grid-row_@i" data-row-id="@i" data-tenant-id="@item.TenantId" data-cidr-name="@item.TenantIpNetworkCidrName" data-local-ip-routing-preference="@item.LocalIpRoutingPreference"
-    data-ipv4-peer-address="@item.Ipv4PeerAddress" data-add-to-all-bgp-peers-in-attachment-set="@item.AddToAllBgpPeersInAttachmentSet">
-    <td hidden>
-        <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].TenantId" value="@item.TenantId" readonly />
-    </td>
-    <td width="20%">
-        <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].TenantIpNetworkCidrName" value="@item.TenantIpNetworkCidrName" readonly />
-    </td>
-    <td width="20%">
-        <div class="custom-control custom-checkbox">
-            <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="BgpIpNetworkInboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"
-                   name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].AddToAllBgpPeersInAttachmentSet" 
-                   checked="@item.AddToAllBgpPeersInAttachmentSet" value="@item.AddToAllBgpPeersInAttachmentSet.ToString()">
-            <label class="custom-control-label" for="BgpIpNetworkInboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"></label>
-        </div>
-    </td>
-    <td hidden>
-        <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].AddToAllBgpPeersInAttachmentSet" value="false" />
-    </td>
-    <td width="30%">
-        <select class="form-control" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].Ipv4PeerAddress">
-            <option value="">-- Select BGP Peer --</option>
-            @{
-                if (Model.BgpPeers != null)
-                {
-                    foreach (var bgpPeer in Model.BgpPeers)
+    var item = Model.VpnTenantIpNetworkInRequests[i];
+    <tr id="bgp-ip-network-inbound-policy-grid-row_@i" data-row-id="@i" data-tenant-id="@item.TenantId" data-cidr-name="@item.TenantIpNetworkCidrName" data-local-ip-routing-preference="@item.LocalIpRoutingPreference"
+        data-ipv4-peer-address="@item.Ipv4PeerAddress" data-add-to-all-bgp-peers-in-attachment-set="@item.AddToAllBgpPeersInAttachmentSet">
+        <td hidden>
+            <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].TenantId" value="@item.TenantId" readonly />
+        </td>
+        <td width="20%">
+            <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].TenantIpNetworkCidrName" value="@item.TenantIpNetworkCidrName" readonly />
+        </td>
+        <td width="20%">
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="BgpIpNetworkInboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"
+                       name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].AddToAllBgpPeersInAttachmentSet"
+                       checked="@item.AddToAllBgpPeersInAttachmentSet" value="@item.AddToAllBgpPeersInAttachmentSet.ToString()">
+                <label class="custom-control-label" for="BgpIpNetworkInboundPolicy_AddToAllBgpPeersInAttachmentSet_@i"></label>
+            </div>
+        </td>
+        <td hidden>
+            <input type="text" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].AddToAllBgpPeersInAttachmentSet" value="false" />
+        </td>
+        <td width="30%">
+            <select class="form-control" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].Ipv4PeerAddress">
+                <option value="">-- Select BGP Peer --</option>
+                @{
+                    if (Model.BgpPeers != null)
                     {
-                        if (bgpPeer.Ipv4PeerAddress == item.Ipv4PeerAddress)
+                        foreach (var bgpPeer in Model.BgpPeers)
                         {
-                            <option value="@bgpPeer.Ipv4PeerAddress" selected>
-                                @bgpPeer.Name
-                            </option>
-                        }
-                        else
-                        {
-                        <option value="@bgpPeer.Ipv4PeerAddress">
-                            @bgpPeer.Name
-                        </option>
+                            if (bgpPeer.Ipv4PeerAddress == item.Ipv4PeerAddress)
+                            {
+                                <option value="@bgpPeer.Ipv4PeerAddress" selected>
+                                    @bgpPeer.Name
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@bgpPeer.Ipv4PeerAddress">
+                                    @bgpPeer.Name
+                                </option>
                             }
                         }
                     }
                 }
-        </select>
-    </td>
-    <td width="15%">
-        <input class="form-control" type="number" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].LocalIpRoutingPreference" value="@item.LocalIpRoutingPreference" />
-    </td>
-    <td width="15%">
-        <button type="button" id="Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
-    </td>
-</tr>
-    }
+            </select>
+        </td>
+        <td width="15%">
+            <input class="form-control" type="number" name="BgpIpNetworkInboundPolicy.VpnTenantIpNetworkInRequests[@i].LocalIpRoutingPreference" value="@item.LocalIpRoutingPreference" />
+        </td>
+        <td width="15%">
+            <button type="button" id="Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
+        </td>
+    </tr>
 }

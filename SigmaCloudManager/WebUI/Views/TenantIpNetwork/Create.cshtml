@@ -14,13 +14,6 @@
     </ul>
 </div>
 
-<ol class="breadcrumb">
-    <li class="breadcrumb-item"><a href="/Home">Home</a></li>
-    <li class="breadcrumb-item"><a href="/Tenant/GetAll">Tenants</a></li>
-    <li class="breadcrumb-item"><a href="/TenantIpNetwork/GetAllByTenantID?tenantID=@ViewBag.Tenant.TenantId">Tenant IP Networks - [@ViewBag.Tenant.Name]</a></li>
-    <li class="breadcrumb-item active">Create</li>
-</ol>
-
 <h2>Create an IP Network for Tenant '@ViewBag.Tenant.Name'</h2>
 
 <form id="createForm" asp-action="Create">

@@ -148,21 +148,17 @@ namespace SCM.Models
                     }
                 }
 
-                if (this.Device.RoutingInstances.Where(
-                                                    x => 
-                                                    x.Name == this.Name &&
-                                                    x.RoutingInstanceID != this.RoutingInstanceID)
-                                                .Any())
+                if (this.Device.RoutingInstances.Any(x =>
+                            x.Name == this.Name &&
+                            x.RoutingInstanceID != this.RoutingInstanceID))
                 {
                     throw new IllegalStateException($"The name '{this.Name}' for the routing instance is already used.");
                 }
 
-                if (this.Device.RoutingInstances.Where(
-                                                    x => 
-                                                    x.AdministratorSubField == this.AdministratorSubField &&
-                                                    x.AssignedNumberSubField == this.AssignedNumberSubField &&
-                                                    x.RoutingInstanceID != this.RoutingInstanceID)
-                                                .Any())
+                if (this.Device.RoutingInstances.Any(x =>
+                        x.AdministratorSubField == this.AdministratorSubField &&
+                        x.AssignedNumberSubField == this.AssignedNumberSubField &&
+                        x.RoutingInstanceID != this.RoutingInstanceID))
                 {
                     throw new IllegalStateException($"The administrator subfield '{this.AdministratorSubField}' and " +
                         $"assigned number subfield '{this.AssignedNumberSubField}' values for the routing instance with name '{this.Name}' are already used.");

@@ -3,8 +3,8 @@
 
     @if (Model != null)
     {
-        <div class="alert alert-info">
-            Create BGP peers
+        <div mind-alert="info" message="
+            Create BGP peers">
         </div>
         <!-- Button trigger modal showing form for create/upadte of a BGP peer -->
         <button type="button" id="showBgpPeerFormBtn" class="btn btn-primary" is-create-button></button>
@@ -39,7 +39,7 @@
     }
     else
     {
-        <div class="alert alert-info" role="alert">
-            The selected vif role does not require BGP details to be specified. Please go to the next step.
+        <div mind-alert="info" message="
+            The selected vif role does not require BGP details to be specified. Please go to the next step.">
         </div>
     }

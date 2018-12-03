@@ -1,10 +1,7 @@
-@using Mind.WebUI.Models;
 @model Mind.WebUI.Models.VpnUpdateViewModel
-
 @{
     ViewData["Title"] = "Edit VPN";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -13,28 +10,22 @@
         <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
     </ul>
 </div>
-
 <h2>Edit VPN '@Model.Name'</h2>
-
 <form id="form" asp-action="Edit">
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <input type="hidden" asp-for="VpnId" />
     <input type="hidden" asp-for="TenantId" />
     <input type="hidden" asp-for="TopologyType" />
     <input type="hidden" asp-for="RowVersion" />
+    <input type="hidden" asp-for="Name" />
+    <input type="hidden" asp-for="Stage" />
+    <input type="hidden" asp-for="SyncToNetwork" />
     <div id="editVpnWizard">
         <h3>Name and Description</h3>
         <section id="name-and-description">
             <br />
-            <div class="alert alert-info" role="alert">
-                Give a user-friendy name for the VPN and a description.
-            </div>
-            <div class="form-group row">
-                <label asp-for="Name" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <input asp-for="Name" class="form-control" />
-                    <span asp-validation-for="Name" class="text-danger" />
-                </div>
+            <div mind-alert="info" message="
+                Give the VPN a description.">
             </div>
             <div class="form-group row">
                 <label asp-for="Description" class="col-sm-2 col-form-label"></label>
@@ -44,9 +35,9 @@
                 </div>
             </div>
             <br />
-            <div class="alert alert-info" role="alert">
+            <div mind-alert="info" message="
                 Extranets are a special type of VPN which provide a 'cross-connect' between two or more other VPNs.
-                Enable the extranet option to create a cross-connect VPN.
+                Enable the extranet option to create a cross-connect VPN.">
             </div>
             <div class="form-group row">
                 <label class="col-form-label col-sm-2"></label>
@@ -62,10 +53,10 @@
         <h3>Tenancy Type</h3>
         <section id="tenancyType">
             <br />
-            <div class="alert alert-info" role="alert">
+            <div mind-alert="info" message="
                 Select a tenancy type for the VPN. A tenancy type of 'single' means that only sites which belong to the tenant who owns
                 the VPN can be attached to the VPN. If the tenancy type is 'multi' then any site belonging to any tenant can
-                be attached to the VPN.
+                be attached to the VPN.">
             </div>
             <div class="form-group row">
                 <label asp-for="TenancyType" class="col-sm-2 col-form-label"></label>
@@ -80,9 +71,9 @@
         <h3>Region</h3>
         <section id="region">
             <br />
-            <div class="alert alert-info" role="alert">
+            <div mind-alert="info" message="
                 Optionally select a geographical region. If this option is selected then only sites in the specified
-                region can be attached to the VPN.
+                region can be attached to the VPN.">
             </div>
             <div class="form-group row">
                 <label asp-for="Region" class="col-sm-2 col-form-label"></label>
@@ -99,7 +90,6 @@
         {
             vpnAttachmentSetRequests = Model.VpnAttachmentSets
         })
-
     </div>
 </form>
 <div class="modal fade" id="duplicateItemModal" tabindex="-1" role="dialog" aria-labelledby="duplicateItemModalLabel" aria-hidden="true">
@@ -120,33 +110,15 @@
         </div>
     </div>
 </div>
-
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs</a>
 </div>
-
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
-
+<!-- Stage or sync to network partial view -->
+@{await Html.RenderPartialAsync("_NetworkStageOrSyncModalPartial");}
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-    <script type="text/javascript">
-
-        (function ($) {
-
-            var $form = $("#form"),
-                $wizard = $("#editVpnWizard");
-
-            //Create wizard
-            Mind.Utilities.createWizard($wizard, $form);
-
-            // Initialise all tool-tips
-            $('[data-toggle="tooltip"]').tooltip();
-
-        }(jQuery));
-
-    </script>
-
-    @{await Html.RenderPartialAsync("_VpnAttachmentSetScriptsPartial");}
+    @{await Html.RenderPartialAsync("_VpnEditScriptsPartial");}
 }

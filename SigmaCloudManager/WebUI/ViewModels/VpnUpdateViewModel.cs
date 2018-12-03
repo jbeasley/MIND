@@ -38,7 +38,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Enum value denoting the topology type of the vpn.</value>
         /// <example>Meshed</example>
-        public TopologyTypeEnum? TopologyType { get; private set; }
+        public TopologyTypeEnum? TopologyType { get; set; }
 
         /// <summary>
         /// The name of the vpn
@@ -95,6 +95,20 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>List of VpnAttachmentSetRequest objects</value>
         public List<VpnAttachmentSetRequestViewModel> VpnAttachmentSets { get; set; }
+
+        /// <summary>
+        /// Stage the vpn ready for synchronisation with the network
+        /// </summary>
+        /// <value>Booelan denoting whether the vpn should be staged.</value>
+        /// <example>true</example>
+        public bool? Stage { get; set; }
+
+        /// <summary>
+        /// Synchronise the vpn with the network
+        /// </summary>
+        /// <value>Boolean denoting whether the vpn should be synchronised with the network</value>
+        /// <example>true</example>
+        public bool? SyncToNetwork { get; set; }
 
         /// <summary>
         /// Concurrency token for the model

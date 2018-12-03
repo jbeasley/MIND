@@ -9,6 +9,7 @@ namespace Mind.Builders
 {
     public interface IVpnDirector
     {
-        Task<Vpn> BuildAsync(int tenantId, VpnRequest request);
+        Task<Vpn> BuildAsync(int tenantId, VpnRequest request, bool stage = true, bool syncToNetwork = false);
+        Task<Vpn> UpdateAsync(int vpnId, VpnUpdate update, bool stage = true, bool syncToNetwork = false);
     }
 }

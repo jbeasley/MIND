@@ -31,8 +31,9 @@ namespace Mind.Builders
         IBundleAttachmentBuilder WithNotes(string notes);
         IBundleAttachmentBuilder CleanUpRoutingInstance();
         IBundleAttachmentBuilder ReleasePorts();
-        IBundleAttachmentBuilder SyncToNetwork(bool? syncToNetwork);
+        IBundleAttachmentBuilder SyncToNetworkPut(bool? syncToNetworkPut);
         IBundleAttachmentBuilder CleanUpNetwork(bool? cleanUpNetwork);
+        IBundleAttachmentBuilder Stage(bool? stage);
 
         Task<Attachment> BuildAsync();
         Task DestroyAsync();

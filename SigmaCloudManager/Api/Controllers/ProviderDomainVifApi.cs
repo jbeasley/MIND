@@ -29,7 +29,7 @@ using Mind.Services;
 using Mind.Builders;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
-using IO.Swagger.Client;
+using IO.NovaAttSwagger.Client;
 
 namespace Mind.Api.Controllers
 {
@@ -91,6 +91,11 @@ namespace Mind.Api.Controllers
             catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
             }
 
             catch (DbUpdateException)
@@ -252,6 +257,11 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
@@ -261,6 +271,50 @@ namespace Mind.Api.Controllers
             {
                 return new NetworkUpdateFailedResult();
             }
+        }
+
+        /// <summary>
+        /// Sync a vif to the network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        /// <param name="vifId">The ID of the vif</param>
+        /// <response code="201">Successful operation</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="404">The specified resource was not found</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpPost]
+        [HttpPost]
+        [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}/sync")]
+        [ValidateModelState]
+        [ValidateProviderDomainVifExists]
+        [SwaggerOperation("SyncProviderDomainVif")]
+        [SwaggerResponse(statusCode: 201, type: typeof(ProviderDomainVif), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public async Task<IActionResult> SyncToNetwork([FromRoute][Required]int? vifId)
+        {
+            try
+            {
+                await _vifService.SyncToNetworkPutAsync(vifId.Value);
+            }
+
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (ApiException)
+            {
+                return new NetworkUpdateFailedResult();
+            }
+
+            return Ok();
         }
     }
 }

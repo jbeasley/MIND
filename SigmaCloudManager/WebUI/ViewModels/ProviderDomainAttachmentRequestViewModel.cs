@@ -167,5 +167,19 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>An object of type RoutingInstanceRequest</value>
         public RoutingInstanceRequestViewModel RoutingInstance { get; set; }
+
+        /// <summary>
+        /// Stage the attachment ready for synchronisation with the network
+        /// </summary>
+        /// <value>Booelan denoting whether the attachment should be staged.</value>
+        /// <example>true</example>
+        public bool? Stage { get; set; }
+
+        /// <summary>
+        /// Synchronise the attachment with the network
+        /// </summary>
+        /// <value>Boolean denoting whether the attachment should be synchronised with the network</value>
+        /// <example>true</example>
+        public bool? SyncToNetwork { get; set; }
     }
 }

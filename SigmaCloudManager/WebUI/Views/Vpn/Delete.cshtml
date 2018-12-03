@@ -1,10 +1,8 @@
 @model Mind.WebUI.Models.VpnDeleteViewModel
 
-
 @{
     ViewData["Title"] = "Delete VPN";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -14,12 +12,9 @@
     </ul>
 </div>
 
-
 <h2>Delete VPN '@Model.Name'</h2>
-
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-
 <h3>Are you sure you want to delete this?</h3>
 <div>
     <hr />
@@ -42,6 +37,22 @@
         </div>
     </form>
 </div>
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script type="text/javascript">
+
+        (function ($) {
+
+            $('#Delete').on('click', function() {
+
+                Mind.Utilities.showSpinner();
+            });
+
+        }(jQuery));
+
+    </script>
 }

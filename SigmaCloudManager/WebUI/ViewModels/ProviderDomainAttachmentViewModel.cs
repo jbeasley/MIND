@@ -173,6 +173,14 @@ namespace Mind.WebUI.Models
         public string AttachmentRoleName { get; private set; }
 
         /// <summary>
+        /// Network status of the attachment.
+        /// </summary>
+        /// <value>String value denoting the network status</value>
+        /// <example>Staged</example>
+        [Display(Name = "Network Status")]
+        public string NetworkStatus { get; private set; }
+
+        /// <summary>
         /// Concurrency token for the model
         /// </summary>
         public byte[] RowVersion { get; private set; }

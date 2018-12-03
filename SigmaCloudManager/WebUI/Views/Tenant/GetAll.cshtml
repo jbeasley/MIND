@@ -1,21 +1,16 @@
 @model IEnumerable<Mind.WebUI.Models.TenantViewModel>
-
 @{
     ViewData["Title"] = "Tenants";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
         <li><a href="#"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
     </ul>
 </div>
-
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-
 <h2>Tenants</h2>
-
 <p>
     <a asp-action="Create" mind-create-btn-link="true">Create New</a>
 </p>
@@ -32,22 +27,22 @@
     <tbody class="mind-grid-body-scroll-md">
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                <div class="custom-control custom-checkbox">
-                    <input id="tenant_checkbox_@item.TenantId" type="checkbox" class="form-check-input custom-control-input" data-query-parameter="tenantId=@item.TenantId" />
-                    <label class="form-check-label custom-control-label" for="tenant_checkbox_@item.TenantId"></label>
-                </div>
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td align="right">
-                <a mind-grid-btn-link="true" asp-action="Edit" asp-route-tenantId="@item.TenantId">Edit</a>
-                <a mind-grid-btn-link="true" asp-action="Details" asp-route-tenantId="@item.TenantId">Details</a>
-                <a mind-grid-btn-link="true" asp-action="Delete" asp-route-tenantId="@item.TenantId">Delete</a>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    <div class="custom-control custom-checkbox">
+                        <input id="tenant_checkbox_@item.TenantId" type="checkbox" class="form-check-input custom-control-input" data-query-parameter="tenantId=@item.TenantId" />
+                        <label class="form-check-label custom-control-label" for="tenant_checkbox_@item.TenantId"></label>
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td align="right">
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-tenantId="@item.TenantId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-tenantId="@item.TenantId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-tenantId="@item.TenantId">Delete</a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
@@ -56,28 +51,28 @@
     <a href="/#" data-href="/TenantDomainDevices/GetAllByTenantId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/devices.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">Devices</h5>
+            <h5 class="card-title text-center">Devices</h5>
             <p class="card-text">Create and manage the lifecycle of devices</p>
         </div>
     </a>
     <a href="/#" data-href="/ProviderDomainAttachment/GetAllByTenantId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/attachment.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">Attachments</h5>
+            <h5 class="card-title text-center">Attachments</h5>
             <p class="card-text">Create and manage the lifecycle of Attachments to Sigma</p>
         </div>
     </a>
     <a href="/#" data-href="/AttachmentSet/GetAllByTenantId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/attachment-sets.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">Attachment Sets</h5>
+            <h5 class="card-title text-center">Attachment Sets</h5>
             <p class="card-text">Create and manage the lifecycle of Attachment Sets</p>
         </div>
     </a>
     <a href="/#" data-href="/TenantIpNetwork/GetAllByTenantId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/ip-networks.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">IP Networks</h5>
+            <h5 class="card-title text-center">IP Networks</h5>
             <p class="card-text">Create and manage the lifecycle of IP Networks</p>
         </div>
     </a>
@@ -87,68 +82,32 @@
     <a href="/#" data-href="/TenantCommunity/GetAllByTenantId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/communities.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">Communities</h5>
+            <h5 class="card-title text-center">Communities</h5>
             <p class="card-text">Create and manage the lifecycle of Communities</p>
         </div>
     </a>
     <a href="/#" ata-href="/TenantCommunitySet/GetAllByTenantId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/community-sets.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">Community Sets</h5>
+            <h5 class="card-title text-center">Community Sets</h5>
             <p class="card-text">Create and manage the lifecycle of Community Sets</p>
         </div>
     </a>
     <a href="/#" data-href="/VPN/GetAllByTenantId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/vpn.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">Virtual Private Networks</h5>
+            <h5 class="card-title text-center">Virtual Private Networks</h5>
             <p class="card-text">Create and manage the lifecycle of VPNs</p>
         </div>
     </a>
 </div>
-<div class="modal fade" id="selectItemModal" tabindex="-1" role="dialog" aria-labelledby="selectItemModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="selectItemModalLabel">No items are selected</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Select a tenant from the list by clicking the checkbox
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="multipleItemsSelectedModal" tabindex="-1" role="dialog" aria-labelledby="multipleItemsSelectedModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="multipleItemsSelectedModalLabel">Multiple items are selected</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Select only one tenant from the list
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+
+<!-- List item selection modal messages partial view -->
+@{await Html.RenderPartialAsync("_ListItemsModalMessagesPartial");}
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-    <script type="text/javascript">
-
-        (function ($) {
+    <script type="text/javascript">(function ($) {
 
             // Set the checked state of the checkbox for an item in the table from stored value
             // in the cookie (if present)
@@ -186,7 +145,5 @@
                 }
             });
 
-        }(jQuery));
-
-    </script>
+        }(jQuery));</script>
 }

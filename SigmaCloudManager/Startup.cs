@@ -27,7 +27,6 @@ using Microsoft.Extensions.DependencyModel.Resolution;
 using Microsoft.Extensions.DependencyModel;
 using Microsoft.DotNet.PlatformAbstractions;
 using System.Reflection;
-using IO.Swagger.Api;
 using Mind.Directors;
 using SCM.Models;
 
@@ -155,11 +154,23 @@ namespace Mind
             // AutoMapper - mapping engine for conversion between object graphs
             services.AddSingleton<IMapper>(sp => MapperConfiguration.CreateMapper());
 
-            // Swagger client API for accessing the API of NSO 
-            services.AddScoped<IDataApi>(sp => new DataApi(new IO.Swagger.Client.Configuration
+            // Configure Swagger 'Nova' API client for accessing the RESTCONF API of Cisco (Tail-F) Network Service Orchestrator (NSO)
+            var novaClientApiSettings = Configuration.GetSection("NovaClientApiSettings").Get<NovaClientApiSettings>();
+
+            // Swagger client API for accessing the Attachment API of NSO 
+            services.AddScoped<IO.NovaAttSwagger.Api.IDataApi>(sp => new IO.NovaAttSwagger.Api.DataApi(new IO.NovaAttSwagger.Client.Configuration
             {
-                Username = "admin",
-                Password = "admin"               
+                Username = novaClientApiSettings.UserName,
+                Password = novaClientApiSettings.Password,
+                BasePath = novaClientApiSettings.BasePath
+            }));
+
+            // Swagger client API for accessing the VPN API of NSO 
+            services.AddScoped<IO.NovaVpnSwagger.Api.IDataApi>(sp => new IO.NovaVpnSwagger.Api.DataApi(new IO.NovaVpnSwagger.Client.Configuration
+            {
+                Username = novaClientApiSettings.UserName,
+                Password = novaClientApiSettings.Password,
+                BasePath = novaClientApiSettings.BasePath
             }));
         }
 
@@ -333,7 +344,8 @@ namespace Mind
 
             // IP vpn directors
             builder.RegisterType<IpVpnDirector>().As<IVpnDirector>().Keyed<IVpnDirector>("IpVpnDirector");
-            builder.RegisterType<IpVpnUpdateDirector>().As<IVpnUpdateDirector>().Keyed<IVpnUpdateDirector>("IpVpnUpdateDirector");
+            builder.RegisterType<IpVpnDirector>().As<IDestroyable<SCM.Models.Vpn>>().Keyed<IDestroyable<SCM.Models.Vpn>>("IpVpnDirector");
+            builder.RegisterType<IpVpnDirector>().As<INetworkSynchronizable<SCM.Models.Vpn>>().Keyed<INetworkSynchronizable<SCM.Models.Vpn>>("IpVpnDirector");
 
             // BGP Peer directors
             builder.RegisterType<ProviderDomainBgpPeerDirector>().As<IProviderDomainBgpPeerDirector>();
@@ -450,7 +462,7 @@ namespace Mind
             });
 
             // Provider Domain Network Destroyable Vif Director Factory - returns a director which provides methods
-            // to destroy vif.
+            // to destroy vifs.
             builder.Register<Func<SCM.Models.PortRole, IDestroyable<SCM.Models.Vif>>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
@@ -464,6 +476,26 @@ namespace Mind
                             : portRoleType == PortRoleTypeEnum.TenantInfrastructure
                                                     ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("TenantDomainVifDirector")
                                                     : null;
+                };
+            });
+
+            // Provider Domain Attachment Update Director Factory
+            builder.Register<Func<SCM.Models.Attachment, IProviderDomainAttachmentDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (attachment) =>
+                {
+                    return attachment.IsTagged
+                        ? attachment.IsBundle
+                            ? context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedBundleAttachmentDirector")
+                            : attachment.IsMultiPort
+                            ? context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedMultiPortAttachmentDirector")
+                            : context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedSingleAttachmentDirector")
+                        : attachment.IsBundle
+                            ? context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedBundleAttachmentDirector")
+                            : attachment.IsMultiPort
+                                ? context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedMultiPortAttachmentDirector")
+                                : context.ResolveKeyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedSingleAttachmentDirector");
                 };
             });
 
@@ -529,13 +561,41 @@ namespace Mind
                 };
             });
 
-            // VPN Update Director Factory
-            builder.Register<Func<SCM.Models.Vpn, IVpnUpdateDirector>>((c, p) =>
+            // Destroyable VPN Director Factory - returns a director which provides methods
+            // to destroy vpns.
+            builder.Register<Func<SCM.Models.Vpn, IDestroyable<SCM.Models.Vpn>>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
                 return (vpn) =>
                 {
-                    return vpn.AddressFamily.Name == "IPv4" ? context.ResolveKeyed<IVpnUpdateDirector>("IpVpnUpdateDirector") : null;
+                    return vpn.AddressFamily.Name == "IPv4"
+                        ? context.ResolveKeyed<IDestroyable<SCM.Models.Vpn>>("IpVpnDirector")
+                            : null;
+                };
+            });
+
+            // VPN Update Director Factory
+            builder.Register<Func<SCM.Models.Vpn, IVpnDirector>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (vpn) =>
+                {
+                    return vpn.AddressFamily.Name == "IPv4" 
+                              ? context.ResolveKeyed<IVpnDirector>("IpVpnDirector")
+                                  : null;
+                };
+            });
+
+            // Network Sync VPN Director Factory - returns a director which provides methods
+            // to sync vpns with the network.
+            builder.Register<Func<SCM.Models.Vpn, INetworkSynchronizable<SCM.Models.Vpn>>>((c, p) =>
+            {
+                var context = c.Resolve<IComponentContext>();
+                return (vpn) =>
+                {
+                    return vpn.AddressFamily.Name == "IPv4"
+                        ? context.ResolveKeyed<INetworkSynchronizable<SCM.Models.Vpn>>("IpVpnDirector")
+                            : null;
                 };
             });
 
@@ -543,9 +603,9 @@ namespace Mind
             builder.RegisterType<InfrastructureDeviceBuilder>().As<IInfrastructureDeviceBuilder>();
             builder.RegisterType<TenantDomainDeviceBuilder>().As<ITenantDomainDeviceBuilder>();
             builder.RegisterType<PortBuilder>().As<IPortBuilder>();
-            builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();
+            builder.RegisterType<SingleAttachmentBuilder>().As<IAttachmentBuilder<SingleAttachmentBuilder>>();                 
             builder.RegisterType<BundleAttachmentBuilder>().As<IBundleAttachmentBuilder>();
-            builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();
+            builder.RegisterType<MultiPortAttachmentBuilder>().As<IAttachmentBuilder<MultiPortAttachmentBuilder>>();                 
             builder.RegisterType<VrfRoutingInstanceBuilder>().As<IVrfRoutingInstanceBuilder>();
             builder.RegisterType<DefaultRoutingInstanceBuilder>().As<IDefaultRoutingInstanceBuilder>();
             builder.RegisterType<AttachmentSetBuilder>().As<IAttachmentSetBuilder>();
@@ -562,7 +622,9 @@ namespace Mind
             builder.RegisterType<VpnAttachmentSetBuilder>().As<IVpnAttachmentSetBuilder>();
             builder.RegisterType<RoutingInstanceStaticRouteBuilder>().As<IRoutingInstanceStaticRouteBuilder>();
             builder.RegisterType<LogicalInterfaceBuilder>().As<ILogicalInterfaceBuilder>();
+
         }
+
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApiVersionDescriptionProvider provider)

@@ -7,6 +7,7 @@ using SCM.Services;
 using SCM.Data;
 using Microsoft.EntityFrameworkCore;
 using IO.NovaVpnSwagger.Api;
+using IO.NovaVpnSwagger.Client;
 
 namespace Mind.Builders
 {
@@ -24,6 +25,7 @@ namespace Mind.Builders
             {
                 Created = true,
                 ShowCreatedAlert = true,
+                NetworkStatus = Models.NetworkStatusEnum.NotStaged,
                 RouteTargets = new List<RouteTarget>(),
                 VpnAttachmentSets = new List<VpnAttachmentSet>(),
                 ExtranetVpnMembers = new List<ExtranetVpnMember>(),
@@ -92,15 +94,21 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVpnBuilder SyncToNetwork(bool? syncToNetwork)
+        public virtual IVpnBuilder Stage(bool? stage)
         {
-            _args.Add(nameof(SyncToNetwork), syncToNetwork);
+            if (stage.HasValue) _args.Add(nameof(Stage), stage);
             return this;
         }
 
-        public virtual IVpnBuilder CleanUpNetwork()
+        public virtual IVpnBuilder SyncToNetworkPut(bool? syncToNetworkPut)
         {
-            _args.Add(nameof(CleanUpNetwork), null);
+            if (syncToNetworkPut.HasValue) _args.Add(nameof(SyncToNetworkPut), syncToNetworkPut);
+            return this;
+        }
+
+        public virtual IVpnBuilder CleanUpNetwork(bool? cleanUpNetwork)
+        {
+            if (cleanUpNetwork.HasValue) _args.Add(nameof(CleanUpNetwork), cleanUpNetwork);
             return this;
         }
 
@@ -112,10 +120,13 @@ namespace Mind.Builders
         {
             if (_args.ContainsKey(nameof(ForVpn)))
             {
+                // Prepare to update an existing vpn
                 await SetVpnAsync();
+                if (_args.ContainsKey(nameof(Stage))) SetStage();
             }
             else
             {
+                // Create a new vpn
                 if (_args.ContainsKey(nameof(WithName))) SetName();
                 if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
                 if (_args.ContainsKey(nameof(AsNovaVpn))) SetNovaVpn();
@@ -125,6 +136,7 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(WithAddressFamily))) await SetAddressFamilyAsync();
                 if (_args.ContainsKey(nameof(WithPlane))) await SetPlaneAsync();
                 if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
+                if (_args.ContainsKey(nameof(Stage))) SetStage();
             }
 
             return _vpn;
@@ -140,10 +152,10 @@ namespace Mind.Builders
             {
                 await SetVpnToDeleteAsync();
 
-                // Are we allowed to destroy the attachment?
+                // Are we allowed to destroy the vpn?
                 _vpn.ValidateDelete();                             
 
-                // Check to delete the attachment from the network
+                // Check to delete the vpn from the network
                 if (_args.ContainsKey(nameof(CleanUpNetwork)))
                 {
                     var cleanUpNetwork = (bool?)_args[nameof(CleanUpNetwork)];
@@ -155,15 +167,15 @@ namespace Mind.Builders
         }
 
         /// <summary>
-        /// Sync the vpn to the network.
+        /// Sync the vpn to the network with a put operation.
         /// </summary>
         /// <returns>The attachment</returns>
-        public async Task<Vpn> SyncToNetworkAsync()
+        public async Task<Vpn> SyncToNetworkPutAsync()
         {
             if (_args.ContainsKey(nameof(ForVpn)))
             {
                 await SetVpnAsync();
-                await SyncVpnToNetworkAsync();
+                await SyncVpnToNetworkPutAsync();
             }
 
             return _vpn;
@@ -277,6 +289,12 @@ namespace Mind.Builders
             _vpn.IsNovaVpn = (bool)_args[nameof(AsNovaVpn)];
         }
 
+        protected internal virtual void SetStage()
+        {
+            var stage = (bool)_args[nameof(Stage)];
+            if (stage) _vpn.NetworkStatus = Models.NetworkStatusEnum.Staged;
+        }
+
         protected virtual internal async Task SetVpnAsync()
         {
             var vpnId = (int)_args[nameof(ForVpn)];
@@ -308,13 +326,26 @@ namespace Mind.Builders
         }
 
         /// <summary>
-        /// Sync the vpn to network.
+        /// Sync the vpn to network using put operation.
+        /// This completely replaces the existing VPN record with the updated data.
         /// </summary>
         /// <returns>An awaitable task</returns>
-        protected async internal virtual Task SyncVpnToNetworkAsync()
+        protected async internal virtual Task SyncVpnToNetworkPutAsync()
         {
-            var dto = _vpn.ToNovaVpnDto();
-            await _novaApiClient.DataVpnVpnInstanceInstanceNamePatchAsync(_vpn.Name, dto);
+            var dto = _vpn.ToNovaVpnPutDto();
+            try
+            {
+                await _novaApiClient.DataVpnVpnInstanceInstanceNamePutAsync(_vpn.Name, dto).ConfigureAwait(false);
+                _vpn.NetworkStatus = Models.NetworkStatusEnum.Active;
+            }
+
+            catch (ApiException)
+            {
+                // Set status on the vpn to indicate activation on the network failed
+                // and rethrow the exception to be caught further up the stack
+                _vpn.NetworkStatus = Models.NetworkStatusEnum.ActivationFailure;
+                throw;
+            }
         }
 
         /// <summary>
@@ -323,7 +354,7 @@ namespace Mind.Builders
         /// <returns>An awaitable task</returns>
         protected async internal virtual Task DeleteVpnFromNetworkAsync()
         {
-            await _novaApiClient.DataVpnVpnInstanceInstanceNameDeleteAsync(_vpn.Name);
+            await _novaApiClient.DataVpnVpnInstanceInstanceNameDeleteAsync(_vpn.Name).ConfigureAwait(false);
         }
     }
 }

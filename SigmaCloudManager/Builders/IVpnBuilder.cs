@@ -19,6 +19,11 @@ namespace Mind.Builders
         IVpnBuilder WithTenancyType(string tenancyName);
         IVpnBuilder AsNovaVpn(bool? isNovaVpn);
         IVpnBuilder WithAddressFamily(string addressFamilyName);
+        IVpnBuilder Stage(bool? stage);
+        IVpnBuilder SyncToNetworkPut(bool? syncToNetworkPut);
+        IVpnBuilder CleanUpNetwork(bool? cleanUpNetwork);
         Task<Vpn> BuildAsync();
+        Task<Vpn> SyncToNetworkPutAsync();
+        Task DestroyAsync();
     }
 }

@@ -17,8 +17,9 @@ namespace Mind.Services
         Task<IEnumerable<Vpn>> GetAllByTenantIDAsync(int id, bool? isExtranet = null, bool? created = null, bool? showCreatedAlert = null,
            bool? deep = false, bool asTrackable = false, string sortKey = "", string searchString = "");
         Task<Vpn> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
-        Task<Vpn> AddAsync(int tenantId, VpnRequest vpnRequest);
-        Task<Vpn> UpdateAsync(int vpnId, VpnUpdate update);
+        Task<Vpn> AddAsync(int tenantId, VpnRequest vpnRequest, bool stage = true, bool syncToNetwork = false);
+        Task<Vpn> UpdateAsync(int vpnId, VpnUpdate update, bool stage = true, bool syncToNetwork = false);
         Task DeleteAsync(int vpnId);
+        Task SyncToNetworkPutAsync(int vpnId);
     }
 }

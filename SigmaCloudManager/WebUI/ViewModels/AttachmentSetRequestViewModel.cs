@@ -17,6 +17,12 @@ namespace Mind.WebUI.Models
     /// </summary>
     public class AttachmentSetRequestViewModel
     {
+        public AttachmentSetRequestViewModel() {
+
+            BgpIpNetworkInboundPolicy = new BgpIpNetworkInboundPolicyRequestViewModel();
+            BgpIpNetworkOutboundPolicy = new BgpIpNetworkOutboundPolicyRequestViewModel();
+        }
+
         /// <summary>
         /// The ID of the tenant for which the new attachment set will be created.
         /// </summary>

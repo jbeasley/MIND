@@ -21,7 +21,7 @@ namespace Mind.Builders
             _builderAttachmentFactory = builderAttachmentFactory;
         }
 
-        public async Task<SCM.Models.Attachment> BuildAsync(int tenantId, ProviderDomainAttachmentRequest request, bool addToNetwork = false)
+        public async Task<SCM.Models.Attachment> BuildAsync(int tenantId, ProviderDomainAttachmentRequest request, bool stage = true, bool syncToNetwork = false)
         {
             var builder = _builderFactory(request);
             return await builder.ForTenant(tenantId)
@@ -39,7 +39,7 @@ namespace Mind.Builders
                                 .BuildAsync();
         }
 
-        public async Task<SCM.Models.Attachment> UpdateAsync(SCM.Models.Attachment attachment, ProviderDomainAttachmentUpdate update, bool addToNetwork = false)
+        public async Task<SCM.Models.Attachment> UpdateAsync(SCM.Models.Attachment attachment, ProviderDomainAttachmentUpdate update, bool stage = true, bool syncToNetwork = false)
         {
             var builder = _builderAttachmentFactory(attachment);
             return await builder.ForAttachment(attachment.AttachmentID)

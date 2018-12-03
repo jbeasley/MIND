@@ -20,78 +20,75 @@ namespace SCM.Models
         /// </summary>
         /// <returns>The nova vpn dto.</returns>
         /// <param name="vpn">An instance of Attachment</param>
-        public static DataVpnVpnInstanceInstanceName ToNovaVpnDto(this Vpn vpn)
+        public static DataVpnVpn ToNovaVpnPatchDto(this Vpn vpn)
         {
-            var bgpPeers = (from vpnAttachmentSet in vpn.VpnAttachmentSets
-                            from attachmentSetRoutingInstance in vpnAttachmentSet.AttachmentSet.AttachmentSetRoutingInstances
-                            from bgpPeer in attachmentSetRoutingInstance.RoutingInstance.BgpPeers
-                            select new DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVrfVrfvrfnameBgppeerBgppeerpeeripv4addressVpnbgppeer
-                            {
-                                PeerIpv4Address = bgpPeer.Ipv4PeerAddress
-
-                            }).ToList();
-
-            var vrfs = (from vpnAttachmentSet in vpn.VpnAttachmentSets
-                       from attachmentSetRoutingInstance in vpnAttachmentSet.AttachmentSet.AttachmentSetRoutingInstances
-                       let routingInstance = attachmentSetRoutingInstance.RoutingInstance
-                       select new DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVrfVrfvrfnameVpnvrf
-                       {
-                            VrfName = routingInstance.Name,
-                            BgpPeer = bgpPeers
-
-                       }).ToList();
-
-            var pes = (from vpnAttachmentSet in vpn.VpnAttachmentSets
-                       from attachmentSetRoutingInstance in vpnAttachmentSet.AttachmentSet.AttachmentSetRoutingInstances
-                       let routingInstance = attachmentSetRoutingInstance.RoutingInstance
-                       select new DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVpnpe
-                       {
-                           PeName = routingInstance.Device.Name,
-                           Vrf = vrfs
-
-                       }).ToList();
-
-            var vpnAttachmentSets = (from vpnAttachmentSet in vpn.VpnAttachmentSets
-                                     select new DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnameVpnvpnattachmentset
-                                     {
-                                         Name = vpnAttachmentSet.AttachmentSet.Name,
-                                         Pe = pes
-
-                                     }).ToList();
-                            
-            var routeTargets = vpn.RouteTargets.ToList();
-            var data = new DataVpnVpnInstanceInstanceName
+            var data = new DataVpnVpn
             {
-                Vpninstance = new List<DataVpnVpnInstanceInstancenameVpninstance>
+                Vpnvpn = new DataVpnVpnVpnvpn
                 {
-                    new DataVpnVpnInstanceInstancenameVpninstance
-                    {
-                        Name = vpn.Name,
-                        IsExtranet = vpn.IsExtranet.ToString().ToLower(),
-                        RouteTargetA = new DataVpnVpnInstanceInstancenameRoutetargetAVpnroutetargetA
-                        {
-                            AdministratorSubfield = routeTargets[0].RouteTargetRange.AdministratorSubField,
-                            AssignedNumberSubfield = routeTargets[0].AssignedNumberSubField
-                        },
-                        RouteTargetB = vpn.VpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke ? 
-                                          new DataVpnVpnInstanceInstancenameRoutetargetBVpnroutetargetB
-                        {
-                            AdministratorSubfield = routeTargets[1].RouteTargetRange.AdministratorSubField,
-                            AssignedNumberSubfield = routeTargets[1].AssignedNumberSubField
-                        } : null,
-                        AddressFamily = Enum.Parse<DataVpnVpnInstanceInstancenameVpninstance.AddressFamilyEnum>(vpn.AddressFamily.Name),
-                        ProtocolType = Enum.Parse<DataVpnVpnInstanceInstancenameVpninstance.ProtocolTypeEnum>(vpn.VpnTopologyType.VpnProtocolType.ProtocolType.ToString()),
-                        TopologyType = Enum.Parse<DataVpnVpnInstanceInstancenameVpninstance.TopologyTypeEnum>(vpn.VpnTopologyType.TopologyType.ToString()),
-                        VpnAttachmentSet = vpnAttachmentSets
-                    }
+                    Instance = CreateDtoHelper(vpn)
                 }
             };
 
             return data;
         }
-    }
 
-    public static class VpnQueryableExtensions
+
+        /// <summary>
+        /// Create an instance of the nova vpn dto.
+        /// </summary>
+        /// <returns>The nova vpn dto.</returns>
+        /// <param name="vpn">An instance of Attachment</param>
+        public static DataVpnVpnInstanceInstanceName ToNovaVpnPutDto(this Vpn vpn)
+        {
+            var data = new DataVpnVpnInstanceInstanceName
+            {
+                Vpninstance = CreateDtoHelper(vpn)
+            };
+
+            return data;
+        }
+
+        private static List<DataVpnVpnInstanceInstancenameVpninstance> CreateDtoHelper(Vpn vpn)
+        {
+
+            var vpnAttachmentSets = (from vpnAttachmentSet in vpn.VpnAttachmentSets
+                                     select new DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnameVpnvpnattachmentset
+                                     {
+                                         Name = vpnAttachmentSet.AttachmentSet.Name,
+                                         Pe = (from attachmentSetRoutingInstance in vpnAttachmentSet.AttachmentSet.AttachmentSetRoutingInstances
+                                               let routingInstance = attachmentSetRoutingInstance.RoutingInstance
+                                               select new DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVpnpe
+                                               {
+                                                   PeName = routingInstance.Device.Name,
+                                                   Vrf = new List<DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVrfVrfvrfnameVpnvrf>
+                                                         {
+                                                            new DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVrfVrfvrfnameVpnvrf
+                                                            {
+                                                              VrfName = routingInstance.Name,
+                                                              BgpPeer = (from bgpPeer in routingInstance.BgpPeers
+                                                                         select new DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVrfVrfvrfnameBgppeerBgppeerpeeripv4addressVpnbgppeer
+                                                                         {
+                                                                             PeerIpv4Address = bgpPeer.Ipv4PeerAddress
+                                                                         }).ToList()
+                                                             }
+                                                        }.ToList()
+                                               }).ToList(),
+                                         IsHub = vpn.VpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke
+                                                    ? vpnAttachmentSet.IsHub.ToString().ToLower()
+                                                    : null
+
+                                     }).ToList();
+
+            var routeTargets = vpn.RouteTargets.ToList();
+
+            var data = new List<DataVpnVpnInstanceInstancenameVpninstance>                 {                     new DataVpnVpnInstanceInstancenameVpninstance                     {                         Name = vpn.Name,                         IsExtranet = vpn.IsExtranet.ToString().ToLower(),                         RouteTargetA = new DataVpnVpnInstanceInstancenameRoutetargetAVpnroutetargetA                         {                             AdministratorSubfield = routeTargets[0].RouteTargetRange.AdministratorSubField,                             AssignedNumberSubfield = routeTargets[0].AssignedNumberSubField                         },                         RouteTargetB = vpn.VpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke ?                                          new DataVpnVpnInstanceInstancenameRoutetargetBVpnroutetargetB                             {                                 AdministratorSubfield = routeTargets[1].RouteTargetRange.AdministratorSubField,                                 AssignedNumberSubfield = routeTargets[1].AssignedNumberSubField                             } : null,                         AddressFamily = Enum.Parse<DataVpnVpnInstanceInstancenameVpninstance.AddressFamilyEnum>(vpn.AddressFamily.Name),                         ProtocolType = Enum.Parse<DataVpnVpnInstanceInstancenameVpninstance.ProtocolTypeEnum>(vpn.VpnTopologyType.VpnProtocolType.ProtocolType.ToString()),                         TopologyType = vpn.VpnTopologyType.TopologyType == TopologyTypeEnum.HubandSpoke                                               ? DataVpnVpnInstanceInstancenameVpninstance.TopologyTypeEnum.HubAndSpoke                                               : DataVpnVpnInstanceInstancenameVpninstance.TopologyTypeEnum.AnyToAny,                         VpnAttachmentSet = vpnAttachmentSets
+                }             };
+
+            return data;
+        }     }
+
+public static class VpnQueryableExtensions
     {
         public static IQueryable<Vpn> IncludeBaseValidationProperties(this IQueryable<Vpn> query)
         {
@@ -232,7 +229,8 @@ namespace SCM.Models
 
         public static IQueryable<Vpn> IncludeDeleteValidationProperties(this IQueryable<Vpn> query)
         {
-            return query.Include(x => x.ExtranetVpnMembers);
+            return query.Include(x => x.ExtranetVpnMembers)
+                        .Include(x => x.AddressFamily);
         }
     }
 
@@ -251,14 +249,13 @@ namespace SCM.Models
         public int VpnTenancyTypeID { get; set; }
         public int? AddressFamilyID { get; set; }
         public int TenantID { get; set; }
-        public bool RequiresSync { get; set; }
         public bool Created { get; set; }
         public bool ShowCreatedAlert { get; set; }
-        public bool ShowRequiresSyncAlert { get; set; }
         public int? PlaneID { get; set; }
         public int? RegionID { get; set; }
         public int? MulticastVpnServiceTypeID { get; set; }
         public int? MulticastVpnDirectionTypeID { get; set; }
+        public NetworkStatusEnum NetworkStatus { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
         [ForeignKey("TenantID")]
@@ -300,10 +297,8 @@ namespace SCM.Models
                 if (this.IsNovaVpn)
                 {
                     if (this.RouteTargets
-                            .Where(
-                            x => 
-                            x.RouteTargetRange.Range != SCM.Models.RouteTargetRangeEnum.Default)
-                            .Any())
+                        .Any(x =>
+                        x.RouteTargetRange.Range != SCM.Models.RouteTargetRangeEnum.Default))
                         throw new IllegalStateException("All route targets must be assigned from the default route target range for Nova vpns.");
                 }
                 else
@@ -325,10 +320,8 @@ namespace SCM.Models
                     if (this.RouteTargets.Count != 2) throw new IllegalStateException("Two route targets are required for hub-and-spoke vpns.");
 
                     if (this.RouteTargets
-                            .Where(
-                                x => 
-                                x.IsHubExport)
-                            .Count() != 1)
+                        .Count(x =>
+                        x.IsHubExport) != 1)
                         throw new IllegalStateException($"One route target must be enabled with the 'isHubExport' property for hub-and-spoke vpn '{this.Name}'.");
                 }
 
@@ -453,10 +446,8 @@ namespace SCM.Models
                 else
                 {
                     var multicastDirectlyIntegratedAttachmentSet = this.VpnAttachmentSets
-                        .Where(
-                        x =>
-                        x.IsMulticastDirectlyIntegrated.HasValue && x.IsMulticastDirectlyIntegrated.Value)
-                       .FirstOrDefault();
+                        .FirstOrDefault(x =>
+                        x.IsMulticastDirectlyIntegrated.HasValue && x.IsMulticastDirectlyIntegrated.Value);
 
                     if (multicastDirectlyIntegratedAttachmentSet != null) throw new IllegalStateException($"Vpn '{this.Name} must be enabled " +
                         $"for multicast because the attachment set '{multicastDirectlyIntegratedAttachmentSet.AttachmentSet.Name}' is enabled for " +

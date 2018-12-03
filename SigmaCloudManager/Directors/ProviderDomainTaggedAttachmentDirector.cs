@@ -28,8 +28,9 @@ namespace Mind.Builders
         /// <returns>An instance of Attachment</returns>
         /// <param name="tenantId">The ID of the tenant for which the attachment will be created</param>
         /// <param name="request">Request object containing parameters to create the new attachment</param>
-        /// <param name="syncToNetwork">If set to <c>true</c> sync the attachment with the network.</param>
-        public async Task<SCM.Models.Attachment> BuildAsync(int tenantId, ProviderDomainAttachmentRequest request, bool syncToNetwork = true)
+        /// <param name="stage">If set to <c>true</c> the attachment network status will be set to <c>staged</c></param>
+        /// <param name="syncToNetwork">If set to <c>true</c> sync the attachment with the network with a put operation.</param>
+        public async Task<SCM.Models.Attachment> BuildAsync(int tenantId, ProviderDomainAttachmentRequest request, bool stage = true, bool syncToNetwork = false)
         {
             var builder = _builderRequestFactory(request);
             return await builder.ForTenant(tenantId)
@@ -40,7 +41,8 @@ namespace Mind.Builders
                                 .WithPlane(request.PlaneName.ToString())
                                 .WithDescription(request.Description)
                                 .WithNotes(request.Notes)
-                                .SyncToNetwork(syncToNetwork)
+                                .Stage(stage)
+                                .SyncToNetworkPut(syncToNetwork)
                                 .BuildAsync();
         }
 
@@ -50,8 +52,9 @@ namespace Mind.Builders
         /// <returns>An instance of Attachment for the updated attachment</returns>
         /// <param name="attachment">The attachment to update</param>
         /// <param name="update">Update object containing parameters to perform the update</param>
-        /// <param name="syncToNetwork">If set to <c>true</c> add the updated attachment to the network.</param>
-        public async Task<SCM.Models.Attachment> UpdateAsync(SCM.Models.Attachment attachment, ProviderDomainAttachmentUpdate update, bool syncToNetwork = true)
+        /// <param name="syncToNetwork">If set to <c>true</c> add the updated attachment to the network with a put operation.</param>
+        /// <param name="stage">If set to <c>true</c> the attachment network status will be set to <c>staged</c></param>
+        public async Task<SCM.Models.Attachment> UpdateAsync(SCM.Models.Attachment attachment, ProviderDomainAttachmentUpdate update, bool stage = true, bool syncToNetwork = false)
         {
             var builder = _builderAttachmentFactory(attachment);
             return await builder.ForAttachment(attachment.AttachmentID)
@@ -59,7 +62,8 @@ namespace Mind.Builders
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                 .WithDescription(update.Description)
                                 .WithNotes(update.Notes)
-                                .SyncToNetwork(syncToNetwork)
+                                .Stage(stage)
+                                .SyncToNetworkPut(syncToNetwork)
                                 .BuildAsync();
         }
 
@@ -94,15 +98,15 @@ namespace Mind.Builders
         }
 
         ///<summary>
-        /// Sync an attachment to the network
+        /// Sync an attachment to the network with a put operation
         /// </summary>
         /// <returns>An instance of Attachment for the updated attachment</returns>
         /// <param name="attachment">The attachment to update</param>
-        public async Task<Attachment> SyncToNetworkAsync(SCM.Models.Attachment attachment)
+        public async Task<Attachment> SyncToNetworkPutAsync(SCM.Models.Attachment attachment)
         {
             var builder = _builderAttachmentFactory(attachment);
             return await builder.ForAttachment(attachment.AttachmentID)
-                                .SyncToNetworkAsync();
+                                .SyncToNetworkPutAsync();
         }
     }
 }

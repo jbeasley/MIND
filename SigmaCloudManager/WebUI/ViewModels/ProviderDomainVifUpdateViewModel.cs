@@ -101,6 +101,20 @@ namespace Mind.WebUI.Models
         public bool CreateNewRoutingInstance { get; set; }
 
         /// <summary>
+        /// Stage the vif ready for synchronisation with the network
+        /// </summary>
+        /// <value>Booelan denoting whether the vif should be staged.</value>
+        /// <example>true</example>
+        public bool? Stage { get; set; }
+
+        /// <summary>
+        /// Synchronise the vif with the network
+        /// </summary>
+        /// <value>Boolean denoting whether the vif should be synchronised with the network</value>
+        /// <example>true</example>
+        public bool? SyncToNetwork { get; set; }
+
+        /// <summary>
         /// Concurrency token for the model
         /// </summary>
         public byte[] RowVersion { get; set; }

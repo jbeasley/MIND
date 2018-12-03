@@ -20,7 +20,7 @@ using Mind.WebUI.Attributes;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
 using Mind.Models.RequestModels;
-using IO.Swagger.Client;
+using IO.NovaAttSwagger.Client;
 
 namespace Mind.WebUI.Controllers
 {
@@ -129,14 +129,14 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateProviderDomainAttachmentExists]
-        public async Task<IActionResult> Create(int? attachmentId, ProviderDomainVifRequestViewModel requestModel)
+        public async Task<IActionResult> Create(int? attachmentId, ProviderDomainVifRequestViewModel requestModel, bool? stage, bool? syncToNetwork)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
                     var request = _mapper.Map<ProviderDomainVifRequest>(requestModel);
-                    var vif = await _vifService.AddAsync(attachmentId.Value, request);
+                    var vif = await _vifService.AddAsync(attachmentId.Value, request, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
                     return RedirectToAction(nameof(GetAllByAttachmentID), new { attachmentId });
                 }
 
@@ -151,6 +151,11 @@ namespace Mind.WebUI.Controllers
                 }
 
                 catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (ServiceBadArgumentsException ex)
                 {
                     ModelState.AddModelError(string.Empty, ex.Message);
                 }
@@ -204,7 +209,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateProviderDomainVifExists]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int? vifId, ProviderDomainVifUpdateViewModel update)
+        public async Task<ActionResult> Edit(int? vifId, ProviderDomainVifUpdateViewModel update, bool? stage, bool? syncToNetwork)
         {
             var vif = await _vifService.GetByIDAsync(vifId.Value, deep: true, asTrackable: false);
 
@@ -222,7 +227,7 @@ namespace Mind.WebUI.Controllers
 
                     try
                     {
-                        await _vifService.UpdateAsync(vifId.Value, vifUpdate);
+                        await _vifService.UpdateAsync(vifId.Value, vifUpdate, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
                         return RedirectToAction(nameof(GetAllByAttachmentID), new { attachmentId = vif.AttachmentID });
                     }
 
@@ -246,6 +251,11 @@ namespace Mind.WebUI.Controllers
                         ModelState.AddDatabaseUpdateExceptionMessage();
                     }
 
+                    catch (ServiceBadArgumentsException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
                     catch (ApiException)
                     {
                         ModelState.AddNovaClientApiExceptionMessage();
@@ -255,7 +265,7 @@ namespace Mind.WebUI.Controllers
 
             if (vif.RoutingInstance != null)
             {
-                await PopulateRoutingInstancesDropDownList(vif.Attachment.DeviceID, vif.Attachment.TenantID.Value, vif.RoutingInstance.Name);
+                await PopulateRoutingInstancesDropDownList(vif.Attachment.TenantID.Value, vif.Attachment.DeviceID, vif.RoutingInstance.Name);
             }
 
             var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(

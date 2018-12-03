@@ -8,6 +8,8 @@ using SCM.Data;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models.RequestModels;
 using Mind.Directors;
+using IO.NovaAttSwagger.Api;
+using IO.NovaAttSwagger.Client;
 
 namespace Mind.Builders
 {
@@ -24,17 +26,18 @@ namespace Mind.Builders
 
         private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
         private readonly Func<PortRole, IDestroyable<Vif>> _vifDirectorFactory;
-        private readonly IO.Swagger.Api.IDataApi _novaApiClient;
+        private readonly IDataApi _novaApiClient;
 
         public AttachmentBuilder(IUnitOfWork unitOfWork,
                                  Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
                                  Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
-                                 IO.Swagger.Api.IDataApi novaApiClient) : base(unitOfWork)
+                                 IDataApi novaApiClient) : base(unitOfWork)
         {
             _attachment = new Attachment
             {
                 Created = true,
                 ShowCreatedAlert = true,
+                NetworkStatus = Models.NetworkStatusEnum.NotStaged,
                 Vifs = new List<Vif>()
             };
 
@@ -151,9 +154,15 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IAttachmentBuilder<TAttachmentBuilder> SyncToNetwork(bool? syncToNetwork)
+        public virtual IAttachmentBuilder<TAttachmentBuilder> Stage(bool? stage)
         {
-            _args.Add(nameof(SyncToNetwork), syncToNetwork);
+            if (stage.HasValue) _args.Add(nameof(Stage), stage);
+            return this;
+        }
+
+        public virtual IAttachmentBuilder<TAttachmentBuilder> SyncToNetworkPut(bool? syncToNetworkPut)
+        {
+            if (syncToNetworkPut.HasValue) _args.Add(nameof(SyncToNetworkPut), syncToNetworkPut);
             return this;
         }
 
@@ -165,7 +174,7 @@ namespace Mind.Builders
 
         public virtual IAttachmentBuilder<TAttachmentBuilder> CleanUpNetwork(bool? cleanUpNetwork)
         {
-            _args.Add(nameof(CleanUpNetwork), cleanUpNetwork);
+            if (cleanUpNetwork.HasValue) _args.Add(nameof(CleanUpNetwork), cleanUpNetwork);
             return this;
         }
 
@@ -260,6 +269,7 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
             if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
             if (_args.ContainsKey(nameof(WithNotes))) SetNotes();
+            if (_args.ContainsKey(nameof(Stage))) SetStage();
 
             return _attachment;
         }
@@ -296,15 +306,15 @@ namespace Mind.Builders
         }
 
         /// <summary>
-        /// Sync the attachment to the network.
+        /// Sync the attachment to the network with a put operation.
         /// </summary>
         /// <returns>The attachment</returns>
-        public async Task<Attachment> SyncToNetworkAsync() 
+        public async Task<Attachment> SyncToNetworkPutAsync()
         {
             if (_args.ContainsKey(nameof(ForAttachment)))
             {
                 await SetAttachmentAsync();
-                await SyncAttachmentToNetworkAsync();
+                await SyncAttachmentToNetworkPutAsync();
             }
 
             return _attachment;
@@ -416,8 +426,6 @@ namespace Mind.Builders
             _attachment.AttachmentRole = attachmentRole;
             _attachment.IsLayer3 = attachmentRole.IsLayer3Role;
             _attachment.IsTagged = attachmentRole.IsTaggedRole;
-            _attachment.RequiresSync = attachmentRole.RequireSyncToNetwork;
-            _attachment.ShowRequiresSyncAlert = attachmentRole.RequireSyncToNetwork;
         }
 
         protected internal virtual void CreateInterfaces()
@@ -545,7 +553,7 @@ namespace Mind.Builders
         protected internal virtual async Task SetMtuAsync()
         {
             var useLayer2InterfaceMtu = _attachment.Device.UseLayer2InterfaceMtu;
-            var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) ? (bool)_args[nameof(WithJumboMtu)] : false;
+            var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) && (bool)_args[nameof(WithJumboMtu)];
 
             var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(
                 x =>
@@ -615,10 +623,8 @@ namespace Mind.Builders
                         q.DeviceStatus.DeviceStatusType == SCM.Models.DeviceStatusTypeEnum.Production
                         && q.LocationID == location.LocationID
                         && q.DeviceRole.DeviceRoleAttachmentRoles
-                       .Where(
-                            x =>
-                            x.AttachmentRoleID == _attachment.AttachmentRole.AttachmentRoleID)
-                            .Any(),
+                        .Any(x =>
+                        x.AttachmentRoleID == _attachment.AttachmentRole.AttachmentRoleID),
                         query: q => q.IncludeValidationProperties(),
                         AsTrackable: true)
                         select d;
@@ -641,9 +647,9 @@ namespace Mind.Builders
             // Filter devices collection to only those devices which have the required number of free ports
             // of the required bandwidth and which belong to the requested Port Pool
 
-            devices = devices.Where(q => q.Ports.Where(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
+            devices = devices.Where(q => q.Ports.Count(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
                 && p.PortPoolID == _attachment.AttachmentRole.PortPoolID
-                && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired).Count() >= _numPortsRequired).ToList();
+                && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired) >= _numPortsRequired).ToList();
 
             if (devices.Count == 0)
             {
@@ -657,12 +663,10 @@ namespace Mind.Builders
                 // Get device with the most free ports of the required Port Bandwidth
                 _attachment.Device = devices.Aggregate(
                     (current, x) =>
-                        (x.Ports.Where(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
-                        && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
-                        .Count() >
-                        current.Ports.Where(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
-                        && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired)
-                        .Count() ? x : current));
+                        (x.Ports.Count(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
+                        && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired) >
+                        current.Ports.Count(p => p.PortStatus.PortStatusType == SCM.Models.PortStatusTypeEnum.Free
+                        && p.PortBandwidth.BandwidthGbps == _portBandwidthRequired) ? x : current));
             }
             else
             {
@@ -681,6 +685,12 @@ namespace Mind.Builders
         {
             var notes = _args[nameof(WithNotes)].ToString();
             _attachment.Notes = notes;
+        }
+
+        protected internal virtual void SetStage()
+        {
+            var stage = (bool)_args[nameof(Stage)];
+            if (stage) _attachment.NetworkStatus = Models.NetworkStatusEnum.Staged; 
         }
 
         protected async internal virtual Task SetAttachmentToDeleteAsync()
@@ -758,13 +768,27 @@ namespace Mind.Builders
         }
 
         /// <summary>
-        /// Sync the attachment to network.
+        /// Sync the attachment to network with a put operation.
         /// </summary>
         /// <returns>An awaitable task</returns>
-        protected async internal virtual Task SyncAttachmentToNetworkAsync()
+        protected async internal virtual Task SyncAttachmentToNetworkPutAsync()
         {
             var dto = _attachment.ToNovaTaggedAttachmentDto();
-            await _novaApiClient.DataAttachmentAttachmentPePePeNamePatchAsync(_attachment.Device.Name, dto);
+
+            try
+            {
+                await _novaApiClient.DataAttachmentAttachmentPePePeNamePutAsync(_attachment.Device.Name, dto).ConfigureAwait(false);
+                _attachment.NetworkStatus = Models.NetworkStatusEnum.Active;
+            }
+
+            catch (ApiException)
+            {
+                // Network activation failed - set status on the attachment
+                _attachment.NetworkStatus = Models.NetworkStatusEnum.ActivationFailure;
+
+                // Rethrow the exception to be caught further up the stack
+                throw;
+            }
         }
 
         /// <summary>
@@ -774,7 +798,7 @@ namespace Mind.Builders
         protected async internal virtual Task DeleteAttachmentFromNetworkAsync() 
         {
             await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdDeleteAsync(
-                _attachment.Device.Name, _attachment.PortType, _attachment.PortName);
+                _attachment.Device.Name, _attachment.PortType, _attachment.PortName).ConfigureAwait(false);
         }
     }
 }

@@ -1,0 +1,47 @@
+﻿
+<!-- HTML for a modal giving the user a choice of staging or syncing a resource to be created with the network -->
+
+<div class="modal fade" id="stageOrSyncModal" tabindex="-1" role="dialog" aria-labelledby="stageOrSyncModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="stageOrSyncModalLabel">Stage or Synchronise the Resource with Sigma</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div mind-alert="info" message="Select this checkbox if you want to stage the resource. A staged resource is prepared for synchronising 
+                                                with Sigma but no changes will be sent to the network.">
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-sm-4" id="StageResourceLabel">Stage the Resource</label>
+                    <div class="col-sm-8">
+                        <div class="custom-control custom-checkbox">
+                            <input class="form-check-input custom-control-input" type="checkbox" id="stageResource" data-toggle="tooltip"
+                                   data-placement="right" title="Stage this resource but do not sync it to the network" data-default-value="false">
+                            <label class="form-check-label custom-control-label" for="stageResource"></label>
+                        </div>
+                    </div>
+                </div>
+                <div mind-alert="info" message="Select this checkbox if you want to synchronise the resource with Sigma.">
+                </div>
+                <div mind-alert="warning" message="Updates will be sent to the Sigma network if you select this option.">
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-sm-4" id="SyncToNetworkLabel">Synchronise the Resource</label>
+                    <div class="col-sm-8">
+                        <div class="custom-control custom-checkbox">
+                            <input class="form-check-input custom-control-input" type="checkbox" id="syncResourceToNetwork" data-toggle="tooltip"
+                                   data-placement="right" title="Synchronise this resource with the network" data-default-value="false">
+                            <label class="form-check-label custom-control-label" for="syncResourceToNetwork"></label>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="stageOrSyncModalSaveBtn" class="btn btn-success" is-save-button></button>
+            </div>
+        </div>
+    </div>
+</div>

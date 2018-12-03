@@ -29,7 +29,7 @@ using Microsoft.EntityFrameworkCore;
 using Mind.Builders;
 using Mind.Models;
 using Swashbuckle.AspNetCore.Annotations;
-using IO.Swagger.Client;
+using IO.NovaAttSwagger.Client;
 
 namespace Mind.Api.Controllers
 { 
@@ -94,6 +94,11 @@ namespace Mind.Api.Controllers
             catch (IllegalStateException ex)
             {
                 return new ValidationFailedResult(ex.Message);
+            }
+
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
             }
 
             catch (DbUpdateException)
@@ -265,10 +270,58 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
             }
+        }
+
+        /// <summary>
+        /// Sync an attachment to the network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        /// <param name="attachmentId">The ID of the attachment</param>
+        /// <response code="201">Successful operation</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="404">The specified resource was not found</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpPost]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments/{attachmentId}/sync")]
+        [ValidateModelState]
+        [ValidateProviderDomainAttachmentExists]
+        [SwaggerOperation("SyncProviderDomainAttachment")]
+        [SwaggerResponse(statusCode: 201, type: typeof(ProviderDomainAttachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public async Task<IActionResult> SyncToNetwork([FromRoute][Required]int? attachmentId)
+        {
+            try
+            {
+                await _attachmentService.SyncToNetworkPutAsync(attachmentId.Value);
+            }
+
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (ApiException)
+            {
+                return new NetworkUpdateFailedResult();
+            }
+
+            return Ok();
         }
     }
 }

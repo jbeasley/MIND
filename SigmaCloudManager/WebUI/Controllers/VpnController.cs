@@ -18,6 +18,7 @@ using Mind.WebUI.Models;
 using Mind.Models.RequestModels;
 using Mind.WebUI.ViewComponents;
 using SCM.Models;
+using IO.NovaVpnSwagger.Client;
 
 namespace Mind.WebUI.Controllers
 {
@@ -123,7 +124,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateTenantExists]
-        public async Task<IActionResult> Create(int? tenantId, VpnRequestViewModel requestModel)
+        public async Task<IActionResult> Create(int? tenantId, VpnRequestViewModel requestModel, bool? stage, bool? syncToNetwork)
         {
             if (ModelState.IsValid)
             {
@@ -131,7 +132,7 @@ namespace Mind.WebUI.Controllers
                 {
                     var request = _mapper.Map<VpnRequest>(requestModel);
 
-                    var attachment = await _vpnService.AddAsync(tenantId.Value, request);
+                    var attachment = await _vpnService.AddAsync(tenantId.Value, request, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
                     return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
                 }
 
@@ -150,9 +151,19 @@ namespace Mind.WebUI.Controllers
                     ModelState.AddModelError(string.Empty, ex.Message);
                 }
 
+                catch (ServiceBadArgumentsException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
                 catch (DbUpdateException)
                 {
                     ModelState.AddDatabaseUpdateExceptionMessage();
+                }
+
+                catch (ApiException)
+                {
+                    ModelState.AddNovaClientApiExceptionMessage();
                 }
             }
 
@@ -186,7 +197,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateVpnExists]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int? vpnId, VpnUpdateViewModel update)
+        public async Task<ActionResult> Edit(int? vpnId, VpnUpdateViewModel update, bool? stage, bool? syncToNetwork)
         {
             var vpn = await _vpnService.GetByIDAsync(vpnId.Value, deep: true, asTrackable: false);
 
@@ -204,7 +215,7 @@ namespace Mind.WebUI.Controllers
 
                     try
                     {
-                        await _vpnService.UpdateAsync(vpnId.Value, attachmentUpdate);
+                        await _vpnService.UpdateAsync(vpnId.Value, attachmentUpdate, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
                         return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = vpn.TenantID });
                     }
 
@@ -228,9 +239,19 @@ namespace Mind.WebUI.Controllers
                         ModelState.AddModelError(string.Empty, ex.Message);
                     }
 
+                    catch (ServiceBadArgumentsException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
                     catch (DbUpdateException)
                     {
                         ModelState.AddDatabaseUpdateExceptionMessage();
+                    }
+
+                    catch (ApiException)
+                    {
+                        ModelState.AddNovaClientApiExceptionMessage();
                     }
                 }
             }
@@ -286,6 +307,11 @@ namespace Mind.WebUI.Controllers
             catch (DbUpdateException)
             {
                 ViewData.AddDatabaseUpdateExceptionMessage();
+            }
+
+            catch (ApiException)
+            {
+                ModelState.AddNovaClientApiExceptionMessage();
             }
 
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(vpn.TenantID);

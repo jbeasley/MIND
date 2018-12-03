@@ -1,10 +1,8 @@
 @using Mind.WebUI.Models;
 @model Mind.WebUI.Models.ProviderDomainVifRequestViewModel
-
 @{
     ViewData["Title"] = "Create VIF";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -14,21 +12,21 @@
         <li><a href="#"><i class="fa active" aria-hidden="true"></i>Create</a></li>
     </ul>
 </div>
-
 <h2>Create a VIF for Attachment '@ViewBag.Attachment.Name'</h2>
-
 <form id="createForm" asp-action="Create">
     <hr />
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <input type="hidden" asp-for="AttachmentId" value="@ViewBag.Attachment.AttachmentId" />
     <input type="hidden" asp-for="TenantId" value="@ViewBag.Attachment.TenantId" />
+    <input type="hidden" asp-for="Stage" />
+    <input type="hidden" asp-for="SyncToNetwork" />
     <div id="createVifWizard">
         <h3>Role</h3>
         <section id="role">
             <br />
-            <div class="alert alert-info" role="alert">
+            <div mind-alert="info" message="
                 Select a role for the vif. The selected role determines whether the vif requires attributes such as
-                IP addressing and contract bandwidth.
+                IP addressing and contract bandwidth.">
             </div>
             <div class="form-group row">
                 <label asp-for="VifRoleName" class="col-sm-2 col-form-label"></label>
@@ -43,8 +41,8 @@
         <h3>Vlan Tag</h3>
         <section id="vlan-tag">
             <br />
-            <div class="alert alert-info" role="alert">
-                Optionally enter a desired vlan tag for the vif, or leave blank to have one automatically assigned.
+            <div mind-alert="info" message="
+                Optionally enter a desired vlan tag for the vif, or leave blank to have one automatically assigned.">
             </div>
             <div class="form-group row">
                 <label asp-for="RequestedVlanTag" class="col-sm-2 col-form-label"> </label>
@@ -58,33 +56,31 @@
         <h3>IP Addressing</h3>
         <section id="ip-addressing">
             <div id="ipAddressingComponent">
-
                 @if (Model != null)
                 {
                     @await Component.InvokeAsync("VifIpAddressing", new
-               {
-                   attachmentId = Model.AttachmentId,
-                   currentModel = Model.Ipv4Addresses
-               });
+                    {
+                        attachmentId = Model.AttachmentId,
+                        currentModel = Model.Ipv4Addresses
+                    });
                 }
             </div>
         </section>
         <h3>Contract Bandwidth</h3>
         <section id="ip-addressing">
-
             <div id="contractBandwidthPoolComponent">
                 @if (Model != null)
                 {
                     @await Component.InvokeAsync("VifContractBandwidthPool", new
-               {
-                   attachmentId = Model.AttachmentId,
-                   vifRoleName = Model.VifRoleName,
-                   currentModel = new ContractBandwidthPoolViewModel
-                   {
-                       ContractBandwidthMbps = Model.ContractBandwidthMbps,
-                       TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp.GetValueOrDefault()
-                   }
-               });
+                    {
+                        attachmentId = Model.AttachmentId,
+                        vifRoleName = Model.VifRoleName,
+                        currentModel = new ContractBandwidthPoolViewModel
+                        {
+                            ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                            TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp.GetValueOrDefault()
+                        }
+                    });
                 }
             </div>
         </section>
@@ -93,131 +89,34 @@
             <div id="bgpPeersComponent">
                 <!-- View component for creating BGP peers -->
                 @await Component.InvokeAsync("VifBgpPeers", new
-           {
-               attachmentId = Model?.AttachmentId,
-               vifRoleName = Model?.VifRoleName,
-               bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
-           })
+                {
+                    attachmentId = Model?.AttachmentId,
+                    vifRoleName = Model?.VifRoleName,
+                    bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
+                })
             </div>
         </section>
     </div>
 </form>
-
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByAttachmentID" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId">Back to VIFs</a>
 </div>
-
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
     The component HTML must be placed outside of other page elements to avoid nesting because browser will
     remove the <form> element from the component otherwise -->
 @await Component.InvokeAsync("BgpPeerForm")
-
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
-
+<!-- Stage or sync to network partial view -->
+@{await Html.RenderPartialAsync("_NetworkStageOrSyncModalPartial");}
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 
-    <script type="text/javascript">
-
-        (function ($) {
-
-            var $form = $("#createForm"),
-                $wizard = $("#createVifWizard");
-
-            //Create wizard
-            Mind.Utilities.createWizard($wizard, $form);
-
-            var $attachmentId = $('#AttachmentId'),
-                attachmentId = $attachmentId[0],
-                $vifRole = $('#VifRoleName'),
-                vifRole = $vifRole[0],
-                $ipAddressingComponent = $("#ipAddressingComponent"),
-                $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent"),
-                $bgpPeersComponent = $('#bgpPeersComponent');
-
-            $vifRole.on('change', function (e) {
-
-                var vifRoleName = this.value;
-                if (vifRoleName !== null) {
-
-                    GetIpAddressingComponent();
-                    GetContractBandwidthPoolComponent();
-                    GetBgpPeersComponent();
-                }
-            });
-
-            function GetIpAddressingComponent() {
-
-                $ipAddressingComponent.fadeOut().empty();
-
-                $.get("GetIpAddressingComponent", {
-                    attachmentId: attachmentId.value,
-                    vifRoleName: vifRole.value
-                })
-                    .done(function (data) {
-
-                        $ipAddressingComponent.html(data).fadeIn();
-                        InitToolTipsAndValidation();
-                    });
-            }
-
-            function GetContractBandwidthPoolComponent() {
-
-                $contractBandwidthPoolComponent.fadeOut().empty();
-
-                $.get("GetContractBandwidthPoolComponent", {
-                    attachmentId: attachmentId.value,
-                    vifRoleName: vifRole.value
-                })
-                    .done(function (data) {
-
-                        $contractBandwidthPoolComponent.html(data).fadeIn();
-                        InitToolTipsAndValidation();
-                    });
-            }
-
-            function GetBgpPeersComponent() {
-
-                $bgpPeersComponent.fadeOut().empty();
-
-                $.get("GetBgpPeersComponent", {
-                    attachmentId: attachmentId.value,
-                    vifRoleName: vifRole.value,
-                })
-                    .done(function (data) {
-
-                        $bgpPeersComponent.html(data).fadeIn();
-                        InitToolTipsAndValidation();
-                    });
-            }
-
-            function InitToolTipsAndValidation() {
-
-                // Initialise new tool-tips
-                $('[data-toggle="tooltip"]').tooltip();
-
-                // Re-initialise unobtrusive validation on the form
-                var $form = $('#createForm')
-                    .removeData("validator")
-                    .removeData("unobtrusiveValidation");
-                $.validator.unobtrusive.parse($form);
-            }
-
-        }(jQuery));
-
-    </script>
-
-    @{await Html.RenderPartialAsync("_ProviderDomainVifScriptsPartial");}
-
-    <script type="text/javascript">
-
-        (function ($) {
+    @{await Html.RenderPartialAsync("_ProviderDomainVifCreateScriptsPartial");}
+    <script type="text/javascript">(function ($) {
 
             // Initialise all tool-tips - do this after all components are loaded
             $('[data-toggle="tooltip"]').tooltip();
 
-        }(jQuery));
-
-    </script>
+        }(jQuery));</script>
 }

@@ -2,11 +2,11 @@
 
 @if (Model != null)
 {
-    <div class="alert alert-info" role="alert">
+    <div mind-alert="info" message="
         Select a contract bandwidth. The bandwidth options are expressed in megabits per second.
         The contract bandwith is the average amount of bandwidth available in either
         direction across the attachment. The contract bandwidth value must be equal to or less than the physical
-        attachment bandwidth.
+        attachment bandwidth.">
     </div>
     <div class="form-group row">
         <label asp-for="ContractBandwidthMbps" class="col-sm-4 col-form-label"></label>
@@ -17,10 +17,10 @@
             <span asp-validation-for="ContractBandwidthMbps" class="text-danger"></span>
         </div>
     </div>
-    <div class="alert alert-info" role="alert">
+    <div mind-alert="info" message="
         You can optionally enable Sigma to trust the DSCP and CoS markings sent from the tenant domain towards Sigma.
         If trust is enabled then the DSCP and CoS markings received will be carried transparently across Sigma without
-        modification.
+        modification.">
     </div>
     <div class="form-group row">
         <label class="col-form-label col-sm-4" asp-for="TrustReceivedCosAndDscp"></label>
@@ -35,8 +35,8 @@
 }
 else
 {
-    <div class="alert alert-info" role="alert">
-        The selected attachment role does not require contract bandwidth details to be specified. Please go to the next step.
+    <div mind-alert="info" message="
+        The selected attachment role does not require contract bandwidth details to be specified. Please go to the next step.">
     </div>
 }
 

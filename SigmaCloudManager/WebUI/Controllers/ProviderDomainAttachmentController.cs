@@ -19,7 +19,7 @@ using Mind.Builders;
 using Mind.WebUI.Attributes;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
-using IO.Swagger.Client;
+using IO.NovaAttSwagger.Client;
 
 namespace Mind.WebUI.Controllers
 {
@@ -59,17 +59,20 @@ namespace Mind.WebUI.Controllers
             var query = (from result in await _unitOfWork.AttachmentBandwidthRepository.GetAsync()
                          select result);
 
-            if (bundleRequired.GetValueOrDefault())
+            if (!bundleRequired.GetValueOrDefault())
             {
-                query = query.Where(x => x.SupportedByBundle);
-            }
-            else if (multiportRequired.GetValueOrDefault())
-            {
-                query = query.Where(x => x.SupportedByMultiPort);
+                if (multiportRequired.GetValueOrDefault())
+                {
+                    query = query.Where(x => x.SupportedByMultiPort);
+                }
+                else
+                {
+                    query = query.Where(x => !x.MustBeBundleOrMultiPort);
+                }
             }
             else
             {
-                query = query.Where(x => !x.MustBeBundleOrMultiPort);
+                query = query.Where(x => x.SupportedByBundle);
             }
 
             return PartialView(_mapper.Map<List<AttachmentBandwidthViewModel>>(query.ToList().OrderBy(b => b.BandwidthGbps)));
@@ -186,14 +189,14 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateTenantExists]
-        public async Task<IActionResult> Create(int? tenantId, ProviderDomainAttachmentRequestViewModel requestModel)
+        public async Task<IActionResult> Create(int? tenantId, ProviderDomainAttachmentRequestViewModel requestModel, bool? stage, bool? syncToNetwork)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
                     var request = _mapper.Map<ProviderDomainAttachmentRequest>(requestModel);
-                    var attachment = await _attachmentService.AddAsync(tenantId.Value, request);
+                    var attachment = await _attachmentService.AddAsync(tenantId.Value, request, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
                     return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
                 }
 
@@ -208,6 +211,11 @@ namespace Mind.WebUI.Controllers
                 }
 
                 catch (IllegalStateException ex)
+                {
+                    ModelState.AddModelError(string.Empty, ex.Message);
+                }
+
+                catch (ServiceBadArgumentsException ex)
                 {
                     ModelState.AddModelError(string.Empty, ex.Message);
                 }
@@ -255,7 +263,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateProviderDomainAttachmentExists]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int? attachmentId, ProviderDomainAttachmentUpdateViewModel update)
+        public async Task<ActionResult> Edit(int? attachmentId, ProviderDomainAttachmentUpdateViewModel update, bool? stage, bool? syncToNetwork)
         {
             var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
 
@@ -273,7 +281,7 @@ namespace Mind.WebUI.Controllers
 
                     try
                     {
-                        await _attachmentService.UpdateAsync(attachmentId.Value, attachmentUpdate);
+                        await _attachmentService.UpdateAsync(attachmentId.Value, attachmentUpdate, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
                         return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachment.TenantID });
                     }
 
@@ -293,6 +301,11 @@ namespace Mind.WebUI.Controllers
                     }
 
                     catch (IllegalDeleteAttemptException ex)
+                    {
+                        ModelState.AddModelError(string.Empty, ex.Message);
+                    }
+
+                    catch (ServiceBadArgumentsException ex)
                     {
                         ModelState.AddModelError(string.Empty, ex.Message);
                     }
@@ -364,36 +377,6 @@ namespace Mind.WebUI.Controllers
 
             return View(_mapper.Map<ProviderDomainAttachmentDeleteViewModel>(attachment));
         }
-
-        /// <summary>
-        /// Sync an attachment to the network.
-        /// </summary>
-        /// <returns>An awaitable task</returns>
-        /// <param name="attachmentId">The ID of the attachment</param>
-        [HttpPost]
-        [ValidateProviderDomainAttachmentExists]
-        public async Task<IActionResult> SyncToNetwork(int? attachmentId)
-        {
-            var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value);
-            try
-            {
-                await _attachmentService.SyncToNetworkAsync(attachmentId.Value);
-            }
-
-            catch (BuilderBadArgumentsException ex)
-            {
-                ModelState.AddModelError(string.Empty, ex.Message);
-            }
-
-            catch (ApiException)
-            {
-                ModelState.AddNovaClientApiExceptionMessage();
-            }
-
-            ViewData.AddNetworkSyncSuccessMessage();
-            return Ok();
-        }
-
 
         private async Task PopulatePortPoolsDropDownList(object selectedPortPool = null)
         {

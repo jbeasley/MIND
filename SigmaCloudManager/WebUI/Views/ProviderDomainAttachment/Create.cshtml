@@ -1,10 +1,8 @@
 @using Mind.WebUI.Models;
 @model Mind.WebUI.Models.ProviderDomainAttachmentRequestViewModel
-
 @{
     ViewData["Title"] = "Create Attachment";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -13,19 +11,18 @@
         <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Create</a></li>
     </ul>
 </div>
-
 <h2>Create an Attachment to the Provider Domain for Tenant '@ViewBag.Tenant.Name'</h2>
-
 <form id="createForm" asp-action="Create">
     <hr />
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <input type="hidden" asp-for="TenantId" value="@ViewBag.Tenant.TenantId" />
+    <input type="hidden" asp-for="Stage" />
+    <input type="hidden" asp-for="SyncToNetwork" />
     <div id="createAttachmentWizard">
         <h3>Location</h3>
         <section id="location">
             <br />
-            <div class="alert alert-info" role="alert">
-                Select location where you wish to attach to the Sigma network.
+            <div mind-alert="info" message="Select location where you wish to attach to the Sigma network.">
             </div>
             <div class="form-group row">
                 <label asp-for="RegionId" class="col-sm-2 col-form-label"></label>
@@ -58,10 +55,9 @@
         <h3>Bundle/Multiport Options</h3>
         <section id="bundle-and-multiport-options">
             <br />
-            <div class="alert alert-info" role="alert">
-                If you want the attachment to be configured as a bundle then select the bundle option. Bundles are groups of two or
+            <div mind-alert="info" message="If you want the attachment to be configured as a bundle then select the bundle option. Bundles are groups of two or
                 more physical attachments which are logically grouped together and behave as one physical attachment. Traffic is load-balandced
-                across the bundle using the LACP protocol.
+                across the bundle using the LACP protocol.">
             </div>
             <div class="form-group row">
                 <label class="col-form-label col-sm-2" asp-for="BundleRequired"></label>
@@ -73,10 +69,9 @@
                     </div>
                 </div>
             </div>
-            <div class="alert alert-info" role="alert">
-                If you want the attachment to be configured as a multiport then select the multiport option. Multiports are groups of
+            <div mind-alert="info" message="If you want the attachment to be configured as a multiport then select the multiport option. Multiports are groups of
                 two or more physical attachments each of which is configured for layer 3. Traffic is load-balanced across a multiport using
-                the ECMP protocol.
+                the ECMP protocol.">
             </div>
             <div class="form-group row">
                 <label class="col-form-label col-sm-2" asp-for="MultiportRequired"></label>
@@ -92,8 +87,7 @@
         <h3>Bandwidth</h3>
         <section id="bandwidth-options">
             <br />
-            <div class="alert alert-info" role="alert">
-                Select a bandwidth for the attachment. The values are in Gigabits per Second.
+            <div mind-alert="info" message="Select a bandwidth for the attachment. The values are in Gigabits per Second.">
             </div>
             <div class="form-group row">
                 <label asp-for="AttachmentBandwidthGbps" class="col-sm-2 col-form-label"></label>
@@ -107,9 +101,8 @@
         </section>
         <h3>Port Pool and Role</h3>
         <section id="port-pool-and-role">
-            <div class="alert alert-info" role="alert">
-                Select a port pool. The port pool determines the pool from which ports will be assigned
-                for the new attachment.
+            <div mind-alert="info" message="Select a port pool. The port pool determines the pool from which ports will be assigned
+                for the new attachment.">
             </div>
             <div class="form-group row">
                 <label asp-for="PortPoolName" class="col-sm-2 col-form-label"></label>
@@ -120,9 +113,8 @@
                     <span asp-validation-for="PortPoolName" class="text-danger"></span>
                 </div>
             </div>
-            <div class="alert alert-info" role="alert">
-                Selet an attachment role. The attachment determines certain parameters regarding how the attachment will be logically provisioned,
-                such as whether IP addressing and contract bandwidth is required.
+            <div mind-alert="info" message="Select an attachment role. The attachment determines certain parameters regarding how the attachment will be logically provisioned,
+                such as whether IP addressing and contract bandwidth is required.">
             </div>
             <div class="form-group row">
                 <label asp-for="AttachmentRoleName" class="col-sm-2 col-form-label"></label>
@@ -137,17 +129,16 @@
         <h3>IP Addressing</h3>
         <section id="ip-addressing">
             <div id="ipAddressingComponent">
-
                 @if (Model != null)
                 {
                     @await Component.InvokeAsync("AttachmentIpAddressing", new
-                {
-                    portPoolName = Model.PortPoolName,
-                    attachmentRoleName = Model.AttachmentRoleName,
-                    attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
-                    isMultiport = Model.MultiportRequired,
-                    currentModel = Model.Ipv4Addresses
-                });
+                    {
+                        portPoolName = Model.PortPoolName,
+                        attachmentRoleName = Model.AttachmentRoleName,
+                        attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
+                        isMultiport = Model.MultiportRequired,
+                        currentModel = Model.Ipv4Addresses
+                    });
                 }
             </div>
         </section>
@@ -157,15 +148,15 @@
                 @if (Model != null)
                 {
                     @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
-                {
-                   portPoolName = Model.PortPoolName,
-                   attachmentRoleName = Model.AttachmentRoleName,
-                   attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
-                   currentModel = new ContractBandwidthPoolViewModel
-                     {
-                         ContractBandwidthMbps = Model.ContractBandwidthMbps,
-                         TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
-                     }
+                    {
+                        portPoolName = Model.PortPoolName,
+                        attachmentRoleName = Model.AttachmentRoleName,
+                        attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
+                        currentModel = new ContractBandwidthPoolViewModel
+                        {
+                            ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                            TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
+                        }
                     });
                 }
             </div>
@@ -173,10 +164,9 @@
         <h3>Plane</h3>
         <section id="plane">
             <br />
-            <div class="alert alert-info" role="alert">
-                Optionally select a provider network plane. If a plane option is selected then the attachment will be provisioned
+            <div mind-alert="info" message="Optionally select a provider network plane. If a plane option is selected then the attachment will be provisioned
                 on a PE in the selected plane. The plane option is typically useful for
-                'Live/Live' routing scenarios.
+                'Live/Live' routing scenarios.">
             </div>
             <div class="form-group row">
                 <label asp-for="PlaneName" class="col-sm-2 col-form-label"></label>
@@ -193,17 +183,16 @@
             <div id="bgpPeersComponent">
                 <!-- View component for creating BGP peers -->
                 @await Component.InvokeAsync("AttachmentBgpPeers", new
-           {
-               portPoolName = Model?.PortPoolName,
-               attachmentRoleName = Model?.AttachmentRoleName,
-               bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
-           });
+                {
+                    portPoolName = Model?.PortPoolName,
+                    attachmentRoleName = Model?.AttachmentRoleName,
+                    bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
+                });
             </div>
         </section>
         <h3>Description and Notes</h3>
         <section id="description-and-notes">
-            <div class="alert alert-info" role="alert">
-                Enter a description and any notes which describe the purpose of the attachment.
+            <div mind-alert="info" message="Enter a description and any notes which describe the purpose of the attachment.">
             </div>
             <div class="form-group row">
                 <label asp-for="Description" class="col-sm-2 col-form-label"> </label>
@@ -222,230 +211,30 @@
         </section>
     </div>
 </form>
-
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
     The component HTML must be placed outside of other page elements to avoid nesting because browser will
     remove the <form> element from the component otherwise -->
 @await Component.InvokeAsync("BgpPeerForm")
-
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments</a>
 </div>
-
+<!-- Stage or sync to network partial view -->
+@{await Html.RenderPartialAsync("_NetworkStageOrSyncModalPartial");}
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    @{await Html.RenderPartialAsync("_ProviderDomainAttachmentCreateScriptsPartial");}
 
     <script type="text/javascript">
 
-        (function ($) {
-
-            var $form = $("#createForm"),
-                $wizard = $("#createAttachmentWizard");
-
-            // Create the wizard
-            Mind.Utilities.createWizard($wizard, $form);
-
-            var $region = $('#RegionId'),
-                region = $region[0],
-                $subregion = $('#SubRegionId'),
-                subregion = $subregion[0],
-                $location = $('#LocationName'),
-                location = $location[0],
-                $bundleRequired = $('#BundleRequired'),
-                bundleRequired = $bundleRequired[0],
-                $multiportRequired = $('#MultiportRequired'),
-                multiportRequired = $multiportRequired[0],
-                $portPool = $('#PortPoolName'),
-                portPool = $portPool[0],
-                $attachmentRole = $('#AttachmentRoleName'),
-                attachmentRole = $attachmentRole[0],
-                $attachmentBandwidthGbps = $('#AttachmentBandwidthGbps'),
-                attachmentBandwidthGbps = $attachmentBandwidthGbps[0],
-                $ipAddressingComponent = $("#ipAddressingComponent"),
-                $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent"),
-                $bgpPeersComponent = $('#bgpPeersComponent');
-
-            $attachmentBandwidthGbps.on('change', function (e) {
-
-                attachmentRole.selectedIndex = 0;
-                attachmentRole.disabled = true;
-                portPool.selectedIndex = 0;
-                $ipAddressingComponent.fadeOut().empty();
-                $contractBandwidthPoolComponent.fadeOut().empty();
-
-                if (attachmentBandwidthGbps.value === null || attachmentBandwidthGbps.value === "") {
-
-                    portPool.disabled = true;
-                }
-                else {
-
-                    portPool.disabled = false;
-                }
-            });
-
-            $portPool.on('change', function (e) {
-
-                $ipAddressingComponent.fadeOut().empty();
-                $contractBandwidthPoolComponent.fadeOut().empty();
-                var portPoolVal = this.value;
-                if (portPoolVal === null || portPoolVal === "") {
-
-                    attachmentRole.selectedIndex = 0;
-                    attachmentRole.disabled = true;
-                }
-                else {
-
-                    Mind.Utilities.populateElement($attachmentRole, "AttachmentRoles", {
-                        portPoolName: portPoolVal
-                    });
-                }
-            });
-
-            $attachmentRole.on('change', function (e) {
-
-                var attachmentRoleName = this.value;
-                if (attachmentRoleName !== null) {
-
-                    GetIpAddressingComponent();
-                    GetContractBandwidthPoolComponent();
-                    GetBgpPeersComponent();
-                }
-            });
-
-            if (region.value === null || region.value === "") {
-
-                subregion.disabled = true;
-                location.disabled = true;
-            }
-
-            if (subregion.value === null || subregion.value === "") {
-
-                location.disabled = true;
-            }
-
-            if (attachmentBandwidthGbps.value === null || attachmentBandwidthGbps.value === "") {
-
-                portPool.disabled = true;
-            }
-
-            if (portPool.value === null || portPool.value === "") {
-
-                attachmentRole.disabled = true;
-            }
-
-            $region.on('change', function (e) {
-
-                var regionId = this.value;
-                if (regionId === null || regionId === "") {
-
-                    subregion.selectedIndex = 0;
-                    subregion.disabled = true;
-                    location.selectedIndex = 0;
-                    location.disabled = true;
-                }
-                else {
-                    location.selectedIndex = 0;
-                    location.disabled = true;
-
-                    Mind.Utilities.populateElement($subregion, "SubRegions", { regionId: regionId });
-                }
-            });
-
-            $subregion.on('change', function (e) {
-
-                var subRegionId = this.value;
-                Mind.Utilities.populateElement($location, "Locations", { subRegionId: subRegionId });
-            });
-
-            $multiportRequired.on('click', function (e) {
-
-                bundleRequired.checked = false;
-                Mind.Utilities.populateElement($attachmentBandwidthGbps, "AttachmentBandwidths", { multiportRequired: multiportRequired.checked });
-            });
-
-            $bundleRequired.on('click', function (e) {
-
-                multiportRequired.checked = false;
-                Mind.Utilities.populateElement($attachmentBandwidthGbps, "AttachmentBandwidths", { bundleRequired: bundleRequired.checked });
-            });
-
-            function GetIpAddressingComponent() {
-
-                $ipAddressingComponent.fadeOut().empty();
-
-                $.get("GetIpAddressingComponent", {
-                    portPoolName: portPool.value,
-                    attachmentRoleName: attachmentRole.value,
-                    attachmentBandwidthGbps: attachmentBandwidthGbps.value,
-                    isMultiport: multiportRequired.checked
-                })
-                    .done(function (data) {
-
-                        $ipAddressingComponent.html(data).fadeIn();
-                        InitToolTipsAndValidation();
-                    });
-            }
-
-            function GetContractBandwidthPoolComponent() {
-
-                $contractBandwidthPoolComponent.fadeOut().empty();
-
-                $.get("GetContractBandwidthPoolComponent", {
-                    portPoolName: portPool.value,
-                    attachmentRoleName: attachmentRole.value,
-                    attachmentBandwidthGbps: attachmentBandwidthGbps.value
-                })
-                    .done(function (data) {
-
-                        $contractBandwidthPoolComponent.html(data).fadeIn();
-                        InitToolTipsAndValidation();
-                    });
-            }
-
-            function GetBgpPeersComponent() {
-
-                $bgpPeersComponent.fadeOut().empty();
-
-                $.get("GetBgpPeersComponent", {
-                    portPoolName: portPool.value,
-                    attachmentRoleName: attachmentRole.value,
-                })
-                    .done(function (data) {
-
-                        $bgpPeersComponent.html(data).fadeIn();
-                        InitToolTipsAndValidation();
-                    });
-            }
-
-            function InitToolTipsAndValidation() {
-
-                // Initialise new tool-tips
-                $('[data-toggle="tooltip"]').tooltip();
-
-                // Re-initialise unobtrusive validation on the form
-                var $form = $('#createForm')
-                    .removeData("validator")
-                    .removeData("unobtrusiveValidation");
-                $.validator.unobtrusive.parse($form);
-            }
-
-        }(jQuery));
-
-    </script>
-
-    @{await Html.RenderPartialAsync("_ProviderDomainAttachmentScriptsPartial");}
-
-    <script type="text/javascript">
-
-        (function ($) {
+    (function ($) {
 
             // Initialise all tool-tips - do this after all components are loaded
             $('[data-toggle="tooltip"]').tooltip();
 
-        }(jQuery));
+    }(jQuery));
 
-    </script>
+   </script>
 }

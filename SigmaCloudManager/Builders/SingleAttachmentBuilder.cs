@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Mind.Directors;
-using IO.Swagger.Api;
+using IO.NovaAttSwagger.Api;
 
 namespace Mind.Builders
 {
@@ -18,7 +18,7 @@ namespace Mind.Builders
         public SingleAttachmentBuilder(IUnitOfWork unitOfWork, 
                                        Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
                                        Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
-                                       IO.Swagger.Api.IDataApi novaApiClient) : 
+                                       IDataApi novaApiClient) : 
             base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)
         {
         }
@@ -34,11 +34,11 @@ namespace Mind.Builders
             // Has the attachment been built correctly?
             base._attachment.Validate();
 
-            // Check to sync the attachment to the network
-            if (_args.ContainsKey(nameof(SyncToNetwork)))
+            // Check to sync the attachment to the network with a put operation
+            if (_args.ContainsKey(nameof(SyncToNetworkPut)))
             {
-                var syncToNetwork = (bool?)_args[nameof(SyncToNetwork)];
-                if (syncToNetwork.GetValueOrDefault()) await base.SyncAttachmentToNetworkAsync();
+                var syncToNetwork = (bool)_args[nameof(SyncToNetworkPut)];
+                if (syncToNetwork) await base.SyncAttachmentToNetworkPutAsync();
             }
 
             return base._attachment;

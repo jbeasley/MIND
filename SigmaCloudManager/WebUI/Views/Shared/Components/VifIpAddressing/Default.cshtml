@@ -2,10 +2,10 @@
 
 @if (Model != null && Model.Any())
 {
-    <div class="alert alert-info" role="alert">
+    <div mind-alert="info" message="
         Enter IP address details. If more than one set of IP address details are required then enter IP address details for each set.
         Multiple sets of IP addresses are needed for vifs which are configured under multiport attachments since one IP address is required 
-        per vlan which comprises the vif, and there is one vlan per physical attachment which comprises the multiport.
+        per vlan which comprises the vif, and there is one vlan per physical attachment which comprises the multiport.">
     </div>
 
     @for (var i = 0; i < Model.Count(); i++)
@@ -35,8 +35,8 @@
 }
 else
 {
-    <div class="alert alert-info" role="alert">
-        The selected vif role does not require IP address details to be specified. Please go to the next step.
+    <div mind-alert="info" message="
+        The selected vif role does not require IP address details to be specified. Please go to the next step.">
     </div>
 }
 

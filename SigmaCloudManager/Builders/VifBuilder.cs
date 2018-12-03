@@ -7,7 +7,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using IO.Swagger.Api;
+using IO.NovaAttSwagger.Api;
+using IO.NovaAttSwagger.Client;
 
 namespace Mind.Builders
 {
@@ -19,17 +20,18 @@ namespace Mind.Builders
         protected internal Vif _vif;
         private const string _defaultVlanTagRange = "Default";
         private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
-        private readonly IO.Swagger.Api.IDataApi _novaApiClient;
+        private readonly IDataApi _novaApiClient;
 
 
         public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, 
                           IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
-                          IO.Swagger.Api.IDataApi novaApiClient) : base(unitOfWork)
+                          IDataApi novaApiClient) : base(unitOfWork)
         {
             _vif = new Vif
             {
                 Created = true,
                 ShowCreatedAlert = true,
+                NetworkStatus = Models.NetworkStatusEnum.NotStaged,
                 Vlans = new List<Vlan>()
             };
 
@@ -133,15 +135,21 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVifBuilder SyncToNetwork(bool? syncToNetwork)
+        public virtual IVifBuilder Stage(bool? stage)
         {
-            _args.Add(nameof(SyncToNetwork), syncToNetwork);
+            if (stage.HasValue) _args.Add(nameof(Stage), stage);
+            return this;
+        }
+
+        public virtual IVifBuilder SyncToNetworkPut(bool? syncToNetworkPut)
+        {
+            if (syncToNetworkPut.HasValue) _args.Add(nameof(SyncToNetworkPut), syncToNetworkPut);
             return this;
         }
 
         public virtual IVifBuilder CleanUpNetwork(bool? cleanUpNetwork)
         {
-            if (cleanUpNetwork.HasValue )_args.Add(nameof(CleanUpNetwork), cleanUpNetwork);
+            if (cleanUpNetwork.HasValue) _args.Add(nameof(CleanUpNetwork), cleanUpNetwork);
             return this;
         }
 
@@ -220,16 +228,17 @@ namespace Mind.Builders
                 AssociateExistingContractBandwidthPool();
             }
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
+            if (_args.ContainsKey(nameof(Stage))) SetStage();
             await SetMtuAsync();
 
-            // Has the vif been created correctly
+            // Has the vif been created correctly?
             _vif.Validate();
 
-            // Check to sync the vif to the network
-            if (_args.ContainsKey(nameof(SyncToNetwork)))
+            // Check to sync the vif to the network with a put operation
+            if (_args.ContainsKey(nameof(SyncToNetworkPut)))
             {
-                var syncToNetwork = (bool?)_args[nameof(SyncToNetwork)];
-                if (syncToNetwork.GetValueOrDefault()) await SyncVifToNetworkAsync();
+                var syncToNetworkPut = (bool)_args[nameof(SyncToNetworkPut)];
+                if (syncToNetworkPut) await SyncVifToNetworkPutAsync();
             }
 
             return _vif;
@@ -254,8 +263,8 @@ namespace Mind.Builders
                 // Check to delete the vif from the network
                 if (_args.ContainsKey(nameof(CleanUpNetwork)))
                 {
-                    var cleanUpNetwork = (bool?)_args[nameof(CleanUpNetwork)];
-                    if (cleanUpNetwork.GetValueOrDefault())
+                    var cleanUpNetwork = (bool)_args[nameof(CleanUpNetwork)];
+                    if (cleanUpNetwork)
                     {
                         await DeleteVifFromNetworkAsync();
                         await CheckDeleteRoutingInstanceFromNetworkAsync();
@@ -268,15 +277,15 @@ namespace Mind.Builders
         }
 
         /// <summary>
-        /// Sync the vif to the network.
+        /// Sync the vif to the network using a put operation
         /// </summary>
         /// <returns>The vif</returns>
-        public async Task<Vif> SyncToNetworkAsync()
+        public async Task<Vif> SyncToNetworkPutAsync()
         {
             if (_args.ContainsKey(nameof(ForVif)))
             {
                 await SetVifAsync();
-                await SyncVifToNetworkAsync();
+                await SyncVifToNetworkPutAsync();
             }
 
             return _vif;
@@ -342,8 +351,6 @@ namespace Mind.Builders
                 $"which for the current attachment is '{_vif.Attachment.AttachmentRole.Name}'");
 
             _vif.IsLayer3 = vifRole.IsLayer3Role;
-            _vif.RequiresSync = vifRole.RequireSyncToNetwork;
-            _vif.ShowRequiresSyncAlert = vifRole.RequireSyncToNetwork;
         }
 
         protected internal virtual async Task AutoAllocateVlanTagAsync()
@@ -510,7 +517,7 @@ namespace Mind.Builders
         protected internal virtual async Task SetMtuAsync()
         {
             var useLayer2InterfaceMtu = _vif.Attachment.Device.UseLayer2InterfaceMtu;
-            var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) ? (bool)_args[nameof(WithJumboMtu)] : false;
+            var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) && (bool)_args[nameof(WithJumboMtu)];
 
             var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(
                     x => 
@@ -520,6 +527,15 @@ namespace Mind.Builders
                        .SingleOrDefault();
 
             _vif.Mtu = mtu;
+        }
+
+        protected internal virtual void SetStage()
+        {
+            var stage = (bool)_args[nameof(Stage)];
+            if (stage)
+            {
+                _vif.NetworkStatus = Models.NetworkStatusEnum.Staged;
+            }
         }
 
         protected internal virtual async Task UpdateContractBandwidthPoolAsync()
@@ -536,7 +552,7 @@ namespace Mind.Builders
             var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(
                                   q =>
                                      q.BandwidthMbps == contractBandwidthMbps,
-                                     AsTrackable: false)
+                                     AsTrackable: true)
                                      select contractBandwidths)
                                      .SingleOrDefault();
 
@@ -544,6 +560,7 @@ namespace Mind.Builders
                $"Mbps is not valid.");
 
             _vif.ContractBandwidthPool.ContractBandwidthID = contractBandwidth.ContractBandwidthID;
+            _vif.ContractBandwidthPool.ContractBandwidth = contractBandwidth;
         }
 
         protected internal virtual async Task SetVifToDeleteAsync() 
@@ -603,13 +620,26 @@ namespace Mind.Builders
         }
 
         /// <summary>
-        /// Sync the vif to the network
+        /// Sync the vif to the network using a put operation
         /// </summary>
         /// <returns>An awaitable task</returns>
-        protected internal virtual async Task SyncVifToNetworkAsync()
+        protected internal virtual async Task SyncVifToNetworkPutAsync()
         {
-            var dto = _vif.ToNovaVifDto();
-            await _novaApiClient.DataAttachmentAttachmentPePePeNamePatchAsync(_vif.Attachment.Device.Name, dto);    
+            var vifDto = _vif.ToNovaVifDto();
+            //var vrfDto = _vif.RoutingInstance.ToNovaVrfDto();
+            try
+            {
+                await _novaApiClient.DataAttachmentAttachmentPePePeNamePutAsync(_vif.Attachment.Device.Name, vifDto).ConfigureAwait(false);
+                _vif.NetworkStatus = Models.NetworkStatusEnum.Active;
+            }
+
+            catch (ApiException)
+            {
+                // Set network status on the vif and then rethrow the exception to be caught
+                // further up the stack
+                _vif.NetworkStatus = Models.NetworkStatusEnum.ActivationFailure;
+                throw;
+            }
         }
 
         /// <summary>
@@ -619,7 +649,7 @@ namespace Mind.Builders
         protected internal virtual async Task DeleteVifFromNetworkAsync()
         {
             await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdVifVifVlanIdDeleteAsync(
-               _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.VlanTag);                
+                _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.VlanTag).ConfigureAwait(false);                
         }
 
         /// <summary>
@@ -638,7 +668,7 @@ namespace Mind.Builders
                     !_vif.RoutingInstance.Attachments.Any())
                 {
                     await _novaApiClient.DataAttachmentAttachmentPePePeNameVrfVrfVrfNameDeleteAsync(
-                        _vif.Attachment.Device.Name, _vif.RoutingInstance.Name);
+                        _vif.Attachment.Device.Name, _vif.RoutingInstance.Name).ConfigureAwait(false);
                 }
             }
         }
@@ -659,7 +689,7 @@ namespace Mind.Builders
                     !_vif.ContractBandwidthPool.Attachments.Any())
                 {
                     await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdContractBandwidthPoolContractBandwidthPoolNameDeleteAsync(
-                        _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.ContractBandwidthPool.Name);
+                        _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.ContractBandwidthPool.Name).ConfigureAwait(false);
                 }
             }
         }

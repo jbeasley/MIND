@@ -116,6 +116,14 @@ namespace Mind.Api.Models
         public int? Mtu { get; private set; }
 
         /// <summary>
+        /// Network status of the vif.
+        /// </summary>
+        /// <value>String value denoting the network status</value>
+        /// <example>Staged</example>
+        [DataMember(Name = "networkStatus")]
+        public string NetworkStatus { get; private set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -134,6 +142,7 @@ namespace Mind.Api.Models
             sb.Append("  ContractBandwidthPool: ").Append(ContractBandwidthPool).Append("\n");
             sb.Append("  Mtu: ").Append(Mtu).Append("\n");
             sb.Append("  VifRoleName: ").Append(VifRoleName).Append("\n");
+            sb.Append("  NetworkStatus: ").Append(NetworkStatus).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -224,6 +233,11 @@ namespace Mind.Api.Models
                     Mtu == other.Mtu ||
                     Mtu != null &&
                     Mtu.Equals(other.Mtu)
+                ) &&
+                (
+                    NetworkStatus == other.NetworkStatus ||
+                    NetworkStatus != null &&
+                    NetworkStatus.Equals(other.NetworkStatus)
                 );
         }
 
@@ -259,6 +273,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Mtu.GetHashCode();
                     if (VifRoleName != null)
                     hashCode = hashCode * 59 + VifRoleName.GetHashCode();
+                    if (NetworkStatus != null)
+                    hashCode = hashCode * 59 + NetworkStatus.GetHashCode();
                 return hashCode;
             }
         }

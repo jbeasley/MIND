@@ -1,9 +1,7 @@
 @model IEnumerable<Mind.WebUI.Models.ProviderDomainAttachmentViewModel>
-
 @{
     ViewData["Title"] = "Provider Domain Attachments";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -11,10 +9,8 @@
         <li><a href="#"><i class="fa active" aria-hidden="true"></i>Attachments - [@ViewBag.Tenant.Name]</a></li>
     </ul>
 </div>
-
 @{await Html.RenderPartialAsync("_MessagingPartial");}
 @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-
 @if (ViewData["SuccessMessage"] != null)
 {
     @using (Html.BeginForm("ClearCreatedAlerts", "ProviderDomainAttachment", FormMethod.Post))
@@ -25,16 +21,14 @@
         </p>
     }
 }
-
 <h2>Attachments for Tenant '@ViewBag.Tenant.Name'</h2>
-
 <p>
     <a mind-create-btn-link="true" asp-action="Create" asp-route-tenantId="@ViewBag.Tenant.TenantId"
        data-toggle="tooltip" data-placement="right"
        title="Create an Attachment to connect a Tenant Domain to the Provider Domain
        For example, create an Attachment on a PE to connect the PE to a data-center.">Create New</a>
 </p>
-<table class="table table-striped table-hover mind-grid" id="attachmentsTable">
+<table class="table table-striped table-hover mind-grid" id="mainGrid">
     <thead>
         <tr>
             <th>
@@ -51,11 +45,13 @@
             <th>
                 @Html.DisplayNameFor(model => model.IsLayer3)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.NetworkStatus)
+            </th>
             <th></th>
             <th></th>
         </tr>
     </thead>
-
     <tbody class="mind-grid-body-scroll-lg">
         @foreach (var item in Model)
         {
@@ -63,7 +59,7 @@
                 <td>
                     <div class="custom-control custom-checkbox">
                         <input id="attachment_checkbox_@item.AttachmentId" type="checkbox" class="form-check-input custom-control-input" data-is-tagged="@item.IsTagged"
-                                data-id="@item.AttachmentId" data-query-parameter="attachmentId=" />
+                               data-property-val="@item.AttachmentId" data-action-url="/v1/tenants/@item.TenantId/provider-attachments/@item.AttachmentId/sync" data-query-parameter="attachmentId=" />
                         <label class="form-check-label custom-control-label" for="attachment_checkbox_@item.AttachmentId"></label>
                     </div>
                 </td>
@@ -79,8 +75,10 @@
                 <td>
                     @Html.DisplayFor(modelItem => item.IsLayer3)
                 </td>
+                <td>
+                    <span mind-pill-network-status="@item.NetworkStatus">@item.NetworkStatus</span>
+                </td>
                 <td colspan="2" align="right">
-
                     <a mind-grid-btn-link="true" asp-action="Edit" asp-route-attachmentId="@item.AttachmentId">Edit</a>
                     <a mind-grid-btn-link="true" asp-action="Details" asp-route-attachmentId="@item.AttachmentId">Details</a>
                     <a mind-grid-btn-link="true" asp-action="Delete" asp-route-attachmentId="@item.AttachmentId">Delete</a>
@@ -94,56 +92,21 @@
     <a href="/#" data-href="/ProviderDomainVif/GetAllByAttachmentId?" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/vif.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">VIFs</h5>
+            <h5 class="card-title text-center">VIFs</h5>
             <p class="card-text">Create and manage the lifecycle of virtual interfaces (vifs)</p>
         </div>
     </a>
-    <a id="syncToNetworkCard" href="/#" data-href="/ProviderDomainAttachment/SyncToNetwork" data-show-spinner="true" data-http-post="true" class="card custom-card bg-light">
+    <a id="syncToNetworkCard" href="/#" data-action="sync-to-network" class="card custom-card bg-light">
         <img class="card-img-top mx-auto d-block" src="~/images/network-sync.png" alt="Card image cap">
         <div class="card-body">
-            <h5 class="card-title">Synchronize with Sigma</h5>
+            <h5 class="card-title text-center">Synchronize with Sigma</h5>
             <p class="card-text">Synchronise the configuration of the attachment with the Sigma network</p>
         </div>
     </a>
 </div>
 <br />
 <a mind-nav-link-back-btn="true" asp-controller="Tenant" asp-action="GetAll">Back to Tenants</a>
-<div class="modal fade" id="selectItemModal" tabindex="-1" role="dialog" aria-labelledby="selectItemModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="selectItemModalLabel">No items are selected</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Select an attachment item from the list by clicking the checkbox
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-<div class="modal fade" id="multipleItemsSelectedModal" tabindex="-1" role="dialog" aria-labelledby="multipleItemsSelectedModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="multipleItemsSelectedModalLabel">Multiple items are selected</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                Select only one attachment item from the list
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 <div class="modal fade" id="untaggedItemSelectedModal" tabindex="-1" role="dialog" aria-labelledby="untaggedItemSelectedModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
@@ -162,103 +125,18 @@
         </div>
     </div>
 </div>
-<div class="modal fade" id="networkSyncCompleteModal" tabindex="-1" role="dialog" aria-labelledby="networkSyncCompleteModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="networkSyncCompleteModal">Synchronisation with Sigma Complete</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                The attachment has been synchronised with the Sigma network.
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+
+<!-- List item selection modal messages partial view -->
+@{await Html.RenderPartialAsync("_ListItemsModalMessagesPartial");}
+
+<!-- Network Sync modal messages partial view -->
+@{await Html.RenderPartialAsync("_NetworkSyncModalMessagesPartial");}
 
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
 
 @section Scripts {
 
-<script type="text/javascript">
+    @{await Html.RenderPartialAsync("_ProviderDomainAttachmentMainScriptsPartial");}
 
-        (function ($) {
-
-            // Initialise all tool-tips
-            $('[data-toggle="tooltip"]').tooltip();
-
-            // Set the checked state of the checkbox for an item in the table from stored value
-            // in the cookie (if present)
-            var attachmentId = Mind.Utilities.getCookie("attachmentId");
-            if (attachmentId !== "") {
-
-                var $input = $('.form-check-input[data-query-parameter = "attachmentId=' + attachmentId + '"]');
-                if ($input.length === 1) {
-                    $input[0].checked = true;
-                }
-            }
-
-            // Handle click event for the card and using the current attachment item context
-            // link off to the relevant page
-            $(".custom-card").click(function (e) {
-
-                e.preventDefault();
-
-                var $inputs = $(".form-check-input:checkbox:checked");
-                if ($inputs.length === 0) {
-
-                    // No attachment items are checked
-                    $("#selectItemModal").modal();
-
-                }
-                else if ($inputs.length > 1) {
-
-                    // More than one checked attachment item
-                    $("#multipleItemsSelectedModal").modal();
-                }
-                else if ((/false/i).test($inputs.data('is-tagged'))) {
-
-                    // An untagged attachment item is selected
-                    $("#untaggedItemSelectedModal").modal();
-                }
-                else {
-
-                    var $this = $(this);
-                    var href = $this.data("href");
-                    var showSpinner = $this.data('show-spinner');
-                    var queryParameter = $inputs.data('query-parameter');
-                    var id = $inputs.data('id');
-                    var httpPost = $this.data("http-post");
-
-
-                    if ((/true/i).test(showSpinner)) {
-
-                        Mind.Utilities.showSpinner();
-                    }
-
-                    if ((/true/i).test(httpPost)) {
-
-                        $.post(href, {attachmentId: id},
-                            function(data, status) {
-                                Mind.Utilities.hideSpinner();
-                                // Show success message
-                                $('#networkSyncCompleteModal').modal('show');
-                        });
-                    }
-                    else {
-
-                        window.location.href = href + queryParameter + id;
-                    }
-                }
-            });
-
-        }(jQuery));
-
-</script>
 }

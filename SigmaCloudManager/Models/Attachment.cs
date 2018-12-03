@@ -6,7 +6,7 @@ using System.Linq;
 using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
-using IO.Swagger.Model;
+using IO.NovaAttSwagger.Model;
 
 namespace SCM.Models
 {
@@ -48,9 +48,19 @@ namespace SCM.Models
                                               ContractBandwidth = Enum.Parse<DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidContractbandwidthpoolContractbandwidthpoolnameAttachmentcontractbandwidthpool
                                                                       .ContractBandwidthEnum>(vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps.ToString()),
                                               TrustReceivedCosAndDscp = vif.ContractBandwidthPool.TrustReceivedCosAndDscp.ToString().ToLower(),
-
-                                              // TO-DO - add service classes
-
+                                              ServiceClasses = new List<DataAttachmentContractbandwidthpoolContractbandwidthpoolnameServiceclassesServiceclassesscnameAttachmentserviceclasses>
+                                              {
+                                                new DataAttachmentContractbandwidthpoolContractbandwidthpoolnameServiceclassesServiceclassesscnameAttachmentserviceclasses
+                                                {
+                                                    ScName = DataAttachmentContractbandwidthpoolContractbandwidthpoolnameServiceclassesServiceclassesscnameAttachmentserviceclasses.ScNameEnum.SIGMA20MarketDataTCP,
+                                                    ScBandwidth =  new DataAttachmentContractbandwidthpoolContractbandwidthpoolnameServiceclassesServiceclassesscnameScbandwidthAttachmentscbandwidth
+                                                    {
+                                                        BwUnits = DataAttachmentContractbandwidthpoolContractbandwidthpoolnameServiceclassesServiceclassesscnameScbandwidthAttachmentscbandwidth.BwUnitsEnum.Mbps,
+                                                        Bandwidth = vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps,
+                                                        BurstSize = CalculateBurstSizeBytes(vif.ContractBandwidthPool.ContractBandwidth.BandwidthMbps)
+                                                    }
+                                                }
+                                            }
                                           }).ToList();
 
             var bgpPeers = (from vif in attachment.Vifs
@@ -103,6 +113,18 @@ namespace SCM.Models
 
             return data;
         }
+
+        /// <summary>
+        /// Calculates the burst size bytes.
+        /// </summary>
+        /// <returns>The burst size bytes.</returns>
+        /// <param name="contractBandwidthMbps">Contract bandwidth mbps.</param>
+        private static int CalculateBurstSizeBytes(double contractBandwidthMbps)
+        {
+            double bc = 0.05;
+            var burstBytes = (contractBandwidthMbps * 1000000 * bc) / 8;
+            return Convert.ToInt32(burstBytes);
+        }
     }
 
     public static class AttachmentQueryableExtensions
@@ -111,6 +133,7 @@ namespace SCM.Models
         {
             return query.Include(x => x.Tenant)
                         .Include(x => x.Device.DeviceRole.DeviceRoleAttachmentRoles)
+                        .Include(x => x.Device.RoutingInstances)
                         .Include(x => x.RoutingInstance.Attachments)
                         .Include(x => x.RoutingInstance.Vifs)
                         .Include(x => x.RoutingInstance.RoutingInstanceType)
@@ -263,9 +286,8 @@ namespace SCM.Models
         public int AttachmentRoleID { get; set; }
         public int MtuID { get; set; }
         public bool Created { get; set; }
-        public bool RequiresSync { get; set; }
         public bool ShowCreatedAlert { get; set; }
-        public bool ShowRequiresSyncAlert { get; set; }
+        public NetworkStatusEnum NetworkStatus { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
         [ForeignKey("TenantID")]
@@ -295,7 +317,7 @@ namespace SCM.Models
             if (!this.Device.DeviceRole.DeviceRoleAttachmentRoles
                 .Any(
                     x => 
-                      x.AttachmentRoleID == this.AttachmentRole.AttachmentRoleID))
+                    x.AttachmentRoleID == this.AttachmentRole.AttachmentRoleID))
             {
                 throw new IllegalStateException($"The attachment role of '{this.AttachmentRole.Name}' is not valid for device '{this.Device.Name}' because " +
                     $"the device is assigned to role '{this.Device.DeviceRole.Name}'.");
@@ -331,8 +353,8 @@ namespace SCM.Models
 
             if (this.IsLayer3)
             {
-                if (this.Interfaces.Where(x => !string.IsNullOrEmpty(x.IpAddress) &&
-                !string.IsNullOrEmpty(x.SubnetMask)).Count() != this.Interfaces.Count)
+                if (this.Interfaces.Count(x => !string.IsNullOrEmpty(x.IpAddress) &&
+                !string.IsNullOrEmpty(x.SubnetMask)) != this.Interfaces.Count)
                 {
                     throw new IllegalStateException("The attachment is enabled for layer 3 but insufficient IPv4 addresses have been requested.");
                 }

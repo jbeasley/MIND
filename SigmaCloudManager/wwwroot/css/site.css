@@ -68,9 +68,19 @@ a.custom-card:hover {
     text-decoration: none;
 }
 
+.vertical-align {
+    display: flex;
+    align-items: center;
+}
+
+.btn-margin-2 {
+    margin: 2px;
+}
+
 .mind-grid {
     table-layout: fixed;
     word-wrap: break-word;
+    border: 1px solid lightgrey;
 }
 
 .mind-grid-body-scroll-md {
@@ -91,11 +101,7 @@ a.custom-card:hover {
         width: 100%;
         table-layout: fixed; /* even columns width , fix width of table too*/
     }
-
-.mind-grid > thead {
-    width: calc( 100% - 1em ) /* scrollbar is average 1em/16px width, remove it from thead width */
-}
-
+    
     .mind-grid > thead > tr > th {
         vertical-align: top;
         word-wrap: normal;
@@ -186,6 +192,3 @@ a.custom-card:hover {
     opacity: 0.75;
 }
 
-.btn-margin-2 {
-    margin: 2px;
-}

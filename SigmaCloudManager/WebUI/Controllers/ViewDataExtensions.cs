@@ -39,10 +39,5 @@ namespace Mind.WebUI.Controllers
         {
             viewData["WarningMessage"] = message;
         }
-
-        public static void AddNetworkSyncSuccessMessage(this ViewDataDictionary viewData)
-        {
-            viewData["SuccessMessage"] = "The network has been synchronised.";
-        }
     }
 }

@@ -104,5 +104,13 @@ namespace Mind.WebUI.Models
         [Display(Name = "MTU")]
         public int? Mtu { get; private set; }
 
+        /// <summary>
+        /// Network status of the vif.
+        /// </summary>
+        /// <value>String value denoting the network status</value>
+        /// <example>Staged</example>
+        [Display(Name = "Network Status")]
+        public string NetworkStatus { get; private set; }
+
     }
 }

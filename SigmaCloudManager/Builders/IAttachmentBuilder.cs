@@ -30,12 +30,13 @@ namespace Mind.Builders
         IAttachmentBuilder<TAttachmentBuilder> WithNotes(string notes);
         IAttachmentBuilder<TAttachmentBuilder> CleanUpRoutingInstance();
         IAttachmentBuilder<TAttachmentBuilder> ReleasePorts();
-        IAttachmentBuilder<TAttachmentBuilder> SyncToNetwork(bool? syncToNetwork);
+        IAttachmentBuilder<TAttachmentBuilder> SyncToNetworkPut(bool? syncToNetworkPut);
         IAttachmentBuilder<TAttachmentBuilder> CleanUpNetwork(bool? cleanUpNetwork);
+        IAttachmentBuilder<TAttachmentBuilder> Stage(bool? stage);
 
         Task<Attachment> BuildAsync();
         Task DestroyAsync();
-        Task<Attachment> SyncToNetworkAsync();
+        Task<Attachment> SyncToNetworkPutAsync();
 
     }
 }

@@ -8,7 +8,7 @@ using SCM.Models;
 using SCM.Models.RequestModels;
 using Mind.Models.RequestModels;
 using Mind.Directors;
-using IO.Swagger.Api;
+using IO.NovaAttSwagger.Api;
 
 namespace Mind.Builders
 {
@@ -153,9 +153,9 @@ namespace Mind.Builders
             return this;
         }
 
-        IBundleAttachmentBuilder IBundleAttachmentBuilder.SyncToNetwork(bool? syncToNetwork)
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.SyncToNetworkPut(bool? syncToNetworkPut)
         {
-            base.SyncToNetwork(syncToNetwork);
+            base.SyncToNetworkPut(syncToNetworkPut);
             return this;
         }
 
@@ -164,7 +164,13 @@ namespace Mind.Builders
             base.CleanUpNetwork(cleanUpNetwork);
             return this;
         }
-   
+
+        IBundleAttachmentBuilder IBundleAttachmentBuilder.Stage(bool? stage)
+        {
+            base.Stage(stage);
+            return this;
+        }
+
         public override async Task<Attachment> BuildAsync()
         {
             await base.BuildAsync();

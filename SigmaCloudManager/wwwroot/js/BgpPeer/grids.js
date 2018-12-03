@@ -28,7 +28,7 @@
 
     var $bgpPeerComponent = $('#bgpPeersComponent');
 
-    // Bind to cliek event of button to show the BGP form
+    // Bind to click event of button to show the BGP form
     $bgpPeerComponent.on('click', '#showBgpPeerFormBtn', function () {
 
         $modal.modal('show').off('hidden.bs.modal').on('hidden.bs.modal', function () {

@@ -82,6 +82,24 @@ namespace Mind.Builders
             return this;
         }
 
+        IIpVpnBuilder IIpVpnBuilder.Stage(bool? stage)
+        {
+            base.Stage(stage);
+            return this;
+        }
+
+        IIpVpnBuilder IIpVpnBuilder.SyncToNetworkPut(bool? syncToNetworkPut)
+        {
+            base.SyncToNetworkPut(syncToNetworkPut);
+            return this;
+        }
+
+        IIpVpnBuilder IIpVpnBuilder.CleanUpNetwork(bool? cleanUpNetwork)
+        {
+            base.CleanUpNetwork(cleanUpNetwork);
+            return this;
+        }
+
         public IIpVpnBuilder WithRouteTargetRange(string rangeName)
         {
             if (!string.IsNullOrEmpty(rangeName)) _args.Add(nameof(WithRouteTargetRange), rangeName);
@@ -126,10 +144,11 @@ namespace Mind.Builders
 
         public override async Task<Vpn> BuildAsync()
         {
+            await base.BuildAsync();
+
             if (_args.ContainsKey(nameof(ForVpn)))
             {
-                // Update an existing vpn
-                await SetVpnAsync();
+                // Update an existing vpn            
                 if (_args.ContainsKey(nameof(WithName))) base.SetName();
                 if (_args.ContainsKey(nameof(WithDescription))) base.SetDescription();
                 if (_args.ContainsKey(nameof(WithTenancyType))) await base.SetTenancyTypeAsync();
@@ -141,7 +160,6 @@ namespace Mind.Builders
             else
             {
                 // Create a new vpn
-                await base.BuildAsync();
                 if (_args.ContainsKey(nameof(WithExtranet))) SetExtranet();
                 if (_args.ContainsKey(nameof(WithMulticast))) SetIsMulticastVpn();
                 if (_args.ContainsKey(nameof(WithMulticastVpnServiceType))) await SetMulticastVpnServiceTypeAsync();
@@ -160,7 +178,16 @@ namespace Mind.Builders
                 }
             }
 
+            // Has the vpn been built correctly?
             _vpn.Validate();
+
+            // Check to sync the vpn to the network using a put operation
+            if (_args.ContainsKey(nameof(SyncToNetworkPut)))
+            {
+                var syncToNetwork = (bool?)_args[nameof(SyncToNetworkPut)];
+                if (syncToNetwork.GetValueOrDefault()) await base.SyncVpnToNetworkPutAsync();
+            }
+
             return _vpn;
         }
 

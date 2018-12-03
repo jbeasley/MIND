@@ -156,8 +156,16 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>PE-CE-UNTAGGED</example>
-        [DataMember(Name = "AttachmentRoleName")]
+        [DataMember(Name = "attachmentRoleName")]
         public string AttachmentRoleName { get; private set; }
+
+        /// <summary>
+        /// Network status of the attachment.
+        /// </summary>
+        /// <value>String value denoting the network status</value>
+        /// <example>Staged</example>
+        [DataMember(Name = "networkStatus")]
+        public string NetworkStatus { get; private set; }
 
         /// <summary>
         /// Returns the string presentation of the object
@@ -183,6 +191,7 @@ namespace Mind.Api.Models
             sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
             sb.Append("  Mtu: ").Append(Mtu).Append("\n");
             sb.Append("  AttachmentRoleName: ").Append(AttachmentRoleName).Append("\n");
+            sb.Append("  NetworkStatus: ").Append(NetworkStatus).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -298,6 +307,11 @@ namespace Mind.Api.Models
                     AttachmentRoleName == other.AttachmentRoleName ||
                     AttachmentRoleName != null &&
                     AttachmentRoleName.Equals(other.AttachmentRoleName)
+                ) &&
+                (
+                    NetworkStatus == other.NetworkStatus ||
+                    NetworkStatus != null &&
+                    NetworkStatus.Equals(other.NetworkStatus)
                 );
         }
 
@@ -343,6 +357,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Mtu.GetHashCode();
                 if (AttachmentRoleName != null)
                     hashCode = hashCode * 59 + AttachmentRoleName.GetHashCode();
+                if (NetworkStatus != null)
+                    hashCode = hashCode * 59 + NetworkStatus.GetHashCode();
                 return hashCode;
             }
         }

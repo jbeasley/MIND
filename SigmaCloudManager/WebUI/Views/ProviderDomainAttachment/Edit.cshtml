@@ -1,10 +1,8 @@
 @using Mind.WebUI.Models;
 @model Mind.WebUI.Models.ProviderDomainAttachmentUpdateViewModel
-
 @{
     ViewData["Title"] = "Edit Attachment";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -13,9 +11,7 @@
         <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
     </ul>
 </div>
-
 <h2>Edit Attachment '@Model.Name'</h2>
-
 <form id="editForm" asp-action="Edit">
     <div class="form-horizontal">
         <hr />
@@ -23,116 +19,118 @@
         <input type="hidden" asp-for="AttachmentId" />
         <input type="hidden" asp-for="RowVersion" />
         <input type="hidden" asp-for="Name" />
+        <input type="hidden" asp-for="Stage" />
+        <input type="hidden" asp-for="SyncToNetwork" />
         <div id="editAttachmentWizard">
             @if (Model.IsBundle)
-            {
-                <h3>Bundle Options</h3>
-                <section id="bundle-options">
-                    <br />
-                    <div class="alert alert-info" role="alert">
+        {
+            <h3>Bundle Options</h3>
+            <section id="bundle-options">
+                <br />
+                <div mind-alert="info" message="
                         Select the minimum and maximum number of active links for the bundle.
                         If the number of active links falls below the minimum link threshold then the bundle will be disabled until the number
                         of active links meets or exceed the minimum threshold.
                         If the number of active links exceeds the maximum links threshold then the number of links above the maximum threshold will
-                        be disabled.
+                        be disabled.">
+                </div>
+                <div class="form-group row">
+                    <label asp-for="BundleMinLinks" class="col-sm-2 col-form-label"></label>
+                    <div class="col-sm-10">
+                        <input asp-for="BundleMinLinks" class="form-control" data-toggle="tooltip" data-placement="right"
+                               title="Specify the minimum number of active links in the bundle" />
+                        <span asp-validation-for="BundleMinLinks" class="text-danger"></span>
                     </div>
-                    <div class="form-group row">
-                        <label asp-for="BundleMinLinks" class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-10">
-                            <input asp-for="BundleMinLinks" class="form-control" data-toggle="tooltip" data-placement="right"
-                                   title="Specify the minimum number of active links in the bundle" />
-                            <span asp-validation-for="BundleMinLinks" class="text-danger"></span>
-                        </div>
+                </div>
+                <div class="form-group row">
+                    <label asp-for="BundleMaxLinks" class="col-sm-2 col-form-label"></label>
+                    <div class="col-sm-10">
+                        <input asp-for="BundleMaxLinks" class="form-control" data-toggle="tooltip" data-placement="right"
+                               title="Specify the maximum number of active links in the bundle" />
+                        <span asp-validation-for="BundleMaxLinks" class="text-danger"></span>
                     </div>
-                    <div class="form-group row">
-                        <label asp-for="BundleMaxLinks" class="col-sm-2 col-form-label"></label>
-                        <div class="col-sm-10">
-                            <input asp-for="BundleMaxLinks" class="form-control" data-toggle="tooltip" data-placement="right"
-                                   title="Specify the maximum number of active links in the bundle" />
-                            <span asp-validation-for="BundleMaxLinks" class="text-danger"></span>
-                        </div>
-                    </div>
-                </section>
-            }
+                </div>
+            </section>
+    }
             <h3>IP Addressing</h3>
             <section id="ip-addressing">
                 <div id="ipAddressingComponent">
                     @await Component.InvokeAsync("AttachmentIpAddressing", new
-                    {
-                        attachmentId = Model.AttachmentId,
-                        currentModel = Model.Ipv4Addresses
-                    })
+                {
+                    attachmentId = Model.AttachmentId,
+                    currentModel = Model.Ipv4Addresses
+                })
                 </div>
             </section>
             <h3>Contract Bandwidth</h3>
             <section id="contract-bandwidth">
                 <div id="contractBandwidthPoolComponent">
                     @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
+                {
+                    attachmentId = Model.AttachmentId,
+                    currentModel = new ContractBandwidthPoolViewModel
                     {
-                        attachmentId = Model.AttachmentId,
-                        currentModel = new ContractBandwidthPoolViewModel
-                        {
-                            ContractBandwidthMbps = Model.ContractBandwidthMbps,
-                            TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
-                        }
-                    })
+                        ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                        TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
+                    }
+                })
                 </div>
             </section>
             @if (!string.IsNullOrEmpty(Model.ExistingRoutingInstanceName))
-            {
-                <h3>Routing Instance</h3>
-                <section id="routing-instance">
-                    <br />
-                    <div class="alert alert-info" role="alert">
+        {
+            <h3>Routing Instance</h3>
+            <section id="routing-instance">
+                <br />
+                <div mind-alert="info" message="
                         Select a routing instance for the attachment. A routing instance holds routing information for the networks in the
                         tenant domains which you wish to communicate with. The routing instance isolates your routing information from the routing
-                        information of other tenants. Routing instances can be shared between multiple attachments or vifs which belong to you.
+                        information of other tenants. Routing instances can be shared between multiple attachments or vifs which belong to you.">
+                </div>
+                <div class="form-group row">
+                    <label asp-for="ExistingRoutingInstanceName" class="col-sm-4 col-form-label"></label>
+                    <div class="col-sm-8">
+                        <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
+                                data-toggle="tooltip" data-placement="right" title="Select a routing instance for the attachment">
+                            <option value="">-- Select Routing Instance --</option>
+                        </select>
+                        <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
                     </div>
-                    <div class="form-group row">
-                        <label asp-for="ExistingRoutingInstanceName" class="col-sm-4 col-form-label"></label>
-                        <div class="col-sm-8">
-                            <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
-                                    data-toggle="tooltip" data-placement="right" title="Select a routing instance for the attachment">
-                                <option value="">-- Select Routing Instance --</option>
-                            </select>
-                            <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <br />
-                    <div class="alert alert-info" role="alert">
+                </div>
+                <br />
+                <div mind-alert="info" message="
                         Optionally you can create a new routing instance for this attachment. Do this is if the attachment is currently associated
-                        with a routing instance which is shared with other attachments or vifs and you wish to create a dedicated routing instance for this attachment.
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-form-label col-sm-4" asp-for="CreateNewRoutingInstance"></label>
-                        <div class="col-sm-8">
-                            <div class="custom-control custom-checkbox">
-                                <input class="form-check-input custom-control-input" type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
-                                       data-placement="right" title="Create a new routing instance for this attachment">
-                                <label class="form-check-label custom-control-label" for="CreateNewRoutingInstance"></label>
-                            </div>
+                        with a routing instance which is shared with other attachments or vifs and you wish to create a dedicated routing instance for this attachment.">
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-sm-4" asp-for="CreateNewRoutingInstance"></label>
+                    <div class="col-sm-8">
+                        <div class="custom-control custom-checkbox">
+                            <input class="form-check-input custom-control-input" type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
+                                   data-placement="right" title="Create a new routing instance for this attachment">
+                            <label class="form-check-label custom-control-label" for="CreateNewRoutingInstance"></label>
                         </div>
                     </div>
-                </section>
-            }
+                </div>
+            </section>
+    }
             <h3>BGP Peers</h3>
             <section>
                 <div id="bgpPeersComponent">
                     <!-- View component for creating/updating BGP peers -->
                     @await Component.InvokeAsync("AttachmentBgpPeers", new
-               {
-                   attachmentId = Model.AttachmentId,
-                   bgpPeerRequests = Model.RoutingInstance?.BgpPeers
-               })
+                {
+                    attachmentId = Model.AttachmentId,
+                    bgpPeerRequests = Model.RoutingInstance?.BgpPeers
+                })
                 </div>
             </section>
             <h3>MTU Options</h3>
             <section id="mtu-options">
                 <br />
-                <div class="alert alert-info" role="alert">
+                <div mind-alert="info" message="
                     If jumbo MTU is enabled then ethernet frames of up to either 9000 or 9014 bytes may be transmitted using this attachment.
                     If jumbo MTU is disabled then the frame size is limited to either 1500 or 1514 bytes.
-                    The actual MTU value is dependent on the Sigma PE hardware which is used to terminate the attachment.
+                    The actual MTU value is dependent on the Sigma PE hardware which is used to terminate the attachment.">
                 </div>
                 <div class="form-group row">
                     <label class="col-form-label col-sm-2" asp-for="UseJumboMtu"></label>
@@ -148,8 +146,8 @@
             <h3>Description and Notes</h3>
             <section id="location">
                 <br />
-                <div class="alert alert-info" role="alert">
-                    Enter a description and any notes which describe the purpose of the attachment.
+                <div mind-alert="info" message="
+                    Enter a description and any notes which describe the purpose of the attachment.">
                 </div>
                 <div class="form-group row">
                     <label asp-for="Description" class="col-sm-2 col-form-label"> </label>
@@ -169,72 +167,24 @@
         </div>
     </div>
 </form>
-
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
     The component HTML must be placed outside of other page elements to avoid nesting because browser will
     remove the <form> element from the component otherwise -->
 @await Component.InvokeAsync("BgpPeerForm")
-
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments</a>
 </div>
-
+<!-- Stage or sync to network partial view -->
+@{await Html.RenderPartialAsync("_NetworkStageOrSyncModalPartial");}
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
-
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-    <script type="text/javascript">
-
-        (function ($) {
-
-            var $form = $("#editForm"),
-                $wizard = $("#editAttachmentWizard");
-
-            //Create wizard
-            Mind.Utilities.createWizard($wizard, $form);
-
-            var $routingInstance = $('#ExistingRoutingInstanceName'),
-                routingInstance = $routingInstance[0],
-                $createNewRoutingInstance = $('#CreateNewRoutingInstance'),
-                createNewRoutingInstance = $createNewRoutingInstance[0];
-
-            if (createNewRoutingInstance.checked) {
-
-                routingInstance.selectedIndex = 0;
-                routingInstance.disabled = true;
-            }
-
-            $createNewRoutingInstance.on('click', function () {
-
-                if (this.checked) {
-
-                    routingInstance.selectedIndex = 0;
-                    routingInstance.disabled = true;
-                }
-                else {
-
-                    routingInstance.disabled = false;
-                }
-            });
-
-
-        }(jQuery));
-
-    </script>
-
-    @{await Html.RenderPartialAsync("_ProviderDomainAttachmentScriptsPartial");}
-
-    <script type="text/javascript">
-
-        (function ($) {
+    @{await Html.RenderPartialAsync("_ProviderDomainAttachmentEditScriptsPartial");}
+    <script type="text/javascript">(function ($) {
 
             // Initialise all tool-tips - do this after all components are loaded
             $('[data-toggle="tooltip"]').tooltip();
 
-        }(jQuery));
-
-    </script>
-
+        }(jQuery));</script>
 }

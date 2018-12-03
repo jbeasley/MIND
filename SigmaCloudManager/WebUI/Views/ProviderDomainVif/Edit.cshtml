@@ -1,10 +1,8 @@
 @using Mind.WebUI.Models;
 @model Mind.WebUI.Models.ProviderDomainVifUpdateViewModel
-
 @{
     ViewData["Title"] = "Edit VIF";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -14,100 +12,97 @@
         <li><a href="#"><i class="fa active" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
     </ul>
 </div>
-
 <h2>Edit VIF '@Model.Name'</h2>
-
 <form id="editForm" asp-action="Edit">
     <div class="form-horizontal">
         <hr />
         @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
         <input type="hidden" asp-for="VifId" />
         <input type="hidden" asp-for="RowVersion" />
+        <input type="hidden" asp-for="Name" />
+        <input type="hidden" asp-for="Stage" />
+        <input type="hidden" asp-for="SyncToNetwork" />
         <div id="editVifWizard">
             <h3>IP Address</h3>
             <section id="ip-addressing">
                 <br />
                 <div id="ipAddressingComponent">
-
                     @await Component.InvokeAsync("VifIpAddressing", new
-                    {
-                        vifId = Model.VifId,
-                        currentModel = Model.Ipv4Addresses
-                    })
-
+                {
+                    vifId = Model.VifId,
+                    currentModel = Model.Ipv4Addresses
+                })
                 </div>
             </section>
             <h3>Contract Bandwidth</h3>
             <section id="ip-addressing">
                 <div id="contractBandwidthPoolComponent">
-
                     @await Component.InvokeAsync("VifContractBandwidthPool", new
+                {
+                    vifId = Model.VifId,
+                    currentModel = new ContractBandwidthPoolViewModel
                     {
-                        vifId = Model.VifId,
-                        currentModel = new ContractBandwidthPoolViewModel
-                        {
-                            ContractBandwidthMbps = Model.ContractBandwidthMbps,
-                            TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
-                        }
-                    })
-
+                        ContractBandwidthMbps = Model.ContractBandwidthMbps,
+                        TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
+                    }
+                })
                 </div>
             </section>
             @if (!string.IsNullOrEmpty(Model.ExistingRoutingInstanceName))
-            {
-                <h3>Routing Instance</h3>
-                <section id="routing-instance">
-                    <br />
-                    <div class="alert alert-info" role="alert">
+        {
+            <h3>Routing Instance</h3>
+            <section id="routing-instance">
+                <br />
+                <div mind-alert="info" message="
                         Select a routing instance for the vif. A routing instance contains routing information for the tenant domains which
                         are directly attached to it and also routing information for any VPNs which are associated with the routing instance through
-                        the use of an attachment set. Routing instances can be shared between multiple attachments which belong to the same tenant.
+                        the use of an attachment set. Routing instances can be shared between multiple attachments which belong to the same tenant.">
+                </div>
+                <div class="form-group row">
+                    <label asp-for="ExistingRoutingInstanceName" class="col-sm-4 col-form-label"></label>
+                    <div class="col-sm-8">
+                        <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
+                                data-toggle="tooltip" data-placement="right" title="Select a routing instance for the vif">
+                            <option value="">-- Select Routing Instance --</option>
+                        </select>
+                        <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
                     </div>
-                    <div class="form-group row">
-                        <label asp-for="ExistingRoutingInstanceName" class="col-sm-4 col-form-label"></label>
-                        <div class="col-sm-8">
-                            <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
-                                    data-toggle="tooltip" data-placement="right" title="Select a routing instance for the vif">
-                                <option value="">-- Select Routing Instance --</option>
-                            </select>
-                            <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
-                        </div>
-                    </div>
-                    <br />
-                    <div class="alert alert-info" role="alert">
+                </div>
+                <br />
+                <div mind-alert="info" message="
                         Optionally you can create a new routing instance for this vif. Do this is if the vif is currently associated
-                        with a routing instance which is shared with other vifs or attachments and you wish to create a dedicated routing instance for this vif.
-                    </div>
-                    <div class="form-group row">
-                        <label class="col-form-label col-sm-4" asp-for="CreateNewRoutingInstance"></label>
-                        <div class="col-sm-8">
-                            <div class="custom-control custom-checkbox">
-                                <input class="form-check-input custom-control-input" type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
-                                       data-placement="right" title="Create a new routing instance for this attachment">
-                                <label class="form-check-label custom-control-label" for="CreateNewRoutingInstance"></label>
-                            </div>
+                        with a routing instance which is shared with other vifs or attachments and you wish to create a dedicated routing instance for this vif.">
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-sm-4" asp-for="CreateNewRoutingInstance"></label>
+                    <div class="col-sm-8">
+                        <div class="custom-control custom-checkbox">
+                            <input class="form-check-input custom-control-input" type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
+                                   data-placement="right" title="Create a new routing instance for this attachment">
+                            <label class="form-check-label custom-control-label" for="CreateNewRoutingInstance"></label>
                         </div>
                     </div>
-                </section>
-            }
+                </div>
+            </section>
+    }
             <h3>BGP Peers</h3>
             <section>
                 <div id="bgpPeersComponent">
                     <!-- View component for creating/updating BGP peers -->
                     @await Component.InvokeAsync("VifBgpPeers", new
-               {
-                   vifId = Model.VifId,
-                   bgpPeerRequests = Model.RoutingInstance?.BgpPeers
-               });
+                {
+                    vifId = Model.VifId,
+                    bgpPeerRequests = Model.RoutingInstance?.BgpPeers
+                });
                 </div>
             </section>
             <h3>MTU Options</h3>
             <section id="mtu-options">
                 <br />
-                <div class="alert alert-info" role="alert">
+                <div mind-alert="info" message="
                     If jumbo MTU is enabled then ethernet frames of up to either 9000 or 9014 bytes may be transmitted using this vif.
                     If jumbo MTU is disabled then the frame size is limited to either 1500 or 1514 bytes.
-                    The actual MTU value is dependent on the Sigma PE hardware which is used to terminate the attachment.
+                    The actual MTU value is dependent on the Sigma PE hardware which is used to terminate the attachment.">
                 </div>
                 <div class="form-group row">
                     <label class="col-form-label col-sm-2" asp-for="UseJumboMtu"></label>
@@ -123,71 +118,25 @@
         </div>
     </div>
 </form>
-
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByAttachmentID" asp-route-attachmentID="@ViewBag.Attachment.AttachmentId">Back to VIFs</a>
 </div>
-
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
     The component HTML must be placed outside of other page elements to avoid nesting because browser will
     remove the <form> element from the component otherwise -->
 @await Component.InvokeAsync("BgpPeerForm")
-
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
-
+<!-- Stage or sync to network partial view -->
+@{await Html.RenderPartialAsync("_NetworkStageOrSyncModalPartial");}
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
-    <script type="text/javascript">
-
-        (function ($) {
-
-            var $form = $("#editForm"),
-                $wizard = $("#editVifWizard");
-
-            //Create wizard
-            Mind.Utilities.createWizard($wizard, $form);
-
-            var $routingInstance = $('#ExistingRoutingInstanceName'),
-                routingInstance = $routingInstance[0],
-                $createNewRoutingInstance = $('#CreateNewRoutingInstance'),
-                createNewRoutingInstance = $createNewRoutingInstance[0];
-
-            if (createNewRoutingInstance.checked) {
-
-                routingInstance.selectedIndex = 0;
-                routingInstance.disabled = true;
-            }
-
-            $createNewRoutingInstance.on('click', function () {
-
-                if (this.checked) {
-
-                    routingInstance.selectedIndex = 0;
-                    routingInstance.disabled = true;
-                }
-                else {
-
-                    routingInstance.disabled = false;
-                }
-            });
-
-        }(jQuery));
-
-    </script>
-
-    @{await Html.RenderPartialAsync("_ProviderDomainVifScriptsPartial");}
-
-    <script type="text/javascript">
-
-        (function ($) {
+    <script type="text/javascript"></script>
+    @{await Html.RenderPartialAsync("_ProviderDomainVifEditScriptsPartial");}
+    <script type="text/javascript">(function ($) {
 
             // Initialise all tool-tips - do this after all components are loaded
             $('[data-toggle="tooltip"]').tooltip();
 
-        }(jQuery));
-
-    </script>
-
+        }(jQuery));</script>
 }

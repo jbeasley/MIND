@@ -32,9 +32,9 @@
     }
   },
   {
-    "outputFileName": "wwwroot/js/VpnAttachmentSet/grids.min.js",
+    "outputFileName": "wwwroot/js/BgpPeer/grids.min.js",
     "inputFiles": [
-      "wwwroot/js/VpnAttachmentSet/grids.js"
+      "wwwroot/js/BgpPeer/grids.js"
     ],
     "minify": {
       "enabled": true,
@@ -42,9 +42,119 @@
     }
   },
   {
-    "outputFileName": "wwwroot/js/BgpPeer/grids.min.js",
+    "outputFileName": "wwwroot/js/ProviderDomainAttachment/main.min.js",
     "inputFiles": [
-      "wwwroot/js/BgpPeer/grids.js"
+      "wwwroot/js/ProviderDomainAttachment/main.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/ProviderDomainAttachment/create.min.js",
+    "inputFiles": [
+      "wwwroot/js/ProviderDomainAttachment/create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/ProviderDomainAttachment/edit.min.js",
+    "inputFiles": [
+      "wwwroot/js/ProviderDomainAttachment/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/ProviderDomainVif/main.min.js",
+    "inputFiles": [
+      "wwwroot/js/ProviderDomainVif/main.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/ProviderDomainVif/create.min.js",
+    "inputFiles": [
+      "wwwroot/js/ProviderDomainVif/create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/ProviderDomainVif/edit.min.js",
+    "inputFiles": [
+      "wwwroot/js/ProviderDomainVif/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Vpn/main.min.js",
+    "inputFiles": [
+      "wwwroot/js/Vpn/main.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Vpn/create.min.js",
+    "inputFiles": [
+      "wwwroot/js/Vpn/create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Vpn/edit.min.js",
+    "inputFiles": [
+      "wwwroot/js/Vpn/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Vpn/grids.min.js",
+    "inputFiles": [
+      "wwwroot/js/Vpn/grids.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Shared/networkStageOrSyncHelper.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/networkStageOrSyncHelper.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Shared/cardSelectionHelper.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/cardSelectionHelper.js"
     ],
     "minify": {
       "enabled": true,

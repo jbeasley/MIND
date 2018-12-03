@@ -3,22 +3,6 @@
 var Mind = {
 };
 
-Mind.Constants = (function () {
-
-    "use strict";
-
-    const uris = {
-        PROVIDER_DOMAIN_ATTACHMENT: "ProviderDomainAttachment/",
-        ATTACHMENT_SET: "AttachmentSet/"
-    };
-
-    return {
-
-        uris: uris
-    };
-
-}(jQuery));
-
 Mind.Utilities = (function () {
 
     "use strict";
@@ -73,7 +57,7 @@ Mind.Utilities = (function () {
     }
 
     /// Create a wizard
-    var createWizard = function ($wizard, $form) {
+    var createWizard = function ($wizard, $form, onFinished) {
 
         $wizard.steps({
             headerTag: "h3",
@@ -95,9 +79,16 @@ Mind.Utilities = (function () {
             },
             onFinished: function (event, currentIndex) {
 
-                showSpinner();
-                $form.submit();
-            }
+                if (typeof onFinished === "function") {
+
+                    onFinished();
+                }
+                else {
+
+                    showSpinner();
+                    $form.submit();
+                }
+             }
         });
     };
 

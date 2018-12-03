@@ -30,6 +30,7 @@ using SCM.Services;
 using Mind.Services;
 using Mind.Models;
 using Mind.Builders;
+using IO.NovaVpnSwagger.Client;
 
 namespace Mind.Api.Controllers
 {
@@ -97,9 +98,20 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
+            }
+
+            catch (ApiException)
+            {
+
+                return new NetworkUpdateFailedResult();
             }
         }
 
@@ -124,7 +136,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> UpdateTenant([FromRoute][Required]int? tenantId, [FromRoute][Required]int? vpnId, [FromBody]VpnUpdate body)
+        public virtual async Task<IActionResult> UpdateVpn([FromRoute][Required]int? tenantId, [FromRoute][Required]int? vpnId, [FromBody]VpnUpdate body)
         {
             try
             {
@@ -152,9 +164,20 @@ namespace Mind.Api.Controllers
                 return new ValidationFailedResult(ex.Message);
             }
 
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
+            }
+
+            catch (ApiException)
+            {
+
+                return new NetworkUpdateFailedResult();
             }
         }
 
@@ -192,6 +215,11 @@ namespace Mind.Api.Controllers
             catch (DbUpdateException)
             {
                 return new DatabaseUpdateFailedResult();
+            }
+
+            catch (ApiException) {
+
+                return new NetworkUpdateFailedResult();
             }
         }
 
@@ -245,6 +273,49 @@ namespace Mind.Api.Controllers
             }
 
             return Ok(Mapper.Map<Vpn>(vpn));
+        }
+
+        /// <summary>
+        /// Sync s vpn to the network.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        /// <param name="vpnId">The ID of the vpn</param>
+        /// <response code="201">Successful operation</response>
+        /// <response code="422">Validation error</response>
+        /// <response code="404">The specified resource was not found</response>
+        /// <response code="500">Error while updating the database</response>
+        [HttpPost]
+        [Route("/v{version:apiVersion}/tenants/{tenantId}/vpns/{vpnId}/sync")]
+        [ValidateModelState]
+        [ValidateVpnExists]
+        [SwaggerOperation("SyncVpn")]
+        [SwaggerResponse(statusCode: 201, type: typeof(Vpn), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
+        [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        public async Task<IActionResult> SyncToNetwork([FromRoute][Required]int? vpnId)
+        {
+            try
+            {
+                await _vpnService.SyncToNetworkPutAsync(vpnId.Value);
+            }
+
+            catch (BuilderBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (ServiceBadArgumentsException ex)
+            {
+                return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (ApiException)
+            {
+                return new NetworkUpdateFailedResult();
+            }
+
+            return Ok();
         }
     }
 }

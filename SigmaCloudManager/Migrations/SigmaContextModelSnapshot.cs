@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.EntityFrameworkCore.Storage.Internal;
+using Mind.Models;
 using SCM.Data;
 using SCM.Models;
 using System;
@@ -80,10 +81,10 @@ namespace Mind.Migrations
 
                     b.Property<int>("MtuID");
 
+                    b.Property<int>("NetworkStatus");
+
                     b.Property<string>("Notes")
                         .HasMaxLength(250);
-
-                    b.Property<bool>("RequiresSync");
 
                     b.Property<int?>("RoutingInstanceID");
 
@@ -92,8 +93,6 @@ namespace Mind.Migrations
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<bool>("ShowCreatedAlert");
-
-                    b.Property<bool>("ShowRequiresSyncAlert");
 
                     b.Property<int?>("TenantID");
 
@@ -1473,7 +1472,7 @@ namespace Mind.Migrations
 
                     b.Property<int>("MtuID");
 
-                    b.Property<bool>("RequiresSync");
+                    b.Property<int>("NetworkStatus");
 
                     b.Property<int?>("RoutingInstanceID");
 
@@ -1482,8 +1481,6 @@ namespace Mind.Migrations
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<bool>("ShowCreatedAlert");
-
-                    b.Property<bool>("ShowRequiresSyncAlert");
 
                     b.Property<int?>("TenantID");
 
@@ -1624,19 +1621,17 @@ namespace Mind.Migrations
                         .IsRequired()
                         .HasMaxLength(50);
 
+                    b.Property<int>("NetworkStatus");
+
                     b.Property<int?>("PlaneID");
 
                     b.Property<int?>("RegionID");
-
-                    b.Property<bool>("RequiresSync");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<bool>("ShowCreatedAlert");
-
-                    b.Property<bool>("ShowRequiresSyncAlert");
 
                     b.Property<int>("TenantID");
 

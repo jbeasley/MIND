@@ -64,6 +64,13 @@ namespace Mind.Api.Models
         [Range(1, 4294967295)]
         public int? AssignedNumberSubField { get; set; }
 
+        /// <summary>
+        /// A list of BGP peer requests for BGP peers to be associated with the routing instance
+        /// </summary>
+        /// <value>A list of BgpPeerRequest objects</value>
+        [DataMember(Name = "bgpPeers")]
+        public List<BgpPeerRequest> BgpPeers { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (AdministratorSubField.HasValue)
@@ -99,6 +106,7 @@ namespace Mind.Api.Models
             sb.Append("  AssignedNumberSubField: ").Append(AssignedNumberSubField).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  RangeType: ").Append(RangeType).Append("\n");
+            sb.Append("  BgpPeers: ").Append(BgpPeers).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -134,7 +142,7 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     AdministratorSubField == other.AdministratorSubField ||
                     AdministratorSubField != null &&
@@ -154,6 +162,11 @@ namespace Mind.Api.Models
                     RangeType == other.RangeType ||
                     RangeType != null &&
                     RangeType.Equals(other.RangeType)
+                ) &&
+                (
+                    BgpPeers == other.BgpPeers ||
+                    BgpPeers != null &&
+                    BgpPeers.Equals(other.BgpPeers)
                 );
         }
 
@@ -175,6 +188,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Name.GetHashCode();
                 if (RangeType != null)
                     hashCode = hashCode * 59 + RangeType.GetHashCode();
+                if (BgpPeers != null)
+                    hashCode = hashCode * 59 + BgpPeers.GetHashCode();
                 return hashCode;
             }
         }

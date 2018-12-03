@@ -40,10 +40,8 @@ namespace Mind.Services
             return (from result in await this.UnitOfWork.TenantCommunityRepository.GetAsync(
                   q =>
                     q.TenantCommunitySets
-                     .Where(
-                        x =>
-                        x.TenantCommunitySetID == id)
-                     .Any(),
+                     .Any(x =>
+                    x.TenantCommunitySetID == id),
                     query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: asTrackable)
                     select result)

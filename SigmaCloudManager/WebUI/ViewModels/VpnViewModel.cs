@@ -159,5 +159,14 @@ namespace Mind.WebUI.Models
         /// <value>A list of VpnAttachmentSetViewModel objects</value>
         [Display(Name = "Attachment Sets")]
         public List<VpnAttachmentSetViewModel> VpnAttachmentSets { get; private set; }
+
+        /// <summary>
+        /// Network status of the vpn.
+        /// </summary>
+        /// <value>String value denoting the network status</value>
+        /// <example>Staged</example>
+        [Display(Name = "Network Status")]
+        public string NetworkStatus { get; private set; }
+
     }
 }

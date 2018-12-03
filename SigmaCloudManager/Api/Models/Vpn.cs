@@ -150,6 +150,14 @@ namespace Mind.Api.Models
         public List<RouteTarget> RouteTargets { get; private set; }
 
         /// <summary>
+        /// Network status of the vpn.
+        /// </summary>
+        /// <value>String value denoting the network status</value>
+        /// <example>Staged</example>
+        [DataMember(Name = "networkStatus")]
+        public string NetworkStatus { get; private set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -172,6 +180,7 @@ namespace Mind.Api.Models
             sb.Append("  MulticastVpnServiceType: ").Append(MulticastVpnServiceType).Append("\n");
             sb.Append("  MulticastVpnDirectionType: ").Append(MulticastVpnDirectionType).Append("\n");
             sb.Append("  RouteTargets: ").Append(RouteTargets).Append("\n");
+            sb.Append("  NetworkStatus: ").Append(NetworkStatus).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -282,6 +291,11 @@ namespace Mind.Api.Models
                     RouteTargets == other.RouteTargets ||
                     RouteTargets != null &&
                     RouteTargets.Equals(other.RouteTargets)
+                ) &&
+                (
+                    NetworkStatus == other.NetworkStatus ||
+                    NetworkStatus != null &&
+                    NetworkStatus.Equals(other.NetworkStatus)
                 );
         }
 
@@ -325,6 +339,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + MulticastVpnDirectionType.GetHashCode();
                     if (RouteTargets != null)
                     hashCode = hashCode * 59 + RouteTargets.GetHashCode();
+                    if (NetworkStatus != null)
+                    hashCode = hashCode * 59 + NetworkStatus.GetHashCode();
                 return hashCode;
             }
         }

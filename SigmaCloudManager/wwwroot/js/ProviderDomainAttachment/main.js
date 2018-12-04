@@ -19,11 +19,22 @@
 
         e.preventDefault();
 
-        var $inputs = $(".form-check-input:checkbox:checked");
-        if ((/false/i).test($inputs.data('is-tagged'))) {
+        var $inputs = $(".form-check-input:checkbox:checked"),
+            $this = $(this),
+            action = $this.data('action');
 
-            // An untagged attachment item is selected
-            $("#untaggedItemSelectedModal").modal();
+        // Ignore the card click if an action is defined - the action is processed by the 'cardSelectionHelper.js' script
+        if (action === undefined) 
+        {
+            var isTagged = $inputs.data('is-tagged');
+            if ((/false/i).test(isTagged)) {
+
+                // Prevent any other events handlers defined in 'cardSelectionHelper.js' from being processed 
+                e.stopImmediatePropagation();
+
+                // An untagged attachment item is selected
+                $("#untaggedItemSelectedModal").modal();
+            }
         }
     });
 

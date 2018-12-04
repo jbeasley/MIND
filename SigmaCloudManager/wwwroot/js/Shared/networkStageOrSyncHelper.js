@@ -17,16 +17,31 @@
         var $stageOrSyncModal = $('#stageOrSyncModal');
         if ($stageOrSyncModal.length > 0) {
 
+            var $stageResource = $('#stageResource'),
+                $syncResourceToNetwork = $('#syncResourceToNetwork');
+
             $stageOrSyncModal.modal('show');
+
+            // Allow stage OR sync to network checkboxes to be checked
+            if ($stageResource.length > 0 && $syncResourceToNetwork.length > 0) {
+
+                $stageResource.on('click', function() {
+
+                    $syncResourceToNetwork[0].checked = false;
+                });
+                
+                $syncResourceToNetwork.on('click', function () {
+
+                    $stageResource[0].checked = false;
+                });
+            }
 
             $('#stageOrSyncModalSaveBtn').one('click', function () {
         
                 // When the save button of the form is clicked, save checkbox values of the form
                 // to elements on the page if they exist. This allows the values of the checkboxes to 
                 // be posted to the server
-                var $stageResource = $('#stageResource'),
-                    $syncResourceToNetwork = $('#syncResourceToNetwork'),
-                    $stage = $('#Stage'),
+                var $stage = $('#Stage'),
                     $syncToNetwork = $('#SyncToNetwork');
 
                 if ($stageResource.length > 0 && $stage.length > 0) {

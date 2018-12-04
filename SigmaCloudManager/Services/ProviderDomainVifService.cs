@@ -88,16 +88,19 @@ namespace Mind.Services
             // Update the vif and add to the network if the parent attachment is non-bundle, non-multiport
             var allowStage = (vif.Attachment.NetworkStatus == Models.NetworkStatusEnum.Staged || vif.Attachment.NetworkStatus == Models.NetworkStatusEnum.Active) && 
                               !vif.Attachment.IsBundle && !vif.Attachment.IsMultiPort;
-
-
+                
             if (stage && !allowStage)
             {
                 throw new ServiceBadArgumentsException($"The vif cannot be staged. Currently only vifs which belong to tagged attachments " +
                     "which are not bundles or multiports support staging.");
             }
 
-            var allowNetworkSync = vif.Attachment.NetworkStatus == Models.NetworkStatusEnum.Active && 
-                                    !vif.Attachment.IsBundle && !vif.Attachment.IsMultiPort;
+            if (syncToNetwork && vif.Attachment.NetworkStatus != Models.NetworkStatusEnum.Active)
+            {
+                throw new ServiceBadArgumentsException($"The vif cannot be synchronised with the network. The parent attachment must be activated with the network first.");
+            }
+
+            var allowNetworkSync = !vif.Attachment.IsBundle && !vif.Attachment.IsMultiPort;
 
             if (syncToNetwork && !allowNetworkSync)
             {

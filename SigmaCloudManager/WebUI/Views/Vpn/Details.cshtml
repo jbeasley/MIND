@@ -1,9 +1,7 @@
 @model Mind.WebUI.Models.VpnViewModel
-
 @{
     ViewData["Title"] = "VPN Details";
 }
-
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
@@ -12,11 +10,8 @@
         <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Details - [@Model.Name]</a></li>
     </ul>
 </div>
-
 <h2>Details for VPN '@Model.Name'</h2>
-
 @{await Html.RenderPartialAsync("_MessagingPartial");}
-
 <div>
     <hr />
     <dl class="dl-horizontal">
@@ -81,88 +76,89 @@
             @Html.DisplayFor(model => model.Plane)
         </dd>
     </dl>
-    <br />
-    <h3>@Html.DisplayNameFor(model => model.RouteTargets)</h3>
+</div>
+<br />
+<h3>@Html.DisplayNameFor(model => model.RouteTargets)</h3>
+<hr />
+@foreach (var item in Model.RouteTargets)
+{
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(x => item.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(x => item.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(x => item.RangeName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(x => item.RangeName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(x => item.AdministratorSubField)
+        </dt>
+        <dd>
+            @Html.DisplayFor(x => item.AdministratorSubField)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(x => item.AssignedNumberSubField)
+        </dt>
+        <dd>
+            @Html.DisplayFor(x => item.AssignedNumberSubField)
+        </dd>
+    </dl>
     <hr />
-    @foreach (var item in Model.RouteTargets)
-    {
-        <dl class="dl-horizontal">
-            <dt>
-                @Html.DisplayNameFor(x => item.Name)
-            </dt>
-            <dd>
-                @Html.DisplayFor(x => item.Name)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(x => item.RangeName)
-            </dt>
-            <dd>
-                @Html.DisplayFor(x => item.RangeName)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(x => item.AdministratorSubField)
-            </dt>
-            <dd>
-                @Html.DisplayFor(x => item.AdministratorSubField)
-            </dd>
-            <dt>
-                @Html.DisplayNameFor(x => item.AssignedNumberSubField)
-            </dt>
-            <dd>
-                @Html.DisplayFor(x => item.AssignedNumberSubField)
-            </dd>
-        </dl>
-        <hr />
-    }
-    <br />
-    <h3>@Html.DisplayNameFor(model => model.VpnAttachmentSets)</h3>
-    <hr />
-    <div class="col-sm-12 mind-grid-y-scrollable">
-        <table id="attachment-set-grid" class="table table-condensed table-hover table-striped mind-grid">
-            <thead>
+}
+<br />
+<h3>@Html.DisplayNameFor(model => model.VpnAttachmentSets)</h3>
+<hr />
+<div class="col-sm-12 mind-grid-y-scrollable">
+    <table id="attachment-set-grid" class="table table-condensed table-hover table-striped mind-grid">
+        <thead>
+            <tr>
+                <th data-column-id="AttachmentSetName" style="width:30%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].AttachmentSetName)</span></th>
+                <th data-column-id="TenantName" style="width:20%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].TenantName)</th>
+                <th data-column-id="Region" style="width:20%" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].Region)</th>
+                <th data-column-id="AttachmentRedundancy" style="width:20%">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].AttachmentRedundancy)</th>
+                <th data-column-id="IsHub" style="width:10%" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].IsHub)</th>
+            </tr>
+        </thead>
+        <tbody style="height: 220px">
+            @for (var i = 0; i < Model.VpnAttachmentSets.Count(); i++)
+            {
+                var item = Model.VpnAttachmentSets[i];
                 <tr>
-                    <th data-column-id="AttachmentSetName" style="width:30%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].AttachmentSetName)</span></th>
-                    <th data-column-id="TenantName" style="width:20%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].TenantName)</th>
-                    <th data-column-id="Region" style="width:20%" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].Region)</th>
-                    <th data-column-id="AttachmentRedundancy" style="width:20%">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].AttachmentRedundancy)</th>
-                    <th data-column-id="IsHub" style="width:10%" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].IsHub)</th>
+                    <td width="30%">
+                        <input type="text" value="@item.AttachmentSetName" readonly />
+                    </td>
+                    <td width="20%">
+                        <input type="text" value="@item.TenantName" readonly />
+                    </td>
+                    <td width="20%">
+                        <input type="text" value="@item.Region" readonly />
+                    </td>
+                    <td width="20%">
+                        <input type="text" value="@item.AttachmentRedundancy" readonly />
+                    </td>
+                    <td width="10%">
+                        @if (Model.TopologyType == Mind.WebUI.TopologyTypeEnum.HubAndSpoke.ToString())
+                        {
+                            <div class="custom-control custom-checkbox">
+                                <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="IsHub_@i"
+                                       name="VpnVpnAttachmentSets[@i].IsHub" checked="@item.IsHub" disabled>
+                                <label class="custom-control-label" for="IsHub_@i"></label>
+                            </div>
+                        }
+                    </td>
                 </tr>
-            </thead>
-            <tbody style="height: 220px">
-                @for (var i = 0; i < Model.VpnAttachmentSets.Count(); i++)
-                {
-                    var item = Model.VpnAttachmentSets[i];
-                    <tr>
-                        <td width="30%">
-                            <input type="text" value="@item.AttachmentSetName" readonly />
-                        </td>
-                        <td width="20%">
-                            <input type="text" value="@item.TenantName" readonly />
-                        </td>
-                        <td width="20%">
-                            <input type="text" value="@item.Region" readonly />
-                        </td>
-                        <td width="20%">
-                            <input type="text" value="@item.AttachmentRedundancy" readonly />
-                        </td>
-                        <td width="10%">
-                            @if (Model.TopologyType == Mind.WebUI.TopologyTypeEnum.HubAndSpoke.ToString())
-                            {
-                                <div class="custom-control custom-checkbox">
-                                    <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="IsHub_@i"
-                                           name="VpnVpnAttachmentSets[@i].IsHub" checked="@item.IsHub" disabled>
-                                    <label class="custom-control-label" for="IsHub_@i"></label>
-                                </div>
-                            }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+            }
+        </tbody>
+    </table>
+</div>
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a mind-edit-btn-link="true" asp-action="Edit" asp-route-vpnId="@Model.VpnId">Edit</a> |
+        <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to VPNs</a>
     </div>
-    <form asp-action="">
-        <div class="form-actions no-color">
-            <a mind-edit-btn-link="true" asp-action="Edit" asp-route-vpnId="@Model.VpnId">Edit</a> |
-            <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to VPNs</a>
-        </div>
-    </form>
+</form>

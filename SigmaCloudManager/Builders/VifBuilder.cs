@@ -626,10 +626,19 @@ namespace Mind.Builders
         protected internal virtual async Task SyncVifToNetworkPutAsync()
         {
             var vifDto = _vif.ToNovaVifDto();
-            //var vrfDto = _vif.RoutingInstance.ToNovaVrfDto();
+            var routingInstanceDto = _vif.RoutingInstance.ToNovaRoutingInstanceDto();
+            var contractBandwidthPoolDto = _vif.ContractBandwidthPool.ToNovaContractBandwidthPoolDto();
+            
             try
             {
-                await _novaApiClient.DataAttachmentAttachmentPePePeNamePutAsync(_vif.Attachment.Device.Name, vifDto).ConfigureAwait(false);
+                await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdContractBandwidthPoolContractBandwidthPoolNamePutAsync
+                    (_vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.ContractBandwidthPool.Name, contractBandwidthPoolDto);
+
+                await _novaApiClient.DataAttachmentAttachmentPePePeNameVrfVrfVrfNamePutAsync(_vif.Attachment.Device.Name, _vif.RoutingInstance.Name, routingInstanceDto);
+
+                await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdVifVifVlanIdPutAsync
+                    (_vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.VlanTag, vifDto);
+
                 _vif.NetworkStatus = Models.NetworkStatusEnum.Active;
             }
 

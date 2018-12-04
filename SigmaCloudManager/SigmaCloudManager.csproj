@@ -30,97 +30,7 @@
     <Compile Remove="Migrations\20181031154916_update31.Designer.cs" />
     <Compile Remove="Directors\ProviderDomainUntaggedAttachmentUpdateDirector.cs" />
   </ItemGroup>
-
-  <ItemGroup>
-    <Content Remove="WebUI\Views\InfrastructureAttachment\AttachmentDeleted.cshtml" />
-    <Content Remove="WebUI\Views\Shared\_MultipleItemsSelectedModalPartial %28copy%29.cshtml" />
-    <Content Remove="appsettings.json" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\css\site.min.css" />
-    <Content Remove="wwwroot\css\breadcrumb.min.css" />
-    <Content Remove="wwwroot\js\site.min.js" />
-    <Content Remove="wwwroot\js\AttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\VpnAttachmentSet\grids.min.js" />
-    <Content Remove="wwwroot\js\BgpPeer\grids.min.js" />
-    <Content Remove="wwwroot\js\Attachment\create.min.js" />
-    <Content Remove="wwwroot\js\Attachment\edit.min.js" />
-    <Content Remove="wwwroot\js\Shared\networkStageOrSyncHelper.min.js" />
-    <Content Remove="wwwroot\js\ProviderDomainVif\create.min.js" />
-    <Content Remove="wwwroot\js\ProviderDomainVif\edit.min.js" />
-    <Content Remove="wwwroot\js\Vpn\create.min.js" />
-    <Content Remove="wwwroot\js\Vpn\edit.min.js" />
-    <Content Remove="wwwroot\js\ProviderDomainAttachment\main.min.js" />
-    <Content Remove="wwwroot\js\ProviderDomainVif\main.min.js" />
-    <Content Remove="wwwroot\js\Shared\cardSelectionHelper.min.js" />
-    <Content Remove="wwwroot\js\Vpn\main.min.js" />
-    <Content Remove="wwwroot\js\Vpn\edit.min.js" />
-    <Content Remove="wwwroot\js\Vpn\grids.min.js" />
-    <Content Remove="wwwroot\js\Shared\networkStageOrSyncHelper.min.js" />
-    <Content Remove="wwwroot\js\Shared\cardSelectionHelper.min.js" />
-    <Content Remove="wwwroot\js\ProviderDomainAttachment\edit.min.js" />
-    <Content Remove="wwwroot\js\ProviderDomainVif\main.min.js" />
-    <Content Remove="wwwroot\js\ProviderDomainVif\create.min.js" />
-    <Content Remove="wwwroot\js\ProviderDomainVif\edit.min.js" />
-    <Content Remove="wwwroot\js\Vpn\main.min.js" />
-    <Content Remove="wwwroot\js\Vpn\create.min.js" />
-    <Content Remove="wwwroot\js\Vpn\edit.min.js" />
-    <Content Remove="wwwroot\js\Vpn\grids.min.js" />
-    <Content Remove="wwwroot\js\Shared\networkStageOrSyncHelper.min.js" />
-    <Content Remove="wwwroot\js\Shared\cardSelectionHelper.min.js" />
-  </ItemGroup>
+  
   <ItemGroup>
     <Content Include="Styles\breadcrumb.css" />
     <Content Include="Styles\breadcrumb.min.css" />
@@ -346,6 +256,9 @@
     </Reference>
     <Reference Include="IO.NovaAttSwagger">
       <HintPath>..\novaAttApiClient\bin\IO.NovaAttSwagger.dll</HintPath>
+    </Reference>
+    <Reference Include="RestSharp">
+      <HintPath>..\novaAttApiClient\bin\RestSharp.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

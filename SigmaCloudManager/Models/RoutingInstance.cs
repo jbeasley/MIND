@@ -5,9 +5,51 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using IO.NovaAttSwagger.Model;
 
 namespace SCM.Models
 {
+    /// <summary>
+    /// Routing instance nova client dto extensions.
+    /// </summary>
+    public static class RoutingInstanceNovaClientDtoExtensions
+    {
+        /// <summary>
+        /// Create an instance of the nova routing instance dto.
+        /// </summary>
+        /// <returns>The nova routing instance dto.</returns>
+        /// <param name="routingInstance">An instance of RoutingInstance</param>
+        public static DataAttachmentAttachmentPePePeNameVrfVrfVrfName ToNovaRoutingInstanceDto(this RoutingInstance routingInstance)
+        {
+            var bgpPeers = (from bgpPeer in routingInstance.BgpPeers
+                            select new DataAttachmentAttachmentPePepenameVrfVrfvrfnameBgppeerBgppeerpeeripv4addressAttachmentbgppeer
+                            {
+                                PeerIpv4Address = bgpPeer.Ipv4PeerAddress,
+                                PeerPassword = bgpPeer.PeerPassword,
+                                PeerAutonomousSystem = bgpPeer.Peer2ByteAutonomousSystem,
+                                IsBfdEnabled = bgpPeer.IsBfdEnabled.ToString().ToLower(),
+                                IsMultiHop = bgpPeer.IsMultiHop.ToString().ToLower(),
+                                MaxPeerRoutes = bgpPeer.MaximumRoutes
+                            }).ToList();
+
+            var data = new DataAttachmentAttachmentPePePeNameVrfVrfVrfName
+            { 
+                Attachmentvrf = new List<DataAttachmentAttachmentPePepenameVrfVrfvrfnameAttachmentvrf>
+                {
+                    new DataAttachmentAttachmentPePepenameVrfVrfvrfnameAttachmentvrf
+                    {
+                        VrfName = routingInstance.Name,
+                        BgpPeer = bgpPeers,
+                        RdAdministratorSubfield = routingInstance.AdministratorSubField,
+                        RdAssignedNumberSubfield = routingInstance.AssignedNumberSubField
+                    }
+                }
+            };
+
+            return data;
+        }
+    }
+
     public static class RoutingInstanceQueryableExtensions
     {
         public static IQueryable<RoutingInstance> IncludeValidationProperties(this IQueryable<RoutingInstance> query)

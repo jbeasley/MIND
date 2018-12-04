@@ -57,7 +57,8 @@
                          // Something went wrong - show fail message
                          if ($networkSyncFailModal.length > 0) {
 
-                             var $modalBody = $("<div class=\"col-sm-12\">\n" +
+                             var $modalBody = $("<div class=\"row\">\n" +
+                                                "<div class=\"col-sm-12\">\n" +
                                                 "<div class=\"alert alert-danger\"" +
                                                 "role=\"alert\">\n" +
                                                 "<div class=\"row vertical-align\">\n" +

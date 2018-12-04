@@ -22,32 +22,7 @@ namespace SCM.Models
         /// <returns>The nova vif dto.</returns>
         /// <param name="vif">An instance of Vif</param>
         public static DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdVifVifVlanId ToNovaVifDto(this Vif vif)
-        {
-            var vifs = (from vlan in vif.Vlans
-                        select new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidVifVifvlanidAttachmentvif
-                        {
-                            VlanId = vif.VlanTag,
-                            VrfName = vif.RoutingInstance.Name,
-                            ContractBandwidthPoolName = vif.ContractBandwidthPool.Name,
-                            EnableIpv4 = vif.RoutingInstance.RoutingInstanceType.IsLayer3.ToString().ToLower(),
-                            Ipv4 = new DataAttachmentAttachmentPePepenameTaggedattachmentinterfaceTaggedattachmentinterfaceinterfacetypeTaggedattachmentinterfaceinterfaceidVifVifvlanidIpv4Attachmentipv4
-                            {
-                                Ipv4Address = vlan.IpAddress,
-                                Ipv4SubnetMask = vlan.SubnetMask
-                            }
-                        }).ToList();
-
-            var bgpPeers = (from bgpPeer in vif.RoutingInstance.BgpPeers
-                            select new DataAttachmentAttachmentPePepenameVrfVrfvrfnameBgppeerBgppeerpeeripv4addressAttachmentbgppeer
-                            {
-                                PeerIpv4Address = bgpPeer.Ipv4PeerAddress,
-                                PeerPassword = bgpPeer.PeerPassword,
-                                PeerAutonomousSystem = bgpPeer.Peer2ByteAutonomousSystem,
-                                IsBfdEnabled = bgpPeer.IsBfdEnabled.ToString().ToLower(),
-                                IsMultiHop = bgpPeer.IsMultiHop.ToString().ToLower(),
-                                MaxPeerRoutes = bgpPeer.MaximumRoutes
-                            }).ToList();
-
+        {                      
             var data = new DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdVifVifVlanId
             {
                 Attachmentvif = (from vlan in vif.Vlans
@@ -66,18 +41,6 @@ namespace SCM.Models
             };
 
             return data;
-        }
-
-        /// <summary>
-        /// Calculates the burst size bytes.
-        /// </summary>
-        /// <returns>The burst size bytes.</returns>
-        /// <param name="contractBandwidthMbps">Contract bandwidth mbps.</param>
-        private static int CalculateBurstSizeBytes(double contractBandwidthMbps)
-        {
-            double bc = 0.05;
-            var burstBytes = (contractBandwidthMbps * 1000000 * bc) / 8;
-            return Convert.ToInt32(burstBytes);
         }
     }
 

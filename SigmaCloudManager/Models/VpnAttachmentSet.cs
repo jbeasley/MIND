@@ -82,7 +82,7 @@ namespace SCM.Models
                             IsHub = x.IsHub,
                             RowVersion = x.RowVersion,
                             IsMulticastDirectlyIntegrated = x.IsMulticastDirectlyIntegrated,
-                            AttachmentSetID = x.AttachmentSetID,                            
+                            AttachmentSetID = x.AttachmentSetID,
                             AttachmentSet = new AttachmentSet(x.AttachmentSetID)
                             {
                                 AttachmentRedundancy = x.AttachmentSet.AttachmentRedundancy,
@@ -215,127 +215,139 @@ namespace SCM.Models
                 else if (attachmentRedundancy.AttachmentRedundancyType == AttachmentRedundancyTypeEnum.Custom)
                 {
                     if (this.AttachmentSet.AttachmentSetRoutingInstances
-                        .Where(
-                        x =>
-                        x.RoutingInstance.Device.Plane.Name == this.Vpn.Plane.Name)
-                        .Count() !=  this.AttachmentSet.AttachmentSetRoutingInstances
-                        .Count())
+                            .Count(
+                                x =>
+                                x.RoutingInstance.Device.Plane.Name == this.Vpn.Plane.Name) != this.AttachmentSet.AttachmentSetRoutingInstances
+                            .Count())
                     {
                         throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is scoped to the '{this.Vpn.Plane.Name}' plane. " +
-                             $"One or more routing instances which belong to attachment set '{this.AttachmentSet.Name}' do not belong to the same plane. " +
-                             $"These routing instances must be removed from the attachment set before you can associate the attachment set with the vpn.");
+                            $"One or more routing instances which belong to attachment set '{this.AttachmentSet.Name}' do not belong to the same plane. " +
+                            $"These routing instances must be removed from the attachment set before you can associate the attachment set with the vpn.");
+                    }
+                }
+
+                // Check to validate the attachment set for a multicast vpn
+                if (this.Vpn.IsMulticastVpn)
+                {
+                    var multiportAttachment = this.AttachmentSet.AttachmentSetRoutingInstances
+                        .SelectMany(
+                            x =>
+                            x.RoutingInstance.Attachments)
+                        .FirstOrDefault(
+                            x =>
+                            x.IsMultiPort);
+
+                    if (multiportAttachment != null) throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be " +
+                        $"associated with multicast vpn '{this.Vpn.Name}' because routing instance '{multiportAttachment.RoutingInstance.Name}' belongs " +
+                        $"to the attachment set and the routing instance has a multiport attachment associated with it. Multiport attachments do not currently support " +
+                        $"multicast services.");
+
+                    var multiportAttachmentVif = this.AttachmentSet.AttachmentSetRoutingInstances
+                        .SelectMany(
+                            x =>
+                            x.RoutingInstance.Vifs)
+                        .FirstOrDefault(
+                            x =>
+                            x.Attachment.IsMultiPort);
+
+                    if (multiportAttachmentVif != null) throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be " +
+                       $"associated with multicast vpn '{this.Vpn.Name}' because routing instance '{multiportAttachment.RoutingInstance.Name}' belongs " +
+                       $"to the attachment set and the routing instance has a vif which belongs to a multiport attachment associated with it. Multiport attachments do not currently support " +
+                       $"multicast services.");
+
+                    if (this.AttachmentSet.MulticastVpnDomainTypeID == null) throw new IllegalStateException($"Attachment Set " +
+                        $"'{this.AttachmentSet.Name}' requires a multicast domain type option to be set before it can be associated with " +
+                        $"multicast vpn '{this.Vpn.Name}'.");
+
+                    var multicastVpnDomainType = this.AttachmentSet.MulticastVpnDomainType;
+
+                    if (this.Vpn.VpnTopologyType.TopologyType == SCM.Models.TopologyTypeEnum.HubandSpoke)
+                    {
+                        var multicastVpnDirectionType = this.Vpn.MulticastVpnDirectionType.MvpnDirectionType;
+                        if (multicastVpnDirectionType == MvpnDirectionTypeEnum.Unidirectional)
+                        {
+                            // Checks for a undirectional hub-and-spoke multicast vpn
+                            if (this.IsHub.GetValueOrDefault())
+                            {
+                                if (this.AttachmentSet.MulticastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderOnly)
+                                {
+                                    throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is a unidirectional hub-and-spoke multicast vpn and "
+                                        + $"therefore the multicast vpn domain type for attachment set '{this.AttachmentSet.Name}' must be " +
+                                        $"'Sender-Only' because the attachment set is designated as a HUB.");
+                                }
+                            }
+                            else
+                            {
+                                if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.ReceiverOnly)
+                                {
+                                    throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is a unidirectional hub-and-spoke multicast vpn and "
+                                        + $"therefore the multicast vpn domain type for attachment set '{this.AttachmentSet.Name}' must be " +
+                                        $"'Receiver-Only' because the attachment set is designated as a SPOKE.");
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Checks for a bidirectional hub-and-spoke multicast vpn
+                            if (this.IsHub.GetValueOrDefault())
+                            {
+                                if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderOnly &&
+                                    multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderAndReceiver)
+                                {
+                                    throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is a bidirectional hub-and-spoke multicast vpn and "
+                                        + $"therefore the multicast vpn domain type for attachment set '{this.AttachmentSet.Name}' must be either "
+                                        + "'Sender-Only' or 'Sender-and-Receiver' because the attachment set is designated as a HUB.");
+                                }
+                            }
+                            else
+                            {
+                                if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.ReceiverOnly &&
+                                    multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderAndReceiver)
+                                {
+                                    throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is a bidirectional hub-and-spoke multicast vpn and "
+                                        + $"therefore the multicast vpn domain type for attachment set '{this.AttachmentSet.Name}' must be "
+                                        + "'Receiver-Only' or 'Sender-and-Receiver' because the attachment set is designated as a SPOKE.");
+                                }
+                            }
+                        }
+                    }
+
+                    if (this.Vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.ASM)
+                    {
+                        if (this.AttachmentSet.VpnTenantMulticastGroups
+                            .Any(
+                            x =>
+                            x.TenantMulticastGroup.IsSsmGroup))
+                        {
+                            throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be added to vpn " +
+                                $"'{this.Vpn.Name}' because there are source-specific multicast group ranges associated with the attachment set and " +
+                                $"the multicast service type of the vpn is ASM. Remove the SSM group ranges from the attachment set first, or create a new attachment set.");
+                        }
+                    }
+                    else if (this.Vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.SSM)
+                    {
+                        if (this.AttachmentSet.VpnTenantMulticastGroups
+                            .Any(
+                            x =>
+                            !x.TenantMulticastGroup.IsSsmGroup))
+                        {
+                            throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be added to vpn " +
+                                $"'{this.Vpn.Name}' because there are any-source multicast group ranges associated with the attachment set and the " +
+                                $"multicast service type of the VPN is SSM. Remove the ASM group ranges from the attachment set, or create a new attachment set.");
+                        }
                     }
                 }
             }
+        }
 
-            // Check to validate the attachment set for a multicast vpn
-            if (this.Vpn.IsMulticastVpn)
+        /// <summary>
+        /// Validate deletion of the vpn attachment set
+        /// </summary>
+        protected virtual internal void ValidateDelete()
+        {
+            if (this.Vpn.NetworkStatus == NetworkStatusEnum.Staged)
             {
-                var multiportAttachment = this.AttachmentSet.AttachmentSetRoutingInstances
-                    .SelectMany(
-                    x => x.RoutingInstance.Attachments)
-                    .Where(
-                    x => x.IsMultiPort)
-                    .FirstOrDefault();
 
-                if (multiportAttachment != null) throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be " +
-                    $"associated with multicast vpn '{this.Vpn.Name}' because routing instance '{multiportAttachment.RoutingInstance.Name}' belongs " +
-                    $"to the attachment set and the routing instance has a multiport attachment associated with it. Multiport attachments do not currently support " +
-                    $"multicast services.");
-
-                var multiportAttachmentVif = this.AttachmentSet.AttachmentSetRoutingInstances
-                    .SelectMany(
-                    x => x.RoutingInstance.Vifs)
-                    .Where(
-                    x => x.Attachment.IsMultiPort)
-                    .FirstOrDefault();
-
-                if (multiportAttachmentVif != null) throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be " +
-                   $"associated with multicast vpn '{this.Vpn.Name}' because routing instance '{multiportAttachment.RoutingInstance.Name}' belongs " +
-                   $"to the attachment set and the routing instance has a vif which belongs to a multiport attachment associated with it. Multiport attachments do not currently support " +
-                   $"multicast services.");
-
-                if (this.AttachmentSet.MulticastVpnDomainTypeID == null) throw new IllegalStateException($"Attachment Set " +
-                    $"'{this.AttachmentSet.Name}' requires a multicast domain type option to be set before it can be associated with " +
-                    $"multicast vpn '{this.Vpn.Name}'.");
-
-                var multicastVpnDomainType = this.AttachmentSet.MulticastVpnDomainType;
-
-                if (this.Vpn.VpnTopologyType.TopologyType == SCM.Models.TopologyTypeEnum.HubandSpoke)
-                {
-                    var multicastVpnDirectionType = this.Vpn.MulticastVpnDirectionType.MvpnDirectionType;
-                    if (multicastVpnDirectionType == MvpnDirectionTypeEnum.Unidirectional)
-                    {
-                        // Checks for a undirectional hub-and-spoke multicast vpn
-                        if (this.IsHub.GetValueOrDefault())
-                        {
-                            if (this.AttachmentSet.MulticastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderOnly)
-                            {
-                                throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is a unidirectional hub-and-spoke multicast vpn and "
-                                    + $"therefore the multicast vpn domain type for attachment set '{this.AttachmentSet.Name}' must be " +
-                                    $"'Sender-Only' because the attachment set is designated as a HUB.");
-                            }
-                        }
-                        else
-                        {
-                            if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.ReceiverOnly)
-                            {
-                                throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is a unidirectional hub-and-spoke multicast vpn and "
-                                    + $"therefore the multicast vpn domain type for attachment set '{this.AttachmentSet.Name}' must be " +
-                                    $"'Receiver-Only' because the attachment set is designated as a SPOKE.");
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Checks for a bidirectional hub-and-spoke multicast vpn
-                        if (this.IsHub.GetValueOrDefault())
-                        {
-                            if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderOnly &&
-                                multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderAndReceiver)
-                            {
-                                throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is a bidirectional hub-and-spoke multicast vpn and "
-                                    + $"therefore the multicast vpn domain type for attachment set '{this.AttachmentSet.Name}' must be either "
-                                    + "'Sender-Only' or 'Sender-and-Receiver' because the attachment set is designated as a HUB.");
-                            }
-                        }
-                        else
-                        {
-                            if (multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.ReceiverOnly &&
-                                multicastVpnDomainType.MvpnDomainType != MvpnDomainTypeEnum.SenderAndReceiver)
-                            {
-                                throw new IllegalStateException($"Vpn '{this.Vpn.Name}' is a bidirectional hub-and-spoke multicast vpn and "
-                                    + $"therefore the multicast vpn domain type for attachment set '{this.AttachmentSet.Name}' must be "
-                                    + "'Receiver-Only' or 'Sender-and-Receiver' because the attachment set is designated as a SPOKE.");
-                            }
-                        }
-                    }
-                }
-
-                if (this.Vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.ASM)
-                {
-                    if (this.AttachmentSet.VpnTenantMulticastGroups
-                        .Any(
-                        x =>
-                        x.TenantMulticastGroup.IsSsmGroup))
-                    {
-                        throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be added to vpn " +
-                            $"'{this.Vpn.Name}' because there are source-specific multicast group ranges associated with the attachment set and " +
-                            $"the multicast service type of the vpn is ASM. Remove the SSM group ranges from the attachment set first, or create a new attachment set.");
-                    }
-                }
-                else if (this.Vpn.MulticastVpnServiceType.MvpnServiceType == MvpnServiceTypeEnum.SSM)
-                {
-                    if (this.AttachmentSet.VpnTenantMulticastGroups
-                        .Any(
-                        x =>
-                        !x.TenantMulticastGroup.IsSsmGroup))
-                    {
-                        throw new IllegalStateException($"Attachment set '{this.AttachmentSet.Name}' cannot be added to vpn " +
-                            $"'{this.Vpn.Name}' because there are any-source multicast group ranges associated with the attachment set and the " +
-                            $"multicast service type of the VPN is SSM. Remove the ASM group ranges from the attachment set, or create a new attachment set.");
-                    }
-                }
             }
         }
     }

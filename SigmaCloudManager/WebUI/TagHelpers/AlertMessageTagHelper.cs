@@ -62,7 +62,8 @@ namespace Mind.WebUI.TagHelpers
                            "</div>");
                         break;
                     case "danger":
-                        output.Content.SetHtmlContent("<div class=\"col-sm-12\">\n" +
+                        output.Content.SetHtmlContent("<div class=\"row\">\n" +
+                           "<div class=\"col-sm-12\">\n" +
                            "<div class=\"alert alert-danger\"" +
                            "role=\"alert\">\n" +
                            "<div class=\"row vertical-align\">\n" +
@@ -78,7 +79,8 @@ namespace Mind.WebUI.TagHelpers
                            "</div>");
                         break;
                     case "success":
-                        output.Content.SetHtmlContent("<div class=\"col-sm-12\">\n" +
+                        output.Content.SetHtmlContent("<div class=\"row\">\n" + 
+                           "<div class=\"col-sm-12\">\n" +
                            "<div class=\"alert alert-success\"" +
                            "role=\"alert\">\n" +
                            "<div class=\"row vertical-align\">\n" +

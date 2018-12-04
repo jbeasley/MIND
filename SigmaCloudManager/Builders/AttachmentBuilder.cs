@@ -778,7 +778,16 @@ namespace Mind.Builders
             try
             {
                 await _novaApiClient.DataAttachmentAttachmentPePePeNamePutAsync(_attachment.Device.Name, dto).ConfigureAwait(false);
+
+                // Successful activation of the attachment with the network
+                // Set network status of the attachment to Active and also any VIFs which are configured 
+                // under the attachment
                 _attachment.NetworkStatus = Models.NetworkStatusEnum.Active;
+                _attachment.Vifs
+                           .ToList()
+                           .ForEach(
+                                vif =>
+                                vif.NetworkStatus = Models.NetworkStatusEnum.Active);
             }
 
             catch (ApiException)

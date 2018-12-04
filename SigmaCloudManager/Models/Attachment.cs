@@ -178,6 +178,7 @@ namespace SCM.Models
                                      .ThenInclude(x => x.ContractBandwidthPool.Attachments)
                                      .Include(x => x.Vifs)
                                      .ThenInclude(x => x.RoutingInstance.AttachmentSetRoutingInstances)
+                                     .ThenInclude(x => x.AttachmentSet)
                                      .Include(x => x.RoutingInstance.RoutingInstanceType)
                                      .Include(x => x.RoutingInstance.Vifs)
                                      .Include(x => x.RoutingInstance.Attachments)

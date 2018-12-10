@@ -25,8 +25,7 @@ namespace Mind.Builders
         /// <param name="attachmentId">The ID of the parent attachement for which the vif will built</param>
         /// <param name="request">Request object containing parameters with which to create the vif</param>
         /// <param name="syncToNetwork">Add the attachment to the network with a put operation</param>
-        /// <param name="stage">If set to <c>true</c> the vif network status will be set to <c>staged</c></param>
-        public async Task<SCM.Models.Vif> BuildAsync(int attachmentId, ProviderDomainVifRequest request, bool stage = true, bool syncToNetwork = false)
+        public async Task<SCM.Models.Vif> BuildAsync(int attachmentId, ProviderDomainVifRequest request, bool syncToNetwork = false)
         {
             var builder = _builderFactory();
             return await builder.ForAttachment(attachmentId)
@@ -39,7 +38,6 @@ namespace Mind.Builders
                                 .WithContractBandwidth(request.ContractBandwidthMbps)
                                 .WithExistingContractBandwidthPool(request.ExistingContractBandwidthPoolName)
                                 .WithIpv4(request.Ipv4Addresses)
-                                .Stage(stage)
                                 .SyncToNetworkPut(syncToNetwork)
                                 .BuildAsync();
         }
@@ -50,9 +48,8 @@ namespace Mind.Builders
         /// <returns>The async.</returns>
         /// <param name="vifId">The ID of the vif.</param>
         /// <param name="update">Update object containing property values with which to update the vif</param>
-        /// <param name="stage">If set to <c>true</c> the vif network status will be set to <c>staged</c></param>
         /// <param name="syncToNetwork">If set to <c>true</c> sync to network.</param>
-        public async Task<SCM.Models.Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.ProviderDomainVifUpdate update, bool stage = true, bool syncToNetwork = false)
+        public async Task<SCM.Models.Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.ProviderDomainVifUpdate update, bool syncToNetwork = false)
         {
             var builder = _builderFactory();
             return await builder.ForVif(vifId)
@@ -64,7 +61,6 @@ namespace Mind.Builders
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                 .WithIpv4(update.Ipv4Addresses)
                                 .WithJumboMtu(update.UseJumboMtu)
-                                .Stage(stage)
                                 .SyncToNetworkPut(syncToNetwork)
                                 .BuildAsync();
         }

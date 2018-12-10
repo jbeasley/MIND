@@ -1,4 +1,5 @@
-﻿using Mind.Models.RequestModels;
+﻿using Mind.Directors;
+using Mind.Models.RequestModels;
 using SCM.Models;
 using System;
 using System.Collections.Generic;
@@ -7,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Mind.Builders
 {
-    public class AttachmentSetRoutingInstanceDirector : IAttachmentSetRoutingInstanceDirector
+    public class AttachmentSetRoutingInstanceDirector : IAttachmentSetRoutingInstanceDirector, IDestroyable<AttachmentSetRoutingInstance>
     {
         private readonly Func<IAttachmentSetRoutingInstanceBuilder> _builderFactory;
 
@@ -48,6 +49,24 @@ namespace Mind.Builders
 
             await Task.WhenAll(tasks);
             return attachmentSetRoutingInstances;
+        }
+
+        public async Task DestroyAsync(AttachmentSetRoutingInstance item, bool cleanUpNetwork = false)
+        {
+            var builder = _builderFactory();
+            await builder.ForAttachmentSetRoutingInstance(item.AttachmentSetRoutingInstanceID)
+                         .DestroyAsync();
+        }
+
+        public async Task DestroyAsync(List<AttachmentSetRoutingInstance> items, bool cleanUpNetwork = false)
+        {
+            var tasks = items.Select(
+                async attachmentSetRoutingInstance =>
+                {
+                    await DestroyAsync(attachmentSetRoutingInstance);
+                });
+
+            await Task.WhenAll(tasks);
         }
     }
 }

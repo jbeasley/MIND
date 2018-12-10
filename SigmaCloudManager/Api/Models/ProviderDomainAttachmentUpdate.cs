@@ -90,6 +90,22 @@ namespace Mind.Api.Models
         [Range(1, 8)]
         public int? BundleMaxLinks { get; set; }
 
+        /// <summary>
+        /// A description for the new attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        /// <example>Connectivity to LAN</example>
+        [DataMember(Name = "description")]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the new attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        /// <example>Some user notes which help explain the purpose of the attachment</example>
+        [DataMember(Name = "notes")]
+        public string Notes { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (CreateNewRoutingInstance.HasValue && CreateNewRoutingInstance.Value)
@@ -119,6 +135,8 @@ namespace Mind.Api.Models
             sb.Append("  UseJumboMtu: ").Append(UseJumboMtu).Append("\n");
             sb.Append("  BundleMinLinks: ").Append(BundleMinLinks).Append("\n");
             sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
+            sb.Append("  Description: ").Append(Description).Append("\n");
+            sb.Append("  Notes: ").Append(Notes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -189,6 +207,16 @@ namespace Mind.Api.Models
                     BundleMaxLinks == other.BundleMaxLinks ||
                     BundleMaxLinks != null &&
                     BundleMaxLinks.Equals(other.BundleMaxLinks)
+                ) &&
+                (
+                    Description == other.Description ||
+                    Description != null &&
+                    Description.Equals(other.Description)
+                ) &&
+                (
+                    Notes == other.Notes ||
+                    Notes != null &&
+                    Notes.Equals(other.Notes)
                 );
         }
 
@@ -216,6 +244,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + BundleMinLinks.GetHashCode();
                     if (BundleMaxLinks != null)
                     hashCode = hashCode * 59 + BundleMaxLinks.GetHashCode();
+                    if (Description != null)
+                    hashCode = hashCode * 59 + Description.GetHashCode();
+                    if (Notes != null)
+                    hashCode = hashCode * 59 + Notes.GetHashCode();
                 return hashCode;
             }
         }

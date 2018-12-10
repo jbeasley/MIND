@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Mind.Builders;
 using Mind.Models.RequestModels;
 using SCM.Services;
+using Mind.Directors;
 
 namespace Mind.Services
 {
@@ -96,19 +97,6 @@ namespace Mind.Services
         }
 
         /// <summary>
-        /// TO-BE-REMOVED
-        /// </summary>
-        /// <param name="vpnAttachmentSet"></param>
-        /// <returns></returns>
-        public async Task<VpnAttachmentSet> AddAsync(VpnAttachmentSet vpnAttachmentSet)
-        {
-            this.UnitOfWork.VpnAttachmentSetRepository.Insert(vpnAttachmentSet);
-            await this.UnitOfWork.SaveAsync();
-
-            return await GetByIDAsync(vpnAttachmentSet.VpnAttachmentSetID, deep: true, asTrackable: false);
-        }
-
-        /// <summary>
         /// Create a new association between an attachment set and a vpn
         /// </summary>
         /// <param name="vpnId"></param>
@@ -119,19 +107,6 @@ namespace Mind.Services
             var vpnAttachmentSet = await _director.BuildAsync(vpnId, request);
             UnitOfWork.VpnAttachmentSetRepository.Insert(vpnAttachmentSet);
             await UnitOfWork.SaveAsync();
-
-            return await GetByIDAsync(vpnAttachmentSet.VpnAttachmentSetID, deep: true, asTrackable: false);
-        }
-
-        /// <summary>
-        /// TO-BE-REMOVED
-        /// </summary>
-        /// <param name="vpnAttachmentSet"></param>
-        /// <returns></returns>
-        public async Task<VpnAttachmentSet> UpdateAsync(VpnAttachmentSet vpnAttachmentSet)
-        {
-            this.UnitOfWork.VpnAttachmentSetRepository.Update(vpnAttachmentSet);
-            await this.UnitOfWork.SaveAsync();
 
             return await GetByIDAsync(vpnAttachmentSet.VpnAttachmentSetID, deep: true, asTrackable: false);
         }

@@ -26,7 +26,7 @@ namespace Mind.WebUI.Controllers
 
         public static void AddDeleteValidationFailedMessage(this ViewDataDictionary viewData, string message)
         {
-            viewData["ErrorMessage"] = "The record could not be deleted becauase of a validation failure. " + message;
+            viewData["ErrorMessage"] = "The record could not be deleted because of a validation failure. " + message;
         }
 
         public static void AddDatabaseUpdateExceptionMessage(this ViewDataDictionary viewData)

@@ -195,6 +195,7 @@ namespace Mind.Builders
         {
             var requests = (List<RoutingInstanceForAttachmentSetRequest>)_args[nameof(WithRoutingInstances)];
             var attachmentSetRoutingInstances = await _attachmentSetRoutingInstanceDirector.BuildAsync(this._attachmentSet, requests);
+
             _attachmentSet.AttachmentSetRoutingInstances = attachmentSetRoutingInstances;
         }
 

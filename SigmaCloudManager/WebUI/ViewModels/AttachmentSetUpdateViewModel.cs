@@ -17,6 +17,12 @@ namespace Mind.WebUI.Models
     /// </summary>
     public class AttachmentSetUpdateViewModel : IModifiableResource
     {
+        public AttachmentSetUpdateViewModel()
+        {
+            BgpIpNetworkInboundPolicy = new BgpIpNetworkInboundPolicyRequestViewModel();
+            BgpIpNetworkOutboundPolicy = new BgpIpNetworkOutboundPolicyRequestViewModel();
+        }
+
         /// <summary>
         /// ID of the attachment set
         /// </summary>

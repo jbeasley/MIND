@@ -27,7 +27,6 @@ namespace Mind.Api.Models
     [DataContract]
     public partial class RoutingInstanceRequest : IEquatable<RoutingInstanceRequest>, IValidatableObject
     { 
-
         /// <summary>
         /// The requested name of the routing instance
         /// </summary>

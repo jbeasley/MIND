@@ -13,10 +13,10 @@ namespace Mind.Services
     public class TenantCommunityService : BaseService, ITenantCommunityService
     {
         private readonly ITenantCommunityDirector _director;
-        private readonly ITenantCommunityUpdateDirector _updateDirector;
+        private readonly ITenantCommunityDirector _updateDirector;
 
         public TenantCommunityService(IUnitOfWork unitOfWork, ITenantCommunityDirector director,
-            ITenantCommunityUpdateDirector updateDirector) : base(unitOfWork)
+            ITenantCommunityDirector updateDirector) : base(unitOfWork)
         {
             _director = director;
             _updateDirector = updateDirector;

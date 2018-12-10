@@ -11,8 +11,8 @@ namespace Mind.Services
     {
         Task<Vif> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false);
         Task<IEnumerable<Vif>> GetAllByAttachmentIDAsync(int id, bool? deep = false, bool asTrackable = false);
-        Task<Vif> AddAsync(int attachmentId, Mind.Models.RequestModels.ProviderDomainVifRequest request, bool stage = true, bool syncToNetwork = false);
-        Task<Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.ProviderDomainVifUpdate vifUpdate, bool stage = true, bool syncToNetwork = false);
+        Task<Vif> AddAsync(int attachmentId, Mind.Models.RequestModels.ProviderDomainVifRequest request, bool syncToNetwork = false);
+        Task<Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.ProviderDomainVifUpdate vifUpdate, bool syncToNetwork = false);
         Task DeleteAsync(int vifId);
         Task SyncToNetworkPutAsync(int vifId);
     }

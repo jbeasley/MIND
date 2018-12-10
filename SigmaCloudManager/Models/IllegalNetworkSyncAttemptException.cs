@@ -6,15 +6,15 @@ using System.Threading.Tasks;
 namespace Mind.Models
 {
     /// <summary>
-    /// Illegal model state exception.
+    /// Illegal network sync attempt exception.
     /// </summary>
-    public class IllegalStateException : Exception
+    public class IllegalNetworkSyncAttemptException : Exception
     {
-        public IllegalStateException(string message) : base(message)
+        public IllegalNetworkSyncAttemptException(string message) : base(message)
         {
         }
 
-        public IllegalStateException(string message,
+        public IllegalNetworkSyncAttemptException(string message,
                             Exception innerException) : base(message, innerException)
         {
         }

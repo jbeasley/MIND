@@ -21,7 +21,7 @@ namespace Mind.WebUI.Models
             // Instantiate new list of BGP peer requests. In the case where all BGP peers have been removed 
             // using the web UI this will ensure that the corresponding BGP peer records are removed from the database.
             // An empty list will be passed to the application layer which will be processed as a request to remove all 
-            // existing BGP peers for hte routing instance.
+            // existing BGP peers for the routing instance.
             BgpPeers = new List<BgpPeerRequestViewModel>();
         }
 

@@ -332,6 +332,11 @@ namespace Mind.WebUI
         /// <summary>
         /// Activation failure enum
         /// </summary>
-        ActivationFailure = 3
+        ActivationFailure = 3,
+
+        /// <summary>
+        /// Staged Inconsisten enum
+        /// </summary>
+        StagedInconsistent = 4
     }
 }

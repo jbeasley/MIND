@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using IO.NovaVpnSwagger.Model;
+using System.Text;
 
 namespace SCM.Models
 {
@@ -39,7 +40,7 @@ namespace SCM.Models
         /// </summary>
         /// <returns>The nova vpn dto.</returns>
         /// <param name="vpn">An instance of Attachment</param>
-        public static DataVpnVpnInstanceInstanceName ToNovaVpnPutDto(this Vpn vpn)
+        public static DataVpnVpnInstanceInstanceName ToNovaVpnDto(this Vpn vpn)
         {
             var data = new DataVpnVpnInstanceInstanceName
             {
@@ -100,7 +101,10 @@ public static class VpnQueryableExtensions
                         .Include(x => x.Region)
                         .Include(x => x.VpnAttachmentSets)
                         .ThenInclude(x => x.AttachmentSet.AttachmentSetRoutingInstances)
-                        .ThenInclude(x => x.RoutingInstance.Device.Location.SubRegion.Region);
+                        .ThenInclude(x => x.RoutingInstance.Device.Location.SubRegion.Region)
+                        .Include(x => x.VpnAttachmentSets)
+                        .ThenInclude(x => x.AttachmentSet.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.Vifs);
         }
 
         public static IQueryable<Vpn> IncludeIpVpnValidationProperties(this IQueryable<Vpn> query)

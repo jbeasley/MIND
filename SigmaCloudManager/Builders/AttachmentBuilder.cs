@@ -269,7 +269,6 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
             if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
             if (_args.ContainsKey(nameof(WithNotes))) SetNotes();
-            if (_args.ContainsKey(nameof(Stage))) SetStage();
 
             return _attachment;
         }
@@ -283,9 +282,6 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(ForAttachment)))
             {
                 await SetAttachmentToDeleteAsync();
-
-                // Are we allowed to destroy the attachment?
-                _attachment.ValidateDelete();
 
                 // Destroy vifs of the attachment first
                 await DestroyVifsAsync();
@@ -687,12 +683,6 @@ namespace Mind.Builders
             _attachment.Notes = notes;
         }
 
-        protected internal virtual void SetStage()
-        {
-            var stage = (bool)_args[nameof(Stage)];
-            if (stage) _attachment.NetworkStatus = Models.NetworkStatusEnum.Staged; 
-        }
-
         protected async internal virtual Task SetAttachmentToDeleteAsync()
         {
             var attachmentId = (int)_args[nameof(ForAttachment)];
@@ -759,6 +749,8 @@ namespace Mind.Builders
         {
             if (_attachment.RoutingInstance != null && _attachment.RoutingInstance.RoutingInstanceType.IsTenantFacingVrf)
             {
+                _attachment.RoutingInstance.ValidateDelete();
+
                 if (!_attachment.RoutingInstance.Attachments.Any(x => x.AttachmentID != _attachment.AttachmentID) &&
                     !_attachment.RoutingInstance.Vifs.Any())
                 {
@@ -777,7 +769,7 @@ namespace Mind.Builders
 
             try
             {
-                await _novaApiClient.DataAttachmentAttachmentPePePeNamePutAsync(_attachment.Device.Name, dto).ConfigureAwait(false);
+                await _novaApiClient.DataAttachmentAttachmentPePePeNamePutAsync(_attachment.Device.Name, dto, true).ConfigureAwait(false);
 
                 // Successful activation of the attachment with the network
                 // Set network status of the attachment to Active and also any VIFs which are configured 
@@ -792,8 +784,14 @@ namespace Mind.Builders
 
             catch (ApiException)
             {
-                // Network activation failed - set status on the attachment
+                // Network activation failed - set status on the attachment and also any vifs 
+                // configured under the attachment
                 _attachment.NetworkStatus = Models.NetworkStatusEnum.ActivationFailure;
+                _attachment.Vifs
+                    .ToList()
+                    .ForEach(
+                        vif =>
+                        vif.NetworkStatus = Models.NetworkStatusEnum.ActivationFailure);
 
                 // Rethrow the exception to be caught further up the stack
                 throw;
@@ -806,8 +804,16 @@ namespace Mind.Builders
         /// <returns>An awaitable task</returns>
         protected async internal virtual Task DeleteAttachmentFromNetworkAsync() 
         {
-            await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdDeleteAsync(
-                _attachment.Device.Name, _attachment.PortType, _attachment.PortName).ConfigureAwait(false);
+            try
+            {
+                await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdDeleteAsync
+                    (_attachment.Device.Name, _attachment.PortType, _attachment.PortName, true).ConfigureAwait(false);
+            }
+
+            catch (ApiException)
+            {
+                // Add logging here
+            }
         }
     }
 }

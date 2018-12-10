@@ -86,10 +86,9 @@
             else {
 
                 var href = $this.data("href"),
-                    queryParameter = $inputs.data('query-parameter'),
-                    propertyVal = $inputs.data('property-val');
+                    queryParameter = $inputs.data('query-parameter');
 
-                window.location.href = href + queryParameter + propertyVal;
+                window.location.href = href + queryParameter;
             }
         }
     });

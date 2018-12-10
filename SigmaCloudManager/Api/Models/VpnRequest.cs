@@ -143,6 +143,13 @@ namespace Mind.Api.Models
         [DataMember(Name="routeTargetRequests")]
         public List<RouteTargetRequest> RouteTargetRequests { get; set; }
 
+        /// <summary>
+        /// A list of vpn attachment set request objects denoting attachment sets to be associated with the vpn.
+        /// </summary>
+        /// <value>List of VpnAttachmentSetRequest objects</value>
+        [DataMember(Name = "vpnAttachmentSets")]
+        public List<VpnAttachmentSetRequest> VpnAttachmentSets { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (!RouteTargetRange.HasValue)
@@ -177,6 +184,7 @@ namespace Mind.Api.Models
             sb.Append("  MulticastVpnDirectionType: ").Append(MulticastVpnDirectionType).Append("\n");
             sb.Append("  RouteTargetRange: ").Append(RouteTargetRange).Append("\n");
             sb.Append("  RouteTargetRequests: ").Append(RouteTargetRequests).Append("\n");
+            sb.Append("  VpnAttachmentSets: ").Append(VpnAttachmentSets).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -282,6 +290,11 @@ namespace Mind.Api.Models
                     RouteTargetRange == other.RouteTargetRange ||
                     RouteTargetRange != null &&
                     RouteTargetRange.Equals(other.RouteTargetRange)
+                ) &&
+                (
+                    VpnAttachmentSets == other.VpnAttachmentSets ||
+                    VpnAttachmentSets != null &&
+                    VpnAttachmentSets.Equals(other.VpnAttachmentSets)
                 );
         }
 
@@ -323,12 +336,14 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + RouteTargetRequests.GetHashCode();
                     if (RouteTargetRange != null)
                     hashCode = hashCode * 59 + RouteTargetRange.GetHashCode();
+                    if (VpnAttachmentSets != null)
+                    hashCode = hashCode * 59 + VpnAttachmentSets.GetHashCode();
                 return hashCode;
             }
         }
 
         #region Operators
-#pragma warning disable 1591
+        #pragma warning disable 1591
 
         public static bool operator ==(VpnRequest left, VpnRequest right)
         {

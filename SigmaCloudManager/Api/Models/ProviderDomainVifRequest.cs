@@ -27,6 +27,13 @@ namespace Mind.Api.Models
     [DataContract]
     public partial class ProviderDomainVifRequest : IEquatable<ProviderDomainVifRequest>, IValidatableObject
     {
+        public ProviderDomainVifRequest()
+        {
+            // Instantiate a new instance of the routing instance request model. This is necessary in order to 
+            // instantiate properties of the routing instance such as the list of BGP peers
+            RoutingInstance = new RoutingInstanceRequest();
+        }
+
         /// <summary>
         /// The ID of the tenant to which the vif belongs. Usually this is the same tenant as the owner of the attachment
         /// to which the vif belongs. However, it is also possible to assign a vif to a different tenant.

@@ -82,15 +82,15 @@ namespace Mind.Builders
             return this;
         }
 
-        IIpVpnBuilder IIpVpnBuilder.Stage(bool? stage)
-        {
-            base.Stage(stage);
-            return this;
-        }
-
         IIpVpnBuilder IIpVpnBuilder.SyncToNetworkPut(bool? syncToNetworkPut)
         {
             base.SyncToNetworkPut(syncToNetworkPut);
+            return this;
+        }
+
+        IIpVpnBuilder IIpVpnBuilder.SyncToNetworkPatch(bool? syncToNetworkPatch)
+        {
+            base.SyncToNetworkPatch(syncToNetworkPatch);
             return this;
         }
 

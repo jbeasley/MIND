@@ -18,16 +18,16 @@ namespace Mind.Services
     /// </summary>
     public class TenantDomainAttachmentService : BaseAttachmentService, ITenantDomainAttachmentService
     {
-        private readonly Func<TenantDomainAttachmentRequest, AttachmentRole, ITenantDomainAttachmentDirector> _directorFactory;
-        private readonly Func<Attachment, ITenantDomainAttachmentUpdateDirector> _updateDirectorFactory;
+        private readonly Func<TenantDomainAttachmentRequest, AttachmentRole, ITenantDomainAttachmentDirector> _createDirectorFactory;
+        private readonly Func<Attachment, ITenantDomainAttachmentDirector> _attachmentDirectorFactory;
 
         public TenantDomainAttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
             Func<TenantDomainAttachmentRequest, AttachmentRole, ITenantDomainAttachmentDirector> directorFactory,
-            Func<Attachment, ITenantDomainAttachmentUpdateDirector> updateDirectorFactory) : base(unitOfWork, mapper)
+            Func<Attachment, ITenantDomainAttachmentDirector> attachmentDirectorFactory) : base(unitOfWork, mapper)
         {
-            _directorFactory = directorFactory;
-            _updateDirectorFactory = updateDirectorFactory;
+            _createDirectorFactory = directorFactory;
+            _attachmentDirectorFactory = attachmentDirectorFactory;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Mind.Services
                                   .SingleOrDefault();
 
             if (attachmentRole == null) throw new ServiceBadArgumentsException($"Could not find attachment role with name '{request.AttachmentRoleName}'."); 
-            var director = _directorFactory(request, attachmentRole);
+            var director = _createDirectorFactory(request, attachmentRole);
             var attachment = await director.BuildAsync(deviceId, request);
             UnitOfWork.AttachmentRepository.Insert(attachment);
             await UnitOfWork.SaveAsync();
@@ -85,25 +85,11 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> UpdateAsync(int attachmentId, TenantDomainAttachmentUpdate update)
         {
-            var attachment = (from result in await UnitOfWork.AttachmentRepository.GetAsync(
-                            q =>
-                              q.AttachmentID == attachmentId,
-                             query: q => q.Include(x => x.ContractBandwidthPool.Attachments)
-                                          .Include(x => x.ContractBandwidthPool.Vifs)
-                                          .Include(x => x.AttachmentRole),
-                              AsTrackable: true)
-                              select result)
-                              .Single();
+            // Get the current attachment as a non-tracked entity.
+            var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
 
-            var director = _updateDirectorFactory(attachment);
+            var director = _attachmentDirectorFactory(attachment);
             var updatedAttachment = await director.UpdateAsync(attachment, update);
-
-            // Cleanup contract bandwidth pool if the attachment is no longer using it.
-            if (attachment.ContractBandwidthPoolID != null && attachment.ContractBandwidthPoolID != updatedAttachment.ContractBandwidthPoolID)
-            {
-                if (!attachment.ContractBandwidthPool.Attachments.Any(x => x.AttachmentID != attachmentId))
-                    UnitOfWork.ContractBandwidthPoolRepository.Delete(attachment.ContractBandwidthPool);
-            }
 
             await UnitOfWork.SaveAsync();
             return await base.GetByIDAsync(attachment.AttachmentID, PortRoleTypeEnum.TenantInfrastructure, deep: true, asTrackable: false);
@@ -115,50 +101,12 @@ namespace Mind.Services
         /// <param name="attachmentId"></param>
         public async Task DeleteAsync(int attachmentId)
         {
-            var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
-                            q => 
-                              q.AttachmentID == attachmentId,
-                              query: q => q.IncludeDeleteValidationProperties(),
-                              AsTrackable: true)
-                              select attachments)
-                              .Single();
+            var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+            var director = _attachmentDirectorFactory(attachment);
 
-            // Validate the attachment can be deleted
-            attachment.ValidateDelete();
+            // Destroy the attachment
+            await director.DestroyAsync(attachment);
 
-            var ports = attachment.Interfaces.SelectMany(
-                                                    q => 
-                                                        q.Ports)
-                                                        .ToList();
-
-            var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(
-                                q => 
-                                    q.PortStatusType == PortStatusTypeEnum.Free, 
-                                    AsTrackable: true)
-                                    select portStatuses)
-                                    .Single().PortStatusID;
-
-            // Update ports to release back to inventory
-            foreach (var port in ports)
-            {
-                port.TenantID = null;
-                port.PortStatusID = portStatusFreeId;
-                port.InterfaceID = null;
-            }
-
-            // Delete each contract bandwidth pool associated with a vif configured under the attachment being deleted.
-            // These can be deleted without any further validation - contract bandwidth pools cannot be shared between vifs configured 
-            // under different attachments.
-            foreach (var contractBandwidthPool in attachment.Vifs.Select(
-                                                                    x =>
-                                                                    x.ContractBandwidthPool))
-            {
-                if (contractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(contractBandwidthPool);
-            }
-
-            if (attachment.ContractBandwidthPool != null) UnitOfWork.ContractBandwidthPoolRepository.Delete(attachment.ContractBandwidthPool);
-
-            UnitOfWork.AttachmentRepository.Delete(attachment);
             await UnitOfWork.SaveAsync();
         }
     }

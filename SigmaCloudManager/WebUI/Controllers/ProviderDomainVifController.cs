@@ -88,6 +88,7 @@ namespace Mind.WebUI.Controllers
 
         [HttpGet]
         [ValidateProviderDomainAttachmentExists]
+        [SetProviderDomainAttachmentCookieState]
         public async Task<IActionResult> GetAllByAttachmentID(int? attachmentId)
         {
             var vifs = await _vifService.GetAllByAttachmentIDAsync(attachmentId.Value, deep: true, asTrackable: false);
@@ -129,14 +130,14 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateProviderDomainAttachmentExists]
-        public async Task<IActionResult> Create(int? attachmentId, ProviderDomainVifRequestViewModel requestModel, bool? stage, bool? syncToNetwork)
+        public async Task<IActionResult> Create(int? attachmentId, ProviderDomainVifRequestViewModel requestModel, bool? syncToNetwork)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
                     var request = _mapper.Map<ProviderDomainVifRequest>(requestModel);
-                    var vif = await _vifService.AddAsync(attachmentId.Value, request, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
+                    var vif = await _vifService.AddAsync(attachmentId.Value, request, syncToNetwork.GetValueOrDefault());
                     return RedirectToAction(nameof(GetAllByAttachmentID), new { attachmentId });
                 }
 
@@ -209,7 +210,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateProviderDomainVifExists]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int? vifId, ProviderDomainVifUpdateViewModel update, bool? stage, bool? syncToNetwork)
+        public async Task<ActionResult> Edit(int? vifId, ProviderDomainVifUpdateViewModel update, bool? syncToNetwork)
         {
             var vif = await _vifService.GetByIDAsync(vifId.Value, deep: true, asTrackable: false);
 
@@ -227,7 +228,7 @@ namespace Mind.WebUI.Controllers
 
                     try
                     {
-                        await _vifService.UpdateAsync(vifId.Value, vifUpdate, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
+                        await _vifService.UpdateAsync(vifId.Value, vifUpdate, syncToNetwork.GetValueOrDefault());
                         return RedirectToAction(nameof(GetAllByAttachmentID), new { attachmentId = vif.AttachmentID });
                     }
 

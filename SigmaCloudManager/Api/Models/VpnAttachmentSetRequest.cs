@@ -33,6 +33,7 @@ namespace Mind.Api.Models
         /// <value>A string denoting the name of the attachment set</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
         [DataMember(Name = "attachmentSetName")]
+        [Required(AllowEmptyStrings = false)]
         public string AttachmentSetName { get; set; }
 
         /// <summary>

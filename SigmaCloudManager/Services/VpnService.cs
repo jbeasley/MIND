@@ -137,26 +137,19 @@ namespace Mind.Services
             return query.ToList().GroupBy(q => q.VpnID).Select(r => r.First());
         }
 
-        public async Task<Vpn> AddAsync(int tenantId, Mind.Models.RequestModels.VpnRequest request, bool stage = true, bool syncToNetwork = false)
+        public async Task<Vpn> AddAsync(int tenantId, Mind.Models.RequestModels.VpnRequest request, bool syncToNetwork = false)
         {
             // Build the VPN and sync to the network for unicast IP vpn with IPv4 address-family
-            var allowStageAndSyncToNetwork = request.AddressFamily == Models.RequestModels.AddressFamilyEnum.IPv4 && !request.IsMulticastVpn.GetValueOrDefault();
+            var allowSyncToNetwork = request.AddressFamily == Models.RequestModels.AddressFamilyEnum.IPv4 && !request.IsMulticastVpn.GetValueOrDefault();
 
-            if (stage && !allowStageAndSyncToNetwork)
-            {
-                throw new ServiceBadArgumentsException($"The vpn cannot be staged. Currently only IP unicast vpn for the IPv4 address-family " +
-                    "supports staging.");
-            }
-
-            if (syncToNetwork && !allowStageAndSyncToNetwork)
+            if (syncToNetwork && !allowSyncToNetwork)
             {
                 throw new ServiceBadArgumentsException($"The vpn cannot be synchronised to the network. Currently only IP unicast vpn for the IPv4 address-family " +
                     "supports network sync.");
             }
 
             var director = _directorFactory(request);
-            var vpn = await director.BuildAsync(tenantId, request,
-                                                stage, syncToNetwork);
+            var vpn = await director.BuildAsync(tenantId, request, syncToNetwork);
             this.UnitOfWork.VpnRepository.Insert(vpn);
             await this.UnitOfWork.SaveAsync();
 
@@ -168,10 +161,10 @@ namespace Mind.Services
         /// </summary>
         /// <param name="vpnId"></param>
         /// <param name="update"></param>
-        /// <param name="stage"></param>
-        /// <param name="syncToNetwork"></param>
+        /// <param name="syncToNetworkPut"></param>
+        /// <param name="syncToNetworkPatch"></param>
         /// <returns></returns>
-        public async Task<Vpn> UpdateAsync(int vpnId, Mind.Models.RequestModels.VpnUpdate update, bool stage = true, bool syncToNetwork = false)
+        public async Task<Vpn> UpdateAsync(int vpnId, Mind.Models.RequestModels.VpnUpdate update, bool syncToNetworkPut = false, bool syncToNetworkPatch = false)
         {
             var vpn = (from result in await UnitOfWork.VpnRepository.GetAsync(
                    q =>
@@ -182,22 +175,17 @@ namespace Mind.Services
                        .Single();
                       
             // Update the vpn and sync to the network for unicast IP vpn with IPv4 address-family
-            var allowStageAndSyncToNetwork = vpn.AddressFamily.Name == "IPv4" && !vpn.IsMulticastVpn;
+            var allowSyncToNetwork = vpn.AddressFamily.Name == "IPv4" && !vpn.IsMulticastVpn;
 
-            if (stage && !allowStageAndSyncToNetwork)
-            {
-                throw new ServiceBadArgumentsException($"The vpn cannot be staged. Currently only IP unicast vpn for the IPv4 address-family " +
-                    "supports staging.");
-            }
 
-            if (syncToNetwork && !allowStageAndSyncToNetwork)
+            if ((syncToNetworkPut || syncToNetworkPatch) && !allowSyncToNetwork)
             {
                 throw new ServiceBadArgumentsException($"The vpn cannot be synchronised to the network. Currently only IP unicast vpn for the IPv4 address-family " +
                     "supports network sync.");
             }
 
             var updateDirector = _updateDirectorFactory(vpn);
-            await updateDirector.UpdateAsync(vpnId, update, stage, syncToNetwork);
+            await updateDirector.UpdateAsync(vpnId, update, syncToNetworkPut, syncToNetworkPatch);
             await this.UnitOfWork.SaveAsync();
 
             return await GetByIDAsync(vpnId, deep: true);
@@ -219,9 +207,7 @@ namespace Mind.Services
                        .Single();
 
             var director = _destroyableVpnDirectorFactory(vpn);
-            await director.DestroyAsync(vpn, vpn.NetworkStatus == Models.NetworkStatusEnum.Active && 
-                vpn.AddressFamily.Name == "IPv4" 
-                && !vpn.IsMulticastVpn);
+            await director.DestroyAsync(vpn, vpn.AddressFamily.Name == "IPv4" && !vpn.IsMulticastVpn);
 
             await this.UnitOfWork.SaveAsync();
         }
@@ -241,33 +227,23 @@ namespace Mind.Services
                        select result)
                        .Single();
 
-            if (vpn.NetworkStatus == Models.NetworkStatusEnum.Staged ||
-                vpn.NetworkStatus == Models.NetworkStatusEnum.Active ||
-                vpn.NetworkStatus == Models.NetworkStatusEnum.ActivationFailure)
+            var director = _networkSyncVpnDirectorFactory(vpn);
+
+            try
             {
-                var director = _networkSyncVpnDirectorFactory(vpn);
-
-                try
-                {
-                    await director.SyncToNetworkPutAsync(vpn);
-                }
-                      
-                catch (ApiException)
-                {
-                    // Rethrow the exception to be caught further up the stack
-                    throw;
-                }
-
-                finally
-                {
-                    // Save network status change for the vpn
-                    await UnitOfWork.SaveAsync();
-                }
+                await director.SyncToNetworkPutAsync(vpn);
             }
-            else
+
+            catch (ApiException)
             {
-                throw new ServiceBadArgumentsException($"The vpn cannot be synchronised with the network because it is not staged. " +
-                    "Edit and stage the vpn first.");
+                // Rethrow the exception to be caught further up the stack
+                throw;
+            }
+
+            finally
+            {
+                // Save network status change for the vpn
+                await UnitOfWork.SaveAsync();
             }
         }
     }

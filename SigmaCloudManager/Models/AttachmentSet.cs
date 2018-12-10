@@ -34,11 +34,29 @@ namespace SCM.Models
                         .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantIpNetworksOut)
+                        .ThenInclude(x => x.TenantIpNetwork)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesIn)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .ThenInclude(x => x.VpnTenantCommunitiesOut)
+                        .ThenInclude(x => x.TenantCommunity)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.VpnTenantIpNetworkRoutingInstances)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.VpnTenantIpNetworkRoutingInstanceStaticRoutes)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.VpnTenantCommunityRoutingInstances)
+                        .Include(x => x.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
                         .ThenInclude(x => x.RoutingInstance.Device.DeviceRole)
                         .Include(x => x.AttachmentSetRoutingInstances)
                         .ThenInclude(x => x.RoutingInstance.Device.Plane)
                         .Include(x => x.VpnAttachmentSets)
-                        .ThenInclude(x => x.Vpn)
+                        .ThenInclude(x => x.Vpn.Tenant)
                         .Include(x => x.VpnTenantMulticastGroups)
                         .Include(x => x.VpnTenantCommunitiesIn)
                         .ThenInclude(x => x.TenantCommunity)
@@ -147,7 +165,7 @@ namespace SCM.Models
         public static IQueryable<AttachmentSet> IncludeDeleteValidationProperties(this IQueryable<AttachmentSet> query)
         {
             return query.Include(x => x.VpnAttachmentSets)
-                        .ThenInclude(x => x.Vpn)
+                        .ThenInclude(x => x.Vpn.Tenant)
                         .Include(x => x.VpnTenantIpNetworksIn)
                         .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.VpnTenantCommunitiesIn)
@@ -341,6 +359,18 @@ namespace SCM.Models
         /// </summary>
         public virtual void Validate()
         {
+            // The attachment set cannot be associated with any vpn prior to modification. This is because the VPN must be refreshed
+            // for any routing instances which have been added to or removed from the attachment set and this action is only performed
+            // from the UI when the VPN is edited
+            var sb = new StringBuilder();
+            this.VpnAttachmentSets
+                .ToList()
+                .ForEach(q =>
+                        sb.Append($"Remove attachment set '{this.Name}' from vpn '{q.Vpn.Name}' for tenant '{q.Vpn.Tenant.Name}' before modifying the attachment set.\n")
+                 );
+
+            if (sb.Length > 0) throw new IllegalStateException(sb.ToString());
+
             if (this.AttachmentRedundancy == null) throw new IllegalStateException($"An attachment redundancy option for attachment set " +
                 $"'{this.Name}' must be defined.");
 
@@ -356,10 +386,8 @@ namespace SCM.Models
                 if (this.AttachmentSetRoutingInstances.Select(
                     x =>
                         x.RoutingInstance.Device.Location.SubRegion.Region)
-                    .Where(
-                    x =>
-                        x.RegionID != this.RegionID)
-                    .Any())
+                         .Any(x =>
+                              x.RegionID != this.RegionID))
                     throw new IllegalStateException($"All routing instances configured for custom attachment set '{this.Name}' must " +
                         $"belong to the same region as the attachment set.");
 
@@ -367,7 +395,7 @@ namespace SCM.Models
                     $"attachment set '{this.Name}'.");
             }
 
-            if (this.VpnAttachmentSets.Where(x => x.Vpn.IsMulticastVpn).Any())
+            if (this.VpnAttachmentSets.Any(x => x.Vpn.IsMulticastVpn))
             {
                 if (this.MulticastVpnDomainType == null)
                 {
@@ -399,7 +427,7 @@ namespace SCM.Models
             this.VpnAttachmentSets
                 .ToList()
                 .ForEach(q =>
-                        sb.Append($"Remove the attachment set '{this.Name}' from vpn '{q.Vpn.Name}' before trying to delete the attachment set.\n")
+                        sb.Append($"Remove attachment set '{this.Name}' from vpn '{q.Vpn.Name}' for tenant '{q.Vpn.Tenant.Name}' before attempting to delete the attachment set.\n")
                  );
 
             if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());

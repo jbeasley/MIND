@@ -37,7 +37,11 @@ namespace SCM.Models
         public static IQueryable<Tenant> IncludeDeleteValidationProperties(this IQueryable<Tenant> query)
         {
             return query.Include(x => x.Attachments)
-                        .Include(x => x.Vpns);
+                        .Include(x => x.Vpns)
+                        .Include(x => x.AttachmentSets)
+                        .Include(x => x.TenantIpNetworks)
+                        .Include(x => x.TenantCommunities)
+                        .Include(x => x.Devices);
         }
     }
 
@@ -64,8 +68,12 @@ namespace SCM.Models
         public virtual void ValidateDelete()
         {
             var sb = new StringBuilder();
-            if (this.Attachments.Any()) sb.Append($"The tenant cannot be deleted because attachments are allocated.").Append("\r\n");
-            if (this.Vpns.Any()) sb.Append($"The tenant cannot be deleted because VPNs are allocated.").Append("\r\n");
+            if (this.Attachments.Any()) sb.AppendLine($"The tenant cannot be deleted because attachments are allocated.");
+            if (this.Vpns.Any()) sb.AppendLine($"The tenant cannot be deleted because VPNs are allocated.");
+            if (this.AttachmentSets.Any()) sb.AppendLine($"The tenant cannot be deleted because attachment sets are allocated.");
+            if (this.TenantIpNetworks.Any()) sb.AppendLine($"The tenant cannot be deleted because IP networks are allocated.");
+            if (this.TenantCommunities.Any()) sb.AppendLine($"The tenant cannot be deleted because communities are allocated.");
+            if (this.Devices.Any()) sb.AppendLine($"The tenant cannot be deleted because devices are allocated.");
 
             if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());
         }

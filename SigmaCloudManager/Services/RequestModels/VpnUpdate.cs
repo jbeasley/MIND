@@ -8,12 +8,6 @@ namespace Mind.Models.RequestModels
     public class VpnUpdate
     {
         /// <summary>
-        /// The name of the vpn
-        /// </summary>
-        /// <value>String value denoting the name of the vpn</value>
-        public string Name { get; set; }
-
-        /// <summary>
         /// A description of the VPN
         /// </summary>
         /// <value>String value denoting the vpn description</value>

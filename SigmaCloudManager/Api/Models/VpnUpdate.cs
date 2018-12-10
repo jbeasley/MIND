@@ -28,14 +28,6 @@ namespace Mind.Api.Models
     public partial class VpnUpdate : IEquatable<VpnUpdate>
     {
         /// <summary>
-        /// The name of the vpn
-        /// </summary>
-        /// <value>String value denoting the name of the vpn</value>
-        /// <example>cloud-connectivity-vpn</example>
-        [DataMember(Name="name")]
-        public string Name { get; set; }
-
-        /// <summary>
         /// A description of the VPN
         /// </summary>
         /// <value>String value denoting the vpn description</value>
@@ -77,6 +69,13 @@ namespace Mind.Api.Models
         public MulticastVpnDirectionTypeEnum? MulticastVpnDirectionType { get; set; }
 
         /// <summary>
+        /// A list of vpn attachment set request objects denoting attachment sets to be associated with the vpn.
+        /// </summary>
+        /// <value>List of VpnAttachmentSetRequest objects</value>
+        [DataMember(Name = "vpnAttachmentSets")]
+        public List<VpnAttachmentSetRequest> VpnAttachmentSets { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -84,12 +83,12 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class IpVpnRequest {\n");
-            sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  Region: ").Append(Region).Append("\n");
             sb.Append("  TenancyType: ").Append(TenancyType).Append("\n");
             sb.Append("  IsExtranet: ").Append(IsExtranet).Append("\n");
             sb.Append("  MulticastVpnDirectionType: ").Append(MulticastVpnDirectionType).Append("\n");
+            sb.Append("  VpnAttachmentSets: ").Append(VpnAttachmentSets).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -125,29 +124,24 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
-                (
-                    Name == other.Name ||
-                    Name != null &&
-                    Name.Equals(other.Name)
-                ) && 
+            return
                 (
                     Description == other.Description ||
                     Description != null &&
                     Description.Equals(other.Description)
-                ) && 
+                ) &&
                 (
                     Region == other.Region ||
                     Region != null &&
                     Region.Equals(other.Region)
-                ) && 
+                ) &&
                 (
                     TenancyType == other.TenancyType ||
                     TenancyType != null &&
                     TenancyType.Equals(other.TenancyType)
-                ) && 
+                ) &&
                 (
-                    IsExtranet == other.IsExtranet||
+                    IsExtranet == other.IsExtranet ||
                     IsExtranet != null &&
                     IsExtranet.Equals(other.IsExtranet)
                 ) &&
@@ -155,6 +149,11 @@ namespace Mind.Api.Models
                     MulticastVpnDirectionType == other.MulticastVpnDirectionType ||
                     MulticastVpnDirectionType != null &&
                     MulticastVpnDirectionType.Equals(other.MulticastVpnDirectionType)
+                ) &&
+                (
+                    VpnAttachmentSets == other.VpnAttachmentSets ||
+                    VpnAttachmentSets != null &&
+                    VpnAttachmentSets.Equals(other.VpnAttachmentSets)
                 );
         }
 
@@ -168,8 +167,6 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
-                    if (Name != null)
-                    hashCode = hashCode * 59 + Name.GetHashCode();
                     if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
                     if (Region != null)
@@ -180,6 +177,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + IsExtranet.GetHashCode();
                     if (MulticastVpnDirectionType != null)
                     hashCode = hashCode * 59 + MulticastVpnDirectionType.GetHashCode();
+                    if (VpnAttachmentSets != null)
+                    hashCode = hashCode * 59 + VpnAttachmentSets.GetHashCode();
                 return hashCode;
             }
         }

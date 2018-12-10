@@ -5,7 +5,7 @@
 
     // Set the checked state of the checkbox for an item in the table from stored value
     // in the cookie (if present)
-    var attachmentId = Mind.Utilities.getCookie("attachmentId");
+    var attachmentId = Mind.Utilities.getCookie("provider-domain-attachment-id");
     if (attachmentId !== "") {
 
         var $input = $('.form-check-input[data-query-parameter = "attachmentId=' + attachmentId + '"]');

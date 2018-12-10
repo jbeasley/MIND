@@ -61,7 +61,10 @@ namespace SCM.Models
                         .Include(x => x.Tenant)
                         .Include(x => x.ContractBandwidthPool)
                         .Include(x => x.Mtu)
-                        .Include(x => x.RoutingInstance.BgpPeers);
+                        .Include(x => x.RoutingInstance.BgpPeers)
+                        .Include(x => x.RoutingInstance.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.AttachmentSet.VpnAttachmentSets)
+                        .ThenInclude(x => x.Vpn);
         }
 
         public static IQueryable<Vif> IncludeDeleteValidationProperties(this IQueryable<Vif> query)
@@ -75,7 +78,8 @@ namespace SCM.Models
                         .Include(x => x.Vlans)
                         .Include(x => x.RoutingInstance.RoutingInstanceType)
                         .Include(x => x.RoutingInstance.AttachmentSetRoutingInstances)
-                        .ThenInclude(x => x.AttachmentSet)
+                        .ThenInclude(x => x.AttachmentSet.VpnAttachmentSets)
+                        .ThenInclude(x => x.Vpn)
                         .Include(x => x.ContractBandwidthPool.Vifs)
                         .Include(x => x.ContractBandwidthPool.Attachments)
                         .Include(x => x.RoutingInstance.BgpPeers);
@@ -99,7 +103,6 @@ namespace SCM.Models
                         .Include(x => x.Mtu);
         }
     }
-
 
     public class Vif : IModifiableResource
     {
@@ -232,24 +235,6 @@ namespace SCM.Models
                         $"of '{this.VifRole.Name}'.");
                 }
             }
-        }
-
-        public virtual void ValidateDelete()
-        {
-            var sb = new StringBuilder();
-            if (this.RoutingInstance != null)
-            {
-                (from attachmentSetRoutingInstances in this.RoutingInstance.AttachmentSetRoutingInstances
-                 select attachmentSetRoutingInstances)
-                 .ToList()
-                    .ForEach(attachmentSetRoutingInstance =>
-                    {
-                        sb.Append($"Vif '{this.Name}' is belongs to attachment set '{attachmentSetRoutingInstance.AttachmentSet.Name}' " +
-                        "and therefore cannot be deleted. Remove the routing instance from the attachment set first.");
-                    });
-                }
-
-            if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());
         }
     }
 }

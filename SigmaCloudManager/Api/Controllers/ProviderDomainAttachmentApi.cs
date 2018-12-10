@@ -58,6 +58,7 @@ namespace Mind.Api.Controllers
 
         /// <param name="tenantId">ID of the tenant</param>
         /// <param name="body">attachment request object that generates a new attachment</param>
+        /// <param name="syncToNetwork">Sync changes with the network</param>
         /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
@@ -71,12 +72,13 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> CreateProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body)
+        public virtual async Task<IActionResult> CreateProviderDomainAttachment([FromRoute][Required]int? tenantId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentRequest body,
+        [FromQuery] bool? syncToNetwork)
         {
             try
             {
                 var request = Mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentRequest>(body);
-                var attachment = await _attachmentService.AddAsync(tenantId.Value, request);
+                var attachment = await _attachmentService.AddAsync(tenantId.Value, request, syncToNetwork.GetValueOrDefault());
                 var attachmentApiModel = Mapper.Map<Mind.Api.Models.ProviderDomainAttachment>(attachment);
                 return CreatedAtRoute("GetProviderDomainAttachment", new { attachmentId = attachment.AttachmentID }, attachmentApiModel);
             }
@@ -217,6 +219,7 @@ namespace Mind.Api.Controllers
         /// <param name="tenantId">The ID of the tenant</param>
         /// <param name="attachmentId">ID of the attachment</param>
         /// <param name="body">attachment update object that updates an existing attachment</param>
+        /// <param name="syncToNetwork">Sync changes with the network</param>
         /// <response code="204">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>
@@ -232,8 +235,9 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 412, type: typeof(ApiResponse), description: "Precondition failed")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> UpdateProviderDomainAttachment([FromRoute][Required]int? tenantId, 
-            [FromRoute][Required]int? attachmentId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentUpdate body)
+        public virtual async Task<IActionResult> UpdateProviderDomainAttachment([FromRoute][Required]int? tenantId,
+            [FromRoute][Required]int? attachmentId, [FromBody]Mind.Api.Models.ProviderDomainAttachmentUpdate body,
+            [FromQuery] bool? syncToNetwork)
         {
             try
             {
@@ -244,7 +248,7 @@ namespace Mind.Api.Controllers
                 }
 
                 var update = Mapper.Map<SCM.Models.RequestModels.ProviderDomainAttachmentUpdate>(body);
-                var attachment = await _attachmentService.UpdateAsync(attachmentId.Value, update);
+                var attachment = await _attachmentService.UpdateAsync(attachmentId.Value, update, syncToNetwork.GetValueOrDefault());
                 attachment.SetModifiedHttpHeaders(Response);
 
                 return StatusCode(StatusCodes.Status204NoContent);
@@ -286,19 +290,19 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <returns>An awaitable task</returns>
         /// <param name="attachmentId">The ID of the attachment</param>
-        /// <response code="201">Successful operation</response>
+        /// <response code="204">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
-        /// <response code="500">Error while updating the database</response>
+        /// <response code="500">Error while updating the database or the network</response>
         [HttpPost]
         [Route("/v{version:apiVersion}/tenants/{tenantId}/provider-attachments/{attachmentId}/sync")]
         [ValidateModelState]
         [ValidateProviderDomainAttachmentExists]
         [SwaggerOperation("SyncProviderDomainAttachment")]
-        [SwaggerResponse(statusCode: 201, type: typeof(ProviderDomainAttachment), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database or the network")]
         public async Task<IActionResult> SyncToNetwork([FromRoute][Required]int? attachmentId)
         {
             try
@@ -306,9 +310,19 @@ namespace Mind.Api.Controllers
                 await _attachmentService.SyncToNetworkPutAsync(attachmentId.Value);
             }
 
+            catch (IllegalNetworkSyncAttemptException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
             catch (BuilderBadArgumentsException ex)
             {
                 return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
             }
 
             catch (ServiceBadArgumentsException ex)
@@ -321,7 +335,7 @@ namespace Mind.Api.Controllers
                 return new NetworkUpdateFailedResult();
             }
 
-            return Ok();
+            return StatusCode(StatusCodes.Status204NoContent);
         }
     }
 }

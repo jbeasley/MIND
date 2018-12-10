@@ -54,33 +54,6 @@ namespace SCM.Services
             return await GetByIDAsync(attachmentSet.AttachmentSetID, deep: true, asTrackable: false);
         }
 
-        /// <summary>
-        /// Obsolete method - REMOVE
-        /// </summary>
-        /// <param name="attachmentSet"></param>
-        /// <returns></returns>
-        public async Task<AttachmentSet> AddAsync(AttachmentSet attachmentSet)
-        {
-            attachmentSet.Name = Guid.NewGuid().ToString("N");
-            this.UnitOfWork.AttachmentSetRepository.Insert(attachmentSet);
-            await this.UnitOfWork.SaveAsync();
-
-            return attachmentSet;
-        }
-
-        /// <summary>
-        /// Obsolete method - REMOVE
-        /// </summary>
-        /// <param name="attachmentSet"></param>
-        /// <returns></returns>
-        public async Task<AttachmentSet> UpdateAsync(AttachmentSet attachmentSet)
-        {
-            this.UnitOfWork.AttachmentSetRepository.Update(attachmentSet);
-            await this.UnitOfWork.SaveAsync();
-
-            return attachmentSet;
-        }
-
         public async Task<AttachmentSet> UpdateAsync(int attachmentSetId, AttachmentSetUpdate update)
         {
             // Perform updates to the attachment set and save

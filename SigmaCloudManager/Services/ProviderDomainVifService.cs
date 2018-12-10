@@ -26,7 +26,7 @@ namespace Mind.Services
             IProviderDomainVifDirector director,
             IDestroyable<Vif> destroyableVifDirector,
             Func<Attachment, INetworkSynchronizable<Vif>> networkSyncVifDirectorFactory,
-            IDataApi novaApiClient) : base (unitOfWork, mapper)
+            IDataApi novaApiClient) : base(unitOfWork, mapper)
         {
             _director = director;
             _destroyableVifDirector = destroyableVifDirector;
@@ -34,31 +34,14 @@ namespace Mind.Services
             _networkSyncVifDirectorFactory = networkSyncVifDirectorFactory;
         }
 
-        public async Task<Vif> AddAsync(int attachmentId, ProviderDomainVifRequest request, bool stage = true, bool syncToNetwork = false)
+        public async Task<Vif> AddAsync(int attachmentId, ProviderDomainVifRequest request, bool syncToNetwork = false)
         {
             var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
 
-            // Create the vif, and add to the network if the parent attachment is non-bundle, non-multiport.
+            // Check network sync is supported
+            CheckAllowNetworkSync(attachment, syncToNetwork);
 
-            var allowStage = (attachment.NetworkStatus == Models.NetworkStatusEnum.Active || attachment.NetworkStatus == Models.NetworkStatusEnum.Staged) && 
-                              !attachment.IsBundle && !attachment.IsMultiPort;
-
-            if (stage && !allowStage)
-            {
-                throw new ServiceBadArgumentsException($"The vif cannot be staged. Currently only vifs which belong to tagged attachments " +
-                    "which are not bundles or multiports support staging.");
-            }
-
-            var allowNetworkSync = attachment.NetworkStatus == Models.NetworkStatusEnum.Active && 
-                                   !attachment.IsBundle && !attachment.IsMultiPort;
-
-            if (syncToNetwork && !allowNetworkSync)
-            {
-                throw new ServiceBadArgumentsException($"The vif cannot be synchronised with the network. Currently only vifs which belong to tagged attachments " +
-                    "which are not bundles or multiports support network sync.");
-            }
-
-            var vif = await _director.BuildAsync(attachmentId, request, stage, syncToNetwork);
+            var vif = await _director.BuildAsync(attachmentId, request, syncToNetwork);
             UnitOfWork.VifRepository.Insert(vif);
 
             // Save changes to the db
@@ -73,9 +56,8 @@ namespace Mind.Services
         /// <returns>A task</returns>
         /// <param name="vifId">The ID of the vif to update</param>
         /// <param name="update">Update object containing the updates to apply to the vif</param>
-        /// <param name="stage"></param>
         /// <param name="syncToNetwork"></param>
-        public async Task<Vif> UpdateAsync(int vifId, ProviderDomainVifUpdate update, bool stage = true, bool syncToNetwork = false)
+        public async Task<Vif> UpdateAsync(int vifId, ProviderDomainVifUpdate update, bool syncToNetwork = false)
         {
             var vif = (from result in await UnitOfWork.VifRepository.GetAsync(
                     q =>
@@ -85,30 +67,10 @@ namespace Mind.Services
                        select result)
                        .Single();
 
-            // Update the vif and add to the network if the parent attachment is non-bundle, non-multiport
-            var allowStage = (vif.Attachment.NetworkStatus == Models.NetworkStatusEnum.Staged || vif.Attachment.NetworkStatus == Models.NetworkStatusEnum.Active) && 
-                              !vif.Attachment.IsBundle && !vif.Attachment.IsMultiPort;
-                
-            if (stage && !allowStage)
-            {
-                throw new ServiceBadArgumentsException($"The vif cannot be staged. Currently only vifs which belong to tagged attachments " +
-                    "which are not bundles or multiports support staging.");
-            }
+            // Check network sync is supported
+            CheckAllowNetworkSync(vif.Attachment, syncToNetwork);
 
-            if (syncToNetwork && vif.Attachment.NetworkStatus != Models.NetworkStatusEnum.Active)
-            {
-                throw new ServiceBadArgumentsException($"The vif cannot be synchronised with the network. The parent attachment must be activated with the network first.");
-            }
-
-            var allowNetworkSync = !vif.Attachment.IsBundle && !vif.Attachment.IsMultiPort;
-
-            if (syncToNetwork && !allowNetworkSync)
-            {
-                throw new ServiceBadArgumentsException($"The vif cannot be synchronised with the network. Currently only vifs which belong to tagged attachments " +
-                    "which are not bundles or multiports support network sync.");
-            }
-
-            var updatedVif = await _director.UpdateAsync(vifId, update, stage, syncToNetwork);
+            var updatedVif = await _director.UpdateAsync(vifId, update, syncToNetwork);
 
             // Save changes to the db
             await UnitOfWork.SaveAsync();
@@ -130,13 +92,11 @@ namespace Mind.Services
                        AsTrackable: false)
                        select result)
                        .Single();
-                
+
             // Destroy the vif and conditionally clean up the network.
             // Only vifs configured under non-bundle, non-multiport tagged attachment are currently provisioned to the network and therefore
             // require the network to be cleaned up when destroyed.
-            await _destroyableVifDirector.DestroyAsync(vif, vif.NetworkStatus == Models.NetworkStatusEnum.Active && 
-                !vif.Attachment.IsBundle && 
-                !vif.Attachment.IsMultiPort);
+            await _destroyableVifDirector.DestroyAsync(vif, !vif.Attachment.IsBundle && !vif.Attachment.IsMultiPort);
 
             await UnitOfWork.SaveAsync();
         }
@@ -155,34 +115,38 @@ namespace Mind.Services
                        select result)
                        .Single();
 
-            // Allow the vif to be synchronised with the network if it is in staged, active, or activation failure state
-            if (vif.NetworkStatus == Models.NetworkStatusEnum.Staged ||
-                vif.NetworkStatus == Models.NetworkStatusEnum.Active ||
-                vif.NetworkStatus == Models.NetworkStatusEnum.ActivationFailure)
+            var director = _networkSyncVifDirectorFactory(vif.Attachment);
+
+            try
             {
-                var director = _networkSyncVifDirectorFactory(vif.Attachment);
-
-                try
-                {
-                    var updatedVif = await director.SyncToNetworkPutAsync(vif);
-                }
-
-                catch (ApiException)
-                {
-                    // Rethrow the exception to be caught further up the stack
-                    throw;
-                }
-
-                finally
-                {                    
-                    // Save network status change for the vif
-                    await UnitOfWork.SaveAsync();
-                }
+                var updatedVif = await director.SyncToNetworkPutAsync(vif);
             }
-            else
+
+            catch (ApiException)
             {
-                throw new ServiceBadArgumentsException($"The vif cannot be synchronised with the network because it is not staged. " +
-                    "Edit and stage the vif first.");
+                // Rethrow the exception to be caught further up the stack
+                throw;
+            }
+
+            finally
+            {
+                // Save network status change for the vif
+                await UnitOfWork.SaveAsync();
+            }
+        }
+
+        /// <summary>
+        /// Checks the allow stage and network sync.
+        /// </summary>
+        /// <param name="attachment">Attachment.</param>
+        /// <param name="syncToNetwork">If set to <c>true</c> sync to network.</param>
+        private void CheckAllowNetworkSync(Attachment attachment, bool syncToNetwork)
+        {
+            var allowNetworkSync = !attachment.IsBundle && !attachment.IsMultiPort;
+            if (syncToNetwork && !allowNetworkSync)
+            {
+                throw new ServiceBadArgumentsException($"The vif cannot be synchronised with the network. Currently only vifs which belong to tagged attachments " +
+                    "which are not bundles or multiports support network sync.");
             }
         }
     }

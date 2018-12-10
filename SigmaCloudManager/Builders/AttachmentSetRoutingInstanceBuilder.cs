@@ -20,6 +20,12 @@ namespace Mind.Builders
             _attachmentSetRoutingInstance = new AttachmentSetRoutingInstance();
         }
 
+        public virtual IAttachmentSetRoutingInstanceBuilder ForAttachmentSetRoutingInstance(int? attachmentSetRoutingInstanceId) 
+        {
+            if (attachmentSetRoutingInstanceId.HasValue) _args.Add(nameof(ForAttachmentSetRoutingInstance), attachmentSetRoutingInstanceId);
+            return this; 
+        }
+
         public virtual IAttachmentSetRoutingInstanceBuilder ForAttachmentSet(int? attachmentSetId)
         {
             if (attachmentSetId.HasValue) _args.Add(nameof(ForAttachmentSet), attachmentSetId);
@@ -56,6 +62,10 @@ namespace Mind.Builders
             return this;
         }
 
+        /// <summary>
+        /// Builds the attachment set routing instance
+        /// </summary>
+        /// <returns>An instance of AttachmentSetRoutingInstance</returns>
         public virtual async Task<AttachmentSetRoutingInstance> BuildAsync()
         {
             if (_args.ContainsKey(nameof(ForAttachmentSet)))
@@ -77,6 +87,21 @@ namespace Mind.Builders
 
             _attachmentSetRoutingInstance.Validate();
             return _attachmentSetRoutingInstance;
+        }
+
+
+        /// <summary>
+        /// Destroys the attachment set routing oinstance
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        public async Task DestroyAsync()
+        {
+            if (_args.ContainsKey(nameof(ForAttachmentSetRoutingInstance)))
+            {
+                await SetAttachmentSetRoutingInstanceToDeleteAsync();
+                _attachmentSetRoutingInstance.ValidateDelete();
+                _unitOfWork.AttachmentSetRoutingInstanceRepository.Delete(_attachmentSetRoutingInstance);
+            }
         }
 
         protected internal virtual async Task SetAttachmentSetAsync()
@@ -107,6 +132,20 @@ namespace Mind.Builders
                                   .SingleOrDefault();
 
             _attachmentSetRoutingInstance.RoutingInstance = routingInstance;
+        }
+
+        protected internal virtual async Task SetAttachmentSetRoutingInstanceToDeleteAsync()
+        {
+            var attachmentSetRoutingInstanceId = (int)_args[nameof(ForAttachmentSetRoutingInstance)];
+            var attachmentSetRoutingInstance = (from result in await _unitOfWork.AttachmentSetRoutingInstanceRepository.GetAsync(
+                                             q => q.AttachmentSetRoutingInstanceID == attachmentSetRoutingInstanceId,
+                                             query: q => q.IncludeDeleteValidationProperties(),
+                                             AsTrackable: true)
+                                             select result)
+                                             .SingleOrDefault();
+
+            _attachmentSetRoutingInstance = attachmentSetRoutingInstance ?? 
+            throw new BuilderBadArgumentsException($"Cannot find attachment set routing instance with ID '{attachmentSetRoutingInstanceId}'.");
         }
 
         protected internal virtual void SetLocalIpRoutingPreference()

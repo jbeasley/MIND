@@ -28,6 +28,11 @@ namespace Mind.Models
         /// <summary>
         /// Activation failure enum
         /// </summary>
-        ActivationFailure = 3
+        ActivationFailure = 3,
+
+        /// <summary>
+        /// Staged Inconsistent enum
+        /// </summary>
+        StagedInconsistent = 4,
     }
 }

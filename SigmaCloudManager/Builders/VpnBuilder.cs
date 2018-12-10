@@ -94,15 +94,15 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVpnBuilder Stage(bool? stage)
-        {
-            if (stage.HasValue) _args.Add(nameof(Stage), stage);
-            return this;
-        }
-
         public virtual IVpnBuilder SyncToNetworkPut(bool? syncToNetworkPut)
         {
             if (syncToNetworkPut.HasValue) _args.Add(nameof(SyncToNetworkPut), syncToNetworkPut);
+            return this;
+        }
+
+        public virtual IVpnBuilder SyncToNetworkPatch(bool? syncToNetworkPatch)
+        {
+            if (syncToNetworkPatch.HasValue) _args.Add(nameof(SyncToNetworkPatch), syncToNetworkPatch);
             return this;
         }
 
@@ -122,7 +122,6 @@ namespace Mind.Builders
             {
                 // Prepare to update an existing vpn
                 await SetVpnAsync();
-                if (_args.ContainsKey(nameof(Stage))) SetStage();
             }
             else
             {
@@ -136,7 +135,6 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(WithAddressFamily))) await SetAddressFamilyAsync();
                 if (_args.ContainsKey(nameof(WithPlane))) await SetPlaneAsync();
                 if (_args.ContainsKey(nameof(WithRegion))) await SetRegionAsync();
-                if (_args.ContainsKey(nameof(Stage))) SetStage();
             }
 
             return _vpn;
@@ -289,12 +287,6 @@ namespace Mind.Builders
             _vpn.IsNovaVpn = (bool)_args[nameof(AsNovaVpn)];
         }
 
-        protected internal virtual void SetStage()
-        {
-            var stage = (bool)_args[nameof(Stage)];
-            if (stage) _vpn.NetworkStatus = Models.NetworkStatusEnum.Staged;
-        }
-
         protected virtual internal async Task SetVpnAsync()
         {
             var vpnId = (int)_args[nameof(ForVpn)];
@@ -332,10 +324,12 @@ namespace Mind.Builders
         /// <returns>An awaitable task</returns>
         protected async internal virtual Task SyncVpnToNetworkPutAsync()
         {
-            var dto = _vpn.ToNovaVpnPutDto();
+       
+            var dto = _vpn.ToNovaVpnDto();
+
             try
             {
-                await _novaApiClient.DataVpnVpnInstanceInstanceNamePutAsync(_vpn.Name, dto).ConfigureAwait(false);
+                await _novaApiClient.DataVpnVpnInstanceInstanceNamePutAsync(_vpn.Name, dto, true).ConfigureAwait(false);
                 _vpn.NetworkStatus = Models.NetworkStatusEnum.Active;
             }
 
@@ -349,12 +343,46 @@ namespace Mind.Builders
         }
 
         /// <summary>
+        /// Sync the vpn to network using a patch operation.
+        /// This updates existing VPN record with the updated data.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected async internal virtual Task SyncVpnToNetworkPatchAsync()
+        {
+
+            var dto = _vpn.ToNovaVpnDto();
+
+            try
+            {
+                await _novaApiClient.DataVpnVpnInstanceInstanceNamePatchAsync(_vpn.Name, dto, true).ConfigureAwait(false);
+                _vpn.NetworkStatus = Models.NetworkStatusEnum.Active;
+            }
+
+            catch (ApiException)
+            {
+                // Set status on the vpn to indicate activation on the network failed
+                // and rethrow the exception to be caught further up the stack
+                _vpn.NetworkStatus = Models.NetworkStatusEnum.ActivationFailure;
+                throw;
+            }
+        }
+
+
+        /// <summary>
         /// Delete the vpn from the network.
         /// </summary>
         /// <returns>An awaitable task</returns>
         protected async internal virtual Task DeleteVpnFromNetworkAsync()
         {
-            await _novaApiClient.DataVpnVpnInstanceInstanceNameDeleteAsync(_vpn.Name).ConfigureAwait(false);
+            try
+            {
+                await _novaApiClient.DataVpnVpnInstanceInstanceNameDeleteAsync(_vpn.Name, true).ConfigureAwait(false);
+            }
+
+            catch (ApiException)
+            {
+                // Add logging here
+            }
         }
     }
 }

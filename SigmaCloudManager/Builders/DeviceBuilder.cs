@@ -177,7 +177,7 @@ namespace Mind.Builders
             var statusType = _args[nameof(WithStatus)].ToString();
             var status = (from result in await _unitOfWork.DeviceStatusRepository.GetAsync(
                         x =>
-                          x.DeviceStatusType.ToString() == statusType,
+                          x.DeviceStatusType == Enum.Parse<SCM.Models.DeviceStatusTypeEnum>(statusType),
                           AsTrackable: true)
                           select result)  
                           .SingleOrDefault();

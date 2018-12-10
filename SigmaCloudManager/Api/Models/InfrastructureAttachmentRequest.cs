@@ -88,13 +88,29 @@ namespace Mind.Api.Models
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 
         /// <summary>
+        /// A description for the new attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        /// <example>Connectivity between UK2-P1 and UK2-PE1</example>
+        [DataMember(Name = "description")]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the new attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        /// <example>Some user notes which help explain the purpose of the attachment</example>
+        [DataMember(Name = "notes")]
+        public string Notes { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
         public override string ToString()
         {
             var sb = new StringBuilder();
-            sb.Append("class InfrastructureAtachmentRequest {\n");
+            sb.Append("class InfrastructureAttachmentRequest {\n");
             sb.Append("  BundleRequired: ").Append(BundleRequired).Append("\n");
             sb.Append("  BundleMinLinks: ").Append(BundleMinLinks).Append("\n");
             sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
@@ -102,6 +118,8 @@ namespace Mind.Api.Models
             sb.Append("  AttachmentRoleName: ").Append(AttachmentRoleName).Append("\n");
             sb.Append("  AttachmentBandwidthGbps: ").Append(AttachmentBandwidthGbps).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
+            sb.Append("  Description: ").Append(Description).Append("\n");
+            sb.Append("  Notes: ").Append(Notes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -172,6 +190,16 @@ namespace Mind.Api.Models
                     Ipv4Addresses == other.Ipv4Addresses ||
                     Ipv4Addresses != null &&
                     Ipv4Addresses.Equals(other.Ipv4Addresses)
+                ) &&
+                (
+                    Description == other.Description ||
+                    Description != null &&
+                    Description.Equals(other.Description)
+                ) &&
+                (
+                    Notes == other.Notes ||
+                    Notes != null &&
+                    Notes.Equals(other.Notes)
                 );
         }
 
@@ -199,6 +227,10 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AttachmentBandwidthGbps.GetHashCode();
                     if (Ipv4Addresses != null)
                     hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
+                    if (Description != null)
+                    hashCode = hashCode * 59 + Description.GetHashCode();
+                    if (Notes != null)
+                    hashCode = hashCode * 59 + Notes.GetHashCode();
                 return hashCode;
             }
         }

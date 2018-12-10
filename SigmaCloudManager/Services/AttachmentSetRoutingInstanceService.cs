@@ -10,16 +10,20 @@ using Mind.Services;
 using SCM.Services;
 using Mind.Models.RequestModels;
 using Mind.Builders;
+using Mind.Directors;
 
 namespace Mind.Services
 {
     public class AttachmentSetRoutingInstanceService : BaseService, IAttachmentSetRoutingInstanceService
     {
         private readonly IAttachmentSetRoutingInstanceDirector _director;
+        private readonly IDestroyable<AttachmentSetRoutingInstance> _destroyableDirector;
 
-        public AttachmentSetRoutingInstanceService(IUnitOfWork unitOfWork, IAttachmentSetRoutingInstanceDirector director) : base(unitOfWork)
+        public AttachmentSetRoutingInstanceService(IUnitOfWork unitOfWork, IAttachmentSetRoutingInstanceDirector director, 
+                                                   IDestroyable<AttachmentSetRoutingInstance> destroyableDirector) : base(unitOfWork)
         {
             _director = director;
+            _destroyableDirector = destroyableDirector;
         }
 
         public async Task<IEnumerable<AttachmentSetRoutingInstance>> GetAllByAttachmentSetIDAsync(int id, bool? deep = false, bool asTrackable = false)
@@ -78,13 +82,11 @@ namespace Mind.Services
                                              q =>
                                                 q.AttachmentSetID == attachmentSetId && 
                                                 q.RoutingInstanceID == routingInstanceId,
-                                                query: q => q.IncludeDeleteValidationProperties(),
-                                                AsTrackable: true)
+                                                AsTrackable: false)
                                                 select result)
                                                 .Single();
 
-            attachmentSetRoutingInstance.ValidateDelete();
-            this.UnitOfWork.AttachmentSetRoutingInstanceRepository.Delete(attachmentSetRoutingInstance);
+            await _destroyableDirector.DestroyAsync(attachmentSetRoutingInstance);
             await this.UnitOfWork.SaveAsync();
         }
     }

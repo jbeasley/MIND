@@ -20,7 +20,7 @@ namespace Mind.Builders
         public BundleAttachmentBuilder(IUnitOfWork unitOfWork,
                                        Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
                                        Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
-                                       DataApi novaApiClient) :
+                                       IDataApi novaApiClient) :
             base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)
         {
         }

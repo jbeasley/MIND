@@ -69,7 +69,7 @@ namespace Mind.Builders
             {
                 // Existing vpn attachment set for update
                 var arg = _args[nameof(WithAttachmentSet)];
-                if (arg.GetType() == typeof(int))
+                if (arg is int)
                 {
                     if (_args.ContainsKey(nameof(ForVpn)))
                     {
@@ -85,13 +85,13 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(ForVpn)))
                 {
                     var arg = _args[nameof(ForVpn)];
-                    if (arg.GetType() == typeof(Vpn))
+                    if (arg.GetType() != typeof(Vpn))
                     {
-                        _vpnAttachmentSet.Vpn = (arg as Vpn);
+                        await SetVpnAsync();
                     }
                     else
                     {
-                        await SetVpnAsync();
+                        _vpnAttachmentSet.Vpn = (arg as Vpn);
                     }
                 }
 
@@ -99,7 +99,7 @@ namespace Mind.Builders
                 {
 
                     var arg = _args[nameof(WithAttachmentSet)];
-                    if (arg.GetType() == typeof(string))
+                    if (arg is string)
                     {
                         await SetAttachmentSetAsync();
                     }

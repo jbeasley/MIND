@@ -237,25 +237,12 @@ namespace Mind
                 .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainUntaggedMultiPortAttachmentDirector");
             builder.RegisterType<ProviderDomainTaggedAttachmentDirector<MultiPortAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
             .Keyed<IProviderDomainAttachmentDirector>("ProviderDomainTaggedMultiPortAttachmentDirector");
-
-
-            //Infrastructure single attachment update directors
-            builder.RegisterType<InfrastructureUntaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<IInfrastructureAttachmentUpdateDirector>()
-                .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedSingleAttachmentUpdateDirector");
-            builder.RegisterType<InfrastructureTaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<IInfrastructureAttachmentUpdateDirector>()
-                .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedSingleAttachmentUpdateDirector");
-
+                
             // Infrastructure bundle attachment directors
             builder.RegisterType<InfrastructureUntaggedBundleAttachmentDirector>().As<IInfrastructureAttachmentDirector>()
                 .Keyed<IInfrastructureAttachmentDirector>("InfrastructureUntaggedBundleAttachmentDirector");
             builder.RegisterType<InfrastructureTaggedBundleAttachmentDirector>().As<IInfrastructureAttachmentDirector>()
                 .Keyed<IInfrastructureAttachmentDirector>("InfrastructureTaggedBundleAttachmentDirector");
-
-            //Infrastructure bundle attachment update directors
-            builder.RegisterType<InfrastructureUntaggedBundleAttachmentUpdateDirector>().As<IInfrastructureAttachmentUpdateDirector>()
-                .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedBundleAttachmentUpdateDirector");
-            builder.RegisterType<InfrastructureTaggedBundleAttachmentUpdateDirector>().As<IInfrastructureAttachmentUpdateDirector>()
-                   .Keyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedBundleAttachmentUpdateDirector");
 
             // Tenant domain single attachment directors
             builder.RegisterType<TenantDomainUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<ITenantDomainAttachmentDirector>()
@@ -274,25 +261,14 @@ namespace Mind
                 .Keyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedMultiPortAttachmentDirector");
             builder.RegisterType<TenantDomainTaggedAttachmentDirector<MultiPortAttachmentBuilder>>().As<ITenantDomainAttachmentDirector>()
                 .Keyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedMultiPortAttachmentDirector");
-
-            // Tenant domain single attachment update directors
-            builder.RegisterType<TenantDomainUntaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<ITenantDomainAttachmentUpdateDirector>()
-                .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedSingleAttachmentUpdateDirector");
-            builder.RegisterType<TenantDomainTaggedAttachmentUpdateDirector<SingleAttachmentBuilder>>().As<ITenantDomainAttachmentUpdateDirector>()
-                .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedSingleAttachmentUpdateDirector");
-
-            // Tenant domain bundle attachment update directors
-            builder.RegisterType<TenantDomainUntaggedBundleAttachmentUpdateDirector>().As<ITenantDomainAttachmentUpdateDirector>()
-                .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedBundleAttachmentUpdateDirector");
-            builder.RegisterType<TenantDomainTaggedBundleAttachmentUpdateDirector>().As<ITenantDomainAttachmentUpdateDirector>()
-                .Keyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedBundleAttachmentUpdateDirector");
-
+                
             // Attachment set directors
             builder.RegisterType<AttachmentSetDirector>().As<IAttachmentSetDirector>();
             builder.RegisterType<AttachmentSetUpdateDirector>().As<IAttachmentSetUpdateDirector>();
 
             // Attachment set routing instance director
             builder.RegisterType<AttachmentSetRoutingInstanceDirector>().As<IAttachmentSetRoutingInstanceDirector>();
+            builder.RegisterType<AttachmentSetRoutingInstanceDirector>().As<IDestroyable<SCM.Models.AttachmentSetRoutingInstance>>();
 
             // Provider domain inbound policy directors
             builder.RegisterType<ProviderDomainIpNetworkInboundPolicyDirector>().As<IProviderDomainIpNetworkInboundPolicyDirector>();
@@ -364,7 +340,6 @@ namespace Mind
 
             // Tenant community directors
             builder.RegisterType<TenantCommunityDirector>().As<ITenantCommunityDirector>();
-            builder.RegisterType<TenantCommunityUpdateDirector>().As<ITenantCommunityUpdateDirector>();
 
             // VPN attachment set directors
             builder.RegisterType<VpnAttachmentSetDirector>().As<IVpnAttachmentSetDirector>();
@@ -478,7 +453,7 @@ namespace Mind
                     return portRoleType == PortRoleTypeEnum.TenantFacing
                         ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("ProviderDomainVifDirector")
                         : portRoleType == PortRoleTypeEnum.ProviderInfrastructure
-                            ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("InfrastructureDomainVifDirector")
+                            ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("InfrastructureVifDirector")
                             : portRoleType == PortRoleTypeEnum.TenantInfrastructure
                                                     ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("TenantDomainVifDirector")
                                                     : null;
@@ -506,38 +481,38 @@ namespace Mind
             });
 
             // Infrastructure Attachment Update Director Factory
-            builder.Register<Func<SCM.Models.Attachment, IInfrastructureAttachmentUpdateDirector>>((c, p) =>
+            builder.Register<Func<SCM.Models.Attachment, IInfrastructureAttachmentDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
                 return (attachment) =>
                 {
-                    return attachment.AttachmentRole.IsTaggedRole
+                    return attachment.IsTagged
                         ? attachment.IsBundle
-                            ? context.ResolveKeyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedBundleAttachmentUpdateDirector")
-                            : context.ResolveKeyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureTaggedSingleAttachmentUpdateDirector")
+                            ? context.ResolveKeyed<IInfrastructureAttachmentDirector>("InfrastructureTaggedBundleAttachmentDirector")
+                            : context.ResolveKeyed<IInfrastructureAttachmentDirector>("InfrastructureTaggedSingleAttachmentDirector")
                         : attachment.IsBundle
-                            ? context.ResolveKeyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedBundleAttachmentUpdateDirector")
-                            : context.ResolveKeyed<IInfrastructureAttachmentUpdateDirector>("InfrastructureUntaggedSingleAttachmentUpdateDirector");
+                            ? context.ResolveKeyed<IInfrastructureAttachmentDirector>("InfrastructureUntaggedBundleAttachmentDirector")
+                            : context.ResolveKeyed<IInfrastructureAttachmentDirector>("InfrastructureUntaggedSingleAttachmentDirector");
                 };
             });
 
             // Tenant Domain Attachment Update Director Factory
-            builder.Register<Func<SCM.Models.Attachment, ITenantDomainAttachmentUpdateDirector>>((c, p) =>
+            builder.Register<Func<SCM.Models.Attachment, ITenantDomainAttachmentDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
                 return (attachment) =>
                 {
-                    return attachment.AttachmentRole.IsTaggedRole
+                    return attachment.IsTagged
                         ? attachment.IsBundle
-                            ? context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedBundleAttachmentUpdateDirector")
+                            ? context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedBundleAttachmentDirector")
                             : attachment.IsMultiPort
-                                ? context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedMultiPortAttachmentUpdateDirector")
-                                : context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainTaggedSingleAttachmentUpdateDirector")
+                                ? context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedMultiPortAttachmentDirector")
+                                : context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainTaggedSingleAttachmentDirector")
                         : attachment.IsBundle
-                            ? context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedBundleAttachmentUpdateDirector")
+                            ? context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedBundleAttachmentDirector")
                             : attachment.IsMultiPort
-                                ? context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedMultiPortAttachmentUpdateDirector")
-                                : context.ResolveKeyed<ITenantDomainAttachmentUpdateDirector>("TenantDomainUntaggedSingleAttachmentUpdateDirector");
+                                ? context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedMultiPortAttachmentDirector")
+                                : context.ResolveKeyed<ITenantDomainAttachmentDirector>("TenantDomainUntaggedSingleAttachmentDirector");
                 };
             });
 
@@ -630,7 +605,6 @@ namespace Mind
             builder.RegisterType<LogicalInterfaceBuilder>().As<ILogicalInterfaceBuilder>();
 
         }
-
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory, IApiVersionDescriptionProvider provider)

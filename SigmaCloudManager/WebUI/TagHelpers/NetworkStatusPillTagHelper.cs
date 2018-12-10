@@ -38,6 +38,9 @@ namespace Mind.WebUI.TagHelpers
                     case NetworkStatusEnum.ActivationFailure:
                         output.Attributes.SetAttribute("class", "badge badge-pill badge badge-pill badge-danger");
                         break;
+                    case NetworkStatusEnum.StagedInconsistent:
+                        output.Attributes.SetAttribute("class", "badge badge-pill badge badge-pill badge-warning");
+                        break;
                 }
             }
         }

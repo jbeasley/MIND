@@ -26,7 +26,6 @@ namespace Mind.Builders
         IVifBuilder WithJumboMtu(bool? useJumboMtu);
         IVifBuilder CleanUpRoutingInstance();
         IVifBuilder CleanUpContractBandwidthPool();
-        IVifBuilder Stage(bool? stage);
         IVifBuilder SyncToNetworkPut(bool? syncToNetworkPut);
         IVifBuilder CleanUpNetwork(bool? cleanUpNetwork);
 

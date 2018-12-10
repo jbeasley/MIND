@@ -18,16 +18,16 @@ namespace Mind.Services
     /// </summary>
     public class InfrastructureAttachmentService : BaseAttachmentService, IInfrastructureAttachmentService
     {
-        private readonly Func<InfrastructureAttachmentRequest, AttachmentRole, IInfrastructureAttachmentDirector> _directorFactory;
-        private readonly Func<Attachment, IInfrastructureAttachmentUpdateDirector> _updateDirectorFactory;
+        private readonly Func<InfrastructureAttachmentRequest, AttachmentRole, IInfrastructureAttachmentDirector> _createDirectorFactory;
+        private readonly Func<Attachment, IInfrastructureAttachmentDirector> _attachmentDirectorFactory;
 
         public InfrastructureAttachmentService(IUnitOfWork unitOfWork,
             IMapper mapper,
             Func<InfrastructureAttachmentRequest, AttachmentRole, IInfrastructureAttachmentDirector> directorFactory,
-            Func<Attachment, IInfrastructureAttachmentUpdateDirector> updateDirectorFactory) : base(unitOfWork, mapper)
+            Func<Attachment, IInfrastructureAttachmentDirector> attachmentDirectorFactory) : base(unitOfWork, mapper)
         {
-            _directorFactory = directorFactory;
-            _updateDirectorFactory = updateDirectorFactory;
+            _createDirectorFactory = directorFactory;
+            _attachmentDirectorFactory = attachmentDirectorFactory;
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Mind.Services
                                   .SingleOrDefault();
 
             if (attachmentRole == null) throw new ServiceBadArgumentsException($"Could not find attachment role with name '{request.AttachmentRoleName}'."); 
-            var director = _directorFactory(request, attachmentRole);
+            var director = _createDirectorFactory(request, attachmentRole);
             var attachment = await director.BuildAsync(deviceId, request);
             UnitOfWork.AttachmentRepository.Insert(attachment);
             await UnitOfWork.SaveAsync();
@@ -85,15 +85,10 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> UpdateAsync(int attachmentId, InfrastructureAttachmentUpdate update)
         {
-            var attachment = (from result in await UnitOfWork.AttachmentRepository.GetAsync(
-                            q =>
-                              q.AttachmentID == attachmentId,
-                              query: q => q.Include(x => x.AttachmentRole),
-                              AsTrackable: true)
-                              select result)
-                              .Single();
+            // Get the current attachment as a non-tracked entity.
+            var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
 
-            var director = _updateDirectorFactory(attachment);
+            var director = _attachmentDirectorFactory(attachment);
             var updatedAttachment = await director.UpdateAsync(attachment, update);
 
             await UnitOfWork.SaveAsync();
@@ -106,38 +101,12 @@ namespace Mind.Services
         /// <param name="attachmentId"></param>
         public async Task DeleteAsync(int attachmentId)
         {
-            var attachment = (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
-                            q => 
-                              q.AttachmentID == attachmentId,
-                              query: q => q.IncludeDeleteValidationProperties(),
-                              AsTrackable: true)
-                              select attachments)
-                              .Single();
+            var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+            var director = _attachmentDirectorFactory(attachment);
 
-            // Validate the attachment can be deleted
-            attachment.ValidateDelete();
+            // Destroy the attachment
+            await director.DestroyAsync(attachment);
 
-            var ports = attachment.Interfaces.SelectMany(
-                                                    q => 
-                                                        q.Ports)
-                                                        .ToList();
-
-            var portStatusFreeId = (from portStatuses in await UnitOfWork.PortStatusRepository.GetAsync(
-                                q => 
-                                    q.PortStatusType == PortStatusTypeEnum.Free, 
-                                    AsTrackable: true)
-                                    select portStatuses)
-                                    .Single().PortStatusID;
-
-            // Update ports to release back to inventory
-            foreach (var port in ports)
-            {
-                port.TenantID = null;
-                port.PortStatusID = portStatusFreeId;
-                port.InterfaceID = null;
-            }
-
-            UnitOfWork.AttachmentRepository.Delete(attachment);
             await UnitOfWork.SaveAsync();
         }
     }

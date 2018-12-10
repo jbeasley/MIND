@@ -189,14 +189,14 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateTenantExists]
-        public async Task<IActionResult> Create(int? tenantId, ProviderDomainAttachmentRequestViewModel requestModel, bool? stage, bool? syncToNetwork)
+        public async Task<IActionResult> Create(int? tenantId, ProviderDomainAttachmentRequestViewModel requestModel, bool? syncToNetwork)
         {
             if (ModelState.IsValid)
             {
                 try
                 {
                     var request = _mapper.Map<ProviderDomainAttachmentRequest>(requestModel);
-                    var attachment = await _attachmentService.AddAsync(tenantId.Value, request, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
+                    var attachment = await _attachmentService.AddAsync(tenantId.Value, request, syncToNetwork.GetValueOrDefault());
                     return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
                 }
 
@@ -263,7 +263,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateProviderDomainAttachmentExists]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int? attachmentId, ProviderDomainAttachmentUpdateViewModel update, bool? stage, bool? syncToNetwork)
+        public async Task<ActionResult> Edit(int? attachmentId, ProviderDomainAttachmentUpdateViewModel update, bool? syncToNetwork)
         {
             var attachment = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
 
@@ -281,7 +281,7 @@ namespace Mind.WebUI.Controllers
 
                     try
                     {
-                        await _attachmentService.UpdateAsync(attachmentId.Value, attachmentUpdate, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
+                        await _attachmentService.UpdateAsync(attachmentId.Value, attachmentUpdate, syncToNetwork.GetValueOrDefault());
                         return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = attachment.TenantID });
                     }
 

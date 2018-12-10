@@ -68,6 +68,16 @@ a.custom-card:hover {
     text-decoration: none;
 }
 
+    a.custom-card:hover {
+        transition: transform .25s;
+        transform: scale(1.1);
+    }
+
+a.custom-card {
+    transition: transform .25s;
+    transform: scale(1.0);
+}
+
 .vertical-align {
     display: flex;
     align-items: center;

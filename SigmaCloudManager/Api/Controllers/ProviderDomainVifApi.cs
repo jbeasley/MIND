@@ -58,6 +58,7 @@ namespace Mind.Api.Controllers
 
         /// <param name="attachmentId">ID of the attachment under which the new vif will be created</param>
         /// <param name="body">vif request object that generates a new vif</param>
+        /// <param name="syncToNetwork">Sync changes with the network</param>
         /// <response code="201">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
@@ -68,12 +69,13 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 201, type: typeof(ProviderDomainVif), description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        public virtual async Task<IActionResult> CreateTenantProviderDomainVif([FromRoute][Required]int? attachmentId, [FromBody]ProviderDomainVifRequest body)
+        public virtual async Task<IActionResult> CreateTenantProviderDomainVif([FromRoute][Required]int? attachmentId, [FromBody]ProviderDomainVifRequest body,
+        [FromQuery] bool? syncToNetwork)
         {
             try
             {
                 var request = Mapper.Map<Mind.Models.RequestModels.ProviderDomainVifRequest>(body);
-                var vif = await _vifService.AddAsync(attachmentId.Value, request);
+                var vif = await _vifService.AddAsync(attachmentId.Value, request, syncToNetwork.GetValueOrDefault());
                 var vifApiModel = Mapper.Map<Mind.Api.Models.ProviderDomainVif>(vif);
                 return CreatedAtRoute("GetProviderDomainVif", new { vifId = vif.VifID }, vifApiModel);
             }
@@ -212,6 +214,7 @@ namespace Mind.Api.Controllers
         /// <param name="attachmentId">ID of the attachment</param>
         /// <param name="vifId">ID of the vif</param>
         /// <param name="body">vif update object that updates an existing vif</param>
+        /// <param name="syncToNetwork">Sync changes with the network</param>
         /// <response code="200">Successful operation</response>
         /// <response code="404">The specified resource was not found</response>
         /// <response code="412">Precondition failed</response>
@@ -228,7 +231,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> UpdateProviderDomainVif([FromRoute][Required]int? attachmentId,
-            [FromRoute][Required]int? vifId, [FromBody]Mind.Api.Models.ProviderDomainVifUpdate body)
+            [FromRoute][Required]int? vifId, [FromBody]Mind.Api.Models.ProviderDomainVifUpdate body, [FromQuery] bool? syncToNetwork)
         { 
             try
             {
@@ -236,7 +239,7 @@ namespace Mind.Api.Controllers
                 if (item.HasPreconditionFailed(Request)) return new PreconditionFailedResult();
 
                 var update = Mapper.Map<Mind.Models.RequestModels.ProviderDomainVifUpdate>(body);
-                var vif = await _vifService.UpdateAsync(vifId.Value, update);
+                var vif = await _vifService.UpdateAsync(vifId.Value, update, syncToNetwork.GetValueOrDefault());
                 vif.SetModifiedHttpHeaders(Response);
 
                 return StatusCode(StatusCodes.Status204NoContent);
@@ -278,20 +281,19 @@ namespace Mind.Api.Controllers
         /// </summary>
         /// <returns>An awaitable task</returns>
         /// <param name="vifId">The ID of the vif</param>
-        /// <response code="201">Successful operation</response>
+        /// <response code="204">Successful operation</response>
         /// <response code="422">Validation error</response>
         /// <response code="404">The specified resource was not found</response>
-        /// <response code="500">Error while updating the database</response>
-        [HttpPost]
+        /// <response code="500">Error while updating the database or the network</response>
         [HttpPost]
         [Route("/v{version:apiVersion}/provider-attachments/{attachmentId}/vifs/{vifId}/sync")]
         [ValidateModelState]
         [ValidateProviderDomainVifExists]
         [SwaggerOperation("SyncProviderDomainVif")]
-        [SwaggerResponse(statusCode: 201, type: typeof(ProviderDomainVif), description: "Successful operation")]
+        [SwaggerResponse(statusCode: 204, description: "Successful operation")]
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
-        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
+        [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database or the network")]
         public async Task<IActionResult> SyncToNetwork([FromRoute][Required]int? vifId)
         {
             try
@@ -299,9 +301,19 @@ namespace Mind.Api.Controllers
                 await _vifService.SyncToNetworkPutAsync(vifId.Value);
             }
 
+            catch (IllegalNetworkSyncAttemptException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
+            }
+
             catch (BuilderBadArgumentsException ex)
             {
                 return new BadArgumentsResult(ex.Message);
+            }
+
+            catch (BuilderUnableToCompleteException ex)
+            {
+                return new ValidationFailedResult(ex.Message);
             }
 
             catch (ServiceBadArgumentsException ex)
@@ -314,7 +326,7 @@ namespace Mind.Api.Controllers
                 return new NetworkUpdateFailedResult();
             }
 
-            return Ok();
+            return StatusCode(StatusCodes.Status204NoContent);
         }
     }
 }

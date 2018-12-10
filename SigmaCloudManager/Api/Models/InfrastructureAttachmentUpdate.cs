@@ -61,6 +61,22 @@ namespace Mind.Api.Models
         public bool? UseJumboMtu { get; set; }
 
         /// <summary>
+        /// A description for the new attachment
+        /// </summary>
+        /// <value>String value for the description</value>
+        /// <example>Connectivity to LAN</example>
+        [DataMember(Name = "description")]
+        public string Description { get; set; }
+
+        /// <summary>
+        /// Notes for the new attachment
+        /// </summary>
+        /// <value>String value for notes</value>
+        /// <example>Some user notes which help explain the purpose of the attachment</example>
+        [DataMember(Name = "notes")]
+        public string Notes { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -72,6 +88,8 @@ namespace Mind.Api.Models
             sb.Append("  BundleMaxLinks: ").Append(BundleMaxLinks).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
             sb.Append("  UseJumboMtu: ").Append(UseJumboMtu).Append("\n");
+            sb.Append("  Description: ").Append(Description).Append("\n");
+            sb.Append("  Notes: ").Append(Notes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -127,6 +145,16 @@ namespace Mind.Api.Models
                     Ipv4Addresses == other.Ipv4Addresses ||
                     Ipv4Addresses != null &&
                     Ipv4Addresses.Equals(other.Ipv4Addresses)
+                ) &&
+                (
+                    Description == other.Description ||
+                    Description != null &&
+                    Description.Equals(other.Description)
+                ) &&
+                (
+                    Notes == other.Notes ||
+                    Notes != null &&
+                    Notes.Equals(other.Notes)
                 );
         }
 
@@ -148,6 +176,11 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
                     if (UseJumboMtu != null)
                     hashCode = hashCode * 59 + UseJumboMtu.GetHashCode();
+                    if (Description != null)
+                    hashCode = hashCode * 59 + Description.GetHashCode();
+                    if (Notes != null)
+                    hashCode = hashCode * 59 + Notes.GetHashCode();
+
                 return hashCode;
             }
         }

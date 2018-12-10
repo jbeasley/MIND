@@ -64,10 +64,9 @@ namespace Mind.Services
         /// </summary>
         /// <param name="tenantId"></param>
         /// <param name="request"></param>
-        /// <param name="stage"></param>
         /// <param name="syncToNetwork"></param>
         /// <returns></returns>
-        public async Task<Attachment> AddAsync(int tenantId, ProviderDomainAttachmentRequest request, bool stage = true, bool syncToNetwork = false)
+        public async Task<Attachment> AddAsync(int tenantId, ProviderDomainAttachmentRequest request, bool syncToNetwork = false)
         {
             var attachmentRole = (from result in await UnitOfWork.AttachmentRoleRepository.GetAsync(
                                 x =>
@@ -80,25 +79,12 @@ namespace Mind.Services
                 throw new ServiceBadArgumentsException($"Could not find attachment role with name '{request.AttachmentRoleName}'.");
             }
 
-            // Create the attachment, and add to the network for non-bundle, non-multiport tagged attachments only
-            var allowStageAndNetworkSync = attachmentRole.IsTaggedRole &&
-                                                       !request.BundleRequired.GetValueOrDefault() &&
-                                                       !request.MultiportRequired.GetValueOrDefault();
-
-            if (stage && !allowStageAndNetworkSync) 
-            {
-                throw new ServiceBadArgumentsException($"The attachment cannot be staged. Currently only tagged attachments " +
-                	"which are not bundles or multiports support staging.");
-            }
-
-            if (syncToNetwork && !allowStageAndNetworkSync)
-            {
-                throw new ServiceBadArgumentsException($"The attachment cannot be synchronised with the network. Currently only tagged attachments " +
-                	"which are not bundles or multiports support network sync.");
-            }
+            // Check sync to network is allowed
+            CheckAllowNetworkSync(attachmentRole.IsTaggedRole, 
+                        request.BundleRequired.GetValueOrDefault(), request.MultiportRequired.GetValueOrDefault(), syncToNetwork);
 
             var director = _createAttachmentDirectorFactory(request, attachmentRole);
-            var attachment = await director.BuildAsync(tenantId, request, stage, syncToNetwork);
+            var attachment = await director.BuildAsync(tenantId, request, syncToNetwork);
 
             UnitOfWork.AttachmentRepository.Insert(attachment);
 
@@ -112,31 +98,18 @@ namespace Mind.Services
         /// </summary>
         /// <param name="attachmentId"></param>
         /// <param name="update"></param>
-        /// <param name="stage"></param>
         /// <param name="syncToNetwork"></param>
         /// <returns></returns>
-        public async Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update, bool stage = true, bool syncToNetwork = false)
+        public async Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update, bool syncToNetwork = false)
         {
             // Get the current attachment as a non-tracked entity.
             var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
 
-            // Update the attachment, and update the network if the attachment is a non-bundle, non-multiport tagged attachment
-            var allowStageAndNetworkSync = attachment.IsTagged && !attachment.IsBundle && !attachment.IsMultiPort;
-
-            if (stage && !allowStageAndNetworkSync)
-            {
-                throw new ServiceBadArgumentsException($"The attachment cannot be staged. Currently only tagged attachments " +
-                    "which are not bundles or multiports support staging.");
-            }
-
-            if (syncToNetwork && !allowStageAndNetworkSync)
-            {
-                throw new ServiceBadArgumentsException($"The attachment cannot be synchronised with the network. Currently only tagged attachments " +
-                    "which are not bundles or multiports support network sync.");
-            }
+            // Check sync to network is allowed
+            CheckAllowNetworkSync(attachment.IsTagged, attachment.IsBundle, attachment.IsMultiPort, syncToNetwork);
 
             var director = _attachmentDirectorFactory(attachment);
-            var updatedAttachment = await director.UpdateAsync(attachment, update, stage, syncToNetwork);
+            var updatedAttachment = await director.UpdateAsync(attachment, update, syncToNetwork);
 
             await UnitOfWork.SaveAsync();
             return await base.GetByIDAsync(attachment.AttachmentID, PortRoleTypeEnum.TenantFacing, deep: true, asTrackable: false);
@@ -152,9 +125,7 @@ namespace Mind.Services
             var director = _attachmentDirectorFactory(attachment);
 
             // Destroy the attachment
-            await director.DestroyAsync(attachment, cleanUpNetwork: attachment.NetworkStatus == Models.NetworkStatusEnum.Active && 
-                !attachment.IsBundle && 
-                !attachment.IsMultiPort);
+            await director.DestroyAsync(attachment, cleanUpNetwork: !attachment.IsBundle && !attachment.IsMultiPort);
 
             await UnitOfWork.SaveAsync();
         }
@@ -167,35 +138,40 @@ namespace Mind.Services
         public async Task SyncToNetworkPutAsync(int attachmentId)
         {
             var attachment = await UnitOfWork.AttachmentRepository.GetByIDAsync(attachmentId);
+            var director = _networkSyncAttachmentDirectorFactory(attachment);
 
-            // Allow the attachment to be synchronised with the network if it is in staged, active, or activation failure state
-            if (attachment.NetworkStatus == Models.NetworkStatusEnum.Staged ||
-                attachment.NetworkStatus == Models.NetworkStatusEnum.Active ||
-                attachment.NetworkStatus == Models.NetworkStatusEnum.ActivationFailure)
+            try
             {
-                var director = _networkSyncAttachmentDirectorFactory(attachment);
-
-                try
-                {
-                    await director.SyncToNetworkPutAsync(attachment);
-                }
-                     
-                catch (ApiException)
-                {
-                    // Rethrow the exception to be caught further up the stack
-                    throw;
-                }
-
-                finally
-                {
-                    // Save network status change for the attachment
-                    await UnitOfWork.SaveAsync();
-                }
+                await director.SyncToNetworkPutAsync(attachment);
             }
-            else
-            { 
-                throw new ServiceBadArgumentsException($"The attachment cannot be synchronised with the network because it is not staged. " +
-                	"Edit and stage the attachment first.");
+
+            catch (ApiException)
+            {
+                // Rethrow the exception to be caught further up the stack
+                throw;
+            }
+
+            finally
+            {
+                // Save network status change for the attachment
+                await UnitOfWork.SaveAsync();
+            }
+        }
+
+        /// <summary>
+        /// Checks the allow stage and network sync.
+        /// </summary>
+        /// <param name="tagged">If set to <c>true</c> tagged.</param>
+        /// <param name="bundle">If set to <c>true</c> bundle.</param>
+        /// <param name="multiport">If set to <c>true</c> multiport.</param>
+        /// <param name="syncToNetwork">If set to <c>true</c> sync to network.</param>
+        private void CheckAllowNetworkSync(bool tagged, bool bundle, bool multiport, bool syncToNetwork)
+        {
+            var allowNetworkSync = tagged && !bundle && !multiport;                                                     
+            if (syncToNetwork && !allowNetworkSync)
+            {
+                throw new ServiceBadArgumentsException($"The attachment cannot be synchronised with the network. Currently only tagged attachments " +
+                    "which are not bundles or multiports support network sync.");
             }
         }
     }

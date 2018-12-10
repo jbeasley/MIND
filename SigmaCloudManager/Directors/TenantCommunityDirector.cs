@@ -23,5 +23,15 @@ namespace Mind.Builders
                                  .WithIpRoutingBehaviour(request.IpRoutingBehaviour.ToString())
                                  .BuildAsync();
         }
+
+        public async Task<SCM.Models.TenantCommunity> UpdateAsync(int tenantCommunityId, TenantCommunityRequest request)
+        {
+            return await _builder.ForTenantCommunity(tenantCommunityId)
+                                 .WithAsNumber(request.AutonomousSystemNumber)
+                                 .WithNumber(request.Number)
+                                 .WithAllowExtranet(request.AllowExtranet)
+                                 .WithIpRoutingBehaviour(request.IpRoutingBehaviour.ToString())
+                                 .BuildAsync();
+        }
     }
 }

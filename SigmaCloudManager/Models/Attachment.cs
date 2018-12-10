@@ -7,6 +7,7 @@ using System.Net;
 using Microsoft.EntityFrameworkCore;
 using Mind.Models;
 using IO.NovaAttSwagger.Model;
+using System.Text;
 
 namespace SCM.Models
 {
@@ -152,7 +153,11 @@ namespace SCM.Models
                         .Include(x => x.Vifs)
                         .ThenInclude(x => x.RoutingInstance.RoutingInstanceType)
                         .Include(x => x.Vifs)
-                        .ThenInclude(x => x.RoutingInstance.BgpPeers);
+                        .ThenInclude(x => x.RoutingInstance.BgpPeers)
+                        .Include(x => x.Vifs)
+                        .ThenInclude(x => x.RoutingInstance.AttachmentSetRoutingInstances)
+                        .ThenInclude(x => x.AttachmentSet.VpnAttachmentSets)
+                        .ThenInclude(x => x.Vpn);
         }
 
         public static IQueryable<Attachment> IncludeDeleteValidationProperties(this IQueryable<Attachment> query)
@@ -178,12 +183,15 @@ namespace SCM.Models
                                      .ThenInclude(x => x.ContractBandwidthPool.Attachments)
                                      .Include(x => x.Vifs)
                                      .ThenInclude(x => x.RoutingInstance.AttachmentSetRoutingInstances)
-                                     .ThenInclude(x => x.AttachmentSet)
+                                     .ThenInclude(x => x.AttachmentSet.VpnAttachmentSets)
+                                     .ThenInclude(x => x.Vpn)
                                      .Include(x => x.RoutingInstance.RoutingInstanceType)
                                      .Include(x => x.RoutingInstance.Vifs)
                                      .Include(x => x.RoutingInstance.Attachments)
                                      .Include(x => x.RoutingInstance.BgpPeers)
-                                     .Include(x => x.RoutingInstance.AttachmentSetRoutingInstances);
+                                     .Include(x => x.RoutingInstance.AttachmentSetRoutingInstances)
+                                     .ThenInclude(x => x.AttachmentSet.VpnAttachmentSets)
+                                     .ThenInclude(x => x.Vpn);
         }
 
         public static IQueryable<Attachment> IncludeDeepProperties(this IQueryable<Attachment> query)
@@ -442,30 +450,6 @@ namespace SCM.Models
             {
                 this.RoutingInstance.Validate();
             }
-        }
-
-        /// <summary>
-        /// Validate the attachment can be deleted
-        /// </summary>
-        public virtual void ValidateDelete()
-        {
-            if (this.RoutingInstance != null)
-            {
-                if (this.RoutingInstance.AttachmentSetRoutingInstances.Any())
-                {
-                    throw new IllegalDeleteAttemptException($"The routing instance '{this.RoutingInstance.Name}' for attachment '{this.Name}' " +
-                        $"belongs to one or more attachment sets and cannot be deleted. Remove the routing instance for the attachment from " +
-                        $"all attachment sets first.");
-                }
-            }
-
-            // Validate each Vif associated with the Attachment can be deleted
-            this.Vifs
-                .ToList()
-                .ForEach(
-                    x =>
-                    x.ValidateDelete()
-                );
         }
 
         /// <summary>

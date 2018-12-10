@@ -26,8 +26,8 @@ namespace Mind.Builders
         IIpVpnBuilder WithMulticastVpnServiceType(string multicastVpnServiceType);
         IIpVpnBuilder WithMulticastVpnDirectionType(string multicastVpnDirectionType);
         IIpVpnBuilder WithAttachmentSets(List<VpnAttachmentSetRequest> vpnAttachmentSetRequests);
-        IIpVpnBuilder Stage(bool? stage);
         IIpVpnBuilder SyncToNetworkPut(bool? syncToNetworkPut);
+        IIpVpnBuilder SyncToNetworkPatch(bool? syncToNetworkPatch);
         IIpVpnBuilder CleanUpNetwork(bool? cleanUpNetwork);
         Task<Vpn> BuildAsync();
         Task<Vpn> SyncToNetworkPutAsync();

@@ -14,8 +14,8 @@ namespace Mind.Services
     {
         Task<Attachment> GetByIDAsync(int attachmentId, bool? deep = false, bool asTrackable = false);
         Task<List<Attachment>> GetAllByTenantIDAsync(int tenantId, bool? deep = false, bool asTrackable = false);
-        Task<Attachment> AddAsync(int tenantId, ProviderDomainAttachmentRequest request, bool stage = true, bool syncToNetwork = false);
-        Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update, bool stage = true, bool syncToNetwork = false);
+        Task<Attachment> AddAsync(int tenantId, ProviderDomainAttachmentRequest request, bool syncToNetwork = false);
+        Task<Attachment> UpdateAsync(int attachmentId, ProviderDomainAttachmentUpdate update, bool syncToNetwork = false);
         Task DeleteAsync(int attachmentId);
         Task SyncToNetworkPutAsync(int attachmentId);
     }

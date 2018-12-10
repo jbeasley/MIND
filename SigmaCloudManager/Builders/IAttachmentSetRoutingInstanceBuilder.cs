@@ -12,10 +12,12 @@ namespace Mind.Builders
     {
         IAttachmentSetRoutingInstanceBuilder ForAttachmentSet(int? attachmenSetId);
         IAttachmentSetRoutingInstanceBuilder ForAttachmentSet(AttachmentSet attachmenSet);
+        IAttachmentSetRoutingInstanceBuilder ForAttachmentSetRoutingInstance(int? attachmentSetRoutingInstanceId);
         IAttachmentSetRoutingInstanceBuilder WithRoutingInstance(string routingInstanceName);
         IAttachmentSetRoutingInstanceBuilder WithLocalIpRoutingPreference(int? localIpRoutingPreference);
         IAttachmentSetRoutingInstanceBuilder WithAdvertisedIpRoutingPreference(int? advertisedIpRoutingPreference);
         IAttachmentSetRoutingInstanceBuilder WithMulticastDesignatedRouterPreference(int? multicastDesignatedRouterPreference);
         Task<AttachmentSetRoutingInstance> BuildAsync();
+        Task DestroyAsync();
     }
 }

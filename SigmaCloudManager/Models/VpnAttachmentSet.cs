@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
+using System.Text;
 
 namespace SCM.Models
 {
@@ -337,17 +338,6 @@ namespace SCM.Models
                         }
                     }
                 }
-            }
-        }
-
-        /// <summary>
-        /// Validate deletion of the vpn attachment set
-        /// </summary>
-        protected virtual internal void ValidateDelete()
-        {
-            if (this.Vpn.NetworkStatus == NetworkStatusEnum.Staged)
-            {
-
             }
         }
     }

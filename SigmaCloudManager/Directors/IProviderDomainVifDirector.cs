@@ -10,7 +10,7 @@ namespace Mind.Builders
 {
     public interface IProviderDomainVifDirector
     {
-        Task<Vif> BuildAsync(int attachmentId, ProviderDomainVifRequest request, bool stage = true, bool syncToNetwork = false);
-        Task<Vif> UpdateAsync(int vifId, ProviderDomainVifUpdate update, bool stage = true, bool syncToNetwork = false);
+        Task<Vif> BuildAsync(int attachmentId, ProviderDomainVifRequest request, bool syncToNetwork = false);
+        Task<Vif> UpdateAsync(int vifId, ProviderDomainVifUpdate update, bool syncToNetwork = false);
     }
 }

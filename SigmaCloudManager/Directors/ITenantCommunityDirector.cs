@@ -10,5 +10,6 @@ namespace Mind.Builders
     public interface ITenantCommunityDirector
     {
         Task<TenantCommunity> BuildAsync(int tenantId, TenantCommunityRequest request);
+        Task<TenantCommunity> UpdateAsync(int tenantCommunityId, TenantCommunityRequest update);
     }
 }

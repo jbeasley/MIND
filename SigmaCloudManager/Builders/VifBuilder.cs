@@ -9,6 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IO.NovaAttSwagger.Api;
 using IO.NovaAttSwagger.Client;
+using System.Text;
 
 namespace Mind.Builders
 {
@@ -135,12 +136,6 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual IVifBuilder Stage(bool? stage)
-        {
-            if (stage.HasValue) _args.Add(nameof(Stage), stage);
-            return this;
-        }
-
         public virtual IVifBuilder SyncToNetworkPut(bool? syncToNetworkPut)
         {
             if (syncToNetworkPut.HasValue) _args.Add(nameof(SyncToNetworkPut), syncToNetworkPut);
@@ -228,7 +223,6 @@ namespace Mind.Builders
                 AssociateExistingContractBandwidthPool();
             }
             if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
-            if (_args.ContainsKey(nameof(Stage))) SetStage();
             await SetMtuAsync();
 
             // Has the vif been created correctly?
@@ -253,9 +247,6 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(ForVif)))
             {
                 await SetVifToDeleteAsync();
-
-                // Can we delete the vif?
-                _vif.ValidateDelete();
 
                 if (_args.ContainsKey(nameof(CleanUpRoutingInstance))) CheckDeleteRoutingInstanceFromDb();
                 if (_args.ContainsKey(nameof(CleanUpContractBandwidthPool))) CheckDeleteContractBandwidthPoolFromDb();
@@ -529,15 +520,6 @@ namespace Mind.Builders
             _vif.Mtu = mtu;
         }
 
-        protected internal virtual void SetStage()
-        {
-            var stage = (bool)_args[nameof(Stage)];
-            if (stage)
-            {
-                _vif.NetworkStatus = Models.NetworkStatusEnum.Staged;
-            }
-        }
-
         protected internal virtual async Task UpdateContractBandwidthPoolAsync()
         {
             // If no contract bandwidth pool exists already then we need to create one
@@ -592,6 +574,8 @@ namespace Mind.Builders
                 if (!_vif.RoutingInstance.Vifs.Any(x => x.VifID != _vif.VifID) &&
                     !_vif.RoutingInstance.Attachments.Any())
                 {
+                    _vif.RoutingInstance.ValidateDelete();
+
                     // Delete the routing instance from the db
                     _unitOfWork.RoutingInstanceRepository.Delete(_vif.RoutingInstance);
                 }
@@ -628,16 +612,22 @@ namespace Mind.Builders
             var vifDto = _vif.ToNovaVifDto();
             var routingInstanceDto = _vif.RoutingInstance.ToNovaRoutingInstanceDto();
             var contractBandwidthPoolDto = _vif.ContractBandwidthPool.ToNovaContractBandwidthPoolDto();
-            
+
             try
             {
+                // Ordering is important here because the YANG model requires that the contract bandwidth pool and 
+                // routing instance exist prior to the provisioning of the vif
+
+                // Add the contract bandwidth pool
                 await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdContractBandwidthPoolContractBandwidthPoolNamePutAsync
-                    (_vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.ContractBandwidthPool.Name, contractBandwidthPoolDto);
+                    (_vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.ContractBandwidthPool.Name, contractBandwidthPoolDto, true);
 
-                await _novaApiClient.DataAttachmentAttachmentPePePeNameVrfVrfVrfNamePutAsync(_vif.Attachment.Device.Name, _vif.RoutingInstance.Name, routingInstanceDto);
+                // Add the routing instance
+                await _novaApiClient.DataAttachmentAttachmentPePePeNameVrfVrfVrfNamePutAsync(_vif.Attachment.Device.Name, _vif.RoutingInstance.Name, routingInstanceDto, true);
 
+                // Add the vif
                 await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdVifVifVlanIdPutAsync
-                    (_vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.VlanTag, vifDto);
+                    (_vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.VlanTag, vifDto, true);
 
                 _vif.NetworkStatus = Models.NetworkStatusEnum.Active;
             }
@@ -657,8 +647,16 @@ namespace Mind.Builders
         /// <returns>An awaitable task</returns>
         protected internal virtual async Task DeleteVifFromNetworkAsync()
         {
-            await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdVifVifVlanIdDeleteAsync(
-                _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.VlanTag).ConfigureAwait(false);                
+            try
+            {
+                await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdVifVifVlanIdDeleteAsync(
+                    _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.VlanTag, true).ConfigureAwait(false);
+            }
+
+            catch (ApiException)
+            {
+                // Add logging here 
+            }
         }
 
         /// <summary>
@@ -676,8 +674,16 @@ namespace Mind.Builders
                 if (!_vif.RoutingInstance.Vifs.Any(x => x.VifID != _vif.VifID) &&
                     !_vif.RoutingInstance.Attachments.Any())
                 {
-                    await _novaApiClient.DataAttachmentAttachmentPePePeNameVrfVrfVrfNameDeleteAsync(
-                        _vif.Attachment.Device.Name, _vif.RoutingInstance.Name).ConfigureAwait(false);
+                    try
+                    {
+                        await _novaApiClient.DataAttachmentAttachmentPePePeNameVrfVrfVrfNameDeleteAsync(
+                            _vif.Attachment.Device.Name, _vif.RoutingInstance.Name, true).ConfigureAwait(false);
+                    }
+
+                    catch (ApiException)
+                    {
+                        // Add logging here
+                    }
                 }
             }
         }
@@ -697,8 +703,16 @@ namespace Mind.Builders
                 if (!_vif.ContractBandwidthPool.Vifs.Any(x => x.VifID != _vif.VifID) &&
                     !_vif.ContractBandwidthPool.Attachments.Any())
                 {
-                    await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdContractBandwidthPoolContractBandwidthPoolNameDeleteAsync(
-                        _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.ContractBandwidthPool.Name).ConfigureAwait(false);
+                    try
+                    {
+                        await _novaApiClient.DataAttachmentAttachmentPePePeNameTaggedAttachmentInterfaceTaggedAttachmentInterfaceInterfaceTypeTaggedAttachmentInterfaceInterfaceIdContractBandwidthPoolContractBandwidthPoolNameDeleteAsync(
+                            _vif.Attachment.Device.Name, _vif.Attachment.PortType, _vif.Attachment.PortName, _vif.ContractBandwidthPool.Name, true).ConfigureAwait(false);
+                    }
+
+                    catch (ApiException)
+                    {
+                        // Add logging here
+                    }
                 }
             }
         }

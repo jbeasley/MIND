@@ -124,7 +124,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [ValidateTenantExists]
-        public async Task<IActionResult> Create(int? tenantId, VpnRequestViewModel requestModel, bool? stage, bool? syncToNetwork)
+        public async Task<IActionResult> Create(int? tenantId, VpnRequestViewModel requestModel, bool? syncToNetwork)
         {
             if (ModelState.IsValid)
             {
@@ -132,7 +132,7 @@ namespace Mind.WebUI.Controllers
                 {
                     var request = _mapper.Map<VpnRequest>(requestModel);
 
-                    var attachment = await _vpnService.AddAsync(tenantId.Value, request, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
+                    var attachment = await _vpnService.AddAsync(tenantId.Value, request, syncToNetwork.GetValueOrDefault());
                     return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
                 }
 
@@ -197,7 +197,7 @@ namespace Mind.WebUI.Controllers
         [HttpPost]
         [ValidateVpnExists]
         [ValidateAntiForgeryToken]
-        public async Task<ActionResult> Edit(int? vpnId, VpnUpdateViewModel update, bool? stage, bool? syncToNetwork)
+        public async Task<ActionResult> Edit(int? vpnId, VpnUpdateViewModel update, bool? syncToNetwork)
         {
             var vpn = await _vpnService.GetByIDAsync(vpnId.Value, deep: true, asTrackable: false);
 
@@ -215,7 +215,7 @@ namespace Mind.WebUI.Controllers
 
                     try
                     {
-                        await _vpnService.UpdateAsync(vpnId.Value, attachmentUpdate, stage.GetValueOrDefault(), syncToNetwork.GetValueOrDefault());
+                        await _vpnService.UpdateAsync(vpnId.Value, attachmentUpdate, syncToNetwork.GetValueOrDefault());
                         return RedirectToAction(nameof(GetAllByTenantID), new { tenantId = vpn.TenantID });
                     }
 

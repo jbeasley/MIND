@@ -17,7 +17,7 @@ namespace Mind.Builders
             _builder = builder;
         }
 
-        public async Task<SCM.Models.Vpn> BuildAsync(int tenantId, VpnRequest request, bool stage = true, bool syncToNetwork = false)
+        public async Task<SCM.Models.Vpn> BuildAsync(int tenantId, VpnRequest request, bool syncToNetwork = false)
         {
             return await _builder.ForTenant(tenantId)
                                  .AsNovaVpn(request.IsNovaVpn)
@@ -35,23 +35,21 @@ namespace Mind.Builders
                                  .WithMulticastVpnServiceType(request.MulticastVpnServiceType.ToString())
                                  .WithMulticastVpnDirectionType(request.MulticastVpnDirectionType.ToString())
                                  .WithAttachmentSets(request.VpnAttachmentSets)
-                                 .Stage(stage)
                                  .SyncToNetworkPut(syncToNetwork)
                                  .BuildAsync();
         }
 
-        public async Task<SCM.Models.Vpn> UpdateAsync(int vpnId, VpnUpdate update, bool stage = true, bool syncToNetwork = false)
+        public async Task<SCM.Models.Vpn> UpdateAsync(int vpnId, VpnUpdate update, bool syncToNetworkPut = false, bool syncToNetworkPatch = false)
         {
             return await _builder.ForVpn(vpnId)
-                                 .WithName(update.Name)
                                  .WithDescription(update.Description)
                                  .WithRegion(update.Region.ToString())
                                  .WithTenancyType(update.TenancyType.ToString())
                                  .WithExtranet(update.IsExtranet)
                                  .WithMulticastVpnDirectionType(update.MulticastVpnDirectionType.ToString())
                                  .WithAttachmentSets(update.VpnAttachmentSets)
-                                 .Stage(stage)
-                                 .SyncToNetworkPut(syncToNetwork)
+                                 .SyncToNetworkPut(syncToNetworkPut)
+                                 .SyncToNetworkPatch(syncToNetworkPatch)
                                  .BuildAsync();
         }
 

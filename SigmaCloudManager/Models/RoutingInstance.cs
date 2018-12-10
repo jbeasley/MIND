@@ -6,6 +6,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
 using IO.NovaAttSwagger.Model;
+using System.Text;
 
 namespace SCM.Models
 {
@@ -33,7 +34,7 @@ namespace SCM.Models
                             }).ToList();
 
             var data = new DataAttachmentAttachmentPePePeNameVrfVrfVrfName
-            { 
+            {
                 Attachmentvrf = new List<DataAttachmentAttachmentPePepenameVrfVrfvrfnameAttachmentvrf>
                 {
                     new DataAttachmentAttachmentPePepenameVrfVrfvrfnameAttachmentvrf
@@ -67,7 +68,7 @@ namespace SCM.Models
                         .Include(x => x.RouteDistinguisherRange)
                         .Include(x => x.Device.Location.SubRegion.Region)
                         .Include(x => x.Device.RoutingInstances)
-                        .Include(x => x.BgpPeers)                      
+                        .Include(x => x.BgpPeers)
                         .ThenInclude(x => x.VpnTenantCommunitiesIn)
                         .ThenInclude(x => x.AttachmentSet)
                         .Include(x => x.BgpPeers)
@@ -206,6 +207,27 @@ namespace SCM.Models
                         $"assigned number subfield '{this.AssignedNumberSubField}' values for the routing instance with name '{this.Name}' are already used.");
                 }
             }
+        }
+
+        /// <summary>
+        /// Validates an attempt to delete the routing instance.
+        /// </summary>
+        public virtual void ValidateDelete()
+        {
+            var sb = new StringBuilder();
+            (from attachmentSetRoutingInstance in this.AttachmentSetRoutingInstances
+             from vpnAttachmentSet in attachmentSetRoutingInstance.AttachmentSet.VpnAttachmentSets
+             select vpnAttachmentSet)
+                 .ToList()
+                    .ForEach(
+                        vpnAttachmentSet =>
+                        {
+                            sb.Append($"Routing instance '{this.Name}' belongs to attachment set '{vpnAttachmentSet.AttachmentSet.Name}' " +
+                            $"which is bound to VPN '{vpnAttachmentSet.Vpn.Name}' and therefore cannot be deleted. Remove attachment set '{vpnAttachmentSet.AttachmentSet.Name}' " +
+                            $"from VPN '{vpnAttachmentSet.Vpn.Name}' first.");
+                        });
+
+            if (sb.Length > 0) throw new IllegalDeleteAttemptException(sb.ToString());
         }
     }
 }

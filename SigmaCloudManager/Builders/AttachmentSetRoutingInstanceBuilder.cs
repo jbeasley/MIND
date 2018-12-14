@@ -121,8 +121,6 @@ namespace Mind.Builders
         protected internal virtual async Task SetRoutingInstanceAsync()
         {
             var routingInstanceName = _args[nameof(WithRoutingInstance)].ToString();
-            var attachmentSet = _attachmentSetRoutingInstance.AttachmentSet;
-
             var routingInstance = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(q =>
                                   q.Name == routingInstanceName
                                   && q.RoutingInstanceType.IsTenantFacingVrf,

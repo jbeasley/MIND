@@ -1,8 +1,0 @@
-@model IEnumerable<Mind.WebUI.Models.LocationViewModel>
-
-<option value="">-- Select Location --</option>
-
-@foreach (var item in Model)
-{
-    <option value="@item.SiteName">@item.SiteName</option>
-}

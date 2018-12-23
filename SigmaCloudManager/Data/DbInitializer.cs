@@ -56,7 +56,7 @@ namespace SCM.Data
 
             var deviceRoles = new List<DeviceRole>
             {
-                new DeviceRole { Name = "PE", Description = "Provider Edge Device", IsProviderDomainRole = true, RequireSyncToNetwork = true},
+                new DeviceRole { Name = "PE", Description = "Provider Edge Device", IsProviderDomainRole = true},
                 new DeviceRole { Name = "P", Description = "Provider Device", IsProviderDomainRole = true },
                 new DeviceRole { Name = "HBA", Description = "High Bandwidth Aggregation Client Distribution Device", IsProviderDomainRole = true },
                 new DeviceRole { Name = "LBA", Description = "Low Bandwidth Aggregation Client Distribution Device", IsProviderDomainRole = true },

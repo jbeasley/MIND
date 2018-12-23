@@ -10,13 +10,13 @@ namespace Mind.Models.RequestModels
         /// The type of the port, e.g. TenGigabitEtheret
         /// </summary>
         /// <value>String denoting the type of the port</value>
-        public string Type { get; set; }
+        public string PortType { get; set; }
 
         /// <summary>
         /// The name of the port, e.g. 1/0
         /// </summary>
         /// <value>String denoting the name of the port</value>
-        public string Name { get; set; }
+        public string PortName { get; set; }
 
         /// <summary>
         /// Small Form-Factor Pluggable optic for the port

@@ -15,7 +15,7 @@ namespace Mind.WebUI.Models
         /// The ID of the port status
         /// </summary>
         /// <value>Integer value denoting the ID of the port status</value>
-        public int PlaneID { get; private set; }
+        public int PortStatusID { get; private set; }
 
         /// <summary>
         /// The name of the port status

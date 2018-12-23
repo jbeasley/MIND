@@ -99,9 +99,8 @@ namespace SCM.Models
             if (this.PortStatus == null) throw new IllegalStateException($"Port '{this.FullName}' for device '{this.Device.Name}' requires a " +
                 $"status association but a status was not found.");
             if (!this.PortPool.PortRole.DeviceRolePortRoles
-                                       .Where(x =>
-                                                x.DeviceRoleID == this.Device.DeviceRole.DeviceRoleID)
-                                       .Any())
+                                                .Any(x =>
+                                                x.DeviceRoleID == this.Device.DeviceRole.DeviceRoleID))
             {
                 throw new IllegalStateException($"The port pool of '{this.PortPool.Name}' assigned to port '{this.FullName}' for device '{this.Device.Name}' " +
                     $"is not valid for the device with device role '{this.Device.DeviceRole.Name}'.");

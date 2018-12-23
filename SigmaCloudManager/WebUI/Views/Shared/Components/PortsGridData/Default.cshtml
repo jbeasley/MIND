@@ -1,0 +1,49 @@
+﻿@using Mind.WebUI.Models;
+@model IEnumerable<PortRequestOrUpdateViewModel>
+
+@if (Model != null)
+{
+    var items = Model.ToList();
+    @for (var i = 0; i < Model.Count(); i++)
+    {
+        var item = items[i];
+<tr id="port-grid-row_@i" data-row-id="@i" data-port-id="@item.PortId" data-port-type="@item.PortType" data-port-name="@item.PortName" data-port-role="@item.PortRole"
+    data-port-pool="@item.PortPool" data-port-bandwidth-gbps="@item.PortBandwidthGbps"
+    data-port-connector="@item.PortConnector" data-port-sfp="@item.PortSfp" data-port-status="@item.PortStatus" data-tenant-id="@item.TenantId">
+    <td hidden>
+        <input type="text" name="Ports[@i].PortId" value="@item.PortId" readonly />
+    </td>
+    <td hidden>
+        <input type="text" name="Ports[@i].TenantId" value="@item.TenantId" readonly />
+    </td>
+    <td width="12%">
+        <input type="text" name="Ports[@i].PortType" value="@item.PortType" readonly />
+    </td>
+    <td width="8%">
+        <input type="text" name="Ports[@i].PortName" value="@item.PortName" readonly />
+    </td>
+    <td width="10%">
+        <input type="text" name="Ports[@i].PortBandwidthGbps" value="@item.PortBandwidthGbps" readonly />
+    </td>
+    <td width="10%">
+        <input type="text" name="Ports[@i].PortConnector" value="@item.PortConnector" readonly />
+    </td>
+    <td width="9%">
+        <input type="text" name="Ports[@i].PortSfp" value="@item.PortSfp" readonly />
+    </td>
+    <td width="13%">
+        <input type="text" name="Ports[@i].PortStatus" value="@item.PortStatus" readonly />
+    </td>
+    <td width="13%">
+        <input type="text" name="Ports[@i].PortRole" value="@item.PortRole" readonly />
+    </td>
+    <td width="15%">
+        <input type="text" name="Ports[@i].PortPool" value="@item.PortPool" readonly />
+    </td>
+    <td width="10%">
+        <button type="button" id="Ports_Edit_@i" class="btn btn-sm btn-secondary mind-grid-edit-row" data-row-id="@i"><i class="fas fa-edit"></i></button>
+        <button type="button" id="Ports_Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
+    </td>
+</tr>
+    }
+}

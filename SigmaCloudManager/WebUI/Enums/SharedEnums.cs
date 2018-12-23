@@ -294,6 +294,27 @@ namespace Mind.WebUI
     }
 
     /// <summary>
+    /// Enumeration for Port Role type options
+    /// </summary>
+    public enum PortRoleTypeEnum
+    {
+        /// <summary>
+        /// Enum for Tenant Facing.
+        /// </summary>
+        TenantFacing,
+
+        /// <summary>
+        /// Enum for Provider Infrastructrure.
+        /// </summary>
+        ProviderInfrastructrure,
+
+        /// <summary>
+        /// Enum for Tenant Infrastructure.
+        /// </summary>
+        TenantInfrastructure
+    }
+
+    /// <summary>
     /// Enumeration for logical interface type options
     /// </summary>
     public enum LogicalInterfaceTypeEnum

@@ -71,7 +71,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 404, type: typeof(ApiResponse), description: "The specified resource was not found")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
-        public virtual async Task<IActionResult> CreateTenantDomainPort([FromRoute][Required]int? deviceId, [FromBody]Mind.Api.Models.PortRequest body)
+        public virtual async Task<IActionResult> CreateTenantDomainPort([FromRoute][Required]int? deviceId, [FromBody]Mind.Api.Models.PortRequestOrUpdate body)
         {
             try
             {
@@ -218,7 +218,7 @@ namespace Mind.Api.Controllers
         [SwaggerResponse(statusCode: 422, type: typeof(ApiResponse), description: "Validation error")]
         [SwaggerResponse(statusCode: 500, type: typeof(ApiResponse), description: "Error while updating the database")]
         public virtual async Task<IActionResult> UpdateTenantPort([FromRoute][Required]int? deviceId, [FromRoute][Required]int? portId, 
-            [FromBody]Mind.Api.Models.PortUpdate body)
+            [FromBody]Mind.Api.Models.PortRequestOrUpdate body)
         {
             try
             {

@@ -1,0 +1,104 @@
+@model Mind.WebUI.Models.TenantDomainDeviceViewModel
+@{
+    ViewData["Title"] = "Device Details";
+}
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/Vpn/GetAllByTenantId?tenantId=@Model.TenantId"><i class="fa active" aria-hidden="true"></i>Devices - [@Model.TenantName]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Details - [@Model.Name]</a></li>
+    </ul>
+</div>
+<h2>Details for VPN '@Model.Name'</h2>
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.TenantName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DeviceModel)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DeviceModel)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DeviceRole)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DeviceRole)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UseLayer2InterfaceMtu)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UseLayer2InterfaceMtu)
+        </dd>
+    </dl>
+</div>
+<br />
+<h3>@Html.DisplayNameFor(model => model.Ports)</h3>
+<hr />
+<div class="col-sm-12 mind-grid-y-scrollable">
+    <table id="ports-grid" class="table table-condensed table-hover table-striped mind-grid">
+        <thead>
+            <tr>
+                <th data-column-id="Type" style="width:20%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.Ports[0].Type)</span></th>
+                <th data-column-id="Name" style="width:10%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.Ports[0].Name)</th>
+                <th data-column-id="PortBandwidthGbps" style="width:10%" valign="top">@Html.DisplayNameFor(model => model.Ports[0].PortBandwidthGbps)</th>
+                <th data-column-id="PortConnector" style="width:20%">@Html.DisplayNameFor(model => model.Ports[0].PortConnector)</th>
+                <th data-column-id="PortSfp" style="width:20%" valign="top">@Html.DisplayNameFor(model => model.Ports[0].PortSfp)</th>
+                <th data-column-id="PortStatus" style="width:20%" valign="top">@Html.DisplayNameFor(model => model.Ports[0].PortStatus)</th>
+            </tr>
+        </thead>
+        <tbody style="height: 220px">
+            @for (var i = 0; i < Model.Ports.Count(); i++)
+            {
+                var item = Model.Ports[i];
+            <tr>
+                <td width="20%">
+                    <input type="text" value="@item.Type" readonly />
+                </td>
+                <td width="10%">
+                    <input type="text" value="@item.Name" readonly />
+                </td>
+                <td width="10%">
+                    <input type="text" value="@item.PortBandwidthGbps" readonly />
+                </td>
+                <td width="20%">
+                    <input type="text" value="@item.PortConnector" readonly />
+                </td>
+                <td width="20%">
+                    <input type="text" value="@item.PortSfp" readonly />
+                </td>
+                <td width="20%">
+                    <input type="text" value="@item.PortStatus" readonly />
+                </td>
+            </tr>
+            }
+        </tbody>
+    </table>
+</div>
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a mind-edit-btn-link="true" asp-action="Edit" asp-route-vpnId="@Model.DeviceId">Edit</a> |
+        <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Devices</a>
+    </div>
+</form>

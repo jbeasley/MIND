@@ -81,15 +81,15 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual DeviceBuilder WithPorts(List<PortRequest> ports)
+        public virtual DeviceBuilder WithPortRequests(List<PortRequest> ports)
         {
-            if (ports != null) _args.Add(nameof(WithPorts), ports);
+            if (ports != null) _args.Add(nameof(WithPortRequests), ports);
             return this;
         }
 
-        public virtual DeviceBuilder WithPorts(List<PortUpdate> ports)
+        public virtual DeviceBuilder WithPortUpdates(List<PortUpdate> ports)
         {
-            if (ports != null) _args.Add(nameof(WithPorts), ports);
+            if (ports != null) _args.Add(nameof(WithPortUpdates), ports);
             return this;
         }
 
@@ -107,7 +107,7 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
                 if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
                 if (_args.ContainsKey(nameof(UseLayer2InterfaceMtu))) SetUseLayer2InterfaceMtu();
-                if (_args.ContainsKey(nameof(WithPorts))) await UpdatePortsAsync();
+                if (_args.ContainsKey(nameof(WithPortRequests)) || _args.ContainsKey(nameof(WithPortUpdates))) await ModifyPortsAsync();
             }
             else
             {
@@ -119,7 +119,7 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(WithModel))) await SetModelAsync();
                 if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
                 if (_args.ContainsKey(nameof(UseLayer2InterfaceMtu))) SetUseLayer2InterfaceMtu();
-                if (_args.ContainsKey(nameof(WithPorts))) await SetPortsAsync();
+                if (_args.ContainsKey(nameof(WithPortRequests))) await ModifyPortsAsync();
                 await CreateRoutingInstanceAsync();
             }
 
@@ -191,13 +191,6 @@ namespace Mind.Builders
             _device.RoutingInstances.Add(routingInstance);     
         }
 
-        protected internal virtual async Task SetPortsAsync()
-        {
-            var portRequests = (List<PortRequest>)_args[nameof(WithPorts)];
-            var ports = await _portDirector.BuildAsync(this._device, portRequests);
-            this._device.Ports = ports;
-        }
-
         protected internal virtual async Task SetDeviceAsync()
         {
             var deviceId = (int)_args[nameof(ForDevice)];
@@ -212,10 +205,40 @@ namespace Mind.Builders
             _device = device ?? throw new BuilderBadArgumentsException($"The device with ID '{deviceId}' was not found.");
         }
 
-        protected internal virtual async Task UpdatePortsAsync()
-        {
-            var ports = (List<PortUpdate>)_args[nameof(WithPorts)];
-            await _portDirector.UpdateAsync(ports);
+        /// <summary>
+        /// Modify the ports of the device
+        /// </summary>
+        /// <returns></returns>
+        protected internal virtual async Task ModifyPortsAsync()
+        { 
+            // Create new ports
+            var requests = (List<PortRequest>)_args[nameof(WithPortRequests)];
+            var newPorts = await _portDirector.BuildAsync(this._device, requests);
+
+            // Update existing ports
+            var updates = (List<PortUpdate>)_args[nameof(WithPortUpdates)];
+            var updatedPorts = await _portDirector.UpdateAsync(updates);
+
+            // Validate requests to delete ports
+            if (_device.Ports.Any())
+            {
+                var deletePorts = _device.Ports.Where(
+                                                port =>
+                                                !updates.Select(
+                                                update =>
+                                                update.PortId)
+                                                .Contains(port.ID)
+                );
+
+                foreach (var deletePort in deletePorts)
+                {
+                    deletePort.ValidateDelete();
+                }
+            }
+
+            // Modify the ports collection on the device
+            var ports = newPorts.Concat(updatedPorts);
+            this._device.Ports = ports.ToList();
         }
     }
 }

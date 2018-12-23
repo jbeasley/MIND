@@ -41,6 +41,12 @@ namespace Mind.WebUI.Models
 
             CreateMap<SCM.Models.Vlan, Mind.WebUI.Models.VlanViewModel>();
 
+            CreateMap<SCM.Models.Location, Mind.WebUI.Models.LocationViewModel>()
+                .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.SiteName));
+
+            CreateMap<SCM.Models.Location, Mind.WebUI.Models.LocationSelectorViewModel>()
+                .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.SiteName));
+
             CreateMap<SCM.Models.Device, Mind.WebUI.Models.InfrastructureDeviceViewModel>()
                 .ForMember(dst => dst.DeviceModel, conf => conf.MapFrom(src => src.DeviceModel.Name))
                 .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
@@ -55,6 +61,9 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.PortStatus, conf => conf.MapFrom(src => src.PortStatus.Name))
                 .ForMember(dst => dst.PortConnector, conf => conf.MapFrom(src => src.PortConnector.Name))
                 .ForMember(dst => dst.PortBandwidthGbps, conf => conf.MapFrom(src => src.PortBandwidth.BandwidthGbps));
+
+            CreateMap<SCM.Models.Port, Mind.WebUI.Models.PortRequestOrUpdateViewModel>()
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
 
             CreateMap<SCM.Models.LogicalInterface, Mind.WebUI.Models.LogicalInterfaceViewModel>()
                 .ForMember(dst => dst.RoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name));
@@ -143,17 +152,28 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.BgpIpNetworkInboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksIn))
                 .ForMember(dst => dst.BgpIpNetworkOutboundPolicy, conf => conf.MapFrom(src => src.VpnTenantIpNetworksOut));
 
+            CreateMap<SCM.Models.Device, Mind.WebUI.Models.TenantDomainDeviceViewModel>()
+                .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Location.SiteName))
+                .ForMember(dst => dst.DeviceModel, conf => conf.MapFrom(src => src.DeviceModel.Name))
+                .ForMember(dst => dst.DeviceRole, conf => conf.MapFrom(src => src.DeviceRole.Name))
+                .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name));
+
             // View model to entity model mappings
 
             CreateMap<Mind.WebUI.Models.TenantRequestViewModel, SCM.Models.Tenant>();
             CreateMap<Mind.WebUI.Models.TenantUpdateViewModel, SCM.Models.Tenant>();
 
+            // View model to request model mappings
+
+            CreateMap<Mind.WebUI.Models.TenantDomainDeviceUpdateViewModel, Mind.Models.RequestModels.TenantDomainDeviceUpdate>()
+                .ForMember(dst => dst.PortUpdates, conf => conf.MapFrom(src => src.Ports.Where(port => port.PortId != null)))
+                .ForMember(dst => dst.PortRequests, conf => conf.MapFrom(src => src.Ports.Where(port => port.PortId == null)));              
         }
     }
 
     /// <summary>
     /// Custom resolver which populates an instance of BgpIpNetworkInboundPolicyViewModel. The resolver collects all instances of VpnTenantIpNetworkIn
-    /// which are associated with an attachment set which include those which are associated with all BGP peers of the attachment set and those which are
+    /// which are associated with an attachment set which includes those which are associated with all BGP peers of the attachment set and those which are
     /// associated with a specific BGP peer. The resolver also populates the BGP peers collection which is comprised of all BGP peers which belong
     /// to all of the routing instances associated with the attachment set. The BGP peers are used to populate dropdown lists in various views.
     /// </summary>
@@ -190,7 +210,7 @@ namespace Mind.WebUI.Models
 
     /// <summary>
     /// Custom resolver which populates an instance of BgpIpNetworkOutboundPolicyViewModel. The resolver collects all instances of VpnTenantIpNetworkOut
-    /// which are associated with an attachment set which include those which are associated with all BGP peers of the attachment set and those which are
+    /// which are associated with an attachment set which includes those which are associated with all BGP peers of the attachment set and those which are
     /// associated with a specific BGP peer. The resolver also populates the BGP peers collection which is comprised of all BGP peers which belong
     /// to all of the routing instances associated with the attachment set. The BGP peers are used to populate dropdown lists in various views.
     /// </summary>

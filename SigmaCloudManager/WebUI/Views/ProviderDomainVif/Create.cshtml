@@ -102,7 +102,7 @@
     <a mind-nav-link-back-btn="true" asp-action="GetAllByAttachmentID" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId">Back to VIFs</a>
 </div>
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
-    The component HTML must be placed outside of other page elements to avoid nesting because browser will
+    The component HTML must be placed outside of other page elements to avoid nesting because the browser will
     remove the <form> element from the component otherwise -->
 @await Component.InvokeAsync("BgpPeerForm")
 <!-- Loading Spinner partial view -->

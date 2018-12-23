@@ -45,7 +45,7 @@ namespace Mind.WebUI.Attributes
 
                     if ((from result in await _unitOfWork.AttachmentRepository.GetAsync(q =>
                         q.AttachmentID == attachmentId
-                        && q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing,
+                        && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing,
                         AsTrackable: false)
                          select result)
                        .SingleOrDefault() != null)

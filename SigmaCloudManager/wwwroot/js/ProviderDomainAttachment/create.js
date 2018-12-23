@@ -7,13 +7,7 @@
     // Create the wizard
     Mind.Utilities.createWizardWithNetworkStageOrSyncModal($wizard, $form, true);
 
-    var $region = $('#RegionId'),
-        region = $region[0],
-        $subregion = $('#SubRegionId'),
-        subregion = $subregion[0],
-        $location = $('#LocationName'),
-        location = $location[0],
-        $bundleRequired = $('#BundleRequired'),
+    var $bundleRequired = $('#BundleRequired'),
         bundleRequired = $bundleRequired[0],
         $multiportRequired = $('#MultiportRequired'),
         multiportRequired = $multiportRequired[0],
@@ -25,7 +19,8 @@
         attachmentBandwidthGbps = $attachmentBandwidthGbps[0],
         $ipAddressingComponent = $("#ipAddressingComponent"),
         $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent"),
-        $bgpPeersComponent = $('#bgpPeersComponent');
+        $bgpPeersComponent = $('#bgpPeersComponent'),
+        $locationSelector = $('#locationSelector');
 
     $attachmentBandwidthGbps.on('change', function (e) {
 
@@ -74,17 +69,6 @@
         }
     });
 
-    if (region.value === null || region.value === "") {
-
-        subregion.disabled = true;
-        location.disabled = true;
-    }
-
-    if (subregion.value === null || subregion.value === "") {
-
-        location.disabled = true;
-    }
-
     if (attachmentBandwidthGbps.value === null || attachmentBandwidthGbps.value === "") {
 
         portPool.disabled = true;
@@ -95,28 +79,20 @@
         attachmentRole.disabled = true;
     }
 
-    $region.on('change', function (e) {
+    $locationSelector.on('change', '#RegionId', function (e) {
 
         var regionId = this.value;
-        if (regionId === null || regionId === "") {
-
-            subregion.selectedIndex = 0;
-            subregion.disabled = true;
-            location.selectedIndex = 0;
-            location.disabled = true;
-        }
-        else {
-            location.selectedIndex = 0;
-            location.disabled = true;
-
-            Mind.Utilities.populateElement($subregion, "SubRegions", { regionId: regionId });
+        if (regionId !== null) {
+       
+            Mind.Utilities.populateElement($locationSelector, "GetLocationSelectorComponent", { regionId: regionId }, InitToolTipsAndValidation);
         }
     });
 
-    $subregion.on('change', function (e) {
+    $locationSelector.on('change', '#SubRegionId', function (e) {
 
         var subRegionId = this.value;
-        Mind.Utilities.populateElement($location, "Locations", { subRegionId: subRegionId });
+        var region = $('#RegionId');
+        Mind.Utilities.populateElement($locationSelector, "GetLocationSelectorComponent", { regionId: region[0].value, subRegionId: subRegionId }, InitToolTipsAndValidation);
     });
 
     $multiportRequired.on('click', function (e) {

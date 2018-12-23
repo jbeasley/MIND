@@ -382,15 +382,11 @@ namespace Mind.Migrations
 
                     b.Property<int?>("PlaneID");
 
-                    b.Property<bool>("RequiresSync");
-
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();
 
                     b.Property<bool>("ShowCreatedAlert");
-
-                    b.Property<bool>("ShowRequiresSyncAlert");
 
                     b.Property<int?>("TenantID");
 
@@ -660,6 +656,8 @@ namespace Mind.Migrations
 
                     b.Property<int>("SubRegionID");
 
+                    b.Property<int?>("TenantID");
+
                     b.Property<int?>("Tier");
 
                     b.HasKey("LocationID");
@@ -668,6 +666,8 @@ namespace Mind.Migrations
                         .IsUnique();
 
                     b.HasIndex("SubRegionID");
+
+                    b.HasIndex("TenantID");
 
                     b.ToTable("Location");
                 });
@@ -2265,6 +2265,11 @@ namespace Mind.Migrations
                     b.HasOne("SCM.Models.SubRegion", "SubRegion")
                         .WithMany("Locations")
                         .HasForeignKey("SubRegionID")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.HasOne("SCM.Models.Tenant", "Tenant")
+                        .WithMany("Locations")
+                        .HasForeignKey("TenantID")
                         .OnDelete(DeleteBehavior.Cascade);
                 });
 

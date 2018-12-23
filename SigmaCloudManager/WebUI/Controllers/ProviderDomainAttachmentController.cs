@@ -33,31 +33,16 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
-        public async Task<PartialViewResult> SubRegions(int? regionId)
+        public IActionResult GetLocationSelectorComponent(LocationSelectorViewModel locationSelectorModel)
         {
-            var subRegions = await _unitOfWork.SubRegionRepository.GetAsync(
-                q =>
-                q.RegionID == regionId);
-
-            return PartialView(_mapper.Map<List<SubRegionViewModel>>(subRegions));
-        }
-
-        [HttpGet]
-        public async Task<PartialViewResult> Locations(int? subRegionId)
-        {
-            var locations = await _unitOfWork.LocationRepository.GetAsync(
-                q =>
-                q.SubRegionID == subRegionId,
-                AsTrackable: false);
-
-            return PartialView(_mapper.Map<List<LocationViewModel>>(locations));
+            return ViewComponent("LocationSelector", locationSelectorModel);
         }
 
         [HttpGet]
         public async Task<PartialViewResult> AttachmentBandwidths(bool? bundleRequired, bool? multiportRequired)
         {
-            var query = (from result in await _unitOfWork.AttachmentBandwidthRepository.GetAsync()
-                         select result);
+            var query = from result in await _unitOfWork.AttachmentBandwidthRepository.GetAsync()
+                         select result;
 
             if (!bundleRequired.GetValueOrDefault())
             {
@@ -179,7 +164,6 @@ namespace Mind.WebUI.Controllers
         {
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
-            await PopulateRegionsDropDownList();
             await PopulatePlanesDropDownList();
             await PopulatePortPoolsDropDownList();
             await PopulateBandwidthsDropDownList();
@@ -234,9 +218,6 @@ namespace Mind.WebUI.Controllers
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            await PopulateRegionsDropDownList(requestModel.RegionId);
-            await PopulateSubRegionsDropDownList(requestModel.RegionId.GetValueOrDefault(), requestModel.SubRegionId);
-            await PopulateLocationsDropDownList(requestModel.SubRegionId.GetValueOrDefault(), requestModel.LocationName);
             await PopulatePlanesDropDownList(requestModel.PlaneName?.ToString());
             await PopulatePortPoolsDropDownList(requestModel.PortPoolName);
             await PopulateAttachmentRolesDropDownList(requestModel.PortPoolName, selectedAttachmentRole: requestModel.AttachmentRoleName);
@@ -382,7 +363,7 @@ namespace Mind.WebUI.Controllers
         {
             var portPools = await _unitOfWork.PortPoolRepository.GetAsync(
                     q =>
-                        q.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing,
+                        q.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing,
                         AsTrackable: false);
 
             ViewBag.PortPool = new SelectList(_mapper.Map<List<PortPoolViewModel>>(portPools), "Name", "Name", selectedPortPool);
@@ -426,28 +407,6 @@ namespace Mind.WebUI.Controllers
         
             ViewBag.AttachmentBandwidth = new SelectList(_mapper.Map<List<AttachmentBandwidthViewModel>>(query.ToList().OrderBy(b => b.BandwidthGbps)), 
                 "BandwidthGbps", "BandwidthGbps", selectedBandwidth);
-        }
-
-        private async Task PopulateRegionsDropDownList(object selectedRegion = null)
-        {
-            var regions = await _unitOfWork.RegionRepository.GetAsync();
-            ViewBag.Region = new SelectList(_mapper.Map<List<RegionViewModel>>(regions), "RegionId", "Name", selectedRegion);
-        }
-
-        private async Task PopulateSubRegionsDropDownList(int regionId, object selectedSubRegion = null)
-        {
-            var subRegions = await _unitOfWork.SubRegionRepository.GetAsync(
-                             q => 
-                                q.RegionID == regionId);
-            ViewBag.SubRegion = new SelectList(_mapper.Map<List<SubRegionViewModel>>(subRegions), "SubRegionId", "Name", selectedSubRegion);
-        }
-
-        private async Task PopulateLocationsDropDownList(int subRegionId, object selectedLocation = null)
-        {
-            var locations = await _unitOfWork.LocationRepository.GetAsync(
-                            q => 
-                                q.SubRegionID == subRegionId);
-            ViewBag.Location = new SelectList(_mapper.Map<List<LocationViewModel>>(locations), "SiteName", "SiteName", selectedLocation);
         }
 
         private async Task PopulatePlanesDropDownList(object selectedPlane = null)

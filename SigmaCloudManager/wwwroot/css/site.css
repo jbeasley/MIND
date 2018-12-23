@@ -111,11 +111,13 @@ a.custom-card {
         width: 100%;
         table-layout: fixed; /* even columns width , fix width of table too*/
     }
-    
-    .mind-grid > thead > tr > th {
-        vertical-align: top;
-        word-wrap: normal;
-    }
+
+        .mind-grid > thead > tr > th {
+            vertical-align: top;
+            word-wrap: normal;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
 
 /* Style row text content for the grid */
 .mind-grid > tbody > tr > td > input[type="text"] {

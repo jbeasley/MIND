@@ -154,12 +154,25 @@ namespace SCM.Data
             builder.Entity<RouteDistinguisherRange>().ToTable("RouteDistinguisherRange");
             builder.Entity<VlanTagRange>().ToTable("VlanTagRange");
 
+            // Enable cascade deletes
+
+            // When a tenant is deleted, delete all locations for the tenant
+            builder.Entity<Location>()
+                   .HasOne(c => c.Tenant)
+                   .WithMany(e => e.Locations)
+                   .OnDelete(DeleteBehavior.Cascade);
+                   
             // Prevent cascade deletes
 
             builder.Entity<Attachment>()
                     .HasOne(c => c.AttachmentBandwidth)
                     .WithMany(e => e.Attachments)
                     .OnDelete(DeleteBehavior.Restrict);
+
+            builder.Entity<Attachment>()
+                   .HasOne(c => c.Mtu)
+                   .WithMany(e => e.Attachments)
+                   .OnDelete(DeleteBehavior.Restrict);
 
             builder.Entity<AttachmentSet>()
                    .HasOne(c => c.SubRegion)
@@ -200,7 +213,7 @@ namespace SCM.Data
                   .HasOne(c => c.Tenant)
                   .WithMany(e => e.RoutingInstances)
                   .OnDelete(DeleteBehavior.Restrict);
-
+                  
             builder.Entity<Vif>()
                   .HasOne(c => c.VifRole)
                   .WithMany(e => e.Vifs)
@@ -285,11 +298,7 @@ namespace SCM.Data
                    .HasOne(c => c.Mtu)
                    .WithMany(e => e.Vifs)
                    .OnDelete(DeleteBehavior.Restrict);
-
-            builder.Entity<Attachment>()
-                   .HasOne(c => c.Mtu)
-                   .WithMany(e => e.Attachments)
-                   .OnDelete(DeleteBehavior.Restrict);
+                 
 
             // Set Indexes to ensure data uniqueness
 

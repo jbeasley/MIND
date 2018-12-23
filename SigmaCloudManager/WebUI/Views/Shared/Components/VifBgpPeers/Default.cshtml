@@ -6,7 +6,7 @@
         <div mind-alert="info" message="
             Create BGP peers">
         </div>
-        <!-- Button trigger modal showing form for create/upadte of a BGP peer -->
+        <!-- Button trigger modal showing form for create/update of a BGP peer -->
         <button type="button" id="showBgpPeerFormBtn" class="btn btn-primary" is-create-button></button>
         <br />
         <br />
@@ -21,7 +21,7 @@
                             <th style="width:10%" valign="top">@Html.DisplayNameFor(model => model.IsBfdEnabled)</th>
                             <th style="width:10%" valign="top">@Html.DisplayNameFor(model => model.IsMultiHop)</th>
                             <th style="width:10%" valign="top">@Html.DisplayNameFor(model => model.MaximumRoutes)</th>
-                            <th style="width:10%" valign="top"></th>
+                            <th style="width:10%" valign="top">Actions</th>
                         </tr>
                     </thead>
                     <tbody class="mind-grid-body-scroll-lg">
@@ -30,7 +30,7 @@
                         whenever a new row is added or a row deleted -->
                         @await Component.InvokeAsync("BgpPeersGridData", new
                         {
-                        bgpPeerRequests = Model
+                            bgpPeerRequests = Model
                         })
                     </tbody>
                 </table>

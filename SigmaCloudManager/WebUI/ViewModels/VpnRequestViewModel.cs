@@ -38,6 +38,7 @@ namespace Mind.WebUI.Models
         /// <example>cloud-connectivity-vpn</example>
         [Required]
         [Display(Name = "Name")]
+        [RegularExpression(@"^[a-zA-Z0-9-]+$", ErrorMessage = "The vpn name must contain letters, numbers, and dashes (-) only and no whitespace.")]
         public string Name { get; set; }
 
         /// <summary>

@@ -98,9 +98,7 @@ namespace SCM.Models
         public int? TenantID { get; set; }
         public bool UseLayer2InterfaceMtu { get; set; }
         public bool Created { get; set; }
-        public bool RequiresSync { get; set; }
         public bool ShowCreatedAlert { get; set; }
-        public bool ShowRequiresSyncAlert { get; set; }
         [MaxLength(250)]
         public string Notes { get; set; }
         [Timestamp]

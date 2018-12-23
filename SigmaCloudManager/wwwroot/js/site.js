@@ -25,7 +25,7 @@ Mind.Utilities = (function () {
     };
 
     /// Populate an element with html from the server
-    var populateElement = function ($e, url, data) {
+    var populateElement = function ($e, url, data, done) {
 
         $e[0].disabled = true;
 
@@ -35,6 +35,11 @@ Mind.Utilities = (function () {
                 // Enable the html element to be populated
                 $e[0].disabled = false;
                 $e.html(data);
+
+                if (done !== undefined && typeof done === 'function') {
+
+                    done(data);
+                }
             });
     };
 

@@ -1,11 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Mind.WebUI.Models;
 using SCM.Data;
-using SCM.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -15,12 +12,10 @@ namespace Mind.WebUI.ViewComponents
     public class VifBgpPeersViewComponent : ViewComponent
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
 
-        public VifBgpPeersViewComponent(IUnitOfWork unitOfWork, IMapper mapper)
+        public VifBgpPeersViewComponent(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
         }
 
         public async Task<IViewComponentResult> InvokeAsync(int? attachmentId, int? vifId, string vifRoleName, IEnumerable<BgpPeerRequestViewModel> bgpPeerRequests)

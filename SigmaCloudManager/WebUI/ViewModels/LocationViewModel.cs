@@ -18,11 +18,11 @@ namespace Mind.WebUI.Models
         public int LocationId { get; private set; }
 
         /// <summary>
-        /// The name of the site
+        /// The site name of the location
         /// </summary>
-        /// <value>String value denoting the name of the site</value>
-        [Display(Name ="Site Name")]
-        public string SiteName { get; private set; }
+        /// <value>String value denoting the site name of the location</value>
+        [Display(Name ="Location Name")]
+        public string LocationName { get; private set; }
 
         /// <summary>
         /// The BGP autonomous system number portion of the locale community assigned to the subregion

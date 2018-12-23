@@ -1,0 +1,25 @@
+﻿@using Mind.WebUI.Models;
+@model PortConnectorAndSfpComponentViewModel
+
+<div mind-alert="info" message="Select the a connector type for the port, for example RJ45. The connector type determines the
+                    sort of wiring required to connect the port to a network"></div>
+<div class="form-group row">
+    <label asp-for="PortConnector" class="col-sm-4 col-form-label"></label>
+    <div class="col-sm-8">
+        <select asp-for="PortConnector" class="form-control" asp-items="ViewBag.PortConnector">
+            <option value="">-- Select Port Connector --</option>
+        </select>
+        <span asp-validation-for="PortConnector" class="text-danger"></span>
+    </div>
+</div>
+<div mind-alert="info" message="Select the small form-factor pluggable type for the port. This is the optical connector type
+                    which is physically inserted into the port to allow the port to be connected to a network"></div>
+<div class="form-group row">
+    <label asp-for="PortSfp" class="col-sm-4 col-form-label"></label>
+    <div class="col-sm-8">
+        <select asp-for="PortSfp" class="form-control" asp-items="ViewBag.PortSfp">
+            <option value="">-- Select Port SFP --</option>
+        </select>
+        <span asp-validation-for="PortSfp" class="text-danger"></span>
+    </div>
+</div>

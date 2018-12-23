@@ -1,0 +1,13 @@
+﻿@using Mind.WebUI.Models;
+@model PortBandwidthComponentViewModel
+
+<div mind-alert="info" message="Select the physical bandwidth of the port in Gigabits per Second, for example 10 Gbps"></div>
+<div class="form-group row">
+    <label asp-for="PortBandwidthGbps" class="col-sm-4 col-form-label"></label>
+    <div class="col-sm-8">
+        <select asp-for="PortBandwidthGbps" class="form-control" asp-items="ViewBag.PortBandwidth">
+            <option value="">-- Select Port Bandwidth --</option>
+        </select>
+        <span asp-validation-for="PortBandwidthGbps" class="text-danger"></span>
+    </div>
+</div>

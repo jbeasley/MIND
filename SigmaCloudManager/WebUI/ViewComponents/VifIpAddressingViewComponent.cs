@@ -14,13 +14,11 @@ namespace Mind.WebUI.ViewComponents
     public class VifIpAddressingViewComponent : ViewComponent
     {
         private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
         private IList<Ipv4AddressAndMaskViewModel> _model;
 
-        public VifIpAddressingViewComponent(IUnitOfWork unitOfWork, IMapper mapper)
+        public VifIpAddressingViewComponent(IUnitOfWork unitOfWork)
         {
             _unitOfWork = unitOfWork;
-            _mapper = mapper;
             _model = new List<Ipv4AddressAndMaskViewModel>();
         }
 

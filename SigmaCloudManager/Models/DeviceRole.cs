@@ -18,7 +18,6 @@ namespace SCM.Models
         public string Description { get; set; }
         public bool IsTenantDomainRole { get; set; }
         public bool IsProviderDomainRole { get; set; }
-        public bool RequireSyncToNetwork { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual ICollection<Device> Devices { get; set; }

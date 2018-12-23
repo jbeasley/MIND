@@ -1,22 +1,20 @@
-
-using System;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Mind.WebUI.Models
-{ 
+{
     /// <summary>
-    /// Model for requesting the creation of a device port
+    /// Model for requesting the creation of a device port or for update to an existing port
     /// </summary>
-    public class PortRequestViewModel
-    { 
+    public class PortRequestOrUpdateViewModel
+    {
+        /// <summary>
+        /// The ID of an existing port for update
+        /// </summary>
+        /// <value>An integer value denoting the ID of the port</value>
+        /// <example>7001</example>
+        public int? PortId { get; set; }
+
         /// <summary>
         /// The type of the port, e.g. TenGigabitEtheret
         /// </summary>
@@ -24,7 +22,7 @@ namespace Mind.WebUI.Models
         /// <example>TenGigabitEtheret</example>
         [Required]
         [Display(Name="Type")]
-        public string Type { get; set; }
+        public string PortType { get; set; }
 
         /// <summary>
         /// The name of the port, e.g. 1/0
@@ -33,7 +31,7 @@ namespace Mind.WebUI.Models
         /// <example>1/0</example>
         [Required]
         [Display(Name="Name")]
-        public string Name { get; set; }
+        public string PortName { get; set; }
 
         /// <summary>
         /// Small Form-Factor Pluggable optic for the port
@@ -49,7 +47,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Member of the PortStatusTypeEnum enunmeration</value>
         [Required]
-        [Display(Name="Port Status")]
+        [Display(Name = "Port Status")]
         public PortStatusTypeEnum? PortStatus { get; set; }
 
         /// <summary>
@@ -57,7 +55,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>String value denoting the role of the port</value>
         [Required]
-        [Display(Name="portRole")]
+        [Display(Name="Port Role")]
         public string PortRole { get; set; }
 
         /// <summary>
@@ -85,5 +83,20 @@ namespace Mind.WebUI.Models
         [Required]
         [Display(Name="Port Pool")]
         public string PortPool { get; set; }
+
+        /// <summary>
+        /// The ID of a tenant to which an assigned port belongs.
+        /// </summary>
+        /// <value>Integer denoting the ID of the tenant</value>
+        /// <example>111001</example>
+        public string TenantId { get; set; }
+
+        /// <summary>
+        /// The name of a tenant to which an assigned port belongs.
+        /// </summary>
+        /// <value>String denoting the name of the tenant</value>
+        /// <example>Elekton-Business-Unit</example>
+        [Display(Name = "TenantName")]
+        public string TenantName { get; private set; }
     }
 }

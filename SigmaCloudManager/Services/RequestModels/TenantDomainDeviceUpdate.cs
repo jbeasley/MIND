@@ -33,8 +33,13 @@ namespace Mind.Models.RequestModels
         public bool? UseLayer2InterfaceMtu { get; set; }
 
         /// <summary>
+        /// List of new port requests for the device
+        /// </summary>
+        public List<PortRequest> PortRequests { get; set; }
+
+        /// <summary>
         /// List of port updates for the device
         /// </summary>
-        public List<PortUpdate> Ports { get; set; }
+        public List<PortUpdate> PortUpdates { get; set; }
     }
 }

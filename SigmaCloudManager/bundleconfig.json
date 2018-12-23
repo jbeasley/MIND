@@ -110,6 +110,46 @@
     }
   },
   {
+    "outputFileName": "wwwroot/js/TenantDomainDevice/main.min.js",
+    "inputFiles": [
+      "wwwroot/js/TenantDomainDevice/main.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/TenantDomainDevice/create.min.js",
+    "inputFiles": [
+      "wwwroot/js/TenantDomainDevice/create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/TenantDomainDevice/edit.min.js",
+    "inputFiles": [
+      "wwwroot/js/TenantDomainDevice/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/TenantDomainDevice/grids.min.js",
+    "inputFiles": [
+      "wwwroot/js/TenantDomainDevice/grids.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
     "outputFileName": "wwwroot/js/Vpn/main.min.js",
     "inputFiles": [
       "wwwroot/js/Vpn/main.js"

@@ -1,0 +1,14 @@
+﻿@using Mind.WebUI.Models;
+@model PortStatusComponentViewModel
+
+<div mind-alert="info" message="Select a status for the port. The port must be 'Free' in order for it to be considered
+                                        for assigment to attachments."></div>
+<div class="form-group row">
+    <label asp-for="PortStatus" class="col-sm-4 col-form-label"></label>
+    <div class="col-sm-8">
+        <select asp-for="PortStatus" class="form-control" asp-items="ViewBag.PortStatus">
+            <option value="">-- Select Port Status --</option>
+        </select>
+        <span asp-validation-for="PortStatus" class="text-danger"></span>
+    </div>
+</div>

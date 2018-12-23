@@ -72,7 +72,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>List of PortUpdate objects</value>
         [DataMember(Name = "ports")]
-        public List<PortUpdate> Ports { get; set; }
+        public List<PortRequestOrUpdate> Ports { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object

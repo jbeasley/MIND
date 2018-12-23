@@ -28,8 +28,8 @@ namespace Mind.Builders
         {
             var builder = _builderFactory();
             return await builder.ForDevice(deviceId)
-                                .WithType(request.Type)
-                                .WithName(request.Name)
+                                .WithType(request.PortType)
+                                .WithName(request.PortName)
                                 .WithPortBandwidth(request.PortBandwidthGbps)
                                 .WithConnector(request.PortConnector)
                                 .WithPortRole(request.PortRole)
@@ -50,8 +50,8 @@ namespace Mind.Builders
         {
             var builder = _builderFactory();
             return await builder.ForDevice(device)
-                                 .WithType(request.Type)
-                                 .WithName(request.Name)
+                                 .WithType(request.PortType)
+                                 .WithName(request.PortName)
                                  .WithPortBandwidth(request.PortBandwidthGbps)
                                  .WithConnector(request.PortConnector)
                                  .WithPortRole(request.PortRole)

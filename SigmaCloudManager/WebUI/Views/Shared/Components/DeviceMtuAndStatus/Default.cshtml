@@ -1,0 +1,35 @@
+﻿@using Mind.WebUI.Models;
+@model DeviceMtuAndStatusComponentViewModel
+
+<!-- View component for selecting the MTU and activiation status for a device -->
+
+<div mind-alert="info" message="
+                Check this checkbox if the maximum transmission unit (MTU) for the device should include layer 2 ethernet overhead. Selecting this checkbox will
+                increase the MTU for each port of the device by 14 bytes. 14 bytes includes the source and destination MAC address and the 2 byte type/length field.
+                CRC is not included in the overhead.
+                For example, if the device supports 1500 bytes of MTU per port, enabling this checkbox
+                will increase the MTU to 1514 bytes.">
+</div>
+<div class="form-group row">
+    <label class="col-form-label col-sm-2" asp-for="UseLayer2InterfaceMtu"></label>
+    <div class="col-sm-10">
+        <div class="custom-control custom-checkbox">
+            <input class="form-check-input custom-control-input" type="checkbox" asp-for="UseLayer2InterfaceMtu" data-toggle="tooltip"
+                   data-placement="right" title="Enable MTU layer 2 overhead">
+            <label class="form-check-label custom-control-label" for="UseLayer2InterfaceMtu"></label>
+        </div>
+    </div>
+</div>
+<div mind-alert="info" message="Select an activation status for device. Select 'Production' if the device is providing active service in the Tenant Domain.
+            Select 'Staging' if the device is scheduled to go into Production. Select 'Retired' if the device is no longer in Production and is scheduled to be removed
+            from the network.">
+</div>
+<div class="form-group row">
+    <label asp-for="DeviceStatus" class="col-sm-2 col-form-label"></label>
+    <div class="col-sm-10">
+        <select asp-for="DeviceStatus" class="form-control" asp-items="ViewBag.DeviceStatus">
+            <option value="">-- Select Device Status --</option>
+        </select>
+        <span asp-validation-for="DeviceStatus" class="text-danger"></span>
+    </div>
+</div>

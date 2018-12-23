@@ -1,0 +1,23 @@
+﻿@using Mind.WebUI.Models;
+@model PortProfileComponentViewModel
+
+<div mind-alert="info" message="Select a role for the port"></div>
+<div class="form-group row">
+    <label asp-for="PortRole" class="col-sm-4 col-form-label"></label>
+    <div class="col-sm-8">
+        <select asp-for="PortRole" class="form-control" asp-items="ViewBag.PortRole">
+            <option value="">-- Select Port Role --</option>
+        </select>
+        <span asp-validation-for="PortRole" class="text-danger"></span>
+    </div>
+</div>
+<div mind-alert="info" message="Assign the port into a port pool."></div>
+<div class="form-group row">
+    <label asp-for="PortPool" class="col-sm-4 col-form-label"></label>
+    <div class="col-sm-8">
+        <select asp-for="PortPool" class="form-control" asp-items="ViewBag.PortPool">
+            <option value="">-- Select Port Pool --</option>
+        </select>
+        <span asp-validation-for="PortPool" class="text-danger"></span>
+    </div>
+</div>

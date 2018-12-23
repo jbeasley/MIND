@@ -9,24 +9,27 @@
  */
 
 using System;
-using System.Linq;
-using System.IO;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Mind.Api.Models
-{ 
+{
     /// <summary>
     /// Model for requesting the creation of a device port
     /// </summary>
     [DataContract]
-    public partial class PortRequest : IEquatable<PortRequest>
-    { 
+    public partial class PortRequestOrUpdate : IEquatable<PortRequestOrUpdate>
+    {
+        /// <summary>
+        /// The ID of the port
+        /// </summary>
+        /// <value>An integer value denoting the ID of the port</value>
+        /// <example>7001</example>
+        [DataMember(Name = "portId")]
+        public int? PortId { get; set; }
+
         /// <summary>
         /// The type of the port, e.g. TenGigabitEtheret
         /// </summary>
@@ -112,6 +115,7 @@ namespace Mind.Api.Models
         {
             var sb = new StringBuilder();
             sb.Append("class PortRequest {\n");
+            sb.Append("  PortId: ").Append(PortId).Append("\n");
             sb.Append("  Type: ").Append(Type).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  PortSfp: ").Append(PortSfp).Append("\n");
@@ -143,7 +147,7 @@ namespace Mind.Api.Models
         {
             if (ReferenceEquals(null, obj)) return false;
             if (ReferenceEquals(this, obj)) return true;
-            return obj.GetType() == GetType() && Equals((PortRequest)obj);
+            return obj.GetType() == GetType() && Equals((PortRequestOrUpdate)obj);
         }
 
         /// <summary>
@@ -151,12 +155,17 @@ namespace Mind.Api.Models
         /// </summary>
         /// <param name="other">Instance of PortRequest to be compared</param>
         /// <returns>Boolean</returns>
-        public bool Equals(PortRequest other)
+        public bool Equals(PortRequestOrUpdate other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
             return
+                (
+                    PortId == other.PortId ||
+                    PortId != null &&
+                    PortId.Equals(other.PortId)
+                ) &&
                 (
                     Type == other.Type ||
                     Type != null &&
@@ -214,6 +223,8 @@ namespace Mind.Api.Models
             {
                 var hashCode = 41;
                 // Suitable nullity checks etc, of course :)
+                    if (PortId != null)
+                    hashCode = hashCode * 59 + PortId.GetHashCode();
                     if (Type != null)
                     hashCode = hashCode * 59 + Type.GetHashCode();
                     if (Name != null)
@@ -239,12 +250,12 @@ namespace Mind.Api.Models
         #region Operators
         #pragma warning disable 1591
 
-        public static bool operator ==(PortRequest left, PortRequest right)
+        public static bool operator ==(PortRequestOrUpdate left, PortRequestOrUpdate right)
         {
             return Equals(left, right);
         }
 
-        public static bool operator !=(PortRequest left, PortRequest right)
+        public static bool operator !=(PortRequestOrUpdate left, PortRequestOrUpdate right)
         {
             return !Equals(left, right);
         }

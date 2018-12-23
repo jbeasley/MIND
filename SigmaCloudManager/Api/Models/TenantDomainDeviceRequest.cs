@@ -34,6 +34,7 @@ namespace Mind.Api.Models
         /// <example>DTC-CPE-1</example>
         [Required]
         [DataMember(Name="name")]
+        [RegularExpression(@"^[a-zA-Z0-9-]+$", ErrorMessage = "The device name must contain letters, numbers, and dashes (-) only and no whitespace.")]
         public string Name { get; set; }
 
         /// <summary>
@@ -93,7 +94,7 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>List of PortRequest objects</value>
         [DataMember(Name="ports")]
-        public List<PortRequest> Ports { get; set; }
+        public List<PortRequestOrUpdate> Ports { get; set; }
 
         /// <summary>
         /// Returns the string presentation of the object

@@ -190,6 +190,12 @@ namespace Mind.Api.Models
             CreateMap<Mind.Api.Models.TenantIpNetworkRequest, SCM.Models.TenantIpNetwork>();
             CreateMap<Mind.Api.Models.RoutingInstanceForAttachmentSetUpdate, SCM.Models.AttachmentSetRoutingInstance>();
             CreateMap<Mind.Api.Models.BgpPeerRequest, SCM.Models.BgpPeer>();
+
+            // API model to request model mappings
+
+            CreateMap<Mind.Api.Models.TenantDomainDeviceUpdate, Mind.Models.RequestModels.TenantDomainDeviceUpdate>()
+                .ForMember(dst => dst.PortUpdates, conf => conf.MapFrom(src => src.Ports.Where(port => port.PortId != null)))
+                .ForMember(dst => dst.PortRequests, conf => conf.MapFrom(src => src.Ports.Where(port => port.PortId == null)));
         }
     }
 }

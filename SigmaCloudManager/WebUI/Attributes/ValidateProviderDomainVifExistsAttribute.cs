@@ -45,7 +45,7 @@ namespace Mind.WebUI.Attributes
 
                     if ((from result in await _unitOfWork.VifRepository.GetAsync(q =>
                         q.VifID == vifId
-                        && q.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantFacing,
+                        && q.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing,
                         AsTrackable: false)
                          select result)
                        .SingleOrDefault() != null)

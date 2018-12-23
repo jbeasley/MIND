@@ -1,14 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using AutoMapper;
 using SCM.Models;
-using SCM.Models.ViewModels;
-using SCM.Services;
 using SCM.Controllers;
 using Mind.Services;
 using SCM.Data;

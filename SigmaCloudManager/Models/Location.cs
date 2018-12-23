@@ -33,6 +33,7 @@ namespace SCM.Models
         public int? Tier { get; set; }
         public int? AutonomousSystemNumber { get; set; }
         public int? Number { get; set; }
+        public int? TenantID { get; set; }
         public LocationTypeEnum LocationType { get; set; }
         [NotMapped]
         public string LocaleCommunityName
@@ -45,6 +46,7 @@ namespace SCM.Models
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual SubRegion SubRegion { get; set; }
+        public virtual Tenant Tenant { get; set; }
         public virtual ICollection<Device> Devices { get; set; }
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
     }

@@ -1,0 +1,71 @@
+@model Mind.WebUI.Models.InfrastructureDeviceViewModel
+@{
+    ViewData["Title"] = "Device Details";
+}
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="InfrastructureHome"><i class="fa" aria-hidden="true"></i>Infrastructure</a></li>
+        <li><a href="/InfrastructureDevice/GetAll"><i class="fa active" aria-hidden="true"></i>Infrastructure Devices</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Details - [@Model.Name]</a></li>
+    </ul>
+</div>
+<h2>Details for Device '@Model.Name'</h2>
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DeviceModel)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DeviceModel)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.DeviceRole)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.DeviceRole)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.PlaneName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.PlaneName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.UseLayer2InterfaceMtu)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.UseLayer2InterfaceMtu)
+        </dd>
+    </dl>
+</div>
+<br />
+<h3>@Html.DisplayNameFor(model => model.Ports)</h3>
+<hr />
+<div id="portsComponent">
+    <!-- View component for displaying a grid of ports which belong to the device -->
+    @await Component.InvokeAsync("PortDetails", new
+    {
+        ports = Model?.Ports
+    })
+</div>
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a mind-edit-btn-link="true" asp-action="Edit" asp-route-deviceId="@Model.DeviceId">Edit</a> |
+        <a mind-nav-link-back-btn="true" asp-action="GetAll">Back to Devices</a>
+    </div>
+</form>

@@ -113,48 +113,50 @@
 <br />
 <h3>@Html.DisplayNameFor(model => model.VpnAttachmentSets)</h3>
 <hr />
-<div class="col-sm-12 mind-grid-y-scrollable">
-    <table id="attachment-set-grid" class="table table-condensed table-hover table-striped mind-grid">
-        <thead>
-            <tr>
-                <th data-column-id="AttachmentSetName" style="width:30%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].AttachmentSetName)</span></th>
-                <th data-column-id="TenantName" style="width:20%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].TenantName)</th>
-                <th data-column-id="Region" style="width:20%" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].Region)</th>
-                <th data-column-id="AttachmentRedundancy" style="width:20%">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].AttachmentRedundancy)</th>
-                <th data-column-id="IsHub" style="width:10%" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].IsHub)</th>
-            </tr>
-        </thead>
-        <tbody style="height: 220px">
-            @for (var i = 0; i < Model.VpnAttachmentSets.Count(); i++)
-            {
-                var item = Model.VpnAttachmentSets[i];
+<div class="form-group row">
+    <div class="col-sm-12">
+        <table id="attachment-set-grid" class="table table-condensed table-hover table-striped mind-grid">
+            <thead>
                 <tr>
-                    <td width="30%">
-                        <input type="text" value="@item.AttachmentSetName" readonly />
-                    </td>
-                    <td width="20%">
-                        <input type="text" value="@item.TenantName" readonly />
-                    </td>
-                    <td width="20%">
-                        <input type="text" value="@item.Region" readonly />
-                    </td>
-                    <td width="20%">
-                        <input type="text" value="@item.AttachmentRedundancy" readonly />
-                    </td>
-                    <td width="10%">
-                        @if (Model.TopologyType == Mind.WebUI.TopologyTypeEnum.HubAndSpoke.ToString())
-                        {
-                            <div class="custom-control custom-checkbox">
-                                <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="IsHub_@i"
-                                       name="VpnVpnAttachmentSets[@i].IsHub" checked="@item.IsHub" disabled>
-                                <label class="custom-control-label" for="IsHub_@i"></label>
-                            </div>
-                        }
-                    </td>
+                    <th data-column-id="AttachmentSetName" style="width:30%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].AttachmentSetName)</span></th>
+                    <th data-column-id="TenantName" style="width:20%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].TenantName)</th>
+                    <th data-column-id="Region" style="width:20%" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].Region)</th>
+                    <th data-column-id="AttachmentRedundancy" style="width:20%">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].AttachmentRedundancy)</th>
+                    <th data-column-id="IsHub" style="width:10%" valign="top">@Html.DisplayNameFor(model => model.VpnAttachmentSets[0].IsHub)</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody class="mind-grid-body-scroll-lg">
+                @for (var i = 0; i < Model.VpnAttachmentSets.Count(); i++)
+                {
+                    var item = Model.VpnAttachmentSets[i];
+                    <tr>
+                        <td width="30%">
+                            <input type="text" value="@item.AttachmentSetName" readonly />
+                        </td>
+                        <td width="20%">
+                            <input type="text" value="@item.TenantName" readonly />
+                        </td>
+                        <td width="20%">
+                            <input type="text" value="@item.Region" readonly />
+                        </td>
+                        <td width="20%">
+                            <input type="text" value="@item.AttachmentRedundancy" readonly />
+                        </td>
+                        <td width="10%">
+                            @if (Model.TopologyType == Mind.WebUI.TopologyTypeEnum.HubAndSpoke.ToString())
+                            {
+                                <div class="custom-control custom-checkbox">
+                                    <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="IsHub_@i"
+                                           name="VpnVpnAttachmentSets[@i].IsHub" checked="@item.IsHub" disabled>
+                                    <label class="custom-control-label" for="IsHub_@i"></label>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
 </div>
 <form asp-action="">
     <div class="form-actions no-color">

@@ -43,18 +43,18 @@
             <div id="locationSelector">
                 <!-- Component for selecting a location for the new device -->
                 @await Component.InvokeAsync("LocationSelector", new LocationSelectorViewModel
-            {
-                RegionId = Model?.RegionId,
-                SubRegionId = Model?.SubRegionId,
-                LocationName = Model?.LocationName
-            })
+                {
+                    RegionId = Model?.RegionId,
+                    SubRegionId = Model?.SubRegionId,
+                    LocationName = Model?.LocationName
+                })
             </div>
         </section>
         <h3>Model and Role</h3>
         <section id="role-model">
-        <!-- View component for MTU and status options for the device -->
-        @await Component.InvokeAsync("DeviceRoleAndModel", new DeviceRoleAndModelComponentViewModel
-            {    
+            <!-- View component for MTU and status options for the device -->
+            @await Component.InvokeAsync("DeviceRoleAndModel", new DeviceRoleAndModelComponentViewModel
+            {
                 DeviceRole = Model?.DeviceRole,
                 DeviceModel = Model?.DeviceModel
             })
@@ -80,32 +80,13 @@
         </section>
     </div>
 </form>
-<div class="modal fade" id="duplicateItemModal" tabindex="-1" role="dialog" aria-labelledby="duplicateItemModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="duplicateItemModalLabel">Port Exists</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                The port already exists for the device
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Devices</a>
 </div>
 
-<!--Component for a form allowing the user to enter data to create or edit a port
-    The component HTML must be placed outside of other page elements to avoid nesting because the browser will
-    remove the <form> element from the component otherwise -->
-@await Component.InvokeAsync("PortForm");
+<!--Container for the port form allowing the user to create/edit ports. The form HTML is loaded from the server when
+the user clicks the 'create' or one of the grid row edit buttons -->
+<div id="portFormContainer"></div>
 
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}

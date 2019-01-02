@@ -14,8 +14,8 @@ namespace Mind.Services
         Task<IEnumerable<Port>> GetAllByDeviceIDAsync(int deviceId, bool? deep = false, bool asTrackable = false);
         Task<IEnumerable<Port>> GetAllByInterfaceIDAsync(int interfaceId, bool? deep = false, bool asTrackable = false);
         Task<IEnumerable<Port>> GetAllByAttachmentIDAsync(int attachmentId, bool? deep = false, bool asTrackable = false);
-        Task<Port> AddAsync(int deviceId, PortRequest request);
-        Task<Port> UpdateAsync(int portId, PortUpdate update);
+        Task<Port> AddAsync(int deviceId, PortRequestOrUpdate request);
+        Task<Port> UpdateAsync(int portId, PortRequestOrUpdate update);
         Task DeleteAsync(int portId);
     }
 }

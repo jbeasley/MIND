@@ -15,9 +15,18 @@
 <div class="form-group row">
     <label asp-for="PortPool" class="col-sm-4 col-form-label"></label>
     <div class="col-sm-8">
-        <select asp-for="PortPool" class="form-control" asp-items="ViewBag.PortPool">
-            <option value="">-- Select Port Pool --</option>
-        </select>
+        @if (Model?.PortRole == null)
+        {
+            <select asp-for="PortPool" class="form-control" disabled>
+                <option value="">-- Select Port Pool --</option>
+            </select>
+        }
+        else
+        {
+            <select asp-for="PortPool" class="form-control" asp-items="ViewBag.PortPool">
+                <option value="">-- Select Port Pool --</option>
+            </select>
+        }
         <span asp-validation-for="PortPool" class="text-danger"></span>
     </div>
 </div>

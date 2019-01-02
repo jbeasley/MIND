@@ -143,7 +143,6 @@ namespace Mind
             services.AddScoped<IUnitOfWork, UnitOfWork>();
 
             // Services containing all of our service logic
-            services.AddScoped<IPortService, PortService>();
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<IVpnService, VpnService>();
             services.AddScoped<IAttachmentSetService, AttachmentSetService>();

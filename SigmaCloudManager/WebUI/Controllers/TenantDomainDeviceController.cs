@@ -13,6 +13,7 @@ using Mind.WebUI.Attributes;
 using Mind.WebUI.Models;
 using Mind.Models.RequestModels;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Linq;
 
 namespace Mind.WebUI.Controllers
 {
@@ -31,26 +32,45 @@ namespace Mind.WebUI.Controllers
             return ViewComponent("LocationSelector", locationSelectorModel);
         }
 
-        [HttpGet]
-        public IActionResult GetPortsComponent(List<PortRequestOrUpdateViewModel> portRequests)
+        [HttpPost]
+        public IActionResult GetPortForm([FromBody]PortRequestOrUpdateViewModel portModel)
         {
-            return ViewComponent("TenantDomainDevicePorts", new
+            if (portModel == null)
             {
-                portRequests
-            });
+                portModel = new PortRequestOrUpdateViewModel();
+            }
+
+            portModel.IsTenantDomainRole = true;
+            portModel.IsProviderDomainRole = false;
+            return ViewComponent("PortForm", new { portModel });
         }
 
         [HttpPost]
-        public IActionResult GetPortsGridData([FromBody]List<PortRequestOrUpdateViewModel> ports)
+        public IActionResult GetPortsGridData([FromBody]PortsGridDataViewModel portsGridData)
         {
-            return ViewComponent("PortsGridData", new { ports });
+            return ViewComponent("PortsGridData", new { portsGridData });
+        }
+
+        [HttpGet]
+        public IActionResult GetPortProfileComponent(string portRole)
+        {
+            return ViewComponent("PortProfile", new PortProfileComponentViewModel() { PortRole = portRole, IsTenantDomainRole = true });
         }
 
         [HttpGet]
         [ValidateTenantDomainDeviceExists]
-        public async Task<IActionResult> Details(int? tenantDomainDeviceId)
+        public async Task<IActionResult> Details(int? deviceId)
         {
-            var item = await _tenantDomainDeviceService.GetByIDAsync(tenantDomainDeviceId.Value, deep: true, asTrackable: false);
+            var item = await _tenantDomainDeviceService.GetByIDAsync(deviceId.Value, deep: true, asTrackable: false);
+            item.Ports = item.Ports
+                .OrderBy(
+                    q =>
+                    q.Type)
+                .ThenBy(
+                    q =>
+                    q.Name)
+                .ToList();
+
             return View(_mapper.Map<TenantDomainDeviceViewModel>(item));
         }
 
@@ -89,8 +109,8 @@ namespace Mind.WebUI.Controllers
                 try
                 {
                     var request = _mapper.Map<TenantDomainDeviceRequest>(requestModel);
+                    await _tenantDomainDeviceService.AddAsync(tenantId.Value, request);
 
-                    var attachment = await _tenantDomainDeviceService.AddAsync(tenantId.Value, request);
                     return RedirectToAction(nameof(GetAllByTenantID), new { tenantId });
                 }
 
@@ -188,7 +208,7 @@ namespace Mind.WebUI.Controllers
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantDomainDevice.TenantID);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            return View(_mapper.Map<TenantDomainDeviceUpdateViewModel>(tenantDomainDevice));
+            return View(update);
         }
 
         [HttpGet]
@@ -205,6 +225,7 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [ValidateTenantDomainDeviceExists]
         public async Task<IActionResult> Delete(TenantDomainDeviceDeleteViewModel model)
         {
             var tenantDomainDevice = await _tenantDomainDeviceService.GetByIDAsync(model.DeviceId.Value, deep: true, asTrackable: false);

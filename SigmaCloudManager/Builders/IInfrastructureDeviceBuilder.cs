@@ -18,8 +18,7 @@ namespace Mind.Builders
         IInfrastructureDeviceBuilder WithModel(string model);
         IInfrastructureDeviceBuilder WithStatus(string status);
         IInfrastructureDeviceBuilder UseLayer2InterfaceMtu(bool? useLayer2InterfaceMtu);
-        IInfrastructureDeviceBuilder WithPortRequests(List<PortRequest> ports);
-        IInfrastructureDeviceBuilder WithPortUpdates(List<PortUpdate> ports);
+        IInfrastructureDeviceBuilder WithPortRequestsOrUpdates(List<PortRequestOrUpdate> ports);
         IInfrastructureDeviceBuilder WithPlane(string planeName);
         Task<Device> BuildAsync();
     }

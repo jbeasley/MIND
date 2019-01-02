@@ -44,11 +44,28 @@ Mind.Utilities = (function () {
     };
 
     /// Show the spinner
-    var showSpinner = function () {
+    var showSpinner = function (message, done) {
 
         var $loadingSpinner = $('#loadingSpinner');
         if ($loadingSpinner.length > 0) {
-            $loadingSpinner.modal('show');
+
+            // Make sure any previously bound 'modal shown' event is removed first
+            $loadingSpinner.off('shown.bs.modal');
+            
+            if (done !== undefined && typeof done === 'function') {
+
+                // Must implement the 'done' callback after any bootstrap modal transitions
+                // have completed
+                $loadingSpinner.on('shown.bs.modal', function (e) {
+
+                        done(e);
+                    });
+            }
+
+            message = message == null ? "Applying updates...." : message;
+            $('#spinnerMessage').empty().html(message);
+
+            $loadingSpinner.modal('show');            
         }
     }
 

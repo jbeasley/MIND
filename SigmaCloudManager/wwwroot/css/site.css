@@ -143,9 +143,29 @@ a.custom-card {
     margin-bottom: 2rem !important;
 }
 
-/* Cursor for when user hovers over the trash button of the grid */
+/* Cursor for when user hovers over one of the action buttons of the grid */
 .mind-grid > tbody > tr > td > i {
     cursor: pointer;
+}
+
+/* Highlights a grid row by cycling the row color to green and back */
+.mind-grid-highlight-row {
+
+    animation: colorchange 1s; 
+    -webkit-animation: colorchange 1s; /* Chrome and Safari */
+}
+
+@keyframes colorchange {
+    50% {
+        background: lightgreen;
+    }
+}
+
+@-webkit-keyframes colorchange /* Safari and Chrome - necessary duplicate */
+{
+    50% {
+        background: lightgreen;
+    }
 }
 
 /* Modify bootstrap checkbox background color when not checked */

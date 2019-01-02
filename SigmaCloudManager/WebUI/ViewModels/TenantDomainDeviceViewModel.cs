@@ -44,7 +44,7 @@ namespace Mind.WebUI.Models
         /// <value>Boolean denoting whether  layer 2 overhead is included in the device MTU calculation</value>
         /// <example>true</example>
         [Display(Name="Use Layer 2 Interface MTU")]
-        public bool? UseLayer2InterfaceMtu { get; private set; }
+        public bool UseLayer2InterfaceMtu { get; private set; }
 
         /// <summary>
         /// The model of the device
@@ -98,7 +98,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>List of PortViewModel objects</value>
         [Display(Name = "Ports")]
-        public List<PortViewModel> Ports { get; set; }
+        public List<PortViewModel> Ports { get; private set; }
 
     }
 }

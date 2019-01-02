@@ -32,7 +32,9 @@ namespace SCM.Models
         public static IQueryable<Port> IncludeDeepProperties(this IQueryable<Port> query)
         {
             return query.Include(x => x.Device.DeviceRole)
-                        .Include(x => x.Interface)
+                        .Include(x => x.Interface.Attachment.Interfaces)
+                        .ThenInclude(x => x.Ports)
+                        .Include(x => x.Device)
                         .Include(x => x.PortBandwidth)
                         .Include(x => x.PortConnector)
                         .Include(x => x.PortPool)

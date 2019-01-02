@@ -140,9 +140,29 @@
     }
   },
   {
-    "outputFileName": "wwwroot/js/TenantDomainDevice/grids.min.js",
+    "outputFileName": "wwwroot/js/InfrastructureDevice/main.min.js",
     "inputFiles": [
-      "wwwroot/js/TenantDomainDevice/grids.js"
+      "wwwroot/js/InfrastructureDevice/main.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/InfrastructureDevice/create.min.js",
+    "inputFiles": [
+      "wwwroot/js/InfrastructureDevice/create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/InfrastructureDevice/edit.min.js",
+    "inputFiles": [
+      "wwwroot/js/InfrastructureDevice/edit.js"
     ],
     "minify": {
       "enabled": true,
@@ -208,5 +228,15 @@
       "enabled": true,
       "renameLocals": true
     }
-  }
+  },
+  {
+    "outputFileName": "wwwroot/js/Shared/portGrids.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/portGrids.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
 ]

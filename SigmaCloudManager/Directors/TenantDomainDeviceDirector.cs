@@ -26,7 +26,7 @@ namespace Mind.Builders
                                  .WithRole(request.DeviceRole)
                                  .WithStatus(request.DeviceStatus.ToString())
                                  .UseLayer2InterfaceMtu(request.UseLayer2InterfaceMtu)
-                                 .WithPortRequests(request.Ports)
+                                 .WithPortRequestsOrUpdates(request.Ports)
                                  .BuildAsync();
         }
 
@@ -37,8 +37,7 @@ namespace Mind.Builders
                                  .WithDescription(update.Description)
                                  .WithStatus(update.DeviceStatus.ToString())
                                  .UseLayer2InterfaceMtu(update.UseLayer2InterfaceMtu)
-                                 .WithPortUpdates(update.PortUpdates)
-                                 .WithPortRequests(update.PortRequests)
+                                 .WithPortRequestsOrUpdates(update.Ports)
                                  .BuildAsync();
         }
     }

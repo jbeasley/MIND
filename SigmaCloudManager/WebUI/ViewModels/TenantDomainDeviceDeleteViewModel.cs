@@ -22,7 +22,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Integer denoting the ID of the device</value>
         /// <example>90991</example>
-        public int? DeviceId { get; private set; }
+        public int? DeviceId { get; set; }
 
         /// <summary>
         /// The ID of the tenant owner of the device

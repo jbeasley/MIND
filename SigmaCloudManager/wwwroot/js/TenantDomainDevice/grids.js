@@ -7,7 +7,7 @@
     // Form for creating a new port
     var $form = $('#portForm');
 
-    // Input controls of the peor form
+    // Input controls of the port form
     var $portId = $('#PortId'),
         $portTypeInput = $('#PortType'),
         $portNameInput = $('#PortName'),
@@ -17,7 +17,7 @@
         $portStatusInput = $('#PortStatus'),
         $portRole = $('#PortRole'),
         $portPool = $('#PortPool'),
-        $tenantId = $('#TenantId'),
+        $tenantId = $('#AssignedTenantId'),
         $rowId = $('#RowId');
 
     var portId = $portId[0],
@@ -60,7 +60,7 @@
         $('#pills-tab a[href="#' + $(validator.errorList[0].element).closest(".tab-pane").attr('id') + '"]').tab('show');
     });
 
-    // Handle click of save button 
+    // Handle click of the save button on the form
     $('#savePort').on('click', function (e) {
 
         // Change the 'ignore' setting in the validator so that hidden elements are validated
@@ -92,14 +92,18 @@
             "PortStatus": portStatus.value,
             "PortPool": portPool.value,
             "PortRole": portRole.value,
-            "TenantId": tenantId.value
+            "TenantId": tenantId.value,
+            "IsNew": true
         });
 
         // Refresh the port grid
-        RefreshPortGrid(arr);
+        RefreshPortGrid(arr)
+        .done(function() {
+            HighlightNewRows();
+        });
     });
 
-    //Bind to click event of trash buttons in the port grid rows
+    //Bind to click event of delete action button
     $portComponent.on('click', '.mind-grid-delete-row', function (e) {
 
         // Remove the row
@@ -110,7 +114,7 @@
         RefreshPortGrid();
     });
 
-    //Bind to click event of edit buttons in the port grid rows
+    //Bind to click event of edit action button
     $portComponent.on('click', '.mind-grid-edit-row', function (e) {
 
         var editRowId = $(this).data('row-id');
@@ -127,13 +131,36 @@
         portStatus.value = data.PortStatus;
         portPool.value  = data.PortPool;
         portRole.value = data.PortRole;
-        rowId.value = data.RowId;
         tenantId.value = data.TenantId;
+        rowId.value = editRowId;
 
         $modal.modal('show').off('hidden.bs.modal').on('hidden.bs.modal', function (e) {
 
             // Reset form inputs when the modal is hidden (i.e. when the user saves or closes the form)
             ResetPortForm();
+        });
+    });
+
+    //Bind to click event of copy action button
+    $portComponent.on('click', '.mind-grid-copy-row', function (e) {
+
+        // Copy the row
+        var rowId = $(this).data('row-id');
+        var $row = $('#port-grid-row_' + rowId);
+        var data = GetRowData($row);
+        data.PortId = "";
+
+        // Setting the IsNew property on the data allows us to highlight the row using CSS after the grid
+        // is refreshed
+        data.IsNew = true;
+
+        var arr = [];
+        arr.push(data);
+
+        // Refresh the port grid
+        RefreshPortGrid(arr)
+        .done(function() {
+            HighlightNewRows();
         });
     });
 
@@ -233,5 +260,15 @@
         portPool.selectedIndex = 0;
         tenantId.value = "";
     }
+
+    // Highlight new rows added to the grid
+    function HighlightNewRows() {
+    
+        $('#port-grid > tbody > tr')
+        .filter(function() {
+                return (/true/i).test($(this).data('is-new'));
+        })
+        .addClass('mind-grid-highlight-row');           
+    }   
 
 }(jQuery));

@@ -2,15 +2,24 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="card-deck" style="width: 50%">
+<div class="card-deck" style="width: 75%">
     <a class="card custom-card bg-light" href="/Tenant/GetAll">
         <img class="card-img-top mx-auto d-block" src="~/images/home-page-connectivity.png" alt="Card image cap">
         <div class="card-body">
             <h5 class="card-title text-center">Connectivity Services</h5>
-            <p class="card-text">Create and manage the life-cycle of network connectivity services.</h6>
+            <p class="card-text">Create and manage the life-cycle of network connectivity services.</p>
             <p class="card-text">Create connectivity between the public cloud and on-prem data-centers.</p>
             <p class="card-text">Scale-up and scale-down the bandwidth of existing connectivity services.</p>
             <p class="card-text">Add and remove connectivity between IPv4 subnets in the public cloud and on-prem data-centers.</p>
+        </div>
+    </a>
+    <a class="card custom-card bg-light" href="/InfrastructureServices/Index">
+        <img class="card-img-top mx-auto d-block" src="~/images/infrastructure-services.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title text-center">Infrastructure Services</h5>
+            <p class="card-text">Create and manage the life-cycle of provider network infrastructure.</p>
+            <p class="card-text">Create provider routers, provider edge routers, and aggregation routers.</p>
+            <p class="card-text">Add and remove ports providing connectivity services to tenants.</p>
         </div>
     </a>
 </div>

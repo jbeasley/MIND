@@ -62,15 +62,9 @@ namespace Mind.Builders
             return this;
         }
 
-        ITenantDomainDeviceBuilder ITenantDomainDeviceBuilder.WithPortRequests(List<PortRequest> ports)
+        ITenantDomainDeviceBuilder ITenantDomainDeviceBuilder.WithPortRequestsOrUpdates(List<PortRequestOrUpdate> ports)
         {
-            base.WithPortRequests(ports);
-            return this;
-        }
-
-        ITenantDomainDeviceBuilder ITenantDomainDeviceBuilder.WithPortUpdates(List<PortUpdate> ports)
-        {
-            base.WithPortUpdates(ports);
+            base.WithPortRequestsOrUpdates(ports);
             return this;
         }
 

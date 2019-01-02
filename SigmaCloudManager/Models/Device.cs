@@ -78,7 +78,9 @@ namespace SCM.Models
                         .ThenInclude(x => x.PortSfp)
                         .Include(x => x.Ports)
                         .ThenInclude(x => x.Tenant)
-                        .Include(x => x.Tenant);
+                        .Include(x => x.Tenant)
+                        .Include(x => x.Ports)
+                        .ThenInclude(x => x.PortBandwidth);
         }
     }
 

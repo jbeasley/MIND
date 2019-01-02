@@ -10,7 +10,10 @@ using SCM.Models;
 namespace Mind.Builders
 {
     /// <summary>
-    /// Builder for vpn attachment sets. The builder exposes a fluent api.
+    /// Builder for vpn attachment sets. A vpn attachment set is an association of an attachmen set with a vpn.
+    /// An attachment set is a collection of routing instances which belong are associated with vifs or attachments which connect
+    /// a tenant domain with the provider domain. 
+    /// The builder exposes a fluent api.
     /// </summary>
     public class VpnAttachmentSetBuilder : BaseBuilder, IVpnAttachmentSetBuilder
     {

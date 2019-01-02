@@ -22,7 +22,7 @@ namespace Mind.WebUI.Models
         /// <value>String denoting the type of the port</value>
         /// <example>TenGigabitEthernet</example>
         [Display(Name = "Type")]
-        public string Type { get; private set; }
+        public string PortType { get; private set; }
 
         /// <summary>
         /// The name of the port
@@ -30,7 +30,7 @@ namespace Mind.WebUI.Models
         /// <value>String denoting the name of the port</value>
         /// <example>1/1/1</example>
         [Display(Name = "Name")]
-        public string Name { get; private set; }
+        public string PortName { get; private set; }
 
         /// <summary>
         /// The name of the small form-factor pluggable optic for the port

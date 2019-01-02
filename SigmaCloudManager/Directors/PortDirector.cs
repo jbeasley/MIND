@@ -24,7 +24,7 @@ namespace Mind.Builders
         /// <param name="deviceId"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<SCM.Models.Port> BuildAsync(int deviceId, PortRequest request)
+        public async Task<SCM.Models.Port> BuildAsync(int deviceId, PortRequestOrUpdate request)
         {
             var builder = _builderFactory();
             return await builder.ForDevice(deviceId)
@@ -46,7 +46,7 @@ namespace Mind.Builders
         /// <param name="device"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<SCM.Models.Port> BuildAsync(Device device, PortRequest request)
+        public async Task<SCM.Models.Port> BuildAsync(Device device, PortRequestOrUpdate request)
         {
             var builder = _builderFactory();
             return await builder.ForDevice(device)
@@ -68,7 +68,7 @@ namespace Mind.Builders
         /// <param name="device"></param>
         /// <param name="requests"></param>
         /// <returns></returns>
-        public async Task<List<SCM.Models.Port>> BuildAsync(Device device, List<PortRequest> requests)
+        public async Task<List<SCM.Models.Port>> BuildAsync(Device device, List<PortRequestOrUpdate> requests)
         {
             var ports = new List<Port>();
             var tasks = requests.Select(
@@ -90,7 +90,7 @@ namespace Mind.Builders
         /// <param name="portId"></param>
         /// <param name="update"></param>
         /// <returns></returns>
-        public async Task<Port> UpdateAsync(int portId, PortUpdate update)
+        public async Task<Port> UpdateAsync(int portId, PortRequestOrUpdate update)
         {
             var builder = _builderFactory();
             return await builder.ForPort(portId)
@@ -106,7 +106,7 @@ namespace Mind.Builders
         /// </summary>
         /// <param name="updates"></param>
         /// <returns></returns>
-        public async Task<List<Port>> UpdateAsync(List<PortUpdate> updates)
+        public async Task<List<Port>> UpdateAsync(List<PortRequestOrUpdate> updates)
         {
             var ports = new List<Port>();
             var tasks = updates.Select(

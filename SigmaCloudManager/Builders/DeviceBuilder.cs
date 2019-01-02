@@ -81,17 +81,12 @@ namespace Mind.Builders
             return this;
         }
 
-        public virtual DeviceBuilder WithPortRequests(List<PortRequest> ports)
+        public virtual DeviceBuilder WithPortRequestsOrUpdates(List<PortRequestOrUpdate> ports)
         {
-            if (ports != null) _args.Add(nameof(WithPortRequests), ports);
+            if (ports != null) _args.Add(nameof(WithPortRequestsOrUpdates), ports);
             return this;
         }
 
-        public virtual DeviceBuilder WithPortUpdates(List<PortUpdate> ports)
-        {
-            if (ports != null) _args.Add(nameof(WithPortUpdates), ports);
-            return this;
-        }
 
         /// <summary>
         /// Build the device
@@ -107,7 +102,7 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
                 if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
                 if (_args.ContainsKey(nameof(UseLayer2InterfaceMtu))) SetUseLayer2InterfaceMtu();
-                if (_args.ContainsKey(nameof(WithPortRequests)) || _args.ContainsKey(nameof(WithPortUpdates))) await ModifyPortsAsync();
+                if (_args.ContainsKey(nameof(WithPortRequestsOrUpdates))) await ModifyPortsAsync();
             }
             else
             {
@@ -119,7 +114,7 @@ namespace Mind.Builders
                 if (_args.ContainsKey(nameof(WithModel))) await SetModelAsync();
                 if (_args.ContainsKey(nameof(WithDescription))) SetDescription();
                 if (_args.ContainsKey(nameof(UseLayer2InterfaceMtu))) SetUseLayer2InterfaceMtu();
-                if (_args.ContainsKey(nameof(WithPortRequests))) await ModifyPortsAsync();
+                if (_args.ContainsKey(nameof(WithPortRequestsOrUpdates))) await ModifyPortsAsync();
                 await CreateRoutingInstanceAsync();
             }
 
@@ -206,25 +201,45 @@ namespace Mind.Builders
         }
 
         /// <summary>
-        /// Modify the ports of the device
+        /// Returns a collection of port requests for new ports.
+        /// </summary>
+        /// <returns>The requests.</returns>
+        protected internal virtual List<PortRequestOrUpdate> PortRequests()
+        {
+            var requests = (List<PortRequestOrUpdate>)_args[nameof(WithPortRequestsOrUpdates)];
+            return requests.Where(request => request.PortStatus != Models.RequestModels.PortStatusTypeEnum.Assigned).ToList();
+        }
+
+        /// <summary>
+        /// Returns a collection of port requests to update existing ports.
+        /// </summary>
+        /// <returns>The updates.</returns>
+        protected internal virtual List<PortRequestOrUpdate> PortUpdates()
+        {
+            var requests = (List<PortRequestOrUpdate>)_args[nameof(WithPortRequestsOrUpdates)];
+            return requests.Where(request => request.PortStatus == Models.RequestModels.PortStatusTypeEnum.Assigned).ToList();
+        }
+
+        /// <summary>
+        /// Modify the ports of the device by creating new ports, updating existing ports,
+        /// and removing ports from the ports collection of the device.
         /// </summary>
         /// <returns></returns>
         protected internal virtual async Task ModifyPortsAsync()
         { 
             // Create new ports
-            var requests = (List<PortRequest>)_args[nameof(WithPortRequests)];
-            var newPorts = await _portDirector.BuildAsync(this._device, requests);
+            var newPorts = await _portDirector.BuildAsync(this._device, PortRequests());
 
             // Update existing ports
-            var updates = (List<PortUpdate>)_args[nameof(WithPortUpdates)];
-            var updatedPorts = await _portDirector.UpdateAsync(updates);
+            var updatePortRequests = PortUpdates();
+            var updatedPorts = await _portDirector.UpdateAsync(updatePortRequests);
 
             // Validate requests to delete ports
             if (_device.Ports.Any())
             {
                 var deletePorts = _device.Ports.Where(
                                                 port =>
-                                                !updates.Select(
+                                                !updatePortRequests.Select(
                                                 update =>
                                                 update.PortId)
                                                 .Contains(port.ID)

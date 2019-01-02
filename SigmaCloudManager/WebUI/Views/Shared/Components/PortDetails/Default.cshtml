@@ -1,0 +1,57 @@
+﻿@using Mind.WebUI.Models;
+@model IEnumerable<PortViewModel>
+
+<div class="form-group row">
+    <div class="col-sm-12">
+        <table id="port-grid" class="table table-condensed table-hover table-striped mind-grid">
+            <thead>
+                <tr>
+                    <th style="width:17%" valign="top">@Html.DisplayNameFor(model => model.PortType)</th>
+                    <th style="width:13%" valign="top">@Html.DisplayNameFor(model => model.PortName)</th>
+                    <th style="width:10%" valign="top">@Html.DisplayNameFor(model => model.PortBandwidthGbps)</th>
+                    <th style="width:10%" valign="top">@Html.DisplayNameFor(model => model.PortConnector)</th>
+                    <th style="width:9%" valign="top">@Html.DisplayNameFor(model => model.PortSfp)</th>
+                    <th style="width:13%" valign="top">@Html.DisplayNameFor(model => model.PortStatus)</th>
+                    <th style="width:13%" valign="top">@Html.DisplayNameFor(model => model.PortRole)</th>
+                    <th style="width:15%" valign="top">@Html.DisplayNameFor(model => model.PortPool)</th>
+                </tr>
+            </thead>
+            <tbody class="mind-grid-body-scroll-lg">
+                @if (Model != null)
+                {
+                    var items = Model.ToList();
+                    @for (var i = 0; i < Model.Count(); i++)
+                    {
+                        var item = items[i];
+                        <tr>
+                            <td width="17%">
+                                <input type="text" name="Ports[@i].PortType" value="@item.PortType" readonly />
+                            </td>
+                            <td width="13%">
+                                <input type="text" name="Ports[@i].PortName" value="@item.PortName" readonly />
+                            </td>
+                            <td width="10%">
+                                <input type="text" name="Ports[@i].PortBandwidthGbps" value="@item.PortBandwidthGbps" readonly />
+                            </td>
+                            <td width="10%">
+                                <input type="text" name="Ports[@i].PortConnector" value="@item.PortConnector" readonly />
+                            </td>
+                            <td width="9%">
+                                <input type="text" name="Ports[@i].PortSfp" value="@item.PortSfp" readonly />
+                            </td>
+                            <td width="13%">
+                                <input type="text" name="Ports[@i].PortStatus" value="@item.PortStatus" readonly />
+                            </td>
+                            <td width="13%">
+                                <input type="text" name="Ports[@i].PortRole" value="@item.PortRole" readonly />
+                            </td>
+                            <td width="15%">
+                                <input type="text" name="Ports[@i].PortPool" value="@item.PortPool" readonly />
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

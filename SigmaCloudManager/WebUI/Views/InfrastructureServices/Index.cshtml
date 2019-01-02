@@ -1,0 +1,29 @@
+﻿@{
+    ViewData["Title"] = "Infrastructure Services";
+}
+
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="#"><i class="fa" aria-hidden="true"></i>Infrastructure Services</a></li>
+    </ul>
+</div>
+
+<h2>Infrastructure Services</h2>
+
+<div class="card-deck" style="width: 50%">
+    <a href="/InfrastructureDevice/GetAll" class="card custom-card bg-light">
+        <img class="card-img-top mx-auto d-block" src="~/images/infrastructure-devices.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title text-center">Devices</h5>
+            <p class="card-text">Create and manage the lifecycle of devices</p>
+        </div>
+    </a>
+    <a href="/InfrastructureAttachment/GetAll" class="card custom-card bg-light">
+        <img class="card-img-top mx-auto d-block" src="~/images/attachment.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title text-center">Attachments</h5>
+            <p class="card-text">Create and manage the lifecycle of Infrastructure Attachments</p>
+        </div>
+    </a>
+</div>

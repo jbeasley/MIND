@@ -63,15 +63,9 @@ namespace Mind.Builders
             return this;
         }
 
-        IInfrastructureDeviceBuilder IInfrastructureDeviceBuilder.WithPortRequests(List<PortRequest> ports)
+        IInfrastructureDeviceBuilder IInfrastructureDeviceBuilder.WithPortRequestsOrUpdates(List<PortRequestOrUpdate> ports)
         {
-            base.WithPortRequests(ports);
-            return this;
-        }
-
-        IInfrastructureDeviceBuilder IInfrastructureDeviceBuilder.WithPortUpdates(List<PortUpdate> ports)
-        {
-            base.WithPortUpdates(ports);
+            base.WithPortRequestsOrUpdates(ports);
             return this;
         }
 

@@ -6,6 +6,8 @@
 </div>
 <!-- Button trigger modal showing form for creation of a port -->
 <button type="button" id="showPortFormBtn" class="btn btn-primary" is-create-button></button>
+<!-- Button trigger modal showing form for refresh of the ports grid -->
+<button type="button" id="syncPortsGridFromServerBtn" class="btn btn-secondary" is-refresh-button caption="Sync from Server"></button>
 <br />
 <br />
 <div class="form-group row">
@@ -20,20 +22,19 @@
                     <th style="width:9%" valign="top">@Html.DisplayNameFor(model => model.PortSfp)</th>
                     <th style="width:13%" valign="top">@Html.DisplayNameFor(model => model.PortStatus)</th>
                     <th style="width:13%" valign="top">@Html.DisplayNameFor(model => model.PortRole)</th>
-                    <th style="width:15%" valign="top">@Html.DisplayNameFor(model => model.PortPool)</th>
-                    <th style="width:10%" valign="top">Actions</th>
+                    <th style="width:13%" valign="top">@Html.DisplayNameFor(model => model.PortPool)</th>
+                    <th style="width:12%" valign="top">Actions</th>
                 </tr>
             </thead>
             <tbody class="mind-grid-body-scroll-lg">
                 <!-- View component for displaying the grid of ports
                 This is put into a separate view component so that the grid data can be reloaded from the server from the client
                 whenever a new row is added or a row deleted -->
-                @await Component.InvokeAsync("PortsGridData", new
+                @await Component.InvokeAsync("PortsGridData", new PortsGridDataViewModel
                 {
-                    ports = Model
+                    Ports = Model?.ToList()
                 })
             </tbody>
         </table>
     </div>
 </div>
-   

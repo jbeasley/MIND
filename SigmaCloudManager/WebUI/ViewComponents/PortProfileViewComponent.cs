@@ -24,9 +24,14 @@ namespace Mind.WebUI.ViewComponents
         {
             var tasks = new List<Task>
             {
-                PopulatePortRolesDropDownList(model?.IsTenantDomainRole,model?.IsProviderDomainRole, model?.PortRole),
-                PopulatePortPoolsDropDownList(model?.IsTenantDomainRole, model?.IsProviderDomainRole, model?.PortPool)
+                PopulatePortRolesDropDownList(model?.IsTenantDomainRole,model?.IsProviderDomainRole, model?.PortRole)
             };
+
+            if (model?.PortRole != null)
+            {
+                tasks.Add(PopulatePortPoolsDropDownList(model?.PortRole, model?.IsTenantDomainRole,
+                model?.IsProviderDomainRole, model?.PortPool));
+            }
 
             await Task.WhenAll(tasks);
 
@@ -47,10 +52,12 @@ namespace Mind.WebUI.ViewComponents
             ViewBag.PortRole = new SelectList(_mapper.Map<List<PortRoleViewModel>>(portRoles), "Name", "Name", selectedPortRole);
         }
 
-        private async Task PopulatePortPoolsDropDownList(bool? isTenantDomainRole, bool? isProviderDomainRole, object selectedPortPool = null)
+        private async Task PopulatePortPoolsDropDownList(string portRole, bool? isTenantDomainRole, 
+        bool? isProviderDomainRole, object selectedPortPool = null)
         {
             var portPools = await _unitOfWork.PortPoolRepository.GetAsync(
                 q =>
+                q.PortRole.Name == portRole &&
                 q.PortRole.DeviceRolePortRoles
                 .Any(
                     x =>

@@ -52,7 +52,7 @@ namespace Mind.Models.RequestModels
         /// <summary>
         /// List of port requests for the device
         /// </summary>
-        public List<PortRequest> Ports { get; set; }
+        public List<PortRequestOrUpdate> Ports { get; set; }
 
     }
 }

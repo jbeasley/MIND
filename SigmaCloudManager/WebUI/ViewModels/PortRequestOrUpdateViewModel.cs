@@ -16,6 +16,27 @@ namespace Mind.WebUI.Models
         public int? PortId { get; set; }
 
         /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:Mind.WebUI.Models.PortRequestOrUpdateViewModel"/>
+        /// is for a device with the provider domain role.
+        /// </summary>
+        /// <value><c>true</c> if is provider domain role; otherwise, <c>false</c>.</value>
+        public bool IsProviderDomainRole { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:Mind.WebUI.Models.PortRequestOrUpdateViewModel"/>
+        /// is for a device with the tenant domain role.
+        /// </summary>
+        /// <value><c>true</c> if is tenant domain role; otherwise, <c>false</c>.</value>
+        public bool IsTenantDomainRole { get; set; }
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="T:Mind.WebUI.Models.PortRequestOrUpdateViewModel"/>
+        /// is new.
+        /// </summary>
+        /// <value><c>true</c> if is new; otherwise, <c>false</c>.</value>
+        public bool IsNew { get; set; }
+
+        /// <summary>
         /// The type of the port, e.g. TenGigabitEtheret
         /// </summary>
         /// <value>String denoting the type of the port</value>
@@ -85,6 +106,20 @@ namespace Mind.WebUI.Models
         public string PortPool { get; set; }
 
         /// <summary>
+        /// The name of the device to which the port belongs.
+        /// </summary>
+        /// <value>String valie denoting the name of the devicet</value>
+        /// <example>Device-1</example>
+        public string DeviceName { get; private set; }
+
+        /// <summary>
+        /// The name of the attachment to which an assigned port belongs.
+        /// </summary>
+        /// <value>String valie denoting the name of the attachment</value>
+        /// <example>TenGigabitEthernet 1/0</example>
+        public string AttachmentName { get; set; }
+
+        /// <summary>
         /// The ID of a tenant to which an assigned port belongs.
         /// </summary>
         /// <value>Integer denoting the ID of the tenant</value>
@@ -97,6 +132,6 @@ namespace Mind.WebUI.Models
         /// <value>String denoting the name of the tenant</value>
         /// <example>Elekton-Business-Unit</example>
         [Display(Name = "TenantName")]
-        public string TenantName { get; private set; }
+        public string TenantName { get; set; }
     }
 }

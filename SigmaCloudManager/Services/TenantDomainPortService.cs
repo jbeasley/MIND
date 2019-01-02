@@ -40,7 +40,7 @@ namespace Mind.Services
             return base.GetByIDAsync(id, isTenantDomainRole: true, deep: deep, asTrackable: asTrackable);
         }
 
-        public async Task<Port> AddAsync(int deviceId, PortRequest request)
+        public async Task<Port> AddAsync(int deviceId, PortRequestOrUpdate request)
         {
             var port = await _director.BuildAsync(deviceId, request);
             UnitOfWork.PortRepository.Insert(port);
@@ -64,7 +64,7 @@ namespace Mind.Services
             await UnitOfWork.SaveAsync();
         }
 
-        public async Task<Port> UpdateAsync(int portId, PortUpdate update)
+        public async Task<Port> UpdateAsync(int portId, PortRequestOrUpdate update)
         {
             await _director.UpdateAsync(portId, update);
             await UnitOfWork.SaveAsync();

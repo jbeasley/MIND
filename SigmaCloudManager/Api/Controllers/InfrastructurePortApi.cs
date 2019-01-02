@@ -67,7 +67,7 @@ namespace Mind.Api.Controllers
         {
             try
             {
-                var request = Mapper.Map<Mind.Models.RequestModels.PortRequest>(body);
+                var request = Mapper.Map<Mind.Models.RequestModels.PortRequestOrUpdate>(body);
                 var port = await _infrastructurePortService.AddAsync(deviceId.Value, request);
                 var portApiModel = Mapper.Map<Mind.Api.Models.Port>(port);
                 return CreatedAtRoute("GetInfrastructurePort", new { deviceId, portId = port.ID }, portApiModel);
@@ -220,7 +220,7 @@ namespace Mind.Api.Controllers
                     return new PreconditionFailedResult();
                 }
 
-                var update = Mapper.Map<Mind.Models.RequestModels.PortUpdate>(body);
+                var update = Mapper.Map<Mind.Models.RequestModels.PortRequestOrUpdate>(body);
                 var port = await _infrastructurePortService.UpdateAsync(portId.Value, update);
                 port.SetModifiedHttpHeaders(Response);
 

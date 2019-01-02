@@ -19,8 +19,7 @@ namespace Mind.Builders
         ITenantDomainDeviceBuilder WithModel(string model);
         ITenantDomainDeviceBuilder WithStatus(string status);
         ITenantDomainDeviceBuilder UseLayer2InterfaceMtu(bool? useLayer2InterfaceMtu);
-        ITenantDomainDeviceBuilder WithPortRequests(List<PortRequest> ports);
-        ITenantDomainDeviceBuilder WithPortUpdates(List<PortUpdate> ports);
+        ITenantDomainDeviceBuilder WithPortRequestsOrUpdates(List<PortRequestOrUpdate> ports);
         Task<Device> BuildAsync();
     }
 }

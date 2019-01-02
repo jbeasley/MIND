@@ -51,10 +51,13 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.DeviceModel, conf => conf.MapFrom(src => src.DeviceModel.Name))
                 .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
                 .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Location.SiteName))
-                .ForMember(dst => dst.PlaneName, conf => conf.MapFrom(src => src.Plane.Name));
+                .ForMember(dst => dst.PlaneName, conf => conf.MapFrom(src => src.Plane.Name))
+                .ForMember(dst => dst.DeviceRole, conf => conf.MapFrom(src => src.DeviceRole.Name));
 
             CreateMap<SCM.Models.Port, Mind.WebUI.Models.PortViewModel>()
                 .ForMember(dst => dst.PortId, conf => conf.MapFrom(src => src.ID))
+                .ForMember(dst => dst.PortType, conf => conf.MapFrom(src => src.Type))
+                .ForMember(dst => dst.PortName, conf => conf.MapFrom(src => src.Name))
                 .ForMember(dst => dst.PortPool, conf => conf.MapFrom(src => src.PortPool.Name))
                 .ForMember(dst => dst.PortRole, conf => conf.MapFrom(src => src.PortPool.PortRole.Name))
                 .ForMember(dst => dst.PortSfp, conf => conf.MapFrom(src => src.PortSfp.Name))
@@ -63,7 +66,20 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.PortBandwidthGbps, conf => conf.MapFrom(src => src.PortBandwidth.BandwidthGbps));
 
             CreateMap<SCM.Models.Port, Mind.WebUI.Models.PortRequestOrUpdateViewModel>()
-                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
+                .ForMember(dst => dst.PortId, conf => conf.MapFrom(src => src.ID))
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name))
+                .ForMember(dst => dst.PortType, conf => conf.MapFrom(src => src.Type))
+                .ForMember(dst => dst.PortName, conf => conf.MapFrom(src => src.Name))
+                .ForMember(dst => dst.PortBandwidthGbps, conf => conf.MapFrom(src => src.PortBandwidth.BandwidthGbps))
+                .ForMember(dst => dst.PortSfp, conf => conf.MapFrom(src => src.PortSfp.Name))
+                .ForMember(dst => dst.PortConnector, conf => conf.MapFrom(src => src.PortConnector.Name))
+                .ForMember(dst => dst.PortRole, conf => conf.MapFrom(src => src.PortPool.PortRole.Name))
+                .ForMember(dst => dst.PortPool, conf => conf.MapFrom(src => src.PortPool.Name))
+                .ForMember(dst => dst.PortStatus, conf => conf.MapFrom(src => src.PortStatus.Name))
+                .ForMember(dst => dst.AttachmentName, conf => conf.MapFrom(src => src.Interface.Attachment.Name))
+                .ForMember(dst => dst.DeviceName, conf => conf.MapFrom(src => src.Device.Name))
+                .ForMember(dst => dst.IsTenantDomainRole, conf => conf.MapFrom(src => src.Device.DeviceRole.IsTenantDomainRole))
+                .ForMember(dst => dst.IsProviderDomainRole, conf => conf.MapFrom(src => src.Device.DeviceRole.IsProviderDomainRole));
 
             CreateMap<SCM.Models.LogicalInterface, Mind.WebUI.Models.LogicalInterfaceViewModel>()
                 .ForMember(dst => dst.RoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name));
@@ -162,12 +178,7 @@ namespace Mind.WebUI.Models
 
             CreateMap<Mind.WebUI.Models.TenantRequestViewModel, SCM.Models.Tenant>();
             CreateMap<Mind.WebUI.Models.TenantUpdateViewModel, SCM.Models.Tenant>();
-
-            // View model to request model mappings
-
-            CreateMap<Mind.WebUI.Models.TenantDomainDeviceUpdateViewModel, Mind.Models.RequestModels.TenantDomainDeviceUpdate>()
-                .ForMember(dst => dst.PortUpdates, conf => conf.MapFrom(src => src.Ports.Where(port => port.PortId != null)))
-                .ForMember(dst => dst.PortRequests, conf => conf.MapFrom(src => src.Ports.Where(port => port.PortId == null)));              
+                         
         }
     }
 

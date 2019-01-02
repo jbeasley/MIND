@@ -7,9 +7,11 @@
     @for (var i = 0; i < Model.Count(); i++)
     {
         var item = items[i];
-<tr id="port-grid-row_@i" data-row-id="@i" data-port-id="@item.PortId" data-port-type="@item.PortType" data-port-name="@item.PortName" data-port-role="@item.PortRole"
+<tr id ="port-grid-row_@i" data-row-id="@i" data-port-id="@item.PortId" data-is-new="@item.IsNew" data-port-type="@item.PortType" 
+    data-port-name="@item.PortName" data-port-role="@item.PortRole"
     data-port-pool="@item.PortPool" data-port-bandwidth-gbps="@item.PortBandwidthGbps"
-    data-port-connector="@item.PortConnector" data-port-sfp="@item.PortSfp" data-port-status="@item.PortStatus" data-tenant-id="@item.TenantId">
+    data-port-connector="@item.PortConnector" data-port-sfp="@item.PortSfp" data-port-status="@item.PortStatus" 
+    data-tenant-id="@item.TenantId" data-tenant-name="@item.TenantName" data-attachment-name="@item.AttachmentName">
     <td hidden>
         <input type="text" name="Ports[@i].PortId" value="@item.PortId" readonly />
     </td>
@@ -37,12 +39,16 @@
     <td width="13%">
         <input type="text" name="Ports[@i].PortRole" value="@item.PortRole" readonly />
     </td>
-    <td width="15%">
+    <td width="12%">
         <input type="text" name="Ports[@i].PortPool" value="@item.PortPool" readonly />
     </td>
-    <td width="10%">
-        <button type="button" id="Ports_Edit_@i" class="btn btn-sm btn-secondary mind-grid-edit-row" data-row-id="@i"><i class="fas fa-edit"></i></button>
-        <button type="button" id="Ports_Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"><i class="fas fa-trash"></i></button>
+    <td width="13%">
+        <button type="button" id="Ports_Edit_@i" class="btn btn-sm btn-secondary mind-grid-edit-row" data-row-id="@i" 
+        data-toggle="tooltip" data-placement="top" title="Edit this port"><i class="fas fa-edit"></i></button>
+        <button type="button" id="Ports_Copy_@i" class="btn btn-sm btn-secondary mind-grid-copy-row" data-row-id="@i"
+         data-toggle="tooltip" data-placement="top" title="Create a copy of this port"><i class="fas fa-copy"></i></button>
+        <button type="button" id="Ports_Delete_@i" class="btn btn-sm btn-secondary mind-grid-delete-row" data-row-id="@i"
+         data-toggle="tooltip" data-placement="top" title="Delete this port"><i class="fas fa-trash"></i></button>
     </td>
 </tr>
     }

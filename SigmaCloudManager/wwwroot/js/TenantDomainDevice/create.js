@@ -9,6 +9,7 @@
     Mind.Utilities.createWizard($wizard, $form, true);
 
     var $locationSelector = $('#locationSelector');
+    var $portFormContainer = $('#portFormContainer');
 
     // Handle change of region selection
     $locationSelector.on('change', '#RegionId', function (e) {
@@ -30,6 +31,14 @@
         var subRegionId = this.value;
 
         Mind.Utilities.populateElement($locationSelector, "GetLocationSelectorComponent", { regionId: $region[0].value, subRegionId: subRegionId }, InitToolTipsAndValidation);
+    });
+
+    // Handle change of port role selection
+    $portFormContainer.on('change', '#PortRole', function (e) {
+
+        var $portProfileSelector = $('#portProfileSelector');
+        // Load the list of port pools related to the selected port role
+        Mind.Utilities.populateElement($portProfileSelector, "GetPortProfileComponent", { portRole: this.value }, InitToolTipsAndValidation);
     });
     
     function InitToolTipsAndValidation() {

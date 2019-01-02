@@ -24,37 +24,32 @@ namespace Mind.WebUI.Attributes
         /// <summary>
         /// 
         /// </summary>
-        public ValidateInfrastructureDeviceExistsAttribute() : 
+        public ValidateInfrastructureDeviceExistsAttribute() :
             base(typeof(ValidateInfrastructureDeviceExistsActionFilter))
         {
         }
 
         private class ValidateInfrastructureDeviceExistsActionFilter : IAsyncActionFilter
         {
-            private readonly IUnitOfWork _unitOfWork;
-
-            public ValidateInfrastructureDeviceExistsActionFilter(IUnitOfWork unitOfWork)
+            private readonly IInfrastructureDeviceService _infrastructureDeviceService;
+            public ValidateInfrastructureDeviceExistsActionFilter(IInfrastructureDeviceService infrastructureDeviceService)
             {
-                _unitOfWork = unitOfWork;
+                _infrastructureDeviceService = infrastructureDeviceService;
             }
 
             public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
-            {          
-                var deviceId = context.ActionArguments["deviceId"] as int?;
-               
-                if ((from result in await _unitOfWork.DeviceRepository.GetAsync(q =>
-                        q.DeviceID == deviceId 
-                        && q.DeviceRole.IsProviderDomainRole,
-                        AsTrackable: false)
-                        select result)
-                       .SingleOrDefault() == null)
+            {
+                if (context.ActionArguments.TryGetValue("deviceId", out object value) && value is int infrastructureDeviceId)
                 {
 
-                    context.Result = new ViewResult { ViewName = "ItemNotFound" };
-                    return;
+                    if ((await _infrastructureDeviceService.GetByIDAsync(infrastructureDeviceId, asTrackable: false)) != null)
+                    {
+                        await next();
+                    }
                 }
 
-                await next();
+                context.Result = new ViewResult { ViewName = "ItemNotFound" };
+                return;
             }
         }
     }

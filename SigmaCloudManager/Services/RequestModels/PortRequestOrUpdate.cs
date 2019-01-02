@@ -2,10 +2,16 @@
 namespace Mind.Models.RequestModels
 {
     /// <summary>
-    /// Model for requesting the creation of a device port
+    /// Model for requesting the creation of a device port or an update to an existing port
     /// </summary>
-    public class PortRequest
+    public class PortRequestOrUpdate
     {
+        /// <summary>
+        /// The ID of the port
+        /// </summary>
+        /// <value>Integer value denoting the ID of the port</value>
+        public int? PortId { get; set; }
+
         /// <summary>
         /// The type of the port, e.g. TenGigabitEtheret
         /// </summary>

@@ -95,7 +95,6 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateTenantExists]
         public async Task<IActionResult> Create(InfrastructureDeviceRequestViewModel requestModel)
         {
             if (ModelState.IsValid)
@@ -208,7 +207,6 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateInfrastructureDeviceExists]
         public async Task<IActionResult> Delete(InfrastructureDeviceDeleteViewModel model)
         {
             var infrastructureDevice = await _infrastructureDeviceService.GetByIDAsync(model.DeviceId.Value, deep: true, asTrackable: false);
@@ -239,7 +237,7 @@ namespace Mind.WebUI.Controllers
                 ViewData.AddDatabaseUpdateExceptionMessage();
             }
 
-            return View(_mapper.Map<InfrastructureDeviceViewModel>(infrastructureDevice));
+            return View(model);
         }
     }
 }

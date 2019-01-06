@@ -1,0 +1,31 @@
+﻿@using Mind.WebUI.Models;
+@model AttachmentBundleAndMultiportOptionsComponentViewModel
+
+<div mind-alert="info" message="If you want the attachment to be configured as a bundle then select the bundle option. Bundles are groups of two or
+                more physical attachments which are logically grouped together and behave as one physical attachment. Traffic is load-balandced
+                across the bundle using the LACP protocol.">
+</div>
+<div class="form-group row">
+    <label class="col-form-label col-sm-2" asp-for="BundleRequired"></label>
+    <div class="col-sm-10">
+        <div class="custom-control custom-checkbox">
+            <input class="form-check-input custom-control-input" type="checkbox" asp-for="BundleRequired" data-toggle="tooltip"
+                   data-placement="right" title="Request a bundle attachment">
+            <label class="form-check-label custom-control-label" for="BundleRequired"></label>
+        </div>
+    </div>
+</div>
+<div mind-alert="info" message="If you want the attachment to be configured as a multiport then select the multiport option. Multiports are groups of
+                two or more physical attachments each of which is configured for layer 3. Traffic is load-balanced across a multiport using
+                the ECMP protocol.">
+</div>
+<div class="form-group row">
+    <label class="col-form-label col-sm-2" asp-for="MultiportRequired"></label>
+    <div class="col-sm-10">
+        <div class="custom-control custom-checkbox">
+            <input class="form-check-input custom-control-input" type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip"
+                   data-placement="right" title="Request a multi-port attachment">
+            <label class="form-check-label custom-control-label" for="MultiportRequired"></label>
+        </div>
+    </div>
+</div>

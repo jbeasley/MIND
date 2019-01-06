@@ -182,7 +182,7 @@ namespace Mind.Builders
 
         protected internal virtual async Task CreateRoutingInstanceAsync()
         {
-            var routingInstance = await _routingInstanceDirector.BuildAsync(this._device);
+            var routingInstance = await _routingInstanceDirector.BuildAsync(this._device, new RoutingInstanceRequest());
             _device.RoutingInstances.Add(routingInstance);     
         }
 

@@ -1,0 +1,12 @@
+﻿@using Mind.WebUI.Models;
+@model PlaneComponentViewModel
+
+<div class="form-group row">
+    <label asp-for="PlaneName" class="col-sm-2 col-form-label"></label>
+    <div class="col-sm-10">
+        <select asp-for="PlaneName" class="form-control" asp-items="ViewBag.Plane">
+            <option value="">-- Select a Plane --</option>
+        </select>
+        <span asp-validation-for="PlaneName" class="text-danger"></span>
+    </div>
+</div>

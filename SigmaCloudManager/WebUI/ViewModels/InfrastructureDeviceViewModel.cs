@@ -21,8 +21,13 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>Integer denoting the ID of the device</value>
         /// <example>90991</example>
-        [Display(Name="Device ID")]
         public int? DeviceId { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the device role identifier.
+        /// </summary>
+        /// <value>Integer value denoting the device role identifier.</value>
+        public int? DeviceRoleId { get; set; }
 
         /// <summary>
         /// The name of the device

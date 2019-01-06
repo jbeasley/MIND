@@ -52,5 +52,11 @@ namespace SCM.Models.RequestModels
         /// </summary>
         /// <value>A list of IPv4 addresses and subnet masks</value>
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
+
+        /// <summary>
+        /// Optional parameters for the routing instance associated with the existing attachment.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        public RoutingInstanceRequest RoutingInstance { get; set; }
     }
 }

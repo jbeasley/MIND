@@ -16,14 +16,11 @@ namespace Mind.Builders
     public class VrfRoutingInstanceBuilder : BaseBuilder, IVrfRoutingInstanceBuilder
     {
         private RoutingInstance _routingInstance;
-        private readonly IProviderDomainBgpPeerDirector _bgpPeerDirector;
-        private readonly IBgpPeerUpdateDirector _bgpPeerUpdateDirector;
+        private readonly IBgpPeerDirector _bgpPeerDirector;
 
-        public VrfRoutingInstanceBuilder(IUnitOfWork unitOfWork, IProviderDomainBgpPeerDirector bgpPeerDirector, 
-            IBgpPeerUpdateDirector bgpPeerUpdateDirector) : base (unitOfWork)
+        public VrfRoutingInstanceBuilder(IUnitOfWork unitOfWork, IBgpPeerDirector bgpPeerDirector) : base (unitOfWork)
         {
             _bgpPeerDirector = bgpPeerDirector;
-            _bgpPeerUpdateDirector = bgpPeerUpdateDirector;
             _routingInstance = new RoutingInstance
             {
                 Name = Guid.NewGuid().ToString("N"),
@@ -39,6 +36,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual IVrfRoutingInstanceBuilder ForDevice(Device device)
+        {
+            if (device != null) _args.Add(nameof(ForDevice), device);
+            return this;
+        }
+
         public virtual IVrfRoutingInstanceBuilder ForAttachment(Attachment attachment)
         {
             if (attachment != null) _args.Add(nameof(ForAttachment), attachment);
@@ -50,7 +53,6 @@ namespace Mind.Builders
             if (vif != null) _args.Add(nameof(ForVif), vif);
             return this;
         }
-
 
         public virtual IVrfRoutingInstanceBuilder ForRoutingInstance(int? routingInstanceId)
         {
@@ -155,21 +157,30 @@ namespace Mind.Builders
 
         protected internal virtual async Task SetDeviceAsync()
         {
-            var deviceId = (int)_args[nameof(ForDevice)];
-            var device = (from result in await _unitOfWork.DeviceRepository.GetAsync(
-                        q =>
-                          q.DeviceID == deviceId,
-                          query: q => q.IncludeValidationProperties(),
-                          AsTrackable: true)
-                          select result)
-                          .SingleOrDefault();
+            if (_args[nameof(ForDevice)].GetType() == typeof(Device))
+            {
+                var device = (Device)_args[nameof(ForDevice)];
+                _routingInstance.Device = device;
+            }
+            else
+            {
+                var deviceId = (int)_args[nameof(ForDevice)];
+                var device = (from result in await _unitOfWork.DeviceRepository.GetAsync(
+                            q =>
+                              q.DeviceID == deviceId,
+                              query: q => q.IncludeValidationProperties(),
+                              AsTrackable: true)
+                              select result)
+                              .SingleOrDefault();
 
-            _routingInstance.Device = device;
+                _routingInstance.Device = device;
+            }
         }
 
         protected internal virtual void SetAttachment()
         {
             var attachment = (Attachment)_args[nameof(ForAttachment)];
+
             // Add the attachment to the Attachments collection of the routing instance here.
             // This supports validation checks such as validation of any BGP peers where the IP addressing assigned to the attachment
             // is checked against the BGP peer address (see the BgpPeer model Validation method)
@@ -188,6 +199,7 @@ namespace Mind.Builders
         protected internal virtual void SetVif()
         {
             var vif = (Vif)_args[nameof(ForVif)];
+
             // Add the vif to the Vifs collection of the routing instance here.
             // This supports validation checks such as validation of any BGP peers where the IO addressing assigned to the vif
             // is checked against the BGP peer address (see the BgpPeer model Validation method)
@@ -309,7 +321,7 @@ namespace Mind.Builders
 
             // Update existing BGP peers
             var updateBgpRequests = requests.Where(x => x.BgpPeerId.HasValue).ToList();
-            var updatedBgpPeers = await _bgpPeerUpdateDirector.UpdateAsync(updateBgpRequests);
+            var updatedBgpPeers = await _bgpPeerDirector.UpdateAsync(updateBgpRequests);
 
             // Validate requests to delete BGP peers
             if (_routingInstance.BgpPeers.Any())

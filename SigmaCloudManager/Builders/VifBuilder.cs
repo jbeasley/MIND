@@ -486,10 +486,11 @@ namespace Mind.Builders
                                            q.RoutingInstanceTypeID == _vif.VifRole.RoutingInstanceType.RoutingInstanceTypeID)
                                            select routingInstanceTypes)
                                            .Single();
-
+                
                 var routingInstanceRequest = (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)];
                 var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
-                await routingInstanceDirector.BuildAsync(routingInstanceId: _vif.RoutingInstance.RoutingInstanceID, request: routingInstanceRequest);
+
+                await routingInstanceDirector.UpdateAsync(routingInstanceId: _vif.RoutingInstance.RoutingInstanceID, request: routingInstanceRequest);
             }
         }
 

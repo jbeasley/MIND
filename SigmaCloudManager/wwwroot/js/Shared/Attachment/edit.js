@@ -1,13 +1,18 @@
-﻿(function ($) {
+﻿(($) => {
 
-    var $form = $("#editForm"),
-        $wizard = $("#editAttachmentWizard");
+    const   $form                   = $("#editForm"),
+            $wizard                 = $("#editAttachmentWizard");
+
+    // Determine whether the sync or stage modal form should be shown when the wizard finsihes
+
+    const showStageOrSyncModal      = (/true/i).test($('showStageOrSyncModal').val());
 
     //Create wizard
-    Mind.Utilities.createWizardWithNetworkStageOrSyncModal($wizard, $form, true);
 
-    var $routingInstance = $('#ExistingRoutingInstanceName'),
-        $createNewRoutingInstance = $('#CreateNewRoutingInstance');
+    Mind.Utilities.createWizardWithNetworkStageOrSyncModal($wizard, $form, showStageOrSyncModal);
+
+    var $routingInstance            = $('#ExistingRoutingInstanceName'),
+        $createNewRoutingInstance   = $('#CreateNewRoutingInstance');
 
     if ($createNewRoutingInstance.length > 0) {
 
@@ -15,7 +20,7 @@
 
             if ($routingInstance.length > 0) {
 
-                var routingInstance = $routingInstance[0];
+                const routingInstance = $routingInstance[0];
                 routingInstance.selectedIndex = 0;
                 routingInstance.disabled = true;
             }
@@ -40,5 +45,5 @@
         });
     }
 
- }(jQuery));
+})(jQuery);
 

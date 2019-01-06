@@ -1,7 +1,7 @@
 ﻿// Helper for handling the user selecting a card. Depending on the card, the user may be 
 // redirected to another page, or a network sync may be initiated.
 
-(function ($) {
+(($) => {
 
     var $selectItemModal = $("#selectItemModal"),
         $multipleItemsSelectedModal = $("#multipleItemsSelectedModal"),
@@ -93,4 +93,4 @@
         }
     });
 
-}(jQuery));
+})(jQuery);

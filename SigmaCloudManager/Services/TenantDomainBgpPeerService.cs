@@ -12,14 +12,11 @@ namespace Mind.Services
 {
     public class TenantDomainBgpPeerService : BaseService, ITenantDomainBgpPeerService
     {
-        private readonly ITenantDomainBgpPeerDirector _director;
-        private readonly IBgpPeerUpdateDirector _updateDirector;
+        private readonly IBgpPeerDirector _director;
 
-        public TenantDomainBgpPeerService(IUnitOfWork unitOfWork, ITenantDomainBgpPeerDirector director, 
-            IBgpPeerUpdateDirector updateDirector) : base(unitOfWork)
+        public TenantDomainBgpPeerService(IUnitOfWork unitOfWork, IBgpPeerDirector director) : base(unitOfWork)
         {
             _director = director;
-            _updateDirector = updateDirector;
         }
 
         public async Task<IEnumerable<BgpPeer>> GetAllByDeviceIDAsync(int id, bool? deep = false, bool asTrackable = false)
@@ -45,7 +42,7 @@ namespace Mind.Services
 
         public async Task<BgpPeer> AddAsync(int deviceId, BgpPeerRequest request)
         {
-            var bgpPeer = await _director.BuildAsync(deviceId, request);
+            var bgpPeer = await _director.BuildForDeviceAsync(deviceId, request);
             this.UnitOfWork.BgpPeerRepository.Insert(bgpPeer);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
@@ -53,7 +50,7 @@ namespace Mind.Services
 
         public async Task<BgpPeer> UpdateAsync(int bgpPeerId, BgpPeerRequest update)
         {
-            await _updateDirector.UpdateAsync(bgpPeerId, update);
+            await _director.UpdateAsync(bgpPeerId, update);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeerId, deep: true, asTrackable: false);
         }

@@ -1,4 +1,4 @@
-﻿ (function ($) {
+﻿ (($) => {
 
     var $form = $("#createForm"),
         $wizard = $("#createVpnWizard");
@@ -6,12 +6,12 @@
     // Create the wizard
     Mind.Utilities.createWizardWithNetworkStageOrSyncModal($wizard, $form, true);
 
-    var $protocolType = $('#ProtocolType'),
-        protocolType = $protocolType[0],
-        $addressFamily = $('#AddressFamily'),
-        addressFamily = $addressFamily[0],
-        $topologyType = $('#TopologyType'),
-        topologyType = $topologyType[0];
+    const $protocolType = $('#ProtocolType'),
+          protocolType = $protocolType[0],
+          $addressFamily = $('#AddressFamily'),
+          addressFamily = $addressFamily[0],
+          $topologyType = $('#TopologyType'),
+          topologyType = $topologyType[0];
 
     // Handle changes to the protocol type dropdown list selection
     $protocolType.on('change', function (e) {
@@ -41,5 +41,5 @@
     // Initialise all tool-tips
     $('[data-toggle="tooltip"]').tooltip();
 
-}(jQuery));
+})(jQuery);
 

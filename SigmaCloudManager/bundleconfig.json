@@ -40,39 +40,9 @@
     }
   },
   {
-    "outputFileName": "wwwroot/js/BgpPeer/grids.min.js",
-    "inputFiles": [
-      "wwwroot/js/BgpPeer/grids.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    }
-  },
-  {
     "outputFileName": "wwwroot/js/ProviderDomainAttachment/main.min.js",
     "inputFiles": [
       "wwwroot/js/ProviderDomainAttachment/main.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    }
-  },
-  {
-    "outputFileName": "wwwroot/js/ProviderDomainAttachment/create.min.js",
-    "inputFiles": [
-      "wwwroot/js/ProviderDomainAttachment/create.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    }
-  },
-  {
-    "outputFileName": "wwwroot/js/ProviderDomainAttachment/edit.min.js",
-    "inputFiles": [
-      "wwwroot/js/ProviderDomainAttachment/edit.js"
     ],
     "minify": {
       "enabled": true,
@@ -230,13 +200,43 @@
     }
   },
   {
-    "outputFileName": "wwwroot/js/Shared/portGrids.min.js",
+    "outputFileName": "wwwroot/js/Shared/Ports/grids.min.js",
     "inputFiles": [
-      "wwwroot/js/Shared/portGrids.js"
+      "wwwroot/js/Shared/Ports/grids.js"
     ],
     "minify": {
       "enabled": true,
       "renameLocals": true
     }
   },
+  {
+    "outputFileName": "wwwroot/js/Shared/Attachment/create.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/Attachment/create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Shared/Attachment/edit.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/Attachment/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Shared/BgpPeer/grids.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/BgpPeer/grids.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  }
 ]

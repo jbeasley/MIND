@@ -1,86 +1,81 @@
 ﻿
-(function ($) {
+(($) => {
 
-    var $form = $("#createForm"),
-        $wizard = $("#createVifWizard");
+    const $form = $("#createForm"),
+          $wizard = $("#createVifWizard");
 
     // Create the wizard
     Mind.Utilities.createWizardWithNetworkStageOrSyncModal($wizard, $form, true);
 
-    var $attachmentId = $('#AttachmentId'),
-        attachmentId = $attachmentId[0],
-        $vifRole = $('#VifRoleName'),
-        vifRole = $vifRole[0],
-        $ipAddressingComponent = $("#ipAddressingComponent"),
-        $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent"),
-        $bgpPeersComponent = $('#bgpPeersComponent');
-
-    $vifRole.on('change', function (e) {
-
-        var vifRoleName = this.value;
-        if (vifRoleName !== null) {
-
-            GetIpAddressingComponent();
-            GetContractBandwidthPoolComponent();
-            GetBgpPeersComponent();
-        }
-    });
-
-    function GetIpAddressingComponent() {
-
-        $ipAddressingComponent.fadeOut().empty();
-
-        $.get("GetIpAddressingComponent", {
+    const $attachmentId = $('#AttachmentId'),
+          attachmentId = $attachmentId[0],
+          $vifRole = $('#VifRoleName'),
+          vifRole = $vifRole[0],
+          $ipAddressingComponent = $("#ipAddressingComponent"),
+          $contractBandwidthPoolComponent = $("#contractBandwidthPoolComponent"),
+          $bgpPeersComponent = $('#bgpPeersComponent');
+        
+    const getIpAddressingComponent = () => {
+    
+        Mind.Utilities.populateElement($ipAddressingComponent, "GetIpAddressingComponent", {
             attachmentId: attachmentId.value,
             vifRoleName: vifRole.value
-        })
-            .done(function (data) {
+        },
+        (data) => {
 
-                $ipAddressingComponent.html(data).fadeIn();
-                InitToolTipsAndValidation();
-            });
+            $ipAddressingComponent.html(data).fadeIn();
+            initToolTipsAndValidation();
+        });
     }
 
-    function GetContractBandwidthPoolComponent() {
+    const getContractBandwidthPoolComponent = () => {
 
-        $contractBandwidthPoolComponent.fadeOut().empty();
-
-        $.get("GetContractBandwidthPoolComponent", {
+        Mind.Utilities.populateElemen($contractBandwidthPoolComponent, "GetContractBandwidthPoolComponent", {
             attachmentId: attachmentId.value,
             vifRoleName: vifRole.value
-        })
-            .done(function (data) {
+        },
+        (data) => {
 
-                $contractBandwidthPoolComponent.html(data).fadeIn();
-                InitToolTipsAndValidation();
-            });
+            $contractBandwidthPoolComponent.html(data);
+            initToolTipsAndValidation();
+        });
     }
 
-    function GetBgpPeersComponent() {
-
-        $bgpPeersComponent.fadeOut().empty();
-
-        $.get("GetBgpPeersComponent", {
+    const getBgpPeersComponent = () => {
+    
+        Mind.Utilities.populateElement($bgpPeersComponent, "GetBgpPeersComponent", {
             attachmentId: attachmentId.value,
             vifRoleName: vifRole.value,
-        })
-            .done(function (data) {
+        },
+        (data) => {
 
-                $bgpPeersComponent.html(data).fadeIn();
-                InitToolTipsAndValidation();
-            });
+             $bgpPeersComponent.html(data);
+             initToolTipsAndValidation();
+        });
     }
 
-    function InitToolTipsAndValidation() {
+    const initToolTipsAndValidation = () => {
 
         // Initialise new tool-tips
         $('[data-toggle="tooltip"]').tooltip();
 
         // Re-initialise unobtrusive validation on the form
-        var $form = $('#createForm')
-            .removeData("validator")
-            .removeData("unobtrusiveValidation");
+        $form.removeData("validator")
+             .removeData("unobtrusiveValidation");
+
         $.validator.unobtrusive.parse($form);
     }
 
-}(jQuery));
+    // Main
+
+    $vifRole.on('change', function (e) {
+    
+        if (this.value !== null) {
+
+            getIpAddressingComponent();
+            getContractBandwidthPoolComponent();
+            getBgpPeersComponent();
+        }
+    });
+
+})(jQuery);

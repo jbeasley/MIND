@@ -550,6 +550,89 @@
     <Content Remove="WebUI\Views\TenantDomainDevice %28copy%29\GetAllByTenantID.cshtml" />
     <Content Remove="wwwroot\js\TenantDomainDevice %28copy%29\edit.js" />
     <Content Remove="wwwroot\js\TenantDomainDevice %28copy%29\grids.js" />
+    <Content Remove="WebUI\Views\Shared\Components\Plane\Default.cshtml" />
+    <Content Remove="wwwroot\js\ProviderDomainAttachment\main.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainAttachment\create.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainAttachment\edit.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\main.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\create.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\edit.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\main.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\create.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\create.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\main.min.js" />
+    <Content Remove="wwwroot\js\Vpn\create.min.js" />
+    <Content Remove="wwwroot\js\Vpn\edit.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainAttachment\create.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainAttachment\edit.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\main.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\create.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\edit.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\main.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\create.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\create.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\main.min.js" />
+    <Content Remove="wwwroot\js\Vpn\create.min.js" />
+    <Content Remove="wwwroot\js\Vpn\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\grids.min.js" />
+    <Content Remove="wwwroot\js\Shared\networkStageOrSyncHelper.min.js" />
+    <Content Remove="WebUI\Views\ProviderDomainAttachment %28copy%29\_ProviderDomainAttachmentEditScriptsPartial.cshtml" />
+    <Content Remove="WebUI\Views\ProviderDomainAttachment %28copy%29\_ProviderDomainAttachmentMainScriptsPartial.cshtml" />
+    <Content Remove="WebUI\Views\ProviderDomainAttachment %28copy%29\AttachmentBandwidths.cshtml" />
+    <Content Remove="WebUI\Views\ProviderDomainAttachment %28copy%29\AttachmentRoles.cshtml" />
+    <Content Remove="WebUI\Views\ProviderDomainAttachment %28copy%29\Create.cshtml" />
+    <Content Remove="WebUI\Views\ProviderDomainAttachment %28copy%29\Delete.cshtml" />
+    <Content Remove="WebUI\Views\ProviderDomainAttachment %28copy%29\Details.cshtml" />
+    <Content Remove="wwwroot\js\Shared\create.min.js" />
+    <Content Remove="wwwroot\js\Shared\BgpPeer\grids.min.js" />
+    <Content Remove="wwwroot\js\Shared\Attachment\edit.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\create.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\edit.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\main.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\create.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\create.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\main.min.js" />
+    <Content Remove="wwwroot\js\Vpn\create.min.js" />
+    <Content Remove="wwwroot\js\Vpn\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\grids.min.js" />
+    <Content Remove="wwwroot\js\Shared\networkStageOrSyncHelper.min.js" />
+    <Content Remove="wwwroot\js\Shared\cardSelectionHelper.min.js" />
+    <Content Remove="wwwroot\js\Shared\Attachment\create.min.js" />
+    <Content Remove="wwwroot\js\Shared\Attachment\edit.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\create.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\edit.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\main.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\create.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\create.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\main.min.js" />
+    <Content Remove="wwwroot\js\Vpn\create.min.js" />
+    <Content Remove="wwwroot\js\Vpn\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\grids.min.js" />
+    <Content Remove="wwwroot\js\Shared\networkStageOrSyncHelper.min.js" />
+    <Content Remove="wwwroot\js\Shared\cardSelectionHelper.min.js" />
+    <Content Remove="wwwroot\js\ProviderDomainVif\edit.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\main.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\create.min.js" />
+    <Content Remove="wwwroot\js\TenantDomainDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\create.min.js" />
+    <Content Remove="wwwroot\js\InfrastructureDevice\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\main.min.js" />
+    <Content Remove="wwwroot\js\Vpn\create.min.js" />
+    <Content Remove="wwwroot\js\Vpn\edit.min.js" />
+    <Content Remove="wwwroot\js\Vpn\grids.min.js" />
+    <Content Remove="wwwroot\js\Shared\networkStageOrSyncHelper.min.js" />
+    <Content Remove="wwwroot\js\Shared\cardSelectionHelper.min.js" />
+    <Content Remove="wwwroot\js\Shared\Attachment\create.min.js" />
+    <Content Remove="wwwroot\js\Shared\Attachment\edit.min.js" />
+    <Content Remove="wwwroot\js\Shared\BgpPeer\grids.min.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Styles\breadcrumb.css" />
@@ -696,9 +779,6 @@
     <Content Update="WebUI\Views\ProviderDomainVif\GetAllByAttachmentID.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
-    <Content Update="WebUI\Views\ProviderDomainAttachment\AttachmentRoles.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
     <Content Update="WebUI\Views\ProviderDomainAttachment\Create.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
@@ -712,9 +792,6 @@
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\ProviderDomainAttachment\GetAllByTenantID.cshtml">
-      <Pack>$(IncludeRazorContentInPack)</Pack>
-    </Content>
-    <Content Update="WebUI\Views\ProviderDomainAttachment\AttachmentBandwidths.cshtml">
       <Pack>$(IncludeRazorContentInPack)</Pack>
     </Content>
     <Content Update="WebUI\Views\Shared\Components\VifContractBandwidthPool\Default.cshtml">
@@ -796,5 +873,13 @@
     <Folder Include="WebUI\Views\InfrastructureDevice\" />
     <Folder Include="WebUI\Views\InfrastructureServices\" />
     <Folder Include="wwwroot\js\InfrastructureDevice\" />
+    <Folder Include="WebUI\Views\Shared\Components\Plane\" />
+    <Folder Include="WebUI\Views\Shared\Components\AttachmentBandwidth\" />
+    <Folder Include="WebUI\Views\Shared\Components\AttachmentPortPoolAndRole\" />
+    <Folder Include="WebUI\Views\Shared\Components\AttachmentBundleAndMultiportOptions\" />
+    <Folder Include="WebUI\Views\InfrastructureAttachment\" />
+    <Folder Include="wwwroot\js\Shared\Attachment\" />
+    <Folder Include="wwwroot\js\Shared\Ports\" />
+    <Folder Include="wwwroot\js\Shared\BgpPeer\" />
   </ItemGroup>
 </Project>

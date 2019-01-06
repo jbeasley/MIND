@@ -306,7 +306,7 @@ namespace Mind.WebUI
         /// <summary>
         /// Enum for Provider Infrastructrure.
         /// </summary>
-        ProviderInfrastructrure,
+        ProviderInfrastructure,
 
         /// <summary>
         /// Enum for Tenant Infrastructure.

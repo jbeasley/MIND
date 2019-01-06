@@ -321,7 +321,7 @@ namespace Mind
                 .Keyed<IVrfRoutingInstanceDirector>("InfrastructureVrfRoutingInstanceDirector");
 
             // Default routing instance director 
-            builder.RegisterType<DefaultRoutingInstanceDirector>().As<IRoutingInstanceDirector>();
+            builder.RegisterType<DefaultRoutingInstanceDirector>().As<IRoutingInstanceDirector>().Keyed<IRoutingInstanceDirector>("DefaultRoutingInstanceDirector");
 
             // IP vpn directors
             builder.RegisterType<IpVpnDirector>().As<IVpnDirector>().Keyed<IVpnDirector>("IpVpnDirector");
@@ -329,9 +329,7 @@ namespace Mind
             builder.RegisterType<IpVpnDirector>().As<INetworkSynchronizable<SCM.Models.Vpn>>().Keyed<INetworkSynchronizable<SCM.Models.Vpn>>("IpVpnDirector");
 
             // BGP Peer directors
-            builder.RegisterType<ProviderDomainBgpPeerDirector>().As<IProviderDomainBgpPeerDirector>();
-            builder.RegisterType<TenantDomainBgpPeerDirector>().As<ITenantDomainBgpPeerDirector>();
-            builder.RegisterType<BgpPeerUpdateDirector>().As<IBgpPeerUpdateDirector>();
+            builder.RegisterType<BgpPeerDirector>().As<IBgpPeerDirector>();
 
             // Tenant IP network directors
             builder.RegisterType<TenantIpNetworkDirector>().As<ITenantIpNetworkDirector>();
@@ -516,16 +514,22 @@ namespace Mind
             });
 
             // Routing Instance Director Factory
-            builder.Register<Func<SCM.Models.RoutingInstanceType, IVrfRoutingInstanceDirector>>((c, p) =>
+            builder.Register<Func<SCM.Models.RoutingInstanceType, IRoutingInstanceDirector>>((c, p) =>
             {
                 var context = c.Resolve<IComponentContext>();
                 return (routingInstanceType) =>
                 {
-                    return routingInstanceType.Type == SCM.Models.RoutingInstanceTypeEnum.TenantFacingVrf
-                        ? context.ResolveKeyed<IVrfRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector")
-                        : routingInstanceType.Type == SCM.Models.RoutingInstanceTypeEnum.InfrastructureVrf
-                        ? context.ResolveKeyed<IVrfRoutingInstanceDirector>("InfrastructureVrfRoutingInstanceDirector")
-                        : null;
+                    switch (routingInstanceType.Type)
+                    {
+                        case SCM.Models.RoutingInstanceTypeEnum.TenantFacingVrf:
+                            return context.ResolveKeyed<IVrfRoutingInstanceDirector>("TenantFacingVrfRoutingInstanceDirector");
+                        case SCM.Models.RoutingInstanceTypeEnum.InfrastructureVrf:
+                            return context.ResolveKeyed<IVrfRoutingInstanceDirector>("InfrastructureVrfRoutingInstanceDirector");
+                        case SCM.Models.RoutingInstanceTypeEnum.Default:
+                            return context.ResolveKeyed<IRoutingInstanceDirector>("DefaultRoutingInstanceDirector");
+                        default:
+                            return null;
+                    }
                 };
             });
 

@@ -21,7 +21,7 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps))
                 .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
                 .ForMember(dst => dst.AttachmentRoleName, conf => conf.MapFrom(src => src.AttachmentRole.Name));
-
+                
             CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.ProviderDomainAttachmentUpdateViewModel>()
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
                 .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
@@ -37,6 +37,16 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.Vif, Mind.WebUI.Models.ProviderDomainVifUpdateViewModel>()
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
                 .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
+                .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
+
+            CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.InfrastructureAttachmentViewModel>()
+                .ForMember(dst => dst.InfrastructureDeviceName, conf => conf.MapFrom(src => src.Device.Name))
+                .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
+                .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps))
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
+                .ForMember(dst => dst.AttachmentRoleName, conf => conf.MapFrom(src => src.AttachmentRole.Name));
+
+            CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.InfrastructureAttachmentUpdateViewModel>()
                 .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
 
             CreateMap<SCM.Models.Vlan, Mind.WebUI.Models.VlanViewModel>();

@@ -1,13 +1,13 @@
-﻿using SCM.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Collections.Generic;
+using Mind.Models.RequestModels;
+using SCM.Models;
 
 namespace Mind.Builders
 {
     public interface IDefaultRoutingInstanceBuilder : IRoutingInstanceBuilder
     {
         IDefaultRoutingInstanceBuilder ForDevice(Device device);
+        IDefaultRoutingInstanceBuilder ForRoutingInstance(int? routingInstanceId);
+        IDefaultRoutingInstanceBuilder WithBgpPeers(List<BgpPeerRequest> bgpPeerRequests);
     }
 }

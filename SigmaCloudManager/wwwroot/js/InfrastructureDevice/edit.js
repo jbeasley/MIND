@@ -1,8 +1,8 @@
-﻿(function ($) {
+﻿(($) => {
 
-    var $form = $("#editForm"),
-        $wizard = $("#editInfrastructureDeviceWizard"),
-        $portFormContainer = $('#portFormContainer');
+    const $form                 = $("#editForm"),
+          $wizard               = $("#editInfrastructureDeviceWizard"),
+          $portFormContainer    = $('#portFormContainer');
 
     // Create the wizard
     Mind.Utilities.createWizard($wizard, $form, true);
@@ -11,20 +11,25 @@
     $portFormContainer.on('change', '#PortRole', function (e) {
 
         var $portProfileSelector = $('#portProfileSelector');
+
         // Load the list of port pools related to the selected port role
-        Mind.Utilities.populateElement($portProfileSelector, "GetPortProfileComponent", { portRole: this.value }, InitToolTipsAndValidation);
+        Mind.Utilities.populateElement($portProfileSelector, "GetPortProfileComponent", 
+        { 
+            portRole: this.value 
+        }, 
+        initToolTipsAndValidation);
     });
 
-    function InitToolTipsAndValidation() {
+    const initToolTipsAndValidation = () => {
 
         // Initialise new tool-tips
         $('[data-toggle="tooltip"]').tooltip();
 
         // Re-initialise unobtrusive validation on the form
-        var $form = $('#createForm')
-            .removeData("validator")
-            .removeData("unobtrusiveValidation");
+        $form.removeData("validator")
+             .removeData("unobtrusiveValidation");
+
         $.validator.unobtrusive.parse($form);
     }
 
-}(jQuery));
+})(jQuery);

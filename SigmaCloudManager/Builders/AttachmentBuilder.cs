@@ -24,12 +24,12 @@ namespace Mind.Builders
         protected internal IEnumerable<Port> _ports;
         protected internal Attachment _attachment;
 
-        private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
+        private readonly Func<RoutingInstanceType, IRoutingInstanceDirector> _routingInstanceDirectorFactory;
         private readonly Func<PortRole, IDestroyable<Vif>> _vifDirectorFactory;
         private readonly IDataApi _novaApiClient;
 
         public AttachmentBuilder(IUnitOfWork unitOfWork,
-                                 Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                                 Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory,
                                  Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
                                  IDataApi novaApiClient) : base(unitOfWork)
         {
@@ -488,13 +488,16 @@ namespace Mind.Builders
                                            select routingInstanceTypes)
                                            .Single();
 
-                var routingInstanceRequest = _args.ContainsKey(nameof(WithRoutingInstance)) ? (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)] : null;
-                var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
-                var routingInstance = await routingInstanceDirector.BuildAsync(attachment: this._attachment,
-                                                                               request: routingInstanceRequest);
+                if (routingInstanceType.IsVrf)
+                {
+                    var routingInstanceRequest = _args.ContainsKey(nameof(WithRoutingInstance)) ? (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)] : null;
+                    var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType) as IVrfRoutingInstanceDirector;
+                    var routingInstance = await routingInstanceDirector.BuildAsync(attachment: this._attachment,
+                                                                                   request: routingInstanceRequest);
 
-                _attachment.RoutingInstanceID = null;
-                _attachment.RoutingInstance = routingInstance;
+                    _attachment.RoutingInstanceID = null;
+                    _attachment.RoutingInstance = routingInstance;
+                }
             }
         }
 
@@ -510,7 +513,9 @@ namespace Mind.Builders
 
                 var routingInstanceRequest = (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)];
                 var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
-                await routingInstanceDirector.BuildAsync(routingInstanceId: _attachment.RoutingInstance.RoutingInstanceID, request: routingInstanceRequest);
+
+                await routingInstanceDirector.UpdateAsync(routingInstanceId: _attachment.RoutingInstance.RoutingInstanceID,
+                                                          request: routingInstanceRequest);
             }
         }
 

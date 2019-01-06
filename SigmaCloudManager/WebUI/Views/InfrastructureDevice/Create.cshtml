@@ -51,11 +51,31 @@
         </section>
         <h3>Model and Role</h3>
         <section id="role-model">
-            <!-- View component for MTU and status options for the device -->
+            <!-- View component for model and role options for the device -->
             @await Component.InvokeAsync("DeviceRoleAndModel", new DeviceRoleAndModelComponentViewModel
             {
+                IsProviderDomainRole = true,
                 DeviceRole = Model?.DeviceRole,
                 DeviceModel = Model?.DeviceModel
+            })
+        </section>
+        <h3>MTU and Activation Status</h3>
+        <section id="mtu-status">
+            <!-- View component for MTU and status options for the device -->
+            @await Component.InvokeAsync("DeviceMtuAndStatus", new DeviceMtuAndStatusComponentViewModel
+            {
+                UseLayer2InterfaceMtu = Model != null ? Model.UseLayer2InterfaceMtu : false,
+                DeviceStatus = Model?.DeviceStatus
+            })
+        </section>
+        <h3>Plane</h3>
+        <section id="plane">
+            <!-- View component for the plane option for the device -->
+            <div mind-alert="info" message="Select a provider network plane. The infrastructure device will be assigned into the selected plane.">
+            </div>
+            @await Component.InvokeAsync("Plane", new
+            {
+                selectedPlane = Model?.PlaneName.ToString()
             })
         </section>
         <h3>MTU and Activation Status</h3>
@@ -83,7 +103,7 @@
     <a mind-nav-link-back-btn="true" asp-action="GetAll">Back to Devices</a>
 </div>
 
-<!--Container for the port form allowing the user to create/edit ports. The form HTML is loaded from the server when 
+<!--Container for the port form allowing the user to create/edit ports. The form HTML is loaded from the server when
 the user clicks the 'create' or one of the grid row edit buttons -->
 <div id="portFormContainer"></div>
 

@@ -43,6 +43,8 @@ namespace Mind.Builders
                                 .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
                                 .WithDescription(update.Description)
                                 .WithNotes(update.Notes)
+                                .WithRoutingInstance(update.RoutingInstance)
+                                .WithIpv4(update.Ipv4Addresses)
                                 .BuildAsync();
         }
 

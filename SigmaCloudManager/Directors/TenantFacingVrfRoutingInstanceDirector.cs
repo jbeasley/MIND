@@ -1,8 +1,5 @@
 ﻿using Mind.Models.RequestModels;
 using SCM.Models;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Mind.Builders
@@ -14,6 +11,23 @@ namespace Mind.Builders
         public TenantFacingVrfRoutingInstanceDirector(IVrfRoutingInstanceBuilder builder)
         {
             _builder = builder;
+        }
+
+        /// <summary>
+        /// Builds a new routing instance for the specified device
+        /// </summary>
+        /// <param name="device"></param>
+        /// <param name="request"></param>
+        public async Task<RoutingInstance> BuildAsync(Device device, RoutingInstanceRequest request)
+        {
+            return await _builder.ForDevice(device)    
+                                 .WithRangeType(request?.RangeType?.ToString())
+                                 .WithAdministratorSubField(request?.AdministratorSubField)
+                                 .WithAssignedNumberSubField(request?.AssignedNumberSubField)
+                                 .WithRoutingInstanceType(RoutingInstanceTypeEnum.TenantFacingVrf.ToString())
+                                 .WithBgpPeers(request?.BgpPeers)
+                                 .WithName(request?.Name)
+                                 .BuildAsync();
         }
 
         /// <summary>
@@ -78,7 +92,7 @@ namespace Mind.Builders
         /// <param name="routingInstanceId"></param>
         /// <param name="request"></param>
         /// <returns></returns>
-        public async Task<SCM.Models.RoutingInstance> BuildAsync(int routingInstanceId, RoutingInstanceRequest request)
+        public async Task<SCM.Models.RoutingInstance> UpdateAsync(int routingInstanceId, RoutingInstanceRequest request)
         {
             return await _builder.ForRoutingInstance(routingInstanceId)
                                  .WithAdministratorSubField(request?.AdministratorSubField)

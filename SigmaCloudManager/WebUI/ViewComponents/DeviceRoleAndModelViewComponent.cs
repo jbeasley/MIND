@@ -24,17 +24,18 @@ namespace Mind.WebUI.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(DeviceRoleAndModelComponentViewModel model)
         {
-            await PopulateDeviceRolesDropDownList(model?.DeviceRole);              
+            await PopulateDeviceRolesDropDownList(model?.IsTenantDomainRole, model?.IsProviderDomainRole, model?.DeviceRole);              
             await PopulateDeviceModelsDropDownList(model?.DeviceModel);
 
             return View(model);
         }
 
-        private async Task PopulateDeviceRolesDropDownList(object selectedDeviceRole = null)
+        private async Task PopulateDeviceRolesDropDownList(bool? isTenantDomainRole = null, bool? isProviderDomainRole = null, string selectedDeviceRole = null)
         {
             var deviceRoles = await _unitOfWork.DeviceRoleRepository.GetAsync(
                     q =>
-                    q.IsTenantDomainRole == true);
+                    q.IsTenantDomainRole == isTenantDomainRole.GetValueOrDefault() &&
+                    q.IsProviderDomainRole == isProviderDomainRole.GetValueOrDefault());
             ViewBag.DeviceRole = new SelectList(_mapper.Map<List<DeviceRoleViewModel>>(deviceRoles), "Name", "Name", selectedDeviceRole);
         }
 

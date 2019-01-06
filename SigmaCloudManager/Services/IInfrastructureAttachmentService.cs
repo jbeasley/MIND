@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using SCM.Models;
 using SCM.Models.RequestModels;
-using SCM.Data;
-using System.Linq.Expressions;
 using SCM.Services;
 
 namespace Mind.Services

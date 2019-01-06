@@ -16,7 +16,7 @@ namespace Mind.Builders
     public class MultiPortAttachmentBuilder : AttachmentBuilder<MultiPortAttachmentBuilder>, IAttachmentBuilder<MultiPortAttachmentBuilder>
     {
         public MultiPortAttachmentBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, 
-                                          IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                                          IRoutingInstanceDirector> routingInstanceDirectorFactory,
                                           Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
                                           IDataApi novaApiClient) : 
             base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)

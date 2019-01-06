@@ -1,5 +1,6 @@
 
 using System.Collections.Generic;
+using SCM.Models;
 
 namespace Mind.Models.RequestModels
 {

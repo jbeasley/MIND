@@ -27,149 +27,95 @@
             <div id="locationSelector">
                 <!-- Component for selecting a location for the new attachment -->
                 @await Component.InvokeAsync("LocationSelector", new LocationSelectorViewModel
-           {
-               RegionId = Model?.RegionId,
-               SubRegionId = Model?.SubRegionId,
-               LocationName = Model?.LocationName
-           })
+            {
+                RegionId = Model?.RegionId,
+                SubRegionId = Model?.SubRegionId,
+                LocationName = Model?.LocationName
+            })
             </div>
         </section>
         <h3>Bundle/Multiport Options</h3>
         <section id="bundle-and-multiport-options">
-            <br />
-            <div mind-alert="info" message="If you want the attachment to be configured as a bundle then select the bundle option. Bundles are groups of two or
-                more physical attachments which are logically grouped together and behave as one physical attachment. Traffic is load-balandced
-                across the bundle using the LACP protocol.">
-            </div>
-            <div class="form-group row">
-                <label class="col-form-label col-sm-2" asp-for="BundleRequired"></label>
-                <div class="col-sm-10">
-                    <div class="custom-control custom-checkbox">
-                        <input class="form-check-input custom-control-input" type="checkbox" asp-for="BundleRequired" data-toggle="tooltip"
-                               data-placement="right" title="Request a bundle attachment">
-                        <label class="form-check-label custom-control-label" for="BundleRequired"></label>
-                    </div>
-                </div>
-            </div>
-            <div mind-alert="info" message="If you want the attachment to be configured as a multiport then select the multiport option. Multiports are groups of
-                two or more physical attachments each of which is configured for layer 3. Traffic is load-balanced across a multiport using
-                the ECMP protocol.">
-            </div>
-            <div class="form-group row">
-                <label class="col-form-label col-sm-2" asp-for="MultiportRequired"></label>
-                <div class="col-sm-10">
-                    <div class="custom-control custom-checkbox">
-                        <input class="form-check-input custom-control-input" type="checkbox" asp-for="MultiportRequired" data-toggle="tooltip"
-                               data-placement="right" title="Request a multi-port attachment">
-                        <label class="form-check-label custom-control-label" for="MultiportRequired"></label>
-                    </div>
-                </div>
-            </div>
+            <div id="attachmentBundleAndMultiportOptionsComponent">
+                @await Component.InvokeAsync("AttachmentBundleAndMultiportOptions", new AttachmentBundleAndMultiportOptionsComponentViewModel
+           {
+               BundleRequired = Model != null ? Model.BundleRequired : false,
+               MultiportRequired = Model != null ? Model.MultiportRequired : false
+           })
+            </div>            
         </section>
         <h3>Bandwidth</h3>
         <section id="bandwidth-options">
-            <br />
-            <div mind-alert="info" message="Select a bandwidth for the attachment. The values are in Gigabits per Second.">
-            </div>
-            <div class="form-group row">
-                <label asp-for="AttachmentBandwidthGbps" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select asp-for="AttachmentBandwidthGbps" class="form-control" asp-items="ViewBag.AttachmentBandwidth">
-                        <option value="">-- Select a Bandwidth --</option>
-                    </select>
-                    <span asp-validation-for="AttachmentBandwidthGbps" class="text-danger"></span>
-                </div>
+            <div id="attachmentBandwidthComponent">
+                @await Component.InvokeAsync("AttachmentBandwidth", new AttachmentBandwidthComponentViewModel
+            {
+                BundleRequired = Model != null ? Model.BundleRequired : false,
+                MultiportRequired = Model != null ? Model.MultiportRequired : false
+            })
             </div>
         </section>
         <h3>Port Pool and Role</h3>
         <section id="port-pool-and-role">
-            <div mind-alert="info" message="Select a port pool. The port pool determines the pool from which ports will be assigned
-                for the new attachment.">
-            </div>
-            <div class="form-group row">
-                <label asp-for="PortPoolName" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select asp-for="PortPoolName" class="form-control" asp-items="ViewBag.PortPool">
-                        <option value="">-- Select a Port Pool --</option>
-                    </select>
-                    <span asp-validation-for="PortPoolName" class="text-danger"></span>
-                </div>
-            </div>
-            <div mind-alert="info" message="Select an attachment role. The attachment determines certain parameters regarding how the attachment will be logically provisioned,
-                such as whether IP addressing and contract bandwidth is required.">
-            </div>
-            <div class="form-group row">
-                <label asp-for="AttachmentRoleName" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select asp-for="AttachmentRoleName" class="form-control" asp-items="ViewBag.AttachmentRole">
-                        <option value="">-- Select a Role --</option>
-                    </select>
-                    <span asp-validation-for="AttachmentRoleName" class="text-danger"></span>
-                </div>
+            <div id="attachmentPortPoolAndRoleComponent">
+                @await Component.InvokeAsync("AttachmentPortPoolAndRole", new AttachmentPortPoolAndRoleComponentViewModel
+            {
+                PortRoleTypeEnumName = Mind.WebUI.PortRoleTypeEnum.TenantFacing.ToString(),
+                AttachmentRoleName = Model?.AttachmentRoleName,
+                PortPoolName = Model?.PortPoolName
+            })
             </div>
         </section>
         <h3>IP Addressing</h3>
         <section id="ip-addressing">
             <div id="ipAddressingComponent">
-                @if (Model != null)
-                {
-                    @await Component.InvokeAsync("AttachmentIpAddressing", new
-                    {
-                        portPoolName = Model.PortPoolName,
-                        attachmentRoleName = Model.AttachmentRoleName,
-                        attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
-                        isMultiport = Model.MultiportRequired,
-                        currentModel = Model.Ipv4Addresses
-                    });
-                }
+                @await Component.InvokeAsync("AttachmentIpAddressing", new
+            {
+                portPoolName = Model?.PortPoolName,
+                attachmentRoleName = Model?.AttachmentRoleName,
+                attachmentBandwidthGbps = Model?.AttachmentBandwidthGbps,
+                isMultiport = Model != null ? Model.MultiportRequired : false,
+                currentModel = Model?.Ipv4Addresses
+            })        
             </div>
         </section>
         <h3>Contract Bandwidth</h3>
         <section id="contract-bandwidth">
             <div id="contractBandwidthPoolComponent">
-                @if (Model != null)
+                @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
+            {
+                portPoolName = Model?.PortPoolName,
+                attachmentRoleName = Model?.AttachmentRoleName,
+                attachmentBandwidthGbps = Model?.AttachmentBandwidthGbps,
+                currentModel = new ContractBandwidthPoolViewModel
                 {
-                    @await Component.InvokeAsync("AttachmentContractBandwidthPool", new
-                    {
-                        portPoolName = Model.PortPoolName,
-                        attachmentRoleName = Model.AttachmentRoleName,
-                        attachmentBandwidthGbps = Model.AttachmentBandwidthGbps,
-                        currentModel = new ContractBandwidthPoolViewModel
-                        {
-                            ContractBandwidthMbps = Model.ContractBandwidthMbps,
-                            TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp
-                        }
-                    });
+                    ContractBandwidthMbps = Model?.ContractBandwidthMbps,
+                    TrustReceivedCosAndDscp = Model != null ? Model.TrustReceivedCosAndDscp : false
                 }
+            })
+        }
             </div>
         </section>
         <h3>Plane</h3>
         <section id="plane">
-            <br />
             <div mind-alert="info" message="Optionally select a provider network plane. If a plane option is selected then the attachment will be provisioned
                 on a PE in the selected plane. The plane option is typically useful for
                 'Live/Live' routing scenarios.">
             </div>
-            <div class="form-group row">
-                <label asp-for="PlaneName" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select asp-for="PlaneName" class="form-control" asp-items="ViewBag.Plane">
-                        <option value="">-- Optionally Select a Plane --</option>
-                    </select>
-                    <span asp-validation-for="PlaneName" class="text-danger"></span>
-                </div>
-            </div>
+            @await Component.InvokeAsync("Plane", new
+        {
+            selectedPlane = Model?.PlaneName.ToString()
+        })
         </section>
         <h3>BGP Peers</h3>
         <section id="bgp-peers">
             <div id="bgpPeersComponent">
                 <!-- View component for creating BGP peers -->
                 @await Component.InvokeAsync("AttachmentBgpPeers", new
-                {
-                    portPoolName = Model?.PortPoolName,
-                    attachmentRoleName = Model?.AttachmentRoleName,
-                    bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
-                });
+            {
+                portPoolName = Model?.PortPoolName,
+                attachmentRoleName = Model?.AttachmentRoleName,
+                bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
+            })
             </div>
         </section>
         <h3>Description and Notes</h3>
@@ -193,30 +139,24 @@
         </section>
     </div>
 </form>
+
+<div>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments</a>
+</div>
+
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
     The component HTML must be placed outside of other page elements to avoid nesting because browser will
     remove the <form> element from the component otherwise -->
 @await Component.InvokeAsync("BgpPeerForm")
-<div>
-    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Attachments</a>
-</div>
+
 <!-- Stage or sync to network partial view -->
 @{await Html.RenderPartialAsync("_NetworkStageOrSyncModalPartial");}
+
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-    
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}    
     @{await Html.RenderPartialAsync("_ProviderDomainAttachmentCreateScriptsPartial");}
-
-    <script type="text/javascript">
-
-    (function ($) {
-
-            // Initialise all tool-tips - do this after all components are loaded
-            $('[data-toggle="tooltip"]').tooltip();
-
-    }(jQuery));
-
-   </script>
 }

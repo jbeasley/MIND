@@ -43,39 +43,40 @@
             <div id="locationSelector">
                 <!-- Component for selecting a location for the new device -->
                 @await Component.InvokeAsync("LocationSelector", new LocationSelectorViewModel
-                {
-                    RegionId = Model?.RegionId,
-                    SubRegionId = Model?.SubRegionId,
-                    LocationName = Model?.LocationName
-                })
+            {
+                RegionId = Model?.RegionId,
+                SubRegionId = Model?.SubRegionId,
+                LocationName = Model?.LocationName
+            })
             </div>
         </section>
         <h3>Model and Role</h3>
         <section id="role-model">
-            <!-- View component for MTU and status options for the device -->
+            <!-- View component for model and role options for the device -->
             @await Component.InvokeAsync("DeviceRoleAndModel", new DeviceRoleAndModelComponentViewModel
-            {
-                DeviceRole = Model?.DeviceRole,
-                DeviceModel = Model?.DeviceModel
-            })
+        {
+            IsTenantDomainRole = true,
+            DeviceRole = Model?.DeviceRole,
+            DeviceModel = Model?.DeviceModel
+        })
         </section>
         <h3>MTU and Activation Status</h3>
         <section id="mtu-status">
             <!-- View component for MTU and status options for the device -->
             @await Component.InvokeAsync("DeviceMtuAndStatus", new DeviceMtuAndStatusComponentViewModel
-            {
-                UseLayer2InterfaceMtu = Model != null ? Model.UseLayer2InterfaceMtu : false,
-                DeviceStatus = Model?.DeviceStatus
-            })
+        {
+            UseLayer2InterfaceMtu = Model != null ? Model.UseLayer2InterfaceMtu : false,
+            DeviceStatus = Model?.DeviceStatus
+        })
         </section>
         <h3>Ports</h3>
         <section id="ports">
             <div id="portsComponent">
                 <!-- View component for displaying a grid of ports which belong to the device -->
                 @await Component.InvokeAsync("Ports", new
-                {
-                    ports = Model?.Ports
-                })
+            {
+                ports = Model?.Ports
+            })
             </div>
         </section>
     </div>

@@ -74,6 +74,15 @@ namespace Mind.WebUI.Models
         public DeviceStatusTypeEnum? DeviceStatus { get; set; }
 
         /// <summary>
+        /// The network plane assignment of the device
+        /// </summary>
+        /// <value>A member of the PlaneEnum enumeration</value>
+        /// <example>Blue</example>
+        [Required]
+        [Display(Name = "Plane")]
+        public PlaneEnum? PlaneName { get; set; }
+
+        /// <summary>
         /// Determines if layer 2 overhead should be included in the device MTU calculation
         /// </summary>
         /// <value>Boolean value denoting if layer 2 overhead is included in the device MTU calculation</value>

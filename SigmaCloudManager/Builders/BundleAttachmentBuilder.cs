@@ -18,7 +18,7 @@ namespace Mind.Builders
     public class BundleAttachmentBuilder : AttachmentBuilder<BundleAttachmentBuilder>, IBundleAttachmentBuilder
     {
         public BundleAttachmentBuilder(IUnitOfWork unitOfWork,
-                                       Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                                       Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory,
                                        Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
                                        IDataApi novaApiClient) :
             base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)

@@ -1,8 +1,8 @@
 ﻿
-(function ($) {
+(($) => {
 
-    var $routingInstance = $('#RoutingInstance'),
-        routingInstance = $routingInstance[0];
+    const $routingInstance = $('#RoutingInstance'),
+           routingInstance = $routingInstance[0];
 
     // Handle addition of routing instances
     $('#addRoutingInstance').on('click', function (e) {
@@ -35,11 +35,11 @@
 
                 // Refresh the routing instances grid, then the BGP IP network inbound and outbound policy
                 // grids must be refreshed in order to refresh the BGP peer dropdown list options
-                RefreshRoutingInstanceGrid(arr)
-                    .then(function () {
-                        RefreshBgpIpNetworkInboundPolicyGrid();
-                        RefreshBgpIpNetworkOutboundPolicyGrid();
-                });
+                refreshRoutingInstanceGrid(arr)
+                    .then
+                    (
+                        () => { refreshBgpIpNetworkInboundPolicyGrid(); refreshBgpIpNetworkOutboundPolicyGrid(); }
+                    );
             }
         }
     });
@@ -53,7 +53,7 @@
 
         // Refresh the routing instances grid, then the BGP IP network inbound and outbound policy
         // grids must be refreshed in order to refresh the BGP peer dropdown list options
-        RefreshRoutingInstanceGrid()
+        refreshRoutingInstanceGrid()
             .then(function () {
                 RefreshBgpIpNetworkInboundPolicyGrid();
                 RefreshBgpIpNetworkOutboundPolicyGrid();
@@ -94,7 +94,7 @@
                     "TenantIpNetworkCidrName": cidrName
                 });
 
-                RefreshBgpIpNetworkInboundPolicyGrid(arr);
+                refreshBgpIpNetworkInboundPolicyGrid(arr);
             }
         }
     });
@@ -135,7 +135,7 @@
                     "TenantIpNetworkCidrName": cidrName
                 });
 
-                RefreshBgpIpNetworkOutboundPolicyGrid(arr);
+                refreshBgpIpNetworkOutboundPolicyGrid(arr);
             }
         }
     });
@@ -167,10 +167,10 @@
 
     // Populate a list of tenant IP networks which can be added to the BGP IP network outbound policy when a 
     // tenant is selected
-    var $remoteTenantId = $('#RemoteTenantId'),
-        remoteTenantId = $remoteTenantId[0],
-        $outboundIpNetwork = $('#OutboundIpNetwork'),
-        outboundIpNetwork = $outboundIpNetwork[0];
+    const $remoteTenantId = $('#RemoteTenantId'),
+          remoteTenantId = $remoteTenantId[0],
+          $outboundIpNetwork = $('#OutboundIpNetwork'),
+          outboundIpNetwork = $outboundIpNetwork[0];
 
     outboundIpNetwork.disabled = true;
 
@@ -187,13 +187,13 @@
         }
     });
 
-    // Helpers functions
+    // Helpers
 
     // Refresh the routing instance grid data
-    function RefreshRoutingInstanceGrid(arr) {
+    function refreshRoutingInstanceGrid(arr) {
 
         var $grid = $('#routing-instance-grid');
-        var routingInstanceData = GetRoutingInstanceData(arr);
+        var routingInstanceData = getRoutingInstanceData(arr);
 
         var $tbody = $grid.find('tbody');
         var data = JSON.stringify(routingInstanceData);
@@ -207,7 +207,7 @@
             success: function (data) {
 
                 $tbody.html(data);
-                RefreshValidation();
+                refreshValidation();
 
                 deferred.resolve();
             }
@@ -217,10 +217,10 @@
     }
 
     // Refresh the BGP IP network inbound policy grid
-    function RefreshBgpIpNetworkInboundPolicyGrid(arr) {
+    function refreshBgpIpNetworkInboundPolicyGrid(arr) {
 
         var $grid = $('#bgp-ip-network-inbound-policy-grid');
-        var bgpIpNetworkInboundPolicyData = GetBgpIpNetworkInboundPolicyData(arr);
+        var bgpIpNetworkInboundPolicyData = getBgpIpNetworkInboundPolicyData(arr);
         var data = JSON.stringify(bgpIpNetworkInboundPolicyData);
         var deferred = $.Deferred();
 
@@ -233,7 +233,7 @@
 
                 var $tbody = $grid.find('tbody');
                 $tbody.html(data);
-                RefreshValidation();
+                refreshValidation();
 
                 deferred.resolve();
             }
@@ -243,10 +243,10 @@
     }
 
     // Refresh the BGP IP network outbound policy grid
-    function RefreshBgpIpNetworkOutboundPolicyGrid(arr) {
+    function refreshBgpIpNetworkOutboundPolicyGrid(arr) {
 
         var $grid = $('#bgp-ip-network-outbound-policy-grid');
-        var bgpIpNetworkOutboundPolicyData = GetBgpIpNetworkOutboundPolicyData(arr);
+        var bgpIpNetworkOutboundPolicyData = getBgpIpNetworkOutboundPolicyData(arr);
         var data = JSON.stringify(bgpIpNetworkOutboundPolicyData);
         var deferred = $.Deferred();
 
@@ -268,7 +268,7 @@
         return deferred.promise();
     }
 
-    function GetRoutingInstanceData(arr) {
+    function getRoutingInstanceData(arr) {
 
         if (typeof (arr) === "undefined") arr = [];
         var $grid = $('#routing-instance-grid');
@@ -290,7 +290,7 @@
         return arr;
     }
 
-    function GetBgpIpNetworkInboundPolicyData(arr) {
+    function getBgpIpNetworkInboundPolicyData(arr) {
 
         if (typeof (arr) === "undefined") arr = [];
         var $ipNetworkInboundPolicyGridRows = $('#bgp-ip-network-inbound-policy-grid').find('tbody tr');
@@ -313,7 +313,7 @@
             });
         });
 
-        var routingInstanceData = GetRoutingInstanceData();
+        var routingInstanceData = getRoutingInstanceData();
         var routingInstanceNames = routingInstanceData.map(function (item) { return item.RoutingInstanceName });
 
         return {
@@ -322,7 +322,7 @@
         };
     }
 
-    function GetBgpIpNetworkOutboundPolicyData(arr) {
+    function getBgpIpNetworkOutboundPolicyData(arr) {
 
         if (typeof (arr) === "undefined") arr = [];
         var $ipNetworkOutboundPolicyGridRows = $('#bgp-ip-network-outbound-policy-grid').find('tbody tr');
@@ -347,7 +347,7 @@
             });
         });
 
-        var routingInstanceData = GetRoutingInstanceData();
+        var routingInstanceData = getRoutingInstanceData();
         // We only need to send the routing instance names to the server
         var routingInstanceNames = routingInstanceData.map(function (item) { return item.RoutingInstanceName });
 
@@ -358,7 +358,7 @@
     }
 
     // Re-apply validation to the form so that validation rules for the new inputs are created
-    function RefreshValidation() {
+    function refreshValidation() {
 
         var $form = $('#form');
         $form.removeData('validator');
@@ -366,4 +366,4 @@
         $.validator.unobtrusive.parse('#form');
     }
 
-}(jQuery));
+})(jQuery);

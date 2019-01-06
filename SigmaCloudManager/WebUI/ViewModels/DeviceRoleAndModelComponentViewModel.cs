@@ -18,6 +18,18 @@ namespace Mind.WebUI.Models
     public class DeviceRoleAndModelComponentViewModel
     {  
         /// <summary>
+        /// Gets or sets the is tenant domain role.
+        /// </summary>
+        /// <value>Boolean value denoting whether the device is for a tenant domain.</value>
+        public bool? IsTenantDomainRole { get; set; }
+
+        /// <summary>
+        /// Gets or sets the is provider domain role.
+        /// </summary>
+        /// <value>Boolean value denoting whether the device is for a provider domain</value>
+        public bool? IsProviderDomainRole { get; set; }
+
+        /// <summary>
         /// The model of the device
         /// </summary>
         /// <value>String denoting the model of the device</value>

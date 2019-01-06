@@ -1,0 +1,150 @@
+
+@model Mind.WebUI.Models.InfrastructureAttachmentUpdateViewModel
+@{
+    ViewData["Title"] = "Edit Attachment";
+}
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/InfrastructureHome"><i class="fa" aria-hidden="true"></i>Infrastructure</a></li>
+        <li><a href="/InfrastructureDevice/GetAll"><i class="fa active" aria-hidden="true"></i>Infrastructure Devices</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
+    </ul>
+</div>
+<h2>Edit Attachment '@Model.Name'</h2>
+<form id="editForm" asp-action="Edit">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+        <input type="hidden" asp-for="AttachmentId" />
+        <input type="hidden" asp-for="RowVersion" />
+        <input type="hidden" asp-for="Name" />
+
+        <!-- The following input is used by the create.js and edit.js scripts to prevent the stage or sync modal form from being
+             displayed when the user finishes with wizard -->
+        <input type="hidden" id="showStageOrSyncModal" value="false" />
+
+        <div id="editAttachmentWizard">
+            @if (Model.IsBundle)
+            {
+                <h3>Bundle Options</h3>
+                <section id="bundle-options">
+                    <br />
+                    <div mind-alert="info" message="
+                        Select the minimum and maximum number of active links for the bundle.
+                        If the number of active links falls below the minimum link threshold then the bundle will be disabled until the number
+                        of active links meets or exceed the minimum threshold.
+                        If the number of active links exceeds the maximum links threshold then the number of links above the maximum threshold will
+                        be disabled.">
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="BundleMinLinks" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input asp-for="BundleMinLinks" class="form-control" data-toggle="tooltip" data-placement="right"
+                                   title="Specify the minimum number of active links in the bundle" />
+                            <span asp-validation-for="BundleMinLinks" class="text-danger"></span>
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label asp-for="BundleMaxLinks" class="col-sm-2 col-form-label"></label>
+                        <div class="col-sm-10">
+                            <input asp-for="BundleMaxLinks" class="form-control" data-toggle="tooltip" data-placement="right"
+                                   title="Specify the maximum number of active links in the bundle" />
+                            <span asp-validation-for="BundleMaxLinks" class="text-danger"></span>
+                        </div>
+                    </div>
+                </section>
+            }
+            <h3>IP Addressing</h3>
+            <section id="ip-addressing">
+                <div id="ipAddressingComponent">
+                    @await Component.InvokeAsync("AttachmentIpAddressing", new
+                    {
+                        attachmentId = Model.AttachmentId,
+                        currentModel = Model.Ipv4Addresses
+                    })
+                </div>
+            </section>
+            <h3>BGP Peers</h3>
+            <section>
+                <div id="bgpPeersComponent">
+                    <!-- View component for creating/updating BGP peers -->
+                    @await Component.InvokeAsync("AttachmentBgpPeers", new
+                    {
+                        attachmentId = Model.AttachmentId,
+                        bgpPeerRequests = Model.RoutingInstance?.BgpPeers
+                    })
+                </div>
+            </section>
+            <h3>MTU Options</h3>
+            <section id="mtu-options">
+                <br />
+                <div mind-alert="info" message="
+                    If jumbo MTU is enabled then ethernet frames of up to either 9000 or 9014 bytes may be transmitted using this attachment.
+                    If jumbo MTU is disabled then the frame size is limited to either 1500 or 1514 bytes.
+                    The actual MTU value is dependent on the Sigma PE hardware which is used to terminate the attachment.">
+                </div>
+                <div class="form-group row">
+                    <label class="col-form-label col-sm-2" asp-for="UseJumboMtu"></label>
+                    <div class="col-sm-10">
+                        <div class="custom-control custom-checkbox">
+                            <input class="form-check-input custom-control-input" type="checkbox" asp-for="UseJumboMtu" data-toggle="tooltip"
+                                   data-placement="right" title="Enable jumbo MTU">
+                            <label class="form-check-label custom-control-label" for="UseJumboMtu"></label>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            <h3>Description and Notes</h3>
+            <section id="location">
+                <br />
+                <div mind-alert="info" message="
+                    Enter a description and any notes which describe the purpose of the attachment.">
+                </div>
+                <div class="form-group row">
+                    <label asp-for="Description" class="col-sm-2 col-form-label"> </label>
+                    <div class="col-sm-10">
+                        <input asp-for="Description" class="form-control" />
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                </div>
+                <div class="form-group row">
+                    <label asp-for="Notes" class="col-sm-2 col-form-label"> </label>
+                    <div class="col-sm-10">
+                        <textarea asp-for="Notes" class="form-control" rows="5"></textarea>
+                        <span asp-validation-for="Notes" class="text-danger"></span>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+</form>
+
+<!--Component for a form allowing the user to enter data to create or edit a BGP peer
+    The component HTML must be placed outside of other page elements to avoid nesting because browser will
+    remove the <form> element from the component otherwise -->
+@await Component.InvokeAsync("BgpPeerForm")
+
+<div>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByDeviceID" asp-route-deviceId="@ViewBag.Device.DeviceId">Back to Attachments</a>
+</div>
+
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_InfrastructureAttachmentEditScriptsPartial");}
+
+    <script type="text/javascript">
+        (($) => {
+
+            // Initialise all tool-tips - do this after all components are loaded
+            $('[data-toggle="tooltip"]').tooltip();
+
+        })(jQuery);
+
+    </script>
+}

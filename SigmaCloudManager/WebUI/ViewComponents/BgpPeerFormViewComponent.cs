@@ -16,7 +16,11 @@ namespace Mind.WebUI.ViewComponents
     {
         public Task<IViewComponentResult> InvokeAsync(BgpPeerRequestViewModel bgpPeerRequest)
         {
-            if (bgpPeerRequest == null) bgpPeerRequest = new BgpPeerRequestViewModel();
+            if (bgpPeerRequest == null)
+            {
+                bgpPeerRequest = new BgpPeerRequestViewModel();
+            }
+
             return Task.FromResult<IViewComponentResult>(View(bgpPeerRequest));
         }
     }

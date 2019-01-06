@@ -39,9 +39,11 @@ namespace Mind.Builders
         {
             var builder = _builderAttachmentFactory(attachment);
             return await builder.ForAttachment(attachment.AttachmentID)
+                                .WithRoutingInstance(update.RoutingInstance)
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithDescription(update.Description)
                                 .WithNotes(update.Notes)
+                                .WithIpv4(update.Ipv4Addresses)
                                 .BuildAsync();
         }
 

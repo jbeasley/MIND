@@ -1,14 +1,14 @@
 ﻿
-(function ($) {
+(($) => {
 
-    var $form = $("#editForm"),
-        $wizard = $("#editVifWizard");
+   const $form = $("#editForm"),
+         $wizard = $("#editVifWizard");
 
     // Create the wizard
     Mind.Utilities.createWizardWithNetworkStageOrSyncModal($wizard, $form, true);
 
-    var $routingInstance = $('#ExistingRoutingInstanceName'),
-        $createNewRoutingInstance = $('#CreateNewRoutingInstance');
+    const $routingInstance = $('#ExistingRoutingInstanceName'),
+          $createNewRoutingInstance = $('#CreateNewRoutingInstance');
 
     if ($createNewRoutingInstance.length > 0) {
     
@@ -42,4 +42,4 @@
         });
     }
 
-}(jQuery));
+})(jQuery);

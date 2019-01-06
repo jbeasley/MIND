@@ -148,13 +148,13 @@ namespace Mind.WebUI.Models
         /// <summary>
         /// The routing instance created for the attachment
         /// </summary>
-        /// <value>An object of type RoutingInstance</value>
+        /// <value>An object of type ProviderDomainRoutingInstanceViewModel</value>
         public ProviderDomainRoutingInstanceViewModel RoutingInstance { get; private set; }
 
         /// <summary>
         /// A list of interfaces created for the attachment
         /// </summary>
-        /// <value>A list of Interface objects</value>
+        /// <value>A list of InterfaceViewModel objects</value>
         public List<InterfaceViewModel> Interfaces { get; private set; }
 
         /// <summary>

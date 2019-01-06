@@ -51,7 +51,7 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<List<Attachment>> GetAllByDeviceIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await base.GetAllByDeviceIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantInfrastructure, deep, asTrackable);
+            return await base.GetAllByDeviceIDAsync(id, SCM.Models.PortRoleTypeEnum.ProviderInfrastructure, deep, asTrackable);
         }
 
         /// <summary>

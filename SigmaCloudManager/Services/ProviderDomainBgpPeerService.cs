@@ -12,14 +12,11 @@ namespace Mind.Services
 {
     public class ProviderDomainBgpPeerService : BaseService, IProviderDomainBgpPeerService
     {
-        private readonly IProviderDomainBgpPeerDirector _director;
-        private readonly IBgpPeerUpdateDirector _updateDirector;
+        private readonly IBgpPeerDirector _director;
 
-        public ProviderDomainBgpPeerService(IUnitOfWork unitOfWork, IProviderDomainBgpPeerDirector director, 
-            IBgpPeerUpdateDirector updateDirector) : base(unitOfWork)
+        public ProviderDomainBgpPeerService(IUnitOfWork unitOfWork, IBgpPeerDirector director) : base(unitOfWork)
         {
             _director = director;
-            _updateDirector = updateDirector;
         }
 
         public async Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool? deep = false, bool asTrackable = false)
@@ -45,7 +42,7 @@ namespace Mind.Services
 
         public async Task<BgpPeer> AddAsync(int routingInstanceId, BgpPeerRequest request)
         {
-            var bgpPeer = await _director.BuildAsync(routingInstanceId, request);
+            var bgpPeer = await _director.BuildForRoutingInstanceAsync(routingInstanceId, request);
             this.UnitOfWork.BgpPeerRepository.Insert(bgpPeer);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
@@ -53,7 +50,7 @@ namespace Mind.Services
 
         public async Task<BgpPeer> UpdateAsync(int bgpPeerId, BgpPeerRequest update)
         {
-            await _updateDirector.UpdateAsync(bgpPeerId, update);
+            await _director.UpdateAsync(bgpPeerId, update);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeerId, deep: true, asTrackable: false);
         }

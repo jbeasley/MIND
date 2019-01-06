@@ -1,12 +1,5 @@
-using System;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Mind.WebUI.Models
@@ -98,9 +91,8 @@ namespace Mind.WebUI.Models
         [Display(Name = "Port Pool")]
         public string PortPoolName { get; set; }
 
-        /// <summary>
-        /// The name of an attachment role which sets certain constraints on how the attachment must be configuted
-        /// </summary>
+        /// The name of an attachment role. This argument sets certain constraints on how the attachment must be configured such
+        /// as whether the attachment requires contract bandwidth to be defined.
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>PE-CE-UNTAGGED</example>
         [Required(AllowEmptyStrings = false, ErrorMessage = "An attachment role must be selected")]

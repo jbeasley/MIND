@@ -32,6 +32,8 @@
     <thead>
         <tr>
             <th>
+            </th>
+            <th>
                 @Html.DisplayNameFor(model => model.Name)
             </th>
             <th>
@@ -47,26 +49,41 @@
     <tbody class="mind-grid-body-scroll-lg">
         @foreach (var item in Model)
         {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.Name)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Description)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.DeviceModel)
-            </td>
-            <td colspan="2" align="right">
-                <a mind-grid-btn-link="true" asp-action="Edit" asp-route-deviceId="@item.DeviceId">Edit</a>
-                <a mind-grid-btn-link="true" asp-action="Details" asp-route-deviceId="@item.DeviceId">Details</a>
-                <a mind-grid-btn-link="true" asp-action="Delete" asp-route-deviceId="@item.DeviceId">Delete</a>
-            </td>
-        </tr>
+            <tr>
+                <td>
+                    <div class="custom-control custom-checkbox">
+                        <input id="device_checkbox_@item.DeviceId" type="checkbox" class="form-check-input custom-control-input"
+                               data-property-val="@item.DeviceId" data-query-parameter="deviceId=@item.DeviceId" />
+                        <label class="form-check-label custom-control-label" for="device_checkbox_@item.DeviceId"></label>
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Description)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.DeviceModel)
+                </td>
+                <td colspan="2" align="right">
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-deviceId="@item.DeviceId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-deviceId="@item.DeviceId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-deviceId="@item.DeviceId">Delete</a>
+                </td>
+            </tr>
         }
     </tbody>
 </table>
-<input type="hidden" />
+<div class="card-deck" style="width: 27%">
+    <a href="/#" data-href="/InfrastructureAttachment/GetAllByDeviceID?" class="card custom-card bg-light">
+        <img class="card-img-top mx-auto d-block" src="~/images/infrastructure-attachment.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title text-center">Attachments</h5>
+            <p class="card-text">Create and manage the lifecycle of Infrastructure Attachments</p>
+        </div>
+    </a>
+</div>
 <br />
 <a mind-nav-link-back-btn="true" asp-controller="InfrastructureDevice" asp-action="GetAll">Back to Infrastructure</a>
 

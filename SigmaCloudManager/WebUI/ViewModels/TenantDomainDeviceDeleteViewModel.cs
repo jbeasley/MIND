@@ -36,7 +36,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>String denoting the name of the device</value>
         /// <example>DTC-CPE-1</example>
-        public string Name { get; private set; }
+        public string Name { get; set; }
 
         /// <summary>
         /// Description of the device

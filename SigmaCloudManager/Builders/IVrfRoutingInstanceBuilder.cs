@@ -11,6 +11,7 @@ namespace Mind.Builders
     {
         IVrfRoutingInstanceBuilder ForRoutingInstance(int? routingInstanceId);
         IVrfRoutingInstanceBuilder ForDevice(int? deviceId);
+        IVrfRoutingInstanceBuilder ForDevice(Device device);
         IVrfRoutingInstanceBuilder ForAttachment(Attachment attachment);
         IVrfRoutingInstanceBuilder ForVif(Vif vif);
         IVrfRoutingInstanceBuilder WithTenant(int? tenantId);

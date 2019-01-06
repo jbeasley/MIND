@@ -48,7 +48,7 @@ namespace Mind.Api.Models
         /// <summary>
         /// A list of IPv4 addresses to be assigned to the interfaces of the attachment.
         /// </summary>
-        /// <value>A list of Ipv4AddressAndMask objcets</value>
+        /// <value>A list of Ipv4AddressAndMaskViewModel objcets</value>
         [DataMember(Name="ipv4Addresses")]
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 

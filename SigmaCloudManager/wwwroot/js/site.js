@@ -3,12 +3,12 @@
 var Mind = {
 };
 
-Mind.Utilities = (function () {
+Mind.Utilities = (() => {
 
     "use strict";
 
     /// Get the current cookie
-    var getCookie = function (cname) {
+    const getCookie = (cname) => {
         var name = cname + "=";
         var decodedCookie = decodeURIComponent(document.cookie);
         var ca = decodedCookie.split(';');
@@ -25,7 +25,7 @@ Mind.Utilities = (function () {
     };
 
     /// Populate an element with html from the server
-    var populateElement = function ($e, url, data, done) {
+    const populateElement = ($e, url, data, done) => {
 
         $e[0].disabled = true;
 
@@ -44,7 +44,7 @@ Mind.Utilities = (function () {
     };
 
     /// Show the spinner
-    var showSpinner = function (message, done) {
+    const showSpinner = (message, done) => {
 
         var $loadingSpinner = $('#loadingSpinner');
         if ($loadingSpinner.length > 0) {
@@ -70,7 +70,7 @@ Mind.Utilities = (function () {
     }
 
     /// Hide the spinner
-    var hideSpinner = function () {
+    const hideSpinner = () => {
 
         var $loadingSpinner = $('#loadingSpinner');
         if ($loadingSpinner.length > 0) {
@@ -79,7 +79,7 @@ Mind.Utilities = (function () {
     }
 
     /// Create a wizard
-    var createWizard = function ($wizard, $form, onFinished) {
+    const createWizard = ($wizard, $form, onFinished) => {
 
         $wizard.steps({
             headerTag: "h3",
@@ -123,4 +123,4 @@ Mind.Utilities = (function () {
         hideSpinner: hideSpinner
     };
 
-}(jQuery));
+})(jQuery);

@@ -1,16 +1,8 @@
-using System;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Mind.WebUI.Models
-{ 
+{
     /// <summary>
     /// Model for updating a tenant attachment to the provider domain
     /// </summary>
@@ -116,7 +108,7 @@ namespace Mind.WebUI.Models
 
         /// <summary>
         /// Optional parameters for use when creating a new routing instance or for performing updates on the 
-        /// existing routing instance associated with the attachment set.
+        /// existing routing instance associated with the attachment.
         /// </summary>
         /// <value>An object of type RoutingInstanceRequest</value>
         public RoutingInstanceRequestViewModel RoutingInstance { get; set; }

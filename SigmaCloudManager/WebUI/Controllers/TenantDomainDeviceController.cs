@@ -225,7 +225,6 @@ namespace Mind.WebUI.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        [ValidateTenantDomainDeviceExists]
         public async Task<IActionResult> Delete(TenantDomainDeviceDeleteViewModel model)
         {
             var tenantDomainDevice = await _tenantDomainDeviceService.GetByIDAsync(model.DeviceId.Value, deep: true, asTrackable: false);
@@ -259,7 +258,7 @@ namespace Mind.WebUI.Controllers
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantDomainDevice.TenantID);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
 
-            return View(_mapper.Map<TenantDomainDeviceViewModel>(tenantDomainDevice));
+            return View(model);
         }
     }
 }

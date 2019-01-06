@@ -13,7 +13,7 @@ namespace Mind.Builders
     public class SingleAttachmentBuilder : AttachmentBuilder<SingleAttachmentBuilder>, IAttachmentBuilder<SingleAttachmentBuilder>
     {
         public SingleAttachmentBuilder(IUnitOfWork unitOfWork, 
-                                       Func<RoutingInstanceType, IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                                       Func<RoutingInstanceType, IRoutingInstanceDirector> routingInstanceDirectorFactory,
                                        Func<PortRole, IDestroyable<Vif>> vifDirectorFactory,
                                        IDataApi novaApiClient) : 
             base(unitOfWork, routingInstanceDirectorFactory, vifDirectorFactory, novaApiClient)

@@ -1,10 +1,10 @@
 ﻿
-(function ($) {
+(($) => {
 
-    var $attachmentSet = $('#AttachmentSet'),
-        attachmentSet = $attachmentSet[0],
-        $vpnTopologyType = $('#TopologyType'),
-        vpnTopologyType = $vpnTopologyType[0];
+    const $attachmentSet = $('#AttachmentSet'),
+          attachmentSet = $attachmentSet[0],
+          $vpnTopologyType = $('#TopologyType'),
+          vpnTopologyType = $vpnTopologyType[0];
 
     // Handle addition of attachment set to vpn
     $('#addAttachmentSet').on('click', function (e) {
@@ -43,7 +43,7 @@
                 });
 
                 // Refresh the attachment set grid
-                RefreshAttachmentSetsGrid(arr);
+                refreshAttachmentSetsGrid(arr);
             }
         }
     });
@@ -56,7 +56,7 @@
         $row.remove();
 
         // Refresh the attachment set grid
-        RefreshAttachmentSetsGrid();
+        refreshAttachmentSetsGrid();
     });
 
     // Bind to checkbox change event for all grids to set boolen value - this is needed to send correct boolean value
@@ -68,11 +68,11 @@
         $row.data('is-hub', this.value);
     });
 
-    var $tenancyType = $('#TenancyType'),
-        $ownerTenantId = $('#TenantId'),
-        ownerTenantId = $ownerTenantId[0],
-        $participantTenant = $('#TenantName'),
-        participantTenant = $participantTenant[0];
+    const $tenancyType = $('#TenancyType'),
+          $ownerTenantId = $('#TenantId'),
+          ownerTenantId = $ownerTenantId[0],
+          $participantTenant = $('#TenantName'),
+          participantTenant = $participantTenant[0];
 
     // Populate the list of participant tenants based upon the tenancy type of the vpn.
     // If the tenancy type is single then the list will contain only one tenant - the owner.
@@ -111,13 +111,13 @@
         }
     });
 
-    // Helpers functions
+    // Helpers
 
     // Refresh the attachment sets grid data
-    function RefreshAttachmentSetsGrid(arr) {
+    function refreshAttachmentSetsGrid(arr) {
 
         var $grid = $('#attachment-set-grid');
-        var attachmentSetsData = GetAttachmentSetsData(arr);
+        var attachmentSetsData = getAttachmentSetsData(arr);
 
         var $tbody = $grid.find('tbody');
         var data = JSON.stringify(attachmentSetsData);
@@ -140,7 +140,7 @@
         return deferred.promise();
     }
 
-    function GetAttachmentSetsData(arr) {
+    function getAttachmentSetsData(arr) {
 
         if (typeof (arr) === "undefined") arr = [];
         var $grid = $('#attachment-set-grid');
@@ -168,7 +168,7 @@
     }
 
     // Re-apply validation to the form so that validation rules for the new inputs are created
-    function RefreshValidation() {
+    function refreshValidation() {
 
         var $form = $('#form');
         $form.removeData('validator');
@@ -176,4 +176,4 @@
         $.validator.unobtrusive.parse('#form');
     }
 
-}(jQuery));
+})(jQuery);

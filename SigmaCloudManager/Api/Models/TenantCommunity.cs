@@ -43,7 +43,7 @@ namespace Mind.Api.Models
         [DataMember(Name="autonomousSystemNumber")]
         [Required]
         [Range(1,65535)]
-        public int? AutonomousSystemNumber { get; set; }
+        public int? AutonomousSystemNumber { get; private set; }
 
         /// <summary>
         /// The number portion of the community
@@ -53,7 +53,7 @@ namespace Mind.Api.Models
         [DataMember(Name="number")]
         [Required]
         [Range(1,65535)]
-        public int? Number { get; set; }
+        public int? Number { get; private set; }
 
         /// <summary>
         /// The IP routing behavior for traffic forwarding towards the tenant IP networks which are grouped
@@ -63,7 +63,15 @@ namespace Mind.Api.Models
         /// <example>BluePlane</example>
         [DataMember(Name = "tenantIpRoutingBehaviour")]
         [Required]
-        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; } = TenantIpRoutingBehaviourEnum.AnyPlane;
+        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; private set; }
+
+        /// <summary>
+        /// The tenant network environment which the IP network belongs to.
+        /// </summary>
+        /// <value>Enum member value denoting the tenant environment</value>
+        /// <example>Development</example>
+        [DataMember(Name = "environment")]
+        public TenantEnvironmentEnum? TenantEnvironment { get; private set; }
 
         /// <summary>
         /// Denotes whether the tenant network is allowed into any IP Extranet VPNs
@@ -71,7 +79,7 @@ namespace Mind.Api.Models
         /// <value>Boolean value which when true indicates that the tenant network is enabled for extranet</value>
         /// <example>true</example>
         [DataMember(Name="allowExtranet")]
-        public bool? AllowExtranet { get; set; }
+        public bool? AllowExtranet { get; private set; }
 
         /// <summary>
         /// The ID of the tenant to which the tenant community belongs
@@ -94,6 +102,7 @@ namespace Mind.Api.Models
             sb.Append("  Nunmber: ").Append(Number).Append("\n");
             sb.Append("  AllowExtranet: ").Append(AllowExtranet).Append("\n");
             sb.Append("  IpRoutingBehaviour: ").Append(IpRoutingBehaviour).Append("\n");
+            sb.Append("  TenantEnvironment: ").Append(TenantEnvironment).Append("\n");
             sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
@@ -160,6 +169,11 @@ namespace Mind.Api.Models
                     IpRoutingBehaviour == other.IpRoutingBehaviour ||
                     IpRoutingBehaviour != null &&
                     IpRoutingBehaviour.Equals(other.IpRoutingBehaviour)
+                ) &&
+                (
+                    TenantEnvironment == other.TenantEnvironment ||
+                    TenantEnvironment != null &&
+                    TenantEnvironment.Equals(other.TenantEnvironment)
                 );
         }
 
@@ -185,6 +199,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (IpRoutingBehaviour != null)
                     hashCode = hashCode * 59 + IpRoutingBehaviour.GetHashCode();
+                    if (TenantEnvironment != null)
+                    hashCode = hashCode * 59 + TenantEnvironment.GetHashCode();
                 return hashCode;
             }
         }

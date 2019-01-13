@@ -57,6 +57,14 @@ namespace Mind.Api.Models
         public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; } = TenantIpRoutingBehaviourEnum.AnyPlane;
 
         /// <summary>
+        /// The tenant network environment which the IP network belongs to.
+        /// </summary>
+        /// <value>Enum member value denoting the tenant environment</value>
+        /// <example>Development</example>
+        [DataMember(Name = "environment")]
+        public TenantEnvironmentEnum? TenantEnvironment { get; set; }
+
+        /// <summary>
         /// Determines whether the tenant network is allowed into any IP Extranet VPNs
         /// </summary>
         /// <value>Boolean value which when true indicates that the tenant network is enabled for extranet</value>
@@ -76,6 +84,7 @@ namespace Mind.Api.Models
             sb.Append("  Nunmber: ").Append(Number).Append("\n");
             sb.Append("  AllowExtranet: ").Append(AllowExtranet).Append("\n");
             sb.Append("  IpRoutingBehaviour: ").Append(IpRoutingBehaviour).Append("\n");
+            sb.Append("  TenantEnvironment: ").Append(TenantEnvironment).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -131,6 +140,11 @@ namespace Mind.Api.Models
                     IpRoutingBehaviour == other.IpRoutingBehaviour ||
                     IpRoutingBehaviour != null &&
                     IpRoutingBehaviour.Equals(other.IpRoutingBehaviour)
+                ) &&
+                (
+                    TenantEnvironment == other.TenantEnvironment ||
+                    TenantEnvironment != null &&
+                    TenantEnvironment.Equals(other.TenantEnvironment)
                 );
         }
 
@@ -152,6 +166,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AllowExtranet.GetHashCode();
                     if (IpRoutingBehaviour != null)
                     hashCode = hashCode * 59 + IpRoutingBehaviour.GetHashCode();
+                    if (TenantEnvironment != null)
+                    hashCode = hashCode * 59 + TenantEnvironment.GetHashCode();
                 return hashCode;
             }
         }

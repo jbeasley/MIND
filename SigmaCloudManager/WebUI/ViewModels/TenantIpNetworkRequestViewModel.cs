@@ -64,6 +64,14 @@ namespace Mind.WebUI.Models
         public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; } = TenantIpRoutingBehaviourEnum.AnyPlane;
 
         /// <summary>
+        /// The tenant network environment which the IP network belongs to.
+        /// </summary>
+        /// <value>Enum member value denoting the tenant environment</value>
+        /// <example>Development</example>
+        [Display(Name = "Environment")]
+        public TenantEnvironmentEnum? TenantEnvironment { get; set; }
+
+        /// <summary>
         /// Determines whether the tenant network is allowed into any IP Extranet VPNs
         /// </summary>
         /// <value>Boolean value which when true indicates that the tenant network is enabled for extranet</value>

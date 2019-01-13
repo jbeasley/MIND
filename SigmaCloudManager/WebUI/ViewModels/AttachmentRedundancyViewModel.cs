@@ -4,15 +4,24 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Net;
 
-namespace SCM.Models.ViewModels
+namespace Mind.WebUI.Models
 {
+    /// <summary>
+    /// View model for attachment redundancy
+    /// </summary>
     public class AttachmentRedundancyViewModel
     {
-        [Display(AutoGenerateField = false)]
-        public int AttachmentRedundancyID { get; set; }
-        [Required]
-        [StringLength(50)]
-        public string Name { get; set; }
-        public byte[] RowVersion { get; set; }
+        /// <summary>
+        /// Gets the attachment redundancy identifier.
+        /// </summary>
+        /// <value>Integer value denoting the attachment redundancy identifier.</value>
+        public int AttachmentRedundancyID { get; private set; }
+
+        /// <summary>
+        /// Gets the name of of the attachment redundancy.
+        /// </summary>
+        /// <value>String value denoting the name.</value>
+        public string Name { get; private set; }
+
     }
 }

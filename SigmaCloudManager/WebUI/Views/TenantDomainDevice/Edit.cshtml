@@ -12,11 +12,14 @@
     </ul>
 </div>
 <h2>Edit Device '@Model.Name'</h2>
-<form id="editForm" asp-action="Edit">
+<form id="form" asp-action="Edit">
+
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
     <input type="hidden" asp-for="DeviceId" />
     <input type="hidden" asp-for="RowVersion" />
-    <div id="editTenantDomainDeviceWizard">
+
+    <div id="deviceWizard">
+
         <h3>Name and Description</h3>
         <section id="name-and-description">
             <br />
@@ -38,6 +41,7 @@
                 </div>
             </div>
         </section>
+
         <h3>MTU and Activation Status</h3>
         <section id="mtu-status">
             <!-- View component for MTU and status options for the device -->
@@ -47,6 +51,7 @@
                 DeviceStatus = Model.DeviceStatus
             })
         </section>
+
         <h3>Ports</h3>
         <section id="ports">
             <div id="portsComponent">
@@ -57,10 +62,11 @@
                 })
             </div>
         </section>
-    </div>
+
+     </div>
 </form>
 <div>
-    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to Devices</a>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@Model.TenantId">Back to Devices</a>
 </div>
 
 <!--Container for the port form allowing the user to create/edit ports. The form HTML is loaded from the server when
@@ -69,7 +75,9 @@ the user clicks the 'create' or one of the grid row edit buttons -->
 
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+        @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     @{await Html.RenderPartialAsync("_TenantDomainDeviceEditScriptsPartial");}
 }

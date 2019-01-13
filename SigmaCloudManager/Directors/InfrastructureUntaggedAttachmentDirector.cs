@@ -30,6 +30,7 @@ namespace Mind.Builders
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
                                 .WithIpv4(request.Ipv4Addresses)
                                 .UseDefaultRoutingInstance(true)
+                                .WithRoutingInstance(request.RoutingInstance)
                                 .WithDescription(request.Description)
                                 .WithNotes(request.Notes)
                                 .BuildAsync();

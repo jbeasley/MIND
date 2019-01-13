@@ -6,9 +6,10 @@
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-        <li><a href="/InfrastructureHome"><i class="fa" aria-hidden="true"></i>Infrastructure</a></li>
-        <li><a href="/InfrastructureDevice/GetAll"><i class="fa active" aria-hidden="true"></i>Infrastructure Devices</a></li>
-        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Create</a></li>
+        <li><a href="/InfrastructureServices"><i class="fa" aria-hidden="true"></i>Infrastructure Services</a></li>
+        <li><a href="/InfrastructureDevice/GetAll"><i class="fa" aria-hidden="true"></i>Infrastructure Devices</a></li>
+        <li><a href="/InfrastructureAttachment/GetAllByDeviceID?deviceId=@ViewBag.Device.DeviceId"><i class="fa" aria-hidden="true"></i>Infrastructure Attachments - [@ViewBag.Device.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa active" aria-hidden="true"></i>Create</a></li>
     </ul>
 </div>
 <h2>Create an Infrasructure Attachment for Device '@ViewBag.Device.Name'</h2>
@@ -75,11 +76,11 @@
         <section id="bgp-peers">
             <div id="bgpPeersComponent">
                 <!-- View component for creating BGP peers -->
-                @await Component.InvokeAsync("AttachmentBgpPeers", new
+                @await Component.InvokeAsync("RoutingInstanceBgpPeers", new BgpPeersComponentViewModel
                 {
-                    portPoolName = Model?.PortPoolName,
-                    attachmentRoleName = Model?.AttachmentRoleName,
-                    bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
+                    PortPoolName = Model?.PortPoolName,
+                    AttachmentRoleName = Model?.AttachmentRoleName,
+                    BgpPeers = Model?.RoutingInstance?.BgpPeers
                 })
             </div>
         </section>

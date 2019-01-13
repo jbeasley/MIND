@@ -104,6 +104,13 @@ namespace Mind.Api.Models
         public string Notes { get; set; }
 
         /// <summary>
+        /// Optional parameters for updating the default routing instances to be associated with the new attachment.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        [DataMember(Name = "routingInstance")]
+        public RoutingInstanceRequest RoutingInstance { get; set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -118,6 +125,7 @@ namespace Mind.Api.Models
             sb.Append("  AttachmentRoleName: ").Append(AttachmentRoleName).Append("\n");
             sb.Append("  AttachmentBandwidthGbps: ").Append(AttachmentBandwidthGbps).Append("\n");
             sb.Append("  Ipv4Addresses: ").Append(Ipv4Addresses).Append("\n");
+            sb.Append("  RoutingInstance: ").Append(RoutingInstance).Append("\n");
             sb.Append("  Description: ").Append(Description).Append("\n");
             sb.Append("  Notes: ").Append(Notes).Append("\n");
             sb.Append("}\n");
@@ -192,6 +200,11 @@ namespace Mind.Api.Models
                     Ipv4Addresses.Equals(other.Ipv4Addresses)
                 ) &&
                 (
+                    RoutingInstance == other.RoutingInstance ||
+                    RoutingInstance != null &&
+                    RoutingInstance.Equals(other.RoutingInstance)
+                ) &&
+                (
                     Description == other.Description ||
                     Description != null &&
                     Description.Equals(other.Description)
@@ -227,6 +240,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + AttachmentBandwidthGbps.GetHashCode();
                     if (Ipv4Addresses != null)
                     hashCode = hashCode * 59 + Ipv4Addresses.GetHashCode();
+                    if (RoutingInstance != null)
+                    hashCode = hashCode * 59 + RoutingInstance.GetHashCode();
                     if (Description != null)
                     hashCode = hashCode * 59 + Description.GetHashCode();
                     if (Notes != null)

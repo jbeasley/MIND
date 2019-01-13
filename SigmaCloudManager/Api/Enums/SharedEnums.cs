@@ -359,4 +359,26 @@ namespace Mind.Api
         /// </summary>
         StagedInconsistent = 4
     }
+
+    /// <summary>
+    /// Enumeration of tenant environnent options
+    /// </summary>
+    /// <value>Enumerated list of tenant environment options</value>
+    public enum TenantEnvironmentEnum
+    {
+        /// <summary>
+        /// Enum for Development
+        /// </summary>
+        Development = 1,
+
+        /// <summary>
+        /// Enum for Staging
+        /// </summary>
+        Staging = 2,
+
+        /// <summary>
+        /// Enum for Production
+        /// </summary>
+        Production = 3
+    }
 }

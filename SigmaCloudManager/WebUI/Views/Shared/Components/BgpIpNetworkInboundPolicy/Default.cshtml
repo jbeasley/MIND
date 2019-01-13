@@ -1,60 +1,58 @@
 ﻿@using Mind.WebUI.Models;
 @model BgpIpNetworkInboundPolicyRequestViewModel
 
-<h3>BGP IP Network Inbound Policy</h3>
-<section id="bgp-ip-network-inbound-policy">
-    <div mind-alert="info" message="
-        Select IP networks to add to the inbound policy of the attachment set. The inbound policy allows networks received from 
-        directly attached tenant domains into the routing instances which belong to your attachment set. These networks belong to the
-        tenant owner of the attachment set. Networks that are permitted in the inbound policy can then be sent to other tenant domains
-        by advertising them into IP VPNs.">
-    </div>
-    <div class="form-inline row">
-        <label class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-3">
-            <select class="form-control" id="InboundIpNetwork" data-toggle="tooltip"
-                    title="Select a CIDR block to add to the attachment set" data-placement="left">
-                <option value="">-- Select CIDR Block --</option>
-                @{
-                    if (ViewBag.InboundIpNetwork != null)
+
+<div mind-alert="info" message="
+    Select IP networks to add to the inbound policy of the attachment set. The inbound policy allows networks received from 
+    directly attached tenant domains into the routing instances which belong to your attachment set. These networks belong to the
+    tenant owner of the attachment set. Networks that are permitted in the inbound policy can then be sent to other tenant domains
+    by advertising them into IP VPNs.">
+</div>
+<div class="form-inline row">
+    <label class="col-sm-2 col-form-label"></label>
+    <div class="col-sm-3">
+        <select class="form-control" id="InboundIpNetwork" data-toggle="tooltip"
+                title="Select a CIDR block to add to the attachment set" data-placement="left">
+            <option value="">-- Select CIDR Block --</option>
+            @{
+                if (ViewBag.InboundIpNetwork != null)
+                {
+                    foreach (SelectListItem item in ViewBag.InboundIpNetwork)
                     {
-                        foreach (SelectListItem item in ViewBag.InboundIpNetwork)
-                        {
-                            <option value="@item.Value" data-cidr-name="@item.Value">
-                                @item.Text
-                            </option>
-                        }
+                        <option value="@item.Value" data-cidr-name="@item.Value">
+                            @item.Text
+                        </option>
                     }
                 }
-            </select>
-        </div>
-        <div class="col-sm-3">
-            <button type="button" id="addInboundIpNetwork" class="btn btn-secondary btn-sm" is-add-button></button>
-        </div>
+            }
+        </select>
     </div>
-    <br />
-    <div class="form-group row">
-        <div class="col-sm-12">
-            <table id="bgp-ip-network-inbound-policy-grid" class="table table-condensed table-hover table-striped mind-grid">
-                <thead>
-                    <tr>
-                        <th style="width:20%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].TenantIpNetworkCidrName)</span></th>
-                        <th style="width:20%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].AddToAllBgpPeersInAttachmentSet)</th>
-                        <th style="width:30%" valign="top">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].Ipv4PeerAddress)</th>
-                        <th style="width:15%">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].LocalIpRoutingPreference)</th>
-                        <th data-sortable="false" style="width:15%" valign="top">Actions</th>
-                    </tr>
-                </thead>
-                <tbody style="height:235px">
-                    <!-- View component for displaying the grid for the BGP IP Network Inbound Policy
-                         This is put into a separate view component so that the grid data can be reloaded from the server from the client
-                         whenever a new row is added or a row deleted -->
-                    @await Component.InvokeAsync("BgpIpNetworkInboundPolicyGridData", new
-                    {
-                        bgpIpNetworkInboundPolicy = Model
-                    })
-                </tbody>
-            </table>
-        </div>
+    <div class="col-sm-3">
+        <button type="button" id="addInboundIpNetwork" class="btn btn-secondary btn-sm" is-add-button></button>
     </div>
-</section>
+</div>
+<br />
+<div class="form-group row">
+    <div class="col-sm-12">
+        <table id="bgp-ip-network-inbound-policy-grid" class="table table-condensed table-hover table-striped mind-grid">
+            <thead>
+                <tr>
+                    <th style="width:20%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].TenantIpNetworkCidrName)</span></th>
+                    <th style="width:20%" data-order="desc" valign="top">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].AddToAllBgpPeersInAttachmentSet)</th>
+                    <th style="width:30%" valign="top">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].Ipv4PeerAddress)</th>
+                    <th style="width:15%">@Html.DisplayNameFor(model => model.VpnTenantIpNetworkInRequests[0].LocalIpRoutingPreference)</th>
+                    <th data-sortable="false" style="width:15%" valign="top">Actions</th>
+                </tr>
+            </thead>
+            <tbody style="height:235px">
+                <!-- View component for displaying the grid for the BGP IP Network Inbound Policy
+                     This is put into a separate view component so that the grid data can be reloaded from the server from the client
+                     whenever a new row is added or a row deleted -->
+                @await Component.InvokeAsync("BgpIpNetworkInboundPolicyGridData", new
+                {
+                    bgpIpNetworkInboundPolicy = Model
+                })
+            </tbody>
+        </table>
+    </div>
+</div>

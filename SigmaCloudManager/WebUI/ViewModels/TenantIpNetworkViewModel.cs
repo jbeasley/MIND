@@ -99,5 +99,13 @@ namespace Mind.WebUI.Models
         [Display(Name = "IP Routing Behaviour")]
         public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; private set; }
 
+        /// <summary>
+        /// The tenant network environment which the IP network belongs to.
+        /// </summary>
+        /// <value>Enum member value denoting the tenant environment</value>
+        /// <example>Development</example>
+        [Display(Name = "Environment")]
+        public TenantEnvironmentEnum? TenantEnvironment { get; private set; }
+
     }
 }

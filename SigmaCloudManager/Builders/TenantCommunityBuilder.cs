@@ -1,4 +1,5 @@
-﻿using SCM.Data;
+﻿using Mind.Models;
+using SCM.Data;
 using SCM.Models;
 using System;
 using System.Collections.Generic;
@@ -62,6 +63,12 @@ namespace Mind.Builders
             return this;
         }
 
+        public virtual ITenantCommunityBuilder WithTenantEnvironment(string environment)
+        {
+            if (!string.IsNullOrEmpty(environment)) _args.Add(nameof(WithTenantEnvironment), environment);
+            return this;
+        }
+
         public virtual async Task<TenantCommunity> BuildAsync()
         {
             if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
@@ -74,6 +81,14 @@ namespace Mind.Builders
                 if (Enum.TryParse(_args[nameof(WithIpRoutingBehaviour)].ToString(), out TenantIpRoutingBehaviourEnum ipRoutingBehaviour))
                 {
                     _tenantCommunity.IpRoutingBehaviour = ipRoutingBehaviour;
+                }
+            }
+
+            if (_args.ContainsKey(nameof(WithTenantEnvironment)))
+            {
+                if (Enum.TryParse(_args[nameof(WithTenantEnvironment)].ToString(), out TenantEnvironmentEnum environment))
+                {
+                    _tenantCommunity.TenantEnvironment = environment;
                 }
             }
 

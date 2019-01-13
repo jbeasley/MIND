@@ -33,10 +33,8 @@ namespace SCM.Services
             return (from result in await UnitOfWork.RoutingInstanceRepository.GetAsync(
                 q =>
                     q.AttachmentSetRoutingInstances
-                    .Where(
-                        x => 
-                        x.AttachmentSetID == attachmentSetId)
-                    .Any() &&
+                     .Any(x =>
+                          x.AttachmentSetID == attachmentSetId) &&
                     q.RoutingInstanceType.IsTenantFacingVrf,
                     query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
                     AsTrackable: false)

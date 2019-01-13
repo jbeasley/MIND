@@ -74,7 +74,15 @@ namespace Mind.WebUI.Models
         /// <value>Enum member value denoting the required tenant ip routing behavior</value>
         /// <example>BluePlane</example>
         [Display(Name = "IP Routing Behaviour")]
-        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; } = TenantIpRoutingBehaviourEnum.AnyPlane;
+        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; }
+
+        /// <summary>
+        /// The tenant network environment which the IP network belongs to.
+        /// </summary>
+        /// <value>Enum member value denoting the tenant environment</value>
+        /// <example>Development</example>
+        [Display(Name = "Environment")]
+        public TenantEnvironmentEnum? TenantEnvironment { get; set; }
 
         /// <summary>
         /// Concurrency token for the model

@@ -2,17 +2,10 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mind.Models;
 
 namespace SCM.Models
 {
-
-    public enum PortRoleTypeEnum
-    {
-        TenantFacing,
-        ProviderInfrastructure,
-        TenantInfrastructure
-    }
-
     public class PortRole
     {
         public int PortRoleID { get; private set; }

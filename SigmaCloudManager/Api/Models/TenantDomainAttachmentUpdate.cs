@@ -27,7 +27,6 @@ namespace Mind.Api.Models
     [DataContract]
     public partial class TenantDomainAttachmentUpdate : IEquatable<TenantDomainAttachmentUpdate>
     {
-
         /// <summary>
         /// Determines if the updated attachment should use jumbo MTU
         /// </summary>

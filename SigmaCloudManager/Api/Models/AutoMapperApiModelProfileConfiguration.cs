@@ -1,9 +1,4 @@
 ﻿using AutoMapper;
-using SCM.Models.RequestModels;
-using SCM.Models;
-using System.Linq;
-using System;
-using System.Collections.Generic;
 
 namespace Mind.Api.Models
 {
@@ -159,11 +154,7 @@ namespace Mind.Api.Models
             CreateMap<SCM.Models.RoutingInstance, Mind.Api.Models.ProviderDomainRoutingInstance>()
                   // Static routes which belong only to a specific routing instance within the attachment set
                   .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes))
-                  .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName));
-
-            CreateMap<SCM.Models.RoutingInstance, Mind.Api.Models.TenantDomainRoutingInstance>()
-                   // Static routes which belong only to a specific routing instance within the tenant domain device
-                   .ForMember(dst => dst.StaticRoutes, conf => conf.MapFrom(src => src.VpnTenantIpNetworkRoutingInstanceStaticRoutes));
+                  .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName));                            
 
             CreateMap<SCM.Models.BgpPeer, Mind.Api.Models.ProviderDomainBgpPeer>()
                   .ForMember(dst => dst.RoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))

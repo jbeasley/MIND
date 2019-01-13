@@ -48,28 +48,6 @@ namespace SCM.Models
         }
     }
 
-    /// <summary>
-    /// Enumeration of tenant IP routing behaviour options
-    /// </summary>
-    /// <value>Enumerated list of tenant ip routing behaviour options</value>
-    public enum TenantIpRoutingBehaviourEnum
-    {
-        /// <summary>
-        /// Enum for Any-Plane
-        /// </summary>
-        AnyPlane = 1,
-
-        /// <summary>
-        /// Enum for Red-Plane
-        /// </summary>
-        RedPlane = 2,
-
-        /// <summary>
-        /// Enum for Blue-Plane
-        /// </summary>
-        BluePlane = 3
-    }
-
     public class TenantIpNetwork : IModifiableResource
     {
         public int TenantIpNetworkID { get; set; }
@@ -85,6 +63,7 @@ namespace SCM.Models
         public int TenantID { get; set; }
         [Required]
         public TenantIpRoutingBehaviourEnum IpRoutingBehaviour { get; set; }
+        public TenantEnvironmentEnum TenantEnvironment { get; set; }
         [Timestamp]
         public byte[] RowVersion { get; set; }
         public virtual Tenant Tenant { get; set; }

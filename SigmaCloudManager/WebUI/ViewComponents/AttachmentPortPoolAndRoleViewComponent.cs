@@ -43,7 +43,7 @@ namespace Mind.WebUI.ViewComponents
         {
             var portPools = await _unitOfWork.PortPoolRepository.GetAsync(
                         q =>
-                        q.PortRole.PortRoleType == Enum.Parse<SCM.Models.PortRoleTypeEnum>(portRoleTypeEnumName),
+                        q.PortRole.PortRoleType == Enum.Parse<Mind.Models.PortRoleTypeEnum>(portRoleTypeEnumName),
                         AsTrackable: false);
 
             ViewBag.PortPool = new SelectList(_mapper.Map<List<PortPoolViewModel>>(portPools), "Name", "Name", selectedPortPool);

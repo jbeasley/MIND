@@ -24,6 +24,13 @@ namespace Mind.WebUI.Models
         public int? AttachmentId { get; set; }
 
         /// <summary>
+        /// ID of the device
+        /// </summary>
+        /// <value>Integer value denoting the ID of the device</value>
+        /// <example>1001</example>
+        public int? DeviceId { get; set; }
+
+        /// <summary>
         /// The name of the attachment
         /// </summary>
         /// <value>string value denoting the name of the attachment</value>
@@ -66,7 +73,7 @@ namespace Mind.WebUI.Models
         /// Optional parameters for performing updates on the 
         /// existing routing instance associated with the attachment
         /// </summary>
-        /// <value>An object of type RoutingInstanceRequest</value>
+        /// <value>An object of type RoutingInstanceRequestViewModel</value>
         public RoutingInstanceRequestViewModel RoutingInstance { get; set; }
 
         /// <summary>

@@ -20,12 +20,12 @@ namespace Mind.Builders
     {
         protected internal Vif _vif;
         private const string _defaultVlanTagRange = "Default";
-        private readonly Func<RoutingInstanceType, IVrfRoutingInstanceDirector> _routingInstanceDirectorFactory;
+        private readonly Func<RoutingInstanceType, IRoutingInstanceDirector> _routingInstanceDirectorFactory;
         private readonly IDataApi _novaApiClient;
 
 
         public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, 
-                          IVrfRoutingInstanceDirector> routingInstanceDirectorFactory,
+                          IRoutingInstanceDirector> routingInstanceDirectorFactory,
                           IDataApi novaApiClient) : base(unitOfWork)
         {
             _vif = new Vif
@@ -154,8 +154,17 @@ namespace Mind.Builders
             {
                 // Update an existing vif
                 await SetVifAsync();
-                if (_args.ContainsKey(nameof(WithContractBandwidth))) await UpdateContractBandwidthPoolAsync();
-                if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
+
+                if (_args.ContainsKey(nameof(WithContractBandwidth)))
+                {
+                    await UpdateContractBandwidthPoolAsync();
+                }
+
+                if (_args.ContainsKey(nameof(WithIpv4)))
+                {
+                    SetIpv4();
+                }
+
                 if (_vif.VifRole.RoutingInstanceType.IsVrf)
                 {
                     if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
@@ -168,10 +177,12 @@ namespace Mind.Builders
                             await UpdateRoutingInstanceAsync();
                         }
                     }
+
                     else if (_args.ContainsKey(nameof(WithNewRoutingInstance)))
                     {
                         await CreateRoutingInstanceAsync();
                     }
+
                     else if (_args.ContainsKey(nameof(WithRoutingInstance)))
                     {
                         // Update the existing routing instance of the vif, e.g.add/modify/delete BGP peers
@@ -182,35 +193,67 @@ namespace Mind.Builders
             else
             {
                 // Create a new vif
-                if (_args.ContainsKey(nameof(ForAttachment))) await SetAttachmentAsync();
-                if (_args.ContainsKey(nameof(ForTenant))) await SetTenantAsync();
-                if (_args.ContainsKey(nameof(WithVifRole))) await SetVifRoleAsync();
+                if (_args.ContainsKey(nameof(ForAttachment)))
+                {
+                    await SetAttachmentAsync();
+                }
+
+                if (_args.ContainsKey(nameof(ForTenant)))
+                {
+                    await SetTenantAsync();
+                }
+
+                if (_args.ContainsKey(nameof(WithVifRole)))
+                {
+                    await SetVifRoleAsync();
+                }
+
                 CreateVlans();
-                if (_args.ContainsKey(nameof(WithIpv4))) SetIpv4();
+
+                if (_args.ContainsKey(nameof(WithIpv4)))
+                {
+                    SetIpv4();
+                }
+
                 if (_args.ContainsKey(nameof(WithRequestedVlanTag)))
                 {
                     SetRequestedVlanTag();
                 }
+
                 else
                 {
                     await AutoAllocateVlanTagAsync();
                 }
-                if (_args.ContainsKey(nameof(WithContractBandwidth))) await CreateContractBandwidthPoolAsync();
+
+                if (_args.ContainsKey(nameof(WithContractBandwidth)))
+                {
+                    await CreateContractBandwidthPoolAsync();
+                }
+
                 if (_vif.VifRole.RoutingInstanceType.IsDefault)
                 {
                     await AssociateDefaultRoutingInstanceAsync();
+
+                    if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                    {
+                        // Perform any updates on the default routing instance, e.g. add/modify/delete BGP peers
+                        await UpdateRoutingInstanceAsync();
+                    }
                 }
+
                 else if (_vif.VifRole.RoutingInstanceType.IsVrf)
                 {
                     if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
                     {
                         await AssociateExistingRoutingInstanceAsync();
+
                         if (_args.ContainsKey(nameof(WithRoutingInstance)))
                         {
                             // Perform any updates on the existing routing instance, e.g. add/modify/delete BGP peers
                             await UpdateRoutingInstanceAsync();
                         }
                     }
+
                     else
                     {
                         await CreateRoutingInstanceAsync();
@@ -222,7 +265,12 @@ namespace Mind.Builders
             {
                 AssociateExistingContractBandwidthPool();
             }
-            if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp))) SetTrustReceivedCosAndDscp();
+
+            if (_args.ContainsKey(nameof(WithTrustReceivedCosAndDscp)))
+            {
+                SetTrustReceivedCosAndDscp();
+            }
+
             await SetMtuAsync();
 
             // Has the vif been created correctly?
@@ -232,7 +280,10 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(SyncToNetworkPut)))
             {
                 var syncToNetworkPut = (bool)_args[nameof(SyncToNetworkPut)];
-                if (syncToNetworkPut) await SyncVifToNetworkPutAsync();
+                if (syncToNetworkPut)
+                {
+                    await SyncVifToNetworkPutAsync();
+                }
             }
 
             return _vif;
@@ -435,13 +486,16 @@ namespace Mind.Builders
                                        select routingInstanceTypes)
                                        .Single();
 
-            var routingInstanceRequest = _args.ContainsKey(nameof(WithRoutingInstance)) ? (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)] : null;
-            var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
-            var routingInstance = await routingInstanceDirector.BuildAsync(vif: _vif,
-                                                                           request: routingInstanceRequest);
-            
-            _vif.RoutingInstanceID = null;
-            _vif.RoutingInstance = routingInstance;
+            if (routingInstanceType.IsVrf)
+            {
+                var routingInstanceRequest = _args.ContainsKey(nameof(WithRoutingInstance)) ? (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)] : null;
+                var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType) as IVrfRoutingInstanceDirector;
+                var routingInstance = await routingInstanceDirector.BuildAsync(vif: _vif,
+                                                                               request: routingInstanceRequest);
+
+                _vif.RoutingInstanceID = null;
+                _vif.RoutingInstance = routingInstance;
+            }
         }
 
         protected internal virtual async Task AssociateExistingRoutingInstanceAsync()
@@ -454,12 +508,22 @@ namespace Mind.Builders
                                            x.Name == routingInstanceName &&
                                            x.TenantID == tenantId &&
                                            x.DeviceID == _vif.Attachment.DeviceID,
+                                           query: q => q.Include(x => x.Vifs),
                                            AsTrackable: true)
                                            select routingInstances)
                                            .SingleOrDefault();
 
-            _vif.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException($"The routing instance with name " +
+            if (existingRoutingInstance == null)
+            {
+                throw new BuilderBadArgumentsException($"The routing instance with name " +
                 $"'{routingInstanceName}' was not found.");
+            }
+
+            // Add the vif to the vifs collection of the existing routing instance. This is needed for validation checks
+            // such as validation of the reachability of BGP peeers 
+            existingRoutingInstance.Vifs.Add(_vif);
+
+            _vif.RoutingInstance = existingRoutingInstance;
             _vif.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }
 

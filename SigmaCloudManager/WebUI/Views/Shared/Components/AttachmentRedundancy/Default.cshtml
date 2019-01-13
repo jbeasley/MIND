@@ -1,0 +1,39 @@
+﻿
+<!-- Markup for the attachment redundancy view component -->
+
+@using Mind.WebUI.Models;
+@model AttachmentRedundancyComponentViewModel
+
+
+    <div class="alert alert-info form-text" aria-describedby="AttachmentRedundancy">
+        <h3>Select a redundancy option</h3>
+        <p>
+            Select <b>'Bronze'</b> to create an attachment set with a single attachment to the provider network.
+        </p>
+        <p>
+            Select <b>'Silver'</b> to create an attachment set with two attachments to the provider network.
+            This options provides a resilient connectivity solution so that in the event of failure of one attachment
+            in the set. However, both attachment will terminate in the same provider location.
+        </p>
+        <p>
+            Select <b>'Gold'</b> to create an attachment set with two attachments to the provider network.
+            This options provides a resilient connectivity solution so that in the event of failure of one attachment
+            in the set. In addition, each attachment will terminate in a different provider location in order to provide
+            facility-level resiliency.
+        </p>
+        <p>
+            Select <b>'Custom'</b> if you would like to create an attachment set with more that two attachments.
+            You can use this option for example to create an attachment set which provides superior resiliency with 3 or more
+            attachments terminating in the differnet provider locations.
+            Note however that all attachments must terminate in provider locations witin the same major region (e.g. EMEA).
+        </p>
+    </div>
+    <div class="form-group row">
+        <label asp-for="AttachmentRedundancy" class="col-sm-2 col-form-label"></label>
+        <div class="col-sm-10">
+            <select asp-for="AttachmentRedundancy" class="form-control" asp-items="ViewBag.AttachmentRedundancy">
+                <option value="">-- Select Redundancy --</option>
+            </select>
+            <span asp-validation-for="AttachmentRedundancy" class="text-danger"></span>
+        </div>
+    </div>

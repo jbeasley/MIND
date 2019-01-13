@@ -29,6 +29,7 @@ using Microsoft.DotNet.PlatformAbstractions;
 using System.Reflection;
 using Mind.Directors;
 using SCM.Models;
+using Mind.Models;
 
 namespace Mind
 {
@@ -194,7 +195,7 @@ namespace Mind
             builder.RegisterType<TenantDomainPortService>().As<ITenantDomainPortService>();
             builder.RegisterType<TenantDomainAttachmentService>().As<ITenantDomainAttachmentService>();
             builder.RegisterType<TenantDomainVifService>().As<ITenantDomainVifService>();
-            builder.RegisterType<ProviderDomainBgpPeerService>().As<IProviderDomainBgpPeerService>();
+            builder.RegisterType<BgpPeerService>().As<IBgpPeerService>();
             builder.RegisterType<TenantDomainBgpPeerService>().As<ITenantDomainBgpPeerService>();
             builder.RegisterType<ProviderDomainIpNetworkInboundPolicyService>().As<IProviderDomainIpNetworkInboundPolicyService>();
             builder.RegisterType<ProviderDomainCommunityInboundPolicyService>().As<IProviderDomainCommunityInboundPolicyService>();
@@ -210,6 +211,7 @@ namespace Mind
             builder.RegisterType<ProviderDomainLogicalInterfaceService>().As<IProviderDomainLogicalInterfaceService>();
             builder.RegisterType<ProviderDomainLocationService>().As<IProviderDomainLocationService>();
             builder.RegisterType<ProviderDomainRoutingInstanceService>().As<IProviderDomainRoutingInstanceService>();
+            builder.RegisterType<InfrastructureRoutingInstanceService>().As<IInfrastructureRoutingInstanceService>();
 
             // Provider domain single attachment directors
             builder.RegisterType<ProviderDomainUntaggedAttachmentDirector<SingleAttachmentBuilder>>().As<IProviderDomainAttachmentDirector>()
@@ -451,9 +453,9 @@ namespace Mind
                         ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("ProviderDomainVifDirector")
                         : portRoleType == PortRoleTypeEnum.ProviderInfrastructure
                             ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("InfrastructureVifDirector")
-                            : portRoleType == PortRoleTypeEnum.TenantInfrastructure
-                                                    ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("TenantDomainVifDirector")
-                                                    : null;
+                            : portRoleType == PortRoleTypeEnum.TenantInfrastructure || portRoleType == PortRoleTypeEnum.ProviderFacing
+                                ? context.ResolveKeyed<IDestroyable<SCM.Models.Vif>>("TenantDomainVifDirector")
+                                : null;
                 };
             });
 

@@ -14,6 +14,7 @@ namespace Mind.Builders
         ITenantCommunityBuilder WithNumber(int? number);
         ITenantCommunityBuilder WithAllowExtranet(bool? allowExtranet);
         ITenantCommunityBuilder WithIpRoutingBehaviour(string ipRoutingBehaviour);
+        ITenantCommunityBuilder WithTenantEnvironment(string environment);
         Task<TenantCommunity> BuildAsync();
     }
 }

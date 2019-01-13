@@ -1,15 +1,14 @@
-﻿using Microsoft.EntityFrameworkCore;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net.Http;
 using AutoMapper;
 using SCM.Data;
 using SCM.Models;
 using SCM.Models.RequestModels;
 using SCM.Services;
 using Mind.Builders;
+using Mind.Models;
 
 namespace Mind.Services
 {
@@ -39,7 +38,15 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await base.GetByIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantInfrastructure, deep, asTrackable);
+            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
+                 q =>
+                     q.AttachmentID == id &&
+                     q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.ProviderFacing ||
+                     q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure,
+                     query: q => deep.GetValueOrDefault() ? q.IncludeDeepProperties() : q,
+                     AsTrackable: asTrackable)
+                    select attachments)
+                     .SingleOrDefault();
         }
 
         /// <summary>
@@ -51,7 +58,15 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<List<Attachment>> GetAllByDeviceIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await base.GetAllByDeviceIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantInfrastructure, deep, asTrackable);
+            return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
+                q =>
+                    q.DeviceID == id &&
+                     q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.ProviderFacing ||
+                     q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure,
+                    query: q => deep.GetValueOrDefault() ? q.IncludeDeepProperties() : q,
+                    AsTrackable: asTrackable)
+                    select attachments)
+                    .ToList();
         }
 
         /// <summary>

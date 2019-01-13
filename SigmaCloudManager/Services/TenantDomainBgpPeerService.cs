@@ -24,7 +24,7 @@ namespace Mind.Services
             return await this.UnitOfWork.BgpPeerRepository.GetAsync(
                 q => 
                 q.RoutingInstance.DeviceID == id,
-                query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
+                query: q => deep.GetValueOrDefault() ? q.IncludeDeepProperties() : q,
                 AsTrackable: asTrackable);
 
         }
@@ -34,7 +34,7 @@ namespace Mind.Services
             return (from result in await this.UnitOfWork.BgpPeerRepository.GetAsync(
                 q => 
                 q.BgpPeerID == id,
-                query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
+                query: q => deep.GetValueOrDefault() ? q.IncludeDeepProperties() : q,
                 AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();

@@ -17,9 +17,9 @@ namespace Mind.WebUI.Models
         public int? AttachmentId { get; private set; }
 
         /// <summary>
-        /// Gets the device identifier.
+        /// Gets the infrastructure device identifier.
         /// </summary>
-        /// <value>Integer value denoting the device identifier.</value>
+        /// <value>Integer value denoting the infrastructure device identifier.</value>
         public int DeviceId { get; private set; }
 
         /// <summary>

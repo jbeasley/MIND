@@ -3,11 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
-using Microsoft.EntityFrameworkCore.Storage;
-using Microsoft.EntityFrameworkCore.Storage.Internal;
-using Mind.Models;
 using SCM.Data;
-using SCM.Models;
 using System;
 
 namespace Mind.Migrations
@@ -451,8 +447,6 @@ namespace Mind.Migrations
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasMaxLength(50);
-
-                    b.Property<bool>("RequireSyncToNetwork");
 
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
@@ -1325,6 +1319,8 @@ namespace Mind.Migrations
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();
 
+                    b.Property<int>("TenantEnvironment");
+
                     b.Property<int>("TenantID");
 
                     b.HasKey("TenantCommunityID");
@@ -1412,6 +1408,8 @@ namespace Mind.Migrations
                     b.Property<byte[]>("RowVersion")
                         .IsConcurrencyToken()
                         .ValueGeneratedOnAddOrUpdate();
+
+                    b.Property<int>("TenantEnvironment");
 
                     b.Property<int>("TenantID");
 

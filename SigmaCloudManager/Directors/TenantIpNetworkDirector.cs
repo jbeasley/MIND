@@ -22,6 +22,7 @@ namespace Mind.Builders
                                  .WithIpv4LessThanOrEqualToLength(request.Ipv4LessThanOrEqualToLength)
                                  .WithAllowExtranet(request.AllowExtranet)
                                  .WithIpRoutingBehaviour(request.IpRoutingBehaviour.ToString())
+                                 .WithTenantEnvironment(request.TenantEnvironment.ToString())
                                  .BuildAsync();
         }
     }

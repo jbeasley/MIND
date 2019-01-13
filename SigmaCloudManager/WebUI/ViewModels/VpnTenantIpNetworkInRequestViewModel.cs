@@ -70,7 +70,7 @@ namespace Mind.WebUI.Models
                 {
                     yield return new ValidationResult(
                         $"A BGP peer address cannot be specified for CIDR network {this.TenantIpNetworkCidrName}' when the 'Add to all BGP Peers' " +
-                        "checkbox is checked. Uncheck the 'Add to all BGP Peers' checkbox  " +
+                        "checkbox is checked for the inbound policy of this attachment set. Uncheck the 'Add to all BGP Peers' checkbox  " +
                         "if you wish to associate the IP network with a specific BGP peer.");
                 }
             }
@@ -81,7 +81,7 @@ namespace Mind.WebUI.Models
                 {
                     yield return new ValidationResult(
                         $"For CIDR network {this.TenantIpNetworkCidrName}' you must specify either a BGP peer or specify that " +
-                        "the IP network should be associated with all BGP peers in the attachment set by checking the " +
+                        "the IP network should be associated with all BGP peers for the inbound policy of this attachment set by checking the " +
                         "'Add to All BGP Peers' checkbox.");
                 }
             }

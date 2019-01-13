@@ -46,7 +46,7 @@
         });
     }
 
-    // Called after the port form is loaded
+    // Called after the port form is loaded - set things up ready to take input from the user
 
     const onPortFormLoaded = () => {
     

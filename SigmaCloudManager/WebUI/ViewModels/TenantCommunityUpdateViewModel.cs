@@ -1,13 +1,4 @@
-
-using System;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Mind.WebUI.Models
@@ -58,7 +49,15 @@ namespace Mind.WebUI.Models
         /// <value>Enum member value denoting the required tenant ip routing behavior</value>
         [Display(Name = "IP Routing Behaviour")]
         [Required]
-        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; } = TenantIpRoutingBehaviourEnum.AnyPlane;
+        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; }
+
+        /// <summary>
+        /// The tenant network environment which the IP network belongs to.
+        /// </summary>
+        /// <value>Enum member value denoting the tenant environment</value>
+        /// <example>Development</example>
+        [Display(Name = "Environment")]
+        public TenantEnvironmentEnum? TenantEnvironment { get; set; }
 
         /// <summary>
         /// Determines whether the tenant network is allowed into any IP Extranet VPNs

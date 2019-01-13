@@ -3,7 +3,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Net.Http;
 using AutoMapper;
 using SCM.Data;
 using SCM.Models;
@@ -12,6 +11,7 @@ using SCM.Services;
 using Mind.Builders;
 using Mind.Directors;
 using IO.NovaAttSwagger.Client;
+using Mind.Models;
 
 namespace Mind.Services
 {
@@ -44,7 +44,7 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await base.GetByIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantFacing, deep, asTrackable);
+            return await base.GetByIDAsync(id, Mind.Models.PortRoleTypeEnum.TenantFacing, deep, asTrackable);
         }
 
         /// <summary>
@@ -56,7 +56,7 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<List<Attachment>> GetAllByTenantIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await base.GetAllByTenantIDAsync(id, SCM.Models.PortRoleTypeEnum.TenantFacing, deep, asTrackable);
+            return await base.GetAllByTenantIDAsync(id, Mind.Models.PortRoleTypeEnum.TenantFacing, deep, asTrackable);
         }
 
         /// <summary>

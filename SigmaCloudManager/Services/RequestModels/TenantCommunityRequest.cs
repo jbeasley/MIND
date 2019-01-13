@@ -24,7 +24,13 @@ namespace Mind.Models.RequestModels
         /// or associated with the community
         /// </summary>
         /// <value>Enum member value denoting the required tenant ip routing behavior</value>
-        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; } = TenantIpRoutingBehaviourEnum.AnyPlane;
+        public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; }
+
+        /// <summary>
+        /// The tenant environment to which the IP network is associated.
+        /// </summary>
+        /// <value>Enum member value denoting the required tenant environment</value>
+        public TenantEnvironmentEnum TenantEnvironment { get; set; }
 
         /// <summary>
         /// Determines whether the tenant network is allowed into any IP Extranet VPNs

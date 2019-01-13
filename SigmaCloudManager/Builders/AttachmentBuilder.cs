@@ -248,18 +248,31 @@ namespace Mind.Builders
 
                 if (_args.ContainsKey(nameof(UseDefaultRoutingInstance)))
                 {
-                    // Associate the default routing instance with teh attachment
+                    // Associate the default routing instance with the attachment
                     await AssociateDefaultRoutingInstanceAsync();
-                }
-                else if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
-                {
-                    // Associate a pre-existing routing instance with the attachment
-                    await AssociateExistingRoutingInstanceAsync();
+                    if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                    {
+                        // Perform any updates on the default routing instance, e.g. add/modify/delete BGP peers
+                        await UpdateRoutingInstanceAsync();
+                    }
                 }
                 else
                 {
-                    // Create a new routing instance for the attachment
-                    await CreateRoutingInstanceAsync();
+                    if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
+                    {
+                        // Associate a pre-existing routing instance with the attachment
+                        await AssociateExistingRoutingInstanceAsync();
+                        if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                        {
+                            // Perform any updates on the existing routing instance, e.g. add/modify/delete BGP peers
+                            await UpdateRoutingInstanceAsync();
+                        }
+                    }
+                    else
+                    {
+                        // Create a new routing instance for the attachment
+                        await CreateRoutingInstanceAsync();
+                    }
                 }
             }
 
@@ -532,8 +545,17 @@ namespace Mind.Builders
                                            select routingInstances)
                                            .SingleOrDefault();
 
-            _attachment.RoutingInstance = existingRoutingInstance ?? throw new BuilderBadArgumentsException("Could not find existing routing " +
+            if (existingRoutingInstance == null)
+            {
+                throw new BuilderBadArgumentsException("Could not find existing routing " +
                 $"instance '{routingInstanceName}' belonging to tenant '{_attachment.Tenant.Name}'.");
+            }
+
+            // Add the attachment to the attachments collection of the existing routing instance. This is needed for validation checks
+            // such as validation of the reachability of BGP peeers 
+            existingRoutingInstance.Attachments.Add(_attachment);
+
+            _attachment.RoutingInstance = existingRoutingInstance;
             _attachment.RoutingInstanceID = existingRoutingInstance.RoutingInstanceID;
         }
 
@@ -543,12 +565,21 @@ namespace Mind.Builders
                                     x =>
                                            x.DeviceID == _attachment.Device.DeviceID &&
                                            x.RoutingInstanceType.IsDefault,
+                                           query: q => q.Include(x => x.Attachments),
                                            AsTrackable: true)
                                           select routingInstances)
                                            .SingleOrDefault();
 
-            _attachment.RoutingInstance = defaultRoutingInstance ?? throw new BuilderUnableToCompleteException("Could not find the default routing " +
+            if (defaultRoutingInstance == null) {
+                throw new BuilderUnableToCompleteException("Could not find the default routing " +
                 $"instance for device '{_attachment.Device.Name}'. Please report this issue to your system administrator.");
+            }
+
+            // Add the attachment to the attachments collection of the default routing instance. This is needed for validation checks
+            // such as validation of the reachability of BGP peeers 
+            defaultRoutingInstance.Attachments.Add(this._attachment);
+
+            _attachment.RoutingInstance = defaultRoutingInstance;
         }
 
         protected internal virtual async Task SetMtuAsync()

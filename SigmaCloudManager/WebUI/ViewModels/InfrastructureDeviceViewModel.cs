@@ -69,11 +69,27 @@ namespace Mind.WebUI.Models
         public string PlaneName { get; private set; }
 
         /// <summary>
+        /// The region of the device
+        /// </summary>
+        /// <value>String value denoting the region of the device</value>
+        /// <example>EMEA</example>
+        [Display(Name = "Region Name")]
+        public string RegionName { get; private set; }
+
+        /// <summary>
+        /// The sub-region of the device
+        /// </summary>
+        /// <value>String value denoting the sub-region of the device</value>
+        /// <example>UK</example>
+        [Display(Name = "Sub-Region Name")]
+        public string SubRegionName { get; private set; }
+
+        /// <summary>
         /// The location of the device
         /// </summary>
         /// <value>String value denoting the location of the device</value>
         /// <example>UK2</example>
-        [Display(Name="locationName")]
+        [Display(Name="Location Name")]
         public string LocationName { get; private set; }
 
         /// <summary>

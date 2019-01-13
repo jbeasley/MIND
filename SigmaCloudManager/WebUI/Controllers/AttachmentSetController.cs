@@ -1,26 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper;
-using SCM.Models.RequestModels;
-using SCM.Models.ViewModels;
 using SCM.Models;
-using Microsoft.AspNetCore.Mvc.Filters;
 using SCM.Controllers;
 using Mind.Services;
 using SCM.Data;
 using Mind.Models;
 using Mind.Builders;
 using Mind.WebUI.Attributes;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
 using Mind.Models.RequestModels;
-using Mind.WebUI.ViewComponents;
 
 namespace Mind.WebUI.Controllers
 {
@@ -144,7 +137,6 @@ namespace Mind.WebUI.Controllers
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             await PopulateRegionsDropDownList();
-            await PopulateAttachmentRedundancyOptionsDropDownList();
             await PopulateInboundIpNetworksDropDownList(tenantId.Value);
             await PopulateRemoteTenantsDropDownList();
 
@@ -189,10 +181,10 @@ namespace Mind.WebUI.Controllers
 
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+
             await PopulateRegionsDropDownList(requestModel.Region.ToString());
             await PopulateSubRegionsDropDownList(requestModel.Region?.ToString(), requestModel.SubRegion?.ToString());
             await PopulateRoutingInstancesDropDownList(tenantId.Value, requestModel.Region?.ToString(), requestModel.SubRegion);
-            await PopulateAttachmentRedundancyOptionsDropDownList(requestModel.AttachmentRedundancy);
             await PopulateInboundIpNetworksDropDownList(tenantId.Value);
             await PopulateRemoteTenantsDropDownList();
             var bgpPeers = await GetBgpPeersList(requestModel.AttachmentSetRoutingInstances
@@ -211,11 +203,12 @@ namespace Mind.WebUI.Controllers
         public async Task<ActionResult> Edit(int? attachmentSetId)
         {
             var attachmentSet = await _attachmentSetService.GetByIDAsync(attachmentSetId.Value, deep: true, asTrackable: false);
+
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachmentSet.TenantID);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+
             await PopulateRoutingInstancesDropDownList(tenant.TenantID, attachmentSet.Region.Name, attachmentSet.SubRegion?.Name,
                 attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
-            await PopulateAttachmentRedundancyOptionsDropDownList(attachmentSet.AttachmentRedundancy.Name);
             await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, attachmentSet.SubRegion?.Name);
             await PopulateInboundIpNetworksDropDownList(attachmentSet.TenantID);
             await PopulateRemoteTenantsDropDownList();
@@ -277,9 +270,9 @@ namespace Mind.WebUI.Controllers
 
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(attachmentSet.TenantID);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
+
             await PopulateRoutingInstancesDropDownList(tenant.TenantID, attachmentSet.Region.Name, update.SubRegion,
                     attachmentSet.AttachmentSetRoutingInstances.Select(x => x.RoutingInstance.Name).ToList());
-            await PopulateAttachmentRedundancyOptionsDropDownList(update.AttachmentRedundancy.ToString());
             await PopulateSubRegionsDropDownList(attachmentSet.Region.Name, update.SubRegion);
             await PopulateInboundIpNetworksDropDownList(attachmentSet.TenantID);
             var bgpPeers = await GetBgpPeersList(update.AttachmentSetRoutingInstances?
@@ -376,13 +369,6 @@ namespace Mind.WebUI.Controllers
             var items = query.Select(x => new { x.Name, DisplayName = $"{x.Name}, {x.Device.Location.SiteName}, {x.Device.Plane.Name}" });
 
             ViewBag.RoutingInstance = new SelectList(items, "Name", "DisplayName", selectedRoutingInstance);
-        }
-
-        private async Task PopulateAttachmentRedundancyOptionsDropDownList(object selectedAttachmentRedundancyOption = null)
-        {
-            var attachmentRedundancyOptions = await _unitOfWork.AttachmentRedundancyRepository.GetAsync();
-            ViewBag.AttachmentRedundancy = new SelectList(_mapper.Map<List<AttachmentRedundancyViewModel>>(attachmentRedundancyOptions),
-                "Name", "Name", selectedAttachmentRedundancyOption);
         }
 
         private async Task PopulateInboundIpNetworksDropDownList(int tenantId, object selectedIpNetwork = null)

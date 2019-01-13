@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Xml.Linq;
 using SCM.Models;
+using Mind.Models;
 
 namespace SCM.Data
 {
@@ -119,7 +120,10 @@ namespace SCM.Data
                     PortRoleType = PortRoleTypeEnum.ProviderInfrastructure },
                 new PortRole { Name = "Tenant-Infrastructure",
                     Description = "Port Role for Tenant Domain Infrastructure Attachment",
-                    PortRoleType = PortRoleTypeEnum.TenantInfrastructure}
+                    PortRoleType = PortRoleTypeEnum.TenantInfrastructure},
+                new PortRole { Name = "Provider-Facing",
+                    Description = "Port Role for Tenant Domain Attachment to the Provider Domain",
+                    PortRoleType = PortRoleTypeEnum.ProviderFacing}
             };
 
             foreach (PortRole p in portRoles)
@@ -152,7 +156,11 @@ namespace SCM.Data
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "SHC").DeviceRoleID,
                                          PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID },
                 new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "CE").DeviceRoleID,
-                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID }
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID },
+                new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "SHC").DeviceRoleID,
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderFacing).PortRoleID },
+                new DeviceRolePortRole { DeviceRoleID = deviceRoles.Single(x => x.Name == "CE").DeviceRoleID,
+                                         PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderFacing).PortRoleID }
             };
 
             foreach (DeviceRolePortRole d in deviceRolePortRoles)
@@ -175,7 +183,7 @@ namespace SCM.Data
                     PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderInfrastructure).PortRoleID },
                 new PortPool { Name = "Provider",
                     Description = "Port Pool for provider-facing port allocations",
-                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID },
+                    PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.ProviderFacing).PortRoleID },
                 new PortPool { Name = "Tenant-LAN",
                     Description = "Port Pool for tenant LAN port allocations",
                     PortRoleID = portRoles.Single(x => x.PortRoleType == PortRoleTypeEnum.TenantInfrastructure).PortRoleID },

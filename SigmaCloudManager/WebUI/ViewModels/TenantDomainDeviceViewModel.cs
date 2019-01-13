@@ -62,6 +62,13 @@ namespace Mind.WebUI.Models
         public int? TenantId { get; private set; }
 
         /// <summary>
+        /// The ID of the device role to which the device belongs
+        /// </summary>
+        /// <value>Integer denoting the ID of the device role</value>
+        /// <example>90991</example>
+        public int? DeviceRoleId { get; private set; }
+
+        /// <summary>
         /// The tenant name to which the device is assigned
         /// </summary>
         /// <value>String value denoting tenant name to which the device is assigned</value>

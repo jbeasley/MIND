@@ -29,6 +29,7 @@ namespace Mind.Builders
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
                                 .WithIpv4(request.Ipv4Addresses)
                                 .UseDefaultRoutingInstance(true)
+                                .WithRoutingInstance(request.RoutingInstance)
                                 .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
                                 .WithDescription(request.Description)
                                 .WithNotes(request.Notes)

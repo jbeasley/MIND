@@ -30,6 +30,7 @@ namespace Mind.Builders
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
                                 .WithIpv4(request.Ipv4Addresses)
                                 .UseDefaultRoutingInstance(true)
+                                .WithRoutingInstance(request.RoutingInstance)
                                 .WithContractBandwidth(request.ContractBandwidthMbps)
                                 .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
                                 .WithDescription(request.Description)
@@ -43,9 +44,11 @@ namespace Mind.Builders
             return await builder.ForAttachment(attachment.AttachmentID)
                                 .WithJumboMtu(update.UseJumboMtu)
                                 .WithContractBandwidth(update.ContractBandwidthMbps)
+                                .WithRoutingInstance(update.RoutingInstance)
                                 .WithTrustReceivedCosAndDscp(update.TrustReceivedCosAndDscp)
                                 .WithDescription(update.Description)
                                 .WithNotes(update.Notes)
+                                .WithIpv4(update.Ipv4Addresses)
                                 .BuildAsync();
         }
 

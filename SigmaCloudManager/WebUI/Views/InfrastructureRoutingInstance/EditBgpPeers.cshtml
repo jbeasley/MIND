@@ -1,0 +1,59 @@
+@using Mind.WebUI.Models;
+@model RoutingInstanceBgpPeersRequestViewModel
+@{
+    ViewData["Title"] = "BGP Peers";
+}
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/InfrastructureServices"><i class="fa" aria-hidden="true"></i>Infrastructure Services</a></li>
+        <li><a href="/InfrastructureDevice/GetAll"><i class="fa" aria-hidden="true"></i>Infrastructure Devices</a></li>
+        <li><a href="/InfrastructureRoutingInstance/GetAllByDeviceID?deviceId=@ViewBag.RoutingInstance.DeviceId"><i class="fa" aria-hidden="true"></i>Routing Instances - [@ViewBag.RoutingInstance.InfrastructureDeviceName]</a></li>
+        <li class="active"><a href="#"><i class="fa active" aria-hidden="true"></i>BGP Peers</a></li>
+    </ul>
+</div>
+<h2>Create and Edit BGP Peers for Routing Instance '@ViewBag.RoutingInstance.Name'</h2>
+<form id="editForm" asp-action="EditBgpPeers">
+    <div class="form-horizontal">
+        <hr />
+        @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+        <input type="hidden" asp-for="RoutingInstanceId" />
+        <input type="hidden" asp-for="RowVersion" />
+
+        <div id="bgpPeersComponent">
+            <!-- View component for creating/updating BGP peers -->
+            @await Component.InvokeAsync("BgpPeers", new BgpPeersComponentViewModel
+            {
+                BgpPeers = Model.BgpPeers,
+                RoutingInstanceId = Model.RoutingInstanceId
+            })
+        </div>
+    </div>
+
+    <div class="form-group row">
+        <div class="col-md-offset-2 col-md-10">
+            <button type="submit" id="EditBgpPeers" class="btn btn-success" asp-action="EditBgpPeers" is-save-button></button>
+        </div>
+    </div>
+</form>
+
+<!--Component for a form allowing the user to enter data to create or edit a BGP peer
+    The component HTML must be placed outside of other page elements to avoid nesting because browser will
+    remove the <form> element from the component otherwise -->
+@await Component.InvokeAsync("BgpPeerForm")
+
+<div>
+    <a mind-nav-link-back-btn="true" asp-action="GetAllByDeviceID"
+       asp-route-deviceId="@Model.DeviceId">Back to Routing Instances</a>
+</div>
+
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{await Html.RenderPartialAsync("_InfrastructureRoutingInstanceEditBgpPeersScriptsPartial");}
+
+}

@@ -12,7 +12,9 @@
 </div>
 <h2>Edit VPN '@Model.Name'</h2>
 <form id="form" asp-action="Edit">
+
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
     <input type="hidden" asp-for="VpnId" />
     <input type="hidden" asp-for="TenantId" />
     <input type="hidden" asp-for="TopologyType" />
@@ -20,7 +22,9 @@
     <input type="hidden" asp-for="Name" />
     <input type="hidden" asp-for="Stage" />
     <input type="hidden" asp-for="SyncToNetwork" />
+
     <div id="editVpnWizard">
+
         <h3>Name and Description</h3>
         <section id="name-and-description">
             <br />
@@ -51,6 +55,7 @@
             </div>
         </section>
         <h3>Tenancy Type</h3>
+
         <section id="tenancyType">
             <br />
             <div mind-alert="info" message="
@@ -68,6 +73,7 @@
                 </div>
             </div>
         </section>
+
         <h3>Region</h3>
         <section id="region">
             <br />
@@ -85,38 +91,29 @@
                 </div>
             </div>
         </section>
+
         <!-- View component for displaying a grid of attachment sets which belong to the vpn -->
         @await Component.InvokeAsync("VpnAttachmentSets", new
         {
             vpnAttachmentSetRequests = Model.VpnAttachmentSets
         })
+
     </div>
 </form>
-<div class="modal fade" id="duplicateItemModal" tabindex="-1" role="dialog" aria-labelledby="duplicateItemModalLabel" aria-hidden="true">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="duplicateItemModalLabel">Attachment Set Already Exists</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-                The selected attachment set is already bound to the VPN
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
+
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByTenantID" asp-route-tenantID="@ViewBag.Tenant.TenantId">Back to VPNs</a>
 </div>
+
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 <!-- Stage or sync to network partial view -->
 @{await Html.RenderPartialAsync("_NetworkStageOrSyncModalPartial");}
+
+<!-- Duplicate item dialog partial view -->
+@{await Html.RenderPartialAsync("_DuplicateItemDialogPartial");}
+
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 

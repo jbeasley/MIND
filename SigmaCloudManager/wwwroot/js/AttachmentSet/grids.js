@@ -1,97 +1,91 @@
 ﻿
+/* Handle user interactions with the create/edit attachment set wizard view */
+
 (($) => {
 
-    const $routingInstance = $('#RoutingInstance'),
-           routingInstance = $routingInstance[0];
-
     // Handle addition of routing instances
+
     $('#addRoutingInstance').on('click', function (e) {
 
-        var $grid = $('#routing-instance-grid');
+        const $grid             = $('#routing-instance-grid');
+        const $routingInstance  = $('#RoutingInstance');
 
-        if (routingInstance.value !== null && routingInstance.value !== "") {
+        if ($routingInstance.val() !== "") {
+        
+            const routingInstanceName = $routingInstance.find(":selected").data('name');
 
-            var $selected = $routingInstance.find(":selected");
-            var routingInstanceName = $selected.data('name');
-
-            var exists = $grid
-                .find('td > input[type="text"]')
-                .filter(function () {
-                    return this.value === routingInstanceName;
-                })
-                .length > 0;
+            const exists = $grid
+                    .find('td > input[type="text"]')
+                    .filter(function () {
+                        return this.value === routingInstanceName;
+                    })
+                    .length > 0;
 
             if (exists) {
 
-                // The routing instance already exists in the table
-                $("#duplicateItemModal").modal();
+                Mind.Utilities.showDuplicateItemDialog('Duplicate Routing Instance','The routing instance already exists');
             }
+
             else {
 
-                var arr = [];
-                arr.push({
-                    "RoutingInstanceName": routingInstanceName
-                });
+                let arr = [];
 
-                // Refresh the routing instances grid, then the BGP IP network inbound and outbound policy
-                // grids must be refreshed in order to refresh the BGP peer dropdown list options
+                arr.push({ "RoutingInstanceName": routingInstanceName });
+
+                /* Refresh the routing instances grid, then the BGP IP network inbound and outbound policy
+                grids must be refreshed in order to refresh the BGP peer dropdown list options */
+
                 refreshRoutingInstanceGrid(arr)
-                    .then
-                    (
-                        () => { refreshBgpIpNetworkInboundPolicyGrid(); refreshBgpIpNetworkOutboundPolicyGrid(); }
-                    );
+                    .then(() => { refreshBgpIpNetworkInboundPolicyGrid(); refreshBgpIpNetworkOutboundPolicyGrid() });
             }
         }
     });
 
     //Bind to click event of trash buttons in the routing instance grid rows
+
     $('#routing-instance-grid').on('click', '.mind-grid-delete-row', function (e) {
 
-        var deleteRowId = $(this).data('row-id');
-        var $row = $('#routing-instance-grid-row_' + deleteRowId);
+        const deleteRowId = $(this).data('row-id');
+        const $row = $('#routing-instance-grid-row_' + deleteRowId);
+       
         $row.remove();
 
-        // Refresh the routing instances grid, then the BGP IP network inbound and outbound policy
-        // grids must be refreshed in order to refresh the BGP peer dropdown list options
-        refreshRoutingInstanceGrid()
-            .then(function () {
-                RefreshBgpIpNetworkInboundPolicyGrid();
-                RefreshBgpIpNetworkOutboundPolicyGrid();
-            });
+        /* Refresh the routing instances grid, then the BGP IP network inbound and outbound policy
+        grids must be refreshed in order to refresh the BGP peer dropdown list options */
+
+        refreshRoutingInstanceGrid().then(() => { RefreshBgpIpNetworkInboundPolicyGrid(); RefreshBgpIpNetworkOutboundPolicyGrid(); });
     });
 
     // Handle add/delete from BGP IP Network Inbound Policy
+
     $('#addInboundIpNetwork').on('click', function (e) {
 
-        var $grid = $('#bgp-ip-network-inbound-policy-grid');
-        var $tenantId = $('#TenantId'),
-            tenantId = $tenantId[0],
-            $inboundIpNetwork = $('#InboundIpNetwork'),
-            inboundIpNetwork = $inboundIpNetwork[0];
+        const $grid                 = $('#bgp-ip-network-inbound-policy-grid');
+        const $inboundIpNetwork     = $('#InboundIpNetwork');
 
-        if (inboundIpNetwork.value !== null && inboundIpNetwork.value !== "") {
+        if ($inboundIpNetwork.val() !== "") {
+        
+            const cidrName = $inboundIpNetwork.find(":selected").data('cidr-name');
 
-            var $selected = $inboundIpNetwork.find(":selected");
-            var cidrName = $selected.data('cidr-name');
-
-            var exists = $grid
-                .find('td > input[type="text"]')
-                .filter(function () {
-                    return this.value === cidrName;
-                })
-                .length > 0;
+            const exists = $grid
+                    .find('td > input[type="text"]')
+                    .filter(function () {
+                        return this.value === cidrName;
+                    })
+                    .length > 0;
 
             if (exists) {
 
-                // The IP network already exists in the table
-                $("#duplicateItemModal").modal();
+                Mind.Utilities.showDuplicateItemDialog('Duplicate IP Network','The IP network already exists');
             }
+
             else {
 
-                var arr = [];
+                let arr = [];
+               
                 arr.push({
-                    "TenantId": tenantId.value,
-                    "TenantIpNetworkCidrName": cidrName
+                    "TenantId"                      : $('#TenantId').val(),
+                    "TenantIpNetworkCidrName"       : cidrName
                 });
 
                 refreshBgpIpNetworkInboundPolicyGrid(arr);
@@ -100,39 +94,41 @@
     });
 
     // Handle add/delete from BGP IP Network Outbound Policy
+
     $('#addOutboundIpNetwork').on('click', function (e) {
 
-        var $grid = $('#bgp-ip-network-outbound-policy-grid');
-        var $remoteTenantId = $('#RemoteTenantId'),
-            remoteTenantId = $remoteTenantId[0],
-            $outboundIpNetwork = $('#OutboundIpNetwork'),
-            outboundIpNetwork = $outboundIpNetwork[0];
+        const $grid                 = $('#bgp-ip-network-outbound-policy-grid');
+        const $outboundIpNetwork    = $('#OutboundIpNetwork');
 
-        if (outboundIpNetwork.value !== null && outboundIpNetwork.value !== "") {
+        if ($outboundIpNetwork.val() !== "") {
 
-            var $selected = $outboundIpNetwork.find(":selected");
-            var cidrName = $selected.data('cidr-name');
-            var tenantName = $selected.data('tenant-name');
+            const $selected         = $outboundIpNetwork.find(":selected");
+            const cidrName          = $selected.data('cidr-name');
+            const tenantName        = $selected.data('tenant-name');
 
-            var exists = $grid
-                .find('td > input[type="text"]')
-                .filter(function () {
-                    return this.value === cidrName;
-                })
-                .length > 0;
+            const exists = $grid
+                    .find('td > input[type="text"]')
+                    .filter(function () {
+                        return this.value === cidrName;
+                    })
+                    .length > 0;
 
             if (exists) {
 
                 // The IP network already exists in the table
-                $("#duplicateItemModal").modal();
+
+                Mind.Utilities.showDuplicateItemDialog('Duplicate IP Network','The IP network already exists');
             }
+
             else {
 
-                var arr = [];
+                let arr = [];
+                
                 arr.push({
-                    "TenantId": remoteTenantId.value,
-                    "TenantName": tenantName,
-                    "TenantIpNetworkCidrName": cidrName
+
+                    "TenantId"                  : $('#RemoteTenantId').val(),
+                    "TenantName"                : tenantName,
+                    "TenantIpNetworkCidrName"   : cidrName
                 });
 
                 refreshBgpIpNetworkOutboundPolicyGrid(arr);
@@ -141,129 +137,139 @@
     });
 
     //Bind to click event of trash buttons in the ip network inbound policy grid rows
-    $('#bgp-ip-network-inbound-policy-grid').on('click', '.mind-grid-delete-row', function (e) {
 
-        var deleteRowId = $(this).data('row-id');
-        var $row = $('#bgp-ip-network-inbound-policy-grid-row_' + deleteRowId);
+    $('#bgp-ip-network-inbound-policy-grid').on('click', '.mind-grid-delete-row', function () {
+
+        const deleteRowId   = $(this).data('row-id');
+        const $row          = $('#bgp-ip-network-inbound-policy-grid-row_' + deleteRowId);
+
         $row.remove();
         RefreshBgpIpNetworkInboundPolicyGrid();
     });
 
     //Bind to click event of trash buttons in the ip network outbound policy grid rows
-    $('#bgp-ip-network-outbound-policy-grid').on('click', '.mind-grid-delete-row', function (e) {
 
-        var deleteRowId = $(this).data('row-id');
-        var $row = $('#bgp-ip-network-outbound-policy-grid-row_' + deleteRowId);
+    $('#bgp-ip-network-outbound-policy-grid').on('click', '.mind-grid-delete-row', function () {
+
+        const deleteRowId   = $(this).data('row-id');
+        const $row          = $('#bgp-ip-network-outbound-policy-grid-row_' + deleteRowId);
+
         $row.remove();
         RefreshBgpIpNetworkOutboundPolicyGrid();
     });
 
-    // Bind to checkbox change event for all grids to set boolen value - this is needed to send correct boolean value
-    // to the controller on form submit
+    /* Bind to checkbox change event for all grids to set boolen value - this is needed to send correct boolean value
+    to the controller on form submit */
+
     $('.mind-grid').on('change', '.mind-grid-checkbox', function (e) {
 
         this.value = this.checked;
     });
 
-    // Populate a list of tenant IP networks which can be added to the BGP IP network outbound policy when a 
-    // tenant is selected
-    const $remoteTenantId = $('#RemoteTenantId'),
-          remoteTenantId = $remoteTenantId[0],
-          $outboundIpNetwork = $('#OutboundIpNetwork'),
-          outboundIpNetwork = $outboundIpNetwork[0];
+    /* Populate a list of tenant IP networks which can be added to the BGP IP network outbound policy when a 
+    tenant is selected */
 
-    outboundIpNetwork.disabled = true;
+    const $remoteTenantId       = $('#RemoteTenantId'),
+          $outboundIpNetwork    = $('#OutboundIpNetwork');
 
-    $remoteTenantId.on('change', function (e) {
+    $outboundIpNetwork[0].disabled  = true;
 
-        if (remoteTenantId.value === null || remoteTenantId.value === "") {
+    $remoteTenantId.on('change', () => {
 
-            outboundIpNetwork.selectedIndex = 0;
-            outboundIpNetwork.disabled = true;
+        if ($remoteTenantId.val() === "") {
+
+            $outboundIpNetwork[0].selectedIndex     = 0;
+            outboundIpNetwork[0].disabled          = true;
         }
+
         else {
 
-            Mind.Utilities.populateElement($outboundIpNetwork, "TenantIpNetworks", { tenantId: remoteTenantId.value });
+            Mind.Utilities.populateElement($outboundIpNetwork, "TenantIpNetworks", 
+            { 
+                tenantId: $remoteTenantId.val()
+            });
         }
     });
 
     // Helpers
 
     // Refresh the routing instance grid data
+
     function refreshRoutingInstanceGrid(arr) {
+    
+        const routingInstanceData   = getRoutingInstanceData(arr);
+        const data                  = JSON.stringify(routingInstanceData);
+        const deferred              = $.Deferred();
 
-        var $grid = $('#routing-instance-grid');
-        var routingInstanceData = getRoutingInstanceData(arr);
+        Mind.Utilities.showSpinner('Getting data from the server....');
 
-        var $tbody = $grid.find('tbody');
-        var data = JSON.stringify(routingInstanceData);
-        var deferred = $.Deferred();
-
-        $.ajax({
-            url: "GetAttachmentSetRoutingInstancesGridData",
+        $.post({
             contentType: 'application/json; charset=utf-8',
-            type: 'POST',
-            data: data,
-            success: function (data) {
+            url: "GetAttachmentSetRoutingInstancesGridData",
+            data: data
+        })
+        .done((data) => {
 
-                $tbody.html(data);
-                refreshValidation();
+            $('#routing-instance-grid').find('tbody').html(data);
+            refreshValidation();
 
-                deferred.resolve();
-            }
-        });
-
+            deferred.resolve();
+        })
+        .always( () => Mind.Utilities.hideSpinner() );
+         
         return deferred.promise();
     }
 
     // Refresh the BGP IP network inbound policy grid
+
     function refreshBgpIpNetworkInboundPolicyGrid(arr) {
+    
+        const bgpIpNetworkInboundPolicyData     = getBgpIpNetworkInboundPolicyData(arr);
+        const data                              = JSON.stringify(bgpIpNetworkInboundPolicyData);
+        const deferred                          = $.Deferred();
 
-        var $grid = $('#bgp-ip-network-inbound-policy-grid');
-        var bgpIpNetworkInboundPolicyData = getBgpIpNetworkInboundPolicyData(arr);
-        var data = JSON.stringify(bgpIpNetworkInboundPolicyData);
-        var deferred = $.Deferred();
+        Mind.Utilities.showSpinner('Getting data from the server....');
 
-        $.ajax({
+        $.post({
             url: "GetBgpIpNetworkInboundPolicyGridData",
             contentType: 'application/json; charset=utf-8',
-            type: 'POST',
-            data: data,
-            success: function (data) {
-
-                var $tbody = $grid.find('tbody');
-                $tbody.html(data);
+            data: data
+         })
+         .done( (data) => {
+            
+                $('#bgp-ip-network-inbound-policy-grid').find('tbody').html(data);
                 refreshValidation();
 
                 deferred.resolve();
-            }
-        });
+         })
+         .always( () => Mind.Utilities.hideSpinner() );
 
         return deferred.promise();
     }
 
     // Refresh the BGP IP network outbound policy grid
+
     function refreshBgpIpNetworkOutboundPolicyGrid(arr) {
+    
+        const bgpIpNetworkOutboundPolicyData    = getBgpIpNetworkOutboundPolicyData(arr);
+        const data                              = JSON.stringify(bgpIpNetworkOutboundPolicyData);
+        const deferred                          = $.Deferred();
 
-        var $grid = $('#bgp-ip-network-outbound-policy-grid');
-        var bgpIpNetworkOutboundPolicyData = getBgpIpNetworkOutboundPolicyData(arr);
-        var data = JSON.stringify(bgpIpNetworkOutboundPolicyData);
-        var deferred = $.Deferred();
+        Mind.Utilities.showSpinner('Getting data from the server....');
 
-        $.ajax({
+        $.post({
             url: "GetBgpIpNetworkOutboundPolicyGridData",
             contentType: 'application/json; charset=utf-8',
-            type: 'POST',
-            data: data,
-            success: function (data) {
+            data: data
+        })
+         .done( (data) => {
 
-                var $tbody = $grid.find('tbody');
-                $tbody.html(data);
-                RefreshValidation();
+                $('#bgp-ip-network-outbound-policy-grid').find('tbody').html(data);
+                refreshValidation();
 
                 deferred.resolve();
-            }
-        });
+        })
+         .always( () => Mind.Utilities.hideSpinner() );
 
         return deferred.promise();
     }
@@ -271,19 +277,17 @@
     function getRoutingInstanceData(arr) {
 
         if (typeof (arr) === "undefined") arr = [];
-        var $grid = $('#routing-instance-grid');
-        var $rows = $grid.find('tbody tr');
+        var $grid                             = $('#routing-instance-grid');
+        var $rows                             = $grid.find('tbody tr');
 
         $rows.each(function () {
 
-            var $row = $(this);
-            var routingInstanceName = $row.data('name');
-            var localIpRoutingPreference = $row.data('local-ip-routing-preference');
-            var advertisedIpRoutingPreference = $row.data('advertised-ip-routing-preference');
+            const $row                            = $(this);
+
             arr.push({
-                "RoutingInstanceName": routingInstanceName,
-                "LocalIpRoutingPreference": localIpRoutingPreference,
-                "AdvertisedIpRoutingPreference": advertisedIpRoutingPreference
+                "RoutingInstanceName"               : $row.data('name'),
+                "LocalIpRoutingPreference"          : $row.data('local-ip-routing-preference'),
+                "AdvertisedIpRoutingPreference"     : $row.data('advertised-ip-routing-preference')
             });
         });
 
@@ -293,71 +297,65 @@
     function getBgpIpNetworkInboundPolicyData(arr) {
 
         if (typeof (arr) === "undefined") arr = [];
-        var $ipNetworkInboundPolicyGridRows = $('#bgp-ip-network-inbound-policy-grid').find('tbody tr');
+        var $ipNetworkInboundPolicyGridRows   = $('#bgp-ip-network-inbound-policy-grid').find('tbody tr');
 
         $ipNetworkInboundPolicyGridRows.each(function () {
 
-            var $row = $(this);
-            var tenantId = $row.data('tenant-id');
-            var cidrName = $row.data('cidr-name');
-            var localIpRoutingPreference = $row.data('local-ip-routing-preference');
-            var addToAllBgpPeersInAttachmentSet = $row.data('add-to-all-bgp-peers-in-attachment-set');
-            var ipv4PeerAddress = $row.data('ipv4-peer-address');
-
+            const $row                              = $(this);
+            
             arr.push({
-                "TenantId": tenantId,
-                "TenantIpNetworkCidrName": cidrName,
-                "AddToAllBgpPeersInAttachmentSet": addToAllBgpPeersInAttachmentSet,
-                "Ipv4PeerAddress": ipv4PeerAddress,
-                "LocalIpRoutingPreference": localIpRoutingPreference
+                "TenantId"                          : $row.data('tenant-id'),
+                "TenantIpNetworkCidrName"           : $row.data('cidr-name'),
+                "AddToAllBgpPeersInAttachmentSet"   : $row.data('add-to-all-bgp-peers-in-attachment-set'),
+                "Ipv4PeerAddress"                   : $row.data('ipv4-peer-address'),
+                "LocalIpRoutingPreference"          : $row.data('local-ip-routing-preference')
             });
         });
 
-        var routingInstanceData = getRoutingInstanceData();
-        var routingInstanceNames = routingInstanceData.map(function (item) { return item.RoutingInstanceName });
+        const routingInstanceData     = getRoutingInstanceData();
+        const routingInstanceNames    = routingInstanceData.map((item) => { return item.RoutingInstanceName });
 
         return {
-            "RoutingInstanceNames": routingInstanceNames,
-            "VpnTenantIpNetworkInRequests": arr
+
+            "RoutingInstanceNames"          : routingInstanceNames,
+            "VpnTenantIpNetworkInRequests"  : arr
         };
     }
 
     function getBgpIpNetworkOutboundPolicyData(arr) {
 
-        if (typeof (arr) === "undefined") arr = [];
-        var $ipNetworkOutboundPolicyGridRows = $('#bgp-ip-network-outbound-policy-grid').find('tbody tr');
+        if (typeof (arr) === "undefined") arr   = [];
+
+        const $ipNetworkOutboundPolicyGridRows  = $('#bgp-ip-network-outbound-policy-grid').find('tbody tr');
 
         $ipNetworkOutboundPolicyGridRows.each(function () {
 
-            var $row = $(this);
-            var tenantId = $row.data('tenant-id');
-            var tenantName = $row.data('tenant-name');
-            var cidrName = $row.data('cidr-name');
-            var advertisedIpRoutingPreference = $row.data('advertised-ip-routing-preference');
-            var addToAllBgpPeersInAttachmentSet = $row.data('add-to-all-bgp-peers-in-attachment-set');
-            var ipv4PeerAddress = $row.data('ipv4-peer-address');
-
+            const $row                              = $(this);
+            
             arr.push({
-                "TenantId": tenantId,
-                "TenantName": tenantName,
-                "TenantIpNetworkCidrName": cidrName,
-                "AddToAllBgpPeersInAttachmentSet": addToAllBgpPeersInAttachmentSet,
-                "Ipv4PeerAddress": ipv4PeerAddress,
-                "AdvertisdIpRoutingPreference": advertisedIpRoutingPreference
+                "TenantId"                          : $row.data('tenant-id'),
+                "TenantName"                        : $row.data('tenant-name'),
+                "TenantIpNetworkCidrName"           : $row.data('cidr-name'),
+                "AddToAllBgpPeersInAttachmentSet"   : $row.data('add-to-all-bgp-peers-in-attachment-set'),
+                "Ipv4PeerAddress"                   : $row.data('ipv4-peer-address'),
+                "AdvertisdIpRoutingPreference"      : $row.data('advertised-ip-routing-preference')
             });
         });
 
         var routingInstanceData = getRoutingInstanceData();
+
         // We only need to send the routing instance names to the server
-        var routingInstanceNames = routingInstanceData.map(function (item) { return item.RoutingInstanceName });
+
+        var routingInstanceNames = routingInstanceData.map((item) => { return item.RoutingInstanceName });
 
         return {
-            "RoutingInstanceNames": routingInstanceNames,
-            "VpnTenantIpNetworkOutRequests": arr
+            "RoutingInstanceNames"                  : routingInstanceNames,
+            "VpnTenantIpNetworkOutRequests"         : arr
         };
     }
 
     // Re-apply validation to the form so that validation rules for the new inputs are created
+
     function refreshValidation() {
 
         var $form = $('#form');

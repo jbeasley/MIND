@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using AutoMapper;
 using Microsoft.EntityFrameworkCore;
 using SCM.Services;
+using Mind.Models;
 
 namespace Mind.Services
 {

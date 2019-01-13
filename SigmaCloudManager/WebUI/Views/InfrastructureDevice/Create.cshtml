@@ -6,15 +6,18 @@
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-        <li><a href="/InfrastructureHome"><i class="fa" aria-hidden="true"></i>Infrastructure</a></li>
-        <li><a href="/InfrastructureDevice/GetAll"><i class="fa active" aria-hidden="true"></i>Infrastructure Devices</a></li>
-        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Create</a></li>
+        <li><a href="/InfrastructureServices"><i class="fa" aria-hidden="true"></i>Infrastructure Services</a></li>
+        <li><a href="/InfrastructureDevice/GetAll"><i class="fa" aria-hidden="true"></i>Infrastructure Devices</a></li>
+        <li class="active"><a href="#"><i class="fa active" aria-hidden="true"></i>Create</a></li>
     </ul>
 </div>
 <h2>Create a new Infrastructure Device</h2>
-<form id="createForm" asp-action="Create">
-    @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
-    <div id="createInfrastructureDeviceWizard">
+<form id="form" asp-action="Create">
+
+     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
+    <div id="deviceWizard">
+
         <h3>Name and Description</h3>
         <section id="name-and-description">
             <div mind-alert="info" message="
@@ -35,6 +38,7 @@
                 </div>
             </div>
         </section>
+
         <h3>Location</h3>
         <section id="location">
             <div mind-alert="info" message="Select a location for the new device.">
@@ -49,6 +53,7 @@
                 })
             </div>
         </section>
+
         <h3>Model and Role</h3>
         <section id="role-model">
             <!-- View component for model and role options for the device -->
@@ -59,6 +64,7 @@
                 DeviceModel = Model?.DeviceModel
             })
         </section>
+
         <h3>MTU and Activation Status</h3>
         <section id="mtu-status">
             <!-- View component for MTU and status options for the device -->
@@ -68,6 +74,7 @@
                 DeviceStatus = Model?.DeviceStatus
             })
         </section>
+
         <h3>Plane</h3>
         <section id="plane">
             <!-- View component for the plane option for the device -->
@@ -78,15 +85,7 @@
                 selectedPlane = Model?.PlaneName.ToString()
             })
         </section>
-        <h3>MTU and Activation Status</h3>
-        <section id="mtu-status">
-            <!-- View component for MTU and status options for the device -->
-            @await Component.InvokeAsync("DeviceMtuAndStatus", new DeviceMtuAndStatusComponentViewModel
-            {
-                UseLayer2InterfaceMtu = Model != null ? Model.UseLayer2InterfaceMtu : false,
-                DeviceStatus = Model?.DeviceStatus
-            })
-        </section>
+
         <h3>Ports</h3>
         <section id="ports">
             <div id="portsComponent">
@@ -99,6 +98,7 @@
         </section>
     </div>
 </form>
+
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAll">Back to Devices</a>
 </div>

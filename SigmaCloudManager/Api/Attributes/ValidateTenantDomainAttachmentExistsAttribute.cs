@@ -1,18 +1,9 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Mind.Api.Models;
-using Mind.Services;
 using SCM.Data;
 using Mind.Api.Controllers;
-using SCM.Models;
 
 namespace Mind.Api.Attributes
 {
@@ -41,8 +32,9 @@ namespace Mind.Api.Attributes
                 var attachmentId = context.ActionArguments["attachmentId"] as int?;
                
                 if ((from result in await _unitOfWork.AttachmentRepository.GetAsync(q =>
-                        q.AttachmentID == attachmentId 
-                        && q.AttachmentRole.PortPool.PortRole.PortRoleType == PortRoleTypeEnum.TenantInfrastructure,
+                        q.AttachmentID == attachmentId &&
+                        q.AttachmentRole.PortPool.PortRole.PortRoleType == Mind.Models.PortRoleTypeEnum.TenantInfrastructure ||
+                        q.AttachmentRole.PortPool.PortRole.PortRoleType == Mind.Models.PortRoleTypeEnum.ProviderFacing,
                         AsTrackable: false)
                         select result)
                        .SingleOrDefault() == null)

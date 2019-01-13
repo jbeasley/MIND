@@ -29,6 +29,7 @@ namespace Mind.Builders
                                 .WithAttachmentBandwidth(request.AttachmentBandwidthGbps)
                                 .WithIpv4(request.Ipv4Addresses)
                                 .UseDefaultRoutingInstance(true)
+                                .WithRoutingInstance(request.RoutingInstance)
                                 .WithContractBandwidth(request.ContractBandwidthMbps)
                                 .WithTrustReceivedCosAndDscp(request.TrustReceivedCosAndDscp)
                                 .WithBundleLinks(request.BundleMinLinks, request.BundleMaxLinks)
@@ -47,6 +48,8 @@ namespace Mind.Builders
                                 .WithBundleLinks(update.BundleMinLinks, update.BundleMaxLinks)
                                 .WithDescription(update.Description)
                                 .WithNotes(update.Notes)
+                                .WithIpv4(update.Ipv4Addresses)
+                                .WithRoutingInstance(update.RoutingInstance)
                                 .BuildAsync();
         }
 

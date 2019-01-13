@@ -15,6 +15,7 @@ namespace Mind.Builders
         ITenantIpNetworkBuilder WithIpv4LessThanOrEqualToLength(int? ipv4LessThanOrEqualToLength);
         ITenantIpNetworkBuilder WithAllowExtranet(bool? allowExtranet);
         ITenantIpNetworkBuilder WithIpRoutingBehaviour(string ipRoutingBehaviour);
+        ITenantIpNetworkBuilder WithTenantEnvironment(string environment);
         Task<TenantIpNetwork> BuildAsync();
     }
 }

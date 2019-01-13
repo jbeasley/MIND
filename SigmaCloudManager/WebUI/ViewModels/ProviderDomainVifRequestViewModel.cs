@@ -33,7 +33,6 @@ namespace Mind.WebUI.Models
         /// <value>An integer denoting the ID of the tenant</value>
         /// <example>1001</example>
         [Required]
-        [Display(Name = "tenant ID")]
         public int? TenantId { get; set; }
 
         /// <summary>
@@ -43,6 +42,14 @@ namespace Mind.WebUI.Models
         /// <example>9001</example>
         [Required]   
         public int? AttachmentId { get; set; }
+
+        /// <summary>
+        /// The name of the attachment role related to the attachment for which the new vif will be created.
+        /// </summary>
+        /// <value>String value denoting the name of a attachment role</value>
+        /// <example>PE-CE-UNTAGGED</example>
+        [Required]
+        public string AttachmentRoleName { get; set; }
 
         /// <summary>
         /// The name of an vif role which sets certain constrains on how the vif must be configured

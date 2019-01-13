@@ -91,9 +91,9 @@ namespace Mind.WebUI.Models
         public string Notes { get; set; }
 
         /// <summary>
-        /// Optional parameters for creating a routing instances to be associated with the new attachment.
+        /// Optional parameters for creating a routing instance to be associated with the new attachment.
         /// </summary>
-        /// <value>An object of type RoutingInstanceRequest</value>
+        /// <value>An object of type RoutingInstanceRequestViewModel</value>
         public RoutingInstanceRequestViewModel RoutingInstance { get; set; }
 
     }

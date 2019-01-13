@@ -186,7 +186,7 @@ namespace SCM.Models
                 {
                     if (this.Tenant == null)
                     {
-                        throw new IllegalStateException("A tenant must be defined because the routing instance is defined a a tenant-facing vrf " +
+                        throw new IllegalStateException("A tenant must be defined because the routing instance is defined as a tenant-facing vrf " +
                             "routing instance.");
                     }
                 }
@@ -205,6 +205,20 @@ namespace SCM.Models
                 {
                     throw new IllegalStateException($"The administrator subfield '{this.AdministratorSubField}' and " +
                         $"assigned number subfield '{this.AssignedNumberSubField}' values for the routing instance with name '{this.Name}' are already used.");
+                }
+            }
+            else if (this.RoutingInstanceType.IsDefault)
+            {
+                if (this.AdministratorSubField.HasValue) throw new IllegalStateException("An administrator subfield value must not be defined " +
+                    "for the default routing instance.");
+                if (this.AssignedNumberSubField.HasValue) throw new IllegalStateException("An assigned number subfield value must not be defined " +
+                    "for the default routing instance.");
+                if (this.RouteDistinguisherRange != null) throw new IllegalStateException("A route distinguisher range must not be defined " +
+                    "for the default routing instance.");
+                if (this.Tenant != null)
+                {
+                    throw new IllegalStateException("A tenant must not be defined because the routing instance is defined as a default " +
+                        "routing instance.");
                 }
             }
         }

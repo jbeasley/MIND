@@ -13,41 +13,41 @@
     data-peer-password="@item.PeerPassword" data-is-bfd-enabled="@item.IsBfdEnabled"
     data-is-multihop="@item.IsMultiHop" data-maximum-routes="@item.MaximumRoutes">
     <td hidden>
-        <input type="text" name="RoutingInstance.BgpPeers[@i].BgpPeerId" value="@item.BgpPeerId" readonly />
+        <input type="text" name="BgpPeers[@i].BgpPeerId" value="@item.BgpPeerId" readonly />
     </td>
     <td width="20%">
-        <input type="text" name="RoutingInstance.BgpPeers[@i].Ipv4PeerAddress" value="@item.Ipv4PeerAddress" readonly />
+        <input type="text" name="BgpPeers[@i].Ipv4PeerAddress" value="@item.Ipv4PeerAddress" readonly />
     </td>
     <td width="20%">
-        <input type="text" name="RoutingInstance.BgpPeers[@i].Peer2ByteAutonomousSystem" value="@item.Peer2ByteAutonomousSystem" readonly />
+        <input type="text" name="BgpPeers[@i].Peer2ByteAutonomousSystem" value="@item.Peer2ByteAutonomousSystem" readonly />
     </td>
     <td width="20%">
-        <input type="text" name="RoutingInstance.BgpPeers[@i].PeerPassword" value="@item.PeerPassword" readonly />
+        <input type="text" name="BgpPeers[@i].PeerPassword" value="@item.PeerPassword" readonly />
     </td>
     <td width="10%">
         <div class="custom-control custom-checkbox">
             <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="BgpPeers_IsBfdEnabled_@i"
-                   name="RoutingInstance.BgpPeers[@i].IsBfdEnabled"
+                   name="BgpPeers[@i].IsBfdEnabled"
                    checked="@item.IsBfdEnabled" value="@item.IsBfdEnabled.ToString()" disabled>
             <label class="custom-control-label" for="BgpPeers_IsBfdEnabled_@i"></label>
         </div>
     </td>
     <td hidden>
-        <input type="text" name="RoutingInstance.BgpPeers[@i].IsBfdEnabled" value="@item.IsBfdEnabled.ToString()" />
+        <input type="text" name="BgpPeers[@i].IsBfdEnabled" value="@item.IsBfdEnabled.ToString()" />
     </td>
     <td width="10%">
         <div class="custom-control custom-checkbox">
             <input class="custom-control-input mind-grid-checkbox" type="checkbox" id="BgpPeers_IsMultiHop_@i"
-                   name="RoutingInstance.BgpPeers[@i].IsMultiHop"
+                   name="BgpPeers[@i].IsMultiHop"
                    checked="@item.IsMultiHop" value="@item.IsMultiHop.ToString()" disabled>
             <label class="custom-control-label" for="BgpPeers_IsMultiHop_@i"></label>
         </div>
     </td>
     <td hidden>
-        <input type="text" name="RoutingInstance.BgpPeers[@i].IsMultiHop" value="@item.IsMultiHop.ToString()" />
+        <input type="text" name="BgpPeers[@i].IsMultiHop" value="@item.IsMultiHop.ToString()" />
     </td>
     <td width="10%">
-        <input type="text" name="RoutingInstance.BgpPeers[@i].MaximumRoutes" value="@item.MaximumRoutes" readonly />
+        <input type="text" name="BgpPeers[@i].MaximumRoutes" value="@item.MaximumRoutes" readonly />
     </td>
     <td width="10%">
         <button type="button" id="BgpPeers_Edit_@i" class="btn btn-sm btn-secondary mind-grid-edit-row" data-row-id="@i"><i class="fas fa-edit"></i></button>

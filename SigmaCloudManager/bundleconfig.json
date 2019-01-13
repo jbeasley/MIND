@@ -40,6 +40,26 @@
     }
   },
   {
+    "outputFileName": "wwwroot/js/AttachmentSet/create.min.js",
+    "inputFiles": [
+      "wwwroot/js/AttachmentSet/create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/AttachmentSet/edit.min.js",
+    "inputFiles": [
+      "wwwroot/js/AttachmentSet/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
     "outputFileName": "wwwroot/js/ProviderDomainAttachment/main.min.js",
     "inputFiles": [
       "wwwroot/js/ProviderDomainAttachment/main.js"
@@ -60,49 +80,9 @@
     }
   },
   {
-    "outputFileName": "wwwroot/js/ProviderDomainVif/create.min.js",
-    "inputFiles": [
-      "wwwroot/js/ProviderDomainVif/create.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    }
-  },
-  {
-    "outputFileName": "wwwroot/js/ProviderDomainVif/edit.min.js",
-    "inputFiles": [
-      "wwwroot/js/ProviderDomainVif/edit.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    }
-  },
-  {
     "outputFileName": "wwwroot/js/TenantDomainDevice/main.min.js",
     "inputFiles": [
       "wwwroot/js/TenantDomainDevice/main.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    }
-  },
-  {
-    "outputFileName": "wwwroot/js/TenantDomainDevice/create.min.js",
-    "inputFiles": [
-      "wwwroot/js/TenantDomainDevice/create.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    }
-  },
-  {
-    "outputFileName": "wwwroot/js/TenantDomainDevice/edit.min.js",
-    "inputFiles": [
-      "wwwroot/js/TenantDomainDevice/edit.js"
     ],
     "minify": {
       "enabled": true,
@@ -120,19 +100,9 @@
     }
   },
   {
-    "outputFileName": "wwwroot/js/InfrastructureDevice/create.min.js",
+    "outputFileName": "wwwroot/js/InfrastructureRoutingInstance/editBgpPeers.min.js",
     "inputFiles": [
-      "wwwroot/js/InfrastructureDevice/create.js"
-    ],
-    "minify": {
-      "enabled": true,
-      "renameLocals": true
-    }
-  },
-  {
-    "outputFileName": "wwwroot/js/InfrastructureDevice/edit.min.js",
-    "inputFiles": [
-      "wwwroot/js/InfrastructureDevice/edit.js"
+      "wwwroot/js/InfrastructureRoutingInstance/editBgpPeers.js"
     ],
     "minify": {
       "enabled": true,
@@ -200,6 +170,16 @@
     }
   },
   {
+    "outputFileName": "wwwroot/js/Shared/initToolTips.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/initToolTips.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
     "outputFileName": "wwwroot/js/Shared/Ports/grids.min.js",
     "inputFiles": [
       "wwwroot/js/Shared/Ports/grids.js"
@@ -223,6 +203,36 @@
     "outputFileName": "wwwroot/js/Shared/Attachment/edit.min.js",
     "inputFiles": [
       "wwwroot/js/Shared/Attachment/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Shared/Vif/create.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/Vif/create.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Shared/Vif/edit.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/Vif/edit.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    }
+  },
+  {
+    "outputFileName": "wwwroot/js/Shared/Device/wizard.min.js",
+    "inputFiles": [
+      "wwwroot/js/Shared/Device/wizard.js"
     ],
     "minify": {
       "enabled": true,

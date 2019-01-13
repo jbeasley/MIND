@@ -1,0 +1,32 @@
+﻿<!-- Markup for the routing instance selector -->
+
+@model Mind.WebUI.Models.RoutingInstanceSelectorComponentViewModel
+
+<div mind-alert="info" message="Select a routing instance. A routing instance contains routing information received from any tenant domains which belong
+                        to IP VPNs which are associated with the routing instance through an attachment set.">
+</div>
+<div class="form-group row">
+    <label asp-for="ExistingRoutingInstanceName" class="col-sm-4 col-form-label"></label>
+    <div class="col-sm-8">
+        <select asp-for="ExistingRoutingInstanceName" class="form-control" asp-items="ViewBag.RoutingInstance"
+                data-toggle="tooltip" data-placement="right" title="Select a routing instance for the vif">
+            <option value="">-- Select Routing Instance --</option>
+        </select>
+        <span asp-validation-for="ExistingRoutingInstanceName" class="text-danger"></span>
+    </div>
+</div>
+<br />
+<div mind-alert="info" message="
+                        Optionally you can create a new routing instance. Do this is you dont want to share a routing instance
+                        with other vifs or attachments.">
+</div>
+<div class="form-group row">
+    <label class="col-form-label col-sm-4" asp-for="CreateNewRoutingInstance"></label>
+    <div class="col-sm-8">
+        <div class="custom-control custom-checkbox">
+            <input class="form-check-input custom-control-input" type="checkbox" asp-for="CreateNewRoutingInstance" data-toggle="tooltip"
+                   data-placement="right" title="Create a new routing instance">
+            <label class="form-check-label custom-control-label" for="CreateNewRoutingInstance"></label>
+        </div>
+    </div>
+</div>

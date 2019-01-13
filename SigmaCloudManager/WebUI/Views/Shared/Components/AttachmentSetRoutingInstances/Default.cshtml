@@ -1,54 +1,51 @@
 ﻿@model IEnumerable<Mind.WebUI.Models.AttachmentSetRoutingInstanceRequestViewModel>
 
-<h3>Routing Instances</h3>
-<section id="routing-instances">
-    <div mind-alert="info" message="
-        Select routing instances to add to the attachment set">
-    </div>
-    <div class="form-inline row">
-        <label class="col-sm-2 col-form-label"></label>
-        <div class="col-sm-5">
-            <select id="RoutingInstance" class="form-control" data-toggle="tooltip" title="Select a routing instance to add to the attachment set" data-placement="left">
-                <option value="">-- Select Routing Instance --</option>
-                @{
-                    if (ViewBag.RoutingInstance != null)
+<div mind-alert="info" message="
+    Select routing instances to add to the attachment set">
+</div>
+<div class="form-inline row">
+    <label class="col-sm-2 col-form-label"></label>
+    <div class="col-sm-5">
+        <select id="RoutingInstance" class="form-control" data-toggle="tooltip" title="Select a routing instance to add to the attachment set" data-placement="left">
+            <option value="">-- Select Routing Instance --</option>
+            @{
+                if (ViewBag.RoutingInstance != null)
+                {
+                    foreach (SelectListItem item in ViewBag.RoutingInstance)
                     {
-                        foreach (SelectListItem item in ViewBag.RoutingInstance)
-                        {
-                    <option value="@item.Value" data-name="@item.Value">
-                        @item.Text
-                    </option>
-                            }
+                <option value="@item.Value" data-name="@item.Value">
+                    @item.Text
+                </option>
                         }
                     }
-            </select>
-        </div>
-        <div class="col-sm-3">
-            <button type="button" id="addRoutingInstance" class="btn btn-secondary btn-sm" is-add-button></button>
-        </div>
+                }
+        </select>
     </div>
-    <br />
-    <div class="form-group row">
-        <div class="col-sm-12 mind-grid-y-scrollable">
-            <table id="routing-instance-grid" class="table table-condensed table-hover table-striped mind-grid">
-                <thead>
-                    <tr>
-                        <th style="width:40%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.RoutingInstanceName)</span></th>
-                        <th style="width:25%">@Html.DisplayNameFor(model => model.LocalIpRoutingPreference)</th>
-                        <th style="width:25%">@Html.DisplayNameFor(model => model.AdvertisedIpRoutingPreference)</th>
-                        <th data-sortable="false" style="width:10%" valign="top">Actions</th>
-                    </tr>
-                </thead>
-                <tbody style="height:320px;">
-                    <!-- View component for displaying the grid of routing instances 
-                         This is put into a separate view component so that the grid data can be reloaded from the server from the client 
-                         whenever a new row is added or a row deleted -->
-                    @await Component.InvokeAsync("AttachmentSetRoutingInstancesGridData", new
-                    {
-                        attachmentSetRoutingInstanceRequests = Model
-                    })
-                </tbody>
-            </table>
-        </div>
+    <div class="col-sm-3">
+        <button type="button" id="addRoutingInstance" class="btn btn-secondary btn-sm" is-add-button></button>
     </div>
-</section>
+</div>
+<br />
+<div class="form-group row">
+    <div class="col-sm-12 mind-grid-y-scrollable">
+        <table id="routing-instance-grid" class="table table-condensed table-hover table-striped mind-grid">
+            <thead>
+                <tr>
+                    <th style="width:40%" valign="top"><span class="d-inline-block text-truncate">@Html.DisplayNameFor(model => model.RoutingInstanceName)</span></th>
+                    <th style="width:25%">@Html.DisplayNameFor(model => model.LocalIpRoutingPreference)</th>
+                    <th style="width:25%">@Html.DisplayNameFor(model => model.AdvertisedIpRoutingPreference)</th>
+                    <th data-sortable="false" style="width:10%" valign="top">Actions</th>
+                </tr>
+            </thead>
+            <tbody style="height:320px;">
+                <!-- View component for displaying the grid of routing instances 
+                     This is put into a separate view component so that the grid data can be reloaded from the server from the client 
+                     whenever a new row is added or a row deleted -->
+                @await Component.InvokeAsync("AttachmentSetRoutingInstancesGridData", new
+                {
+                    attachmentSetRoutingInstanceRequests = Model
+                })
+            </tbody>
+        </table>
+    </div>
+</div>

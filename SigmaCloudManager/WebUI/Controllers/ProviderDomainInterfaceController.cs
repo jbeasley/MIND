@@ -1,18 +1,12 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Mind.Builders;
-using Mind.Models;
 using Mind.Services;
 using Mind.WebUI.Attributes;
 using Mind.WebUI.Models;
 using SCM.Controllers;
 using SCM.Data;
 using SCM.Models;
-using SCM.Models.ViewModels;
-using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Mind.WebUI.Controllers

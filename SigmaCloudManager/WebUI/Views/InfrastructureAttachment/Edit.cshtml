@@ -1,4 +1,4 @@
-
+@using Mind.WebUI.Models;
 @model Mind.WebUI.Models.InfrastructureAttachmentUpdateViewModel
 @{
     ViewData["Title"] = "Edit Attachment";
@@ -6,9 +6,10 @@
 <div id="crumbs">
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
-        <li><a href="/InfrastructureHome"><i class="fa" aria-hidden="true"></i>Infrastructure</a></li>
-        <li><a href="/InfrastructureDevice/GetAll"><i class="fa active" aria-hidden="true"></i>Infrastructure Devices</a></li>
-        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
+        <li><a href="/InfrastructureServices"><i class="fa" aria-hidden="true"></i>Infrastructure Services</a></li>
+        <li><a href="/InfrastructureDevice/GetAll"><i class="fa" aria-hidden="true"></i>Infrastructure Devices</a></li>
+        <li><a href="/InfrastructureAttachment/GetAllByDeviceID?deviceId=@Model.DeviceId"><i class="fa" aria-hidden="true"></i>Infrastructure Attachments - [@ViewBag.Device.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa active" aria-hidden="true"></i>Edit - [@Model.Name]</a></li>
     </ul>
 </div>
 <h2>Edit Attachment '@Model.Name'</h2>
@@ -70,11 +71,11 @@
             <section>
                 <div id="bgpPeersComponent">
                     <!-- View component for creating/updating BGP peers -->
-                    @await Component.InvokeAsync("AttachmentBgpPeers", new
-                    {
-                        attachmentId = Model.AttachmentId,
-                        bgpPeerRequests = Model.RoutingInstance?.BgpPeers
-                    })
+                    @await Component.InvokeAsync("RoutingInstanceBgpPeers", new BgpPeersComponentViewModel
+               {
+                   BgpPeers = Model.RoutingInstance?.BgpPeers,
+                   AttachmentId = Model.AttachmentId
+               })
                 </div>
             </section>
             <h3>MTU Options</h3>

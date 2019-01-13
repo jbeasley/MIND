@@ -1,13 +1,11 @@
 ﻿
+/* Handle user interactions with the BGP peers grid and modal form for creating/editing BGP peers */
+
 (($) => {
 
     // The modal containing the BGP peer form
 
     const $modal                = $('#bgpPeerModal');
-
-    // The actual form
-
-    const $form                 = $('#bgpPeerForm');
 
     // Input controls of the BGP peer form
 
@@ -43,7 +41,8 @@
     $('#saveBgpPeer').on('click', (e) => {
 
         // Check form inputs are valid and then hide the modal form
-
+       
+        const $form = $('#bgpPeerForm');
         $form.validate();
         if (!$form.valid()) return;
 
@@ -60,7 +59,7 @@
 
         // Create a new entry from the form data
 
-        var arr = [];
+        let arr = [];
         arr.push({
             "BgpPeerId"                 : bgpPeerId.value,
             "Ipv4PeerAddress"           : ipv4PeerAddress.value,
@@ -82,7 +81,7 @@
 
         // Remove the row
 
-        var removeRowId = $(this).data('row-id');
+        let removeRowId = $(this).data('row-id');
         removeRow(removeRowId);
 
         // Refresh the BGP peer grid
@@ -128,32 +127,30 @@
 
     const removeRow = (rowId) => {
 
-        var $row = $('#bgp-peer-grid-row_' + rowId);
-        $row.remove();
+        $('#bgp-peer-grid-row_' + rowId).remove();
     }
 
     // Refresh the BGP peer grid data
 
     const refreshBgpPeerGrid = (arr) => {
-
-        const $grid           = $('#bgp-peer-grid');
+    
         const bgpPeerData     = getBgpPeerData(arr);
-
-        const $tbody          = $grid.find('tbody');
         const data            = JSON.stringify(bgpPeerData);
         const deferred        = $.Deferred();
 
-        $.ajax({
+        Mind.Utilities.showSpinner('Fetching data from the server....');
+
+        $.post({
             url: "GetBgpPeerGridData",
             contentType: 'application/json; charset=utf-8',
-            type: 'POST',
-            data: data,
-            success: (data) => {
+            data: data
+        })
+         .done( (data) => {
 
-                $tbody.html(data);
+                $('#bgp-peer-grid').find('tbody').html(data);
                 deferred.resolve();
-            }
-        });
+        })
+         .always( () => Mind.Utilities.hideSpinner() );  
 
         return deferred.promise();
     }
@@ -163,12 +160,11 @@
     const getBgpPeerData = (arr) => {
 
         if (typeof (arr) === "undefined") arr = [];
-        var $grid                             = $('#bgp-peer-grid');
-        var $rows                             = $grid.find('tbody tr');
+        const $rows                           = $('#bgp-peer-grid').find('tbody tr');
 
         $rows.each(function() {
 
-            var data = getRowData($(this));
+            let data = getRowData($(this));
             arr.push(data);
         });
 
@@ -178,23 +174,15 @@
     // Create data object for a single row
 
     const getRowData = ($row) => {
-
-        var bgpPeerId           = $row.data('bgp-peer-id'),
-            ipv4PeerAddress     = $row.data('ipv4-peer-address'),
-            peerPassword        = $row.data('peer-password'),
-            peer2ByteAs         = $row.data('peer-2-byte-as'),
-            maximumRoutes       = $row.data('maximum-routes'),
-            isBfdEnabled        = $row.data('is-bfd-enabled'),
-            isMultiHop          = $row.data('is-multihop');
-
-        var data = {
-            "BgpPeerId"                     : bgpPeerId,
-            "Ipv4PeerAddress"               : ipv4PeerAddress,
-            "PeerPassword"                  : peerPassword,
-            "Peer2ByteAutonomousSystem"     : peer2ByteAs,
-            "MaximumRoutes"                 : maximumRoutes,
-            "IsBfdEnabled"                  : isBfdEnabled,
-            "IsMultiHop"                    : isMultiHop
+   
+        const data = {
+              "BgpPeerId"                     : $row.data('bgp-peer-id'),
+              "Ipv4PeerAddress"               : $row.data('ipv4-peer-address'),
+              "PeerPassword"                  : $row.data('peer-password'),
+              "Peer2ByteAutonomousSystem"     : $row.data('peer-2-byte-as'),
+              "MaximumRoutes"                 : $row.data('maximum-routes'),
+              "IsBfdEnabled"                  : $row.data('is-bfd-enabled'),
+              "IsMultiHop"                    : $row.data('is-multihop')
         };
 
         return data;
@@ -202,6 +190,7 @@
 
 
     // Reset the BGP peer form inputs
+
     const resetBgpPeerForm = () => {
 
         bgpPeerId.value         = "";

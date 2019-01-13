@@ -59,37 +59,27 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetContractBandwidthPoolComponent(string portPoolName, string attachmentRoleName,
-            int? attachmentBandwidthGbps)
+        public IActionResult GetContractBandwidthPoolComponent(ContractBandwidthComponentViewModel model)
         {
-            return ViewComponent("AttachmentContractBandwidthPool", new
-            {
-                portPoolName,
-                attachmentRoleName,
-                attachmentBandwidthGbps
-            });
+            return ViewComponent("ContractBandwidthPool", new { model });
         }
 
         [HttpGet]
-        public IActionResult GetBgpPeersComponent(string portPoolName, string attachmentRoleName)
+        public IActionResult GetBgpPeersComponent(BgpPeersComponentViewModel model)
         {
-            return ViewComponent("AttachmentBgpPeers", new
-            {
-                portPoolName,
-                attachmentRoleName
-            });
+            return ViewComponent("RoutingInstanceBgpPeers", new { model });
+        }
+
+        [HttpPost]
+        public IActionResult GetBgpPeerGridData([FromBody]List<BgpPeerRequestViewModel> bgpPeerRequests)
+        {
+            return ViewComponent("RoutingInstanceBgpPeersGridData", new { bgpPeerRequests });
         }
 
         [HttpGet]
         public IActionResult GetAttachmentPortPoolAndRoleComponent(AttachmentPortPoolAndRoleComponentViewModel model)
         {
             return ViewComponent("AttachmentPortPoolAndRole", new { model });
-        }
-
-        [HttpPost]
-        public IActionResult GetBgpPeerGridData([FromBody]List<BgpPeerRequestViewModel> bgpPeerRequests)
-        {
-            return ViewComponent("BgpPeersGridData", new { bgpPeerRequests });
         }
 
         [HttpGet]

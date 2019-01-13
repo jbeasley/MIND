@@ -21,6 +21,7 @@ namespace Mind.Builders
                                  .WithNumber(request.Number)
                                  .WithAllowExtranet(request.AllowExtranet)
                                  .WithIpRoutingBehaviour(request.IpRoutingBehaviour.ToString())
+                                 .WithTenantEnvironment(request.TenantEnvironment.ToString())
                                  .BuildAsync();
         }
 
@@ -31,6 +32,7 @@ namespace Mind.Builders
                                  .WithNumber(request.Number)
                                  .WithAllowExtranet(request.AllowExtranet)
                                  .WithIpRoutingBehaviour(request.IpRoutingBehaviour.ToString())
+                                 .WithTenantEnvironment(request.TenantEnvironment.ToString())
                                  .BuildAsync();
         }
     }

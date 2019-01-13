@@ -2,25 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper;
-using SCM.Models.RequestModels;
-using SCM.Models.ViewModels;
 using SCM.Models;
-using Microsoft.AspNetCore.Mvc.Filters;
 using SCM.Controllers;
 using Mind.Services;
 using SCM.Data;
 using Mind.Models;
 using Mind.Builders;
 using Mind.WebUI.Attributes;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
 using Mind.Models.RequestModels;
-using Mind.WebUI.ViewComponents;
 
 namespace Mind.WebUI.Controllers
 {

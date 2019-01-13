@@ -1,0 +1,143 @@
+@model Mind.WebUI.Models.TenantDomainAttachmentViewModel
+
+@{
+    ViewData["Title"] = "Attachment Details";
+}
+
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/TenantDomainDevice/GetAllByTenantId?tenantId=@ViewBag.Device.TenantId"><i class="fa" aria-hidden="true"></i>Tenant Domain Devices - [@ViewBag.Device.TenantName]</a></li>
+        <li><a href="/TenantDomainAttachment/GetAllByDeviceId?deviceId=@ViewBag.Device.DeviceId"><i class="fa" aria-hidden="true"></i>Tenant Domain Attachments - [@ViewBag.Device.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Details - [@Model.Name]</a></li>
+    </ul>
+</div>
+
+<h2>Details for Attachment '@Model.Name'</h2>
+
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.TenantDeviceName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.TenantDeviceName)
+        </dd>
+        @if (Model.IsMultiport)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.IsMultiport)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.IsMultiport)
+            </dd>
+        }
+        @if (Model.IsBundle)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.IsBundle)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.IsBundle)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.BundleMinLinks)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.BundleMinLinks)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.BundleMaxLinks)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.BundleMaxLinks)
+            </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.LocationName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.LocationName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentRoleName)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentRoleName)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsLayer3)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsLayer3)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.IsTagged)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.IsTagged)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.AttachmentBandwidthGbps)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.AttachmentBandwidthGbps)
+        </dd>
+        @if (Model.RoutingInstance != null)
+        {
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.Name)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.Name)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.AdministratorSubField)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.AdministratorSubField)
+            </dd>
+            <dt>
+                @Html.DisplayNameFor(model => model.RoutingInstance.AssignedNumberSubField)
+            </dt>
+            <dd>
+                @Html.DisplayFor(model => model.RoutingInstance.AssignedNumberSubField)
+            </dd>
+        }
+        <dt>
+            @Html.DisplayNameFor(model => model.Mtu)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Mtu)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Description)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Description)
+        </dd>
+        <dt>
+            @Html.DisplayNameFor(model => model.Notes)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Notes)
+        </dd>
+    </dl>
+</div>
+<hr />
+<form asp-action="">
+    <div class="form-actions no-color">
+        <a mind-edit-btn-link="true" asp-action="Edit" asp-route-attachmentId="@Model.AttachmentId">Edit</a> |
+        <a mind-nav-link-back-btn="true" asp-action="GetAllByDeviceID" asp-route-deviceId="@Model.DeviceId">Back to Attachments</a>
+    </div>
+</form>

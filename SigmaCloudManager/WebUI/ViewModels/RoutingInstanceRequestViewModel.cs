@@ -1,20 +1,12 @@
-using System;
-using System.Linq;
-using System.IO;
-using System.Text;
-using System.Collections;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
-using System.Runtime.Serialization;
-using Newtonsoft.Json;
 
 namespace Mind.WebUI.Models
 {
     /// <summary>
     /// Model of a routing instance request
     /// </summary>
-    public class RoutingInstanceRequestViewModel
+    public class RoutingInstanceRequestViewModel : IModifiableResource
     {
         public RoutingInstanceRequestViewModel()
         {
@@ -24,6 +16,24 @@ namespace Mind.WebUI.Models
             // existing BGP peers for the routing instance.
             BgpPeers = new List<BgpPeerRequestViewModel>();
         }
+
+        /// <summary>
+        /// Gets or sets the routing instance identifier.
+        /// </summary>
+        /// <value>Integer denoting the routing instance identifier.</value>
+        public int? RoutingInstanceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the  device identifier.
+        /// </summary>
+        /// <value>Integer denoting the device identifier.</value>
+        public int? DeviceId { get; set; }
+
+        /// <summary>
+        /// Gets or sets the  tenant identifier to which the routing instance is to be associated.
+        /// </summary>
+        /// <value>Integer denoting the tenant identifier.</value>
+        public int? TenantId { get; set; }
 
         /// <summary>
         /// The requested name of the routing instance
@@ -62,6 +72,11 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>A list of BgpPeerRequestViewModel objects</value>
         public List<BgpPeerRequestViewModel> BgpPeers { get; set; }
+
+        /// <summary>
+        /// Concurrency token for the model
+        /// </summary>
+        public byte[] RowVersion { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {

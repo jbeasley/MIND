@@ -6,13 +6,17 @@ using SCM.Models;
 using SCM.Data;
 using Mind.Builders;
 using Mind.Models.RequestModels;
+using SCM.Services;
 
-namespace SCM.Services
+namespace Mind.Services
 {
     public class BgpPeerService : BaseService, IBgpPeerService
     {
-        public BgpPeerService(IUnitOfWork unitOfWork) : base(unitOfWork)
+        private readonly IBgpPeerDirector _director;
+
+        public BgpPeerService(IUnitOfWork unitOfWork, IBgpPeerDirector director) : base(unitOfWork)
         {
+            _director = director;
         }
 
         public async Task<IEnumerable<BgpPeer>> GetAllByRoutingInstanceIDAsync(int id, bool? deep = false, bool asTrackable = false)
@@ -20,7 +24,7 @@ namespace SCM.Services
             return await this.UnitOfWork.BgpPeerRepository.GetAsync(
                 q => 
                 q.RoutingInstanceID == id,
-                query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
+                query: q => deep.GetValueOrDefault() ? q.IncludeDeepProperties() : q,
                 AsTrackable: asTrackable);
 
         }
@@ -30,34 +34,25 @@ namespace SCM.Services
             return (from result in await this.UnitOfWork.BgpPeerRepository.GetAsync(
                 q => 
                 q.BgpPeerID == id,
-                query: q => deep.HasValue && deep.Value ? q.IncludeDeepProperties() : q,
+                query: q => deep.GetValueOrDefault() ? q.IncludeDeepProperties() : q,
                 AsTrackable: asTrackable)
                     select result)
                     .SingleOrDefault();
         }
 
-        /// <summary>
-        /// TO-BE-REMOVED
-        /// </summary>
-        /// <param name="bgpPeer"></param>
-        /// <returns></returns>
-        public async Task<BgpPeer> AddAsync(BgpPeer bgpPeer)
+        public async Task<BgpPeer> AddAsync(int routingInstanceId, BgpPeerRequest request)
         {
+            var bgpPeer = await _director.BuildForRoutingInstanceAsync(routingInstanceId, request);
             this.UnitOfWork.BgpPeerRepository.Insert(bgpPeer);
             await this.UnitOfWork.SaveAsync();
             return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
         }
 
-        /// <summary>
-        /// TO-BE-REMOVED
-        /// </summary>
-        /// <param name="bgpPeer"></param>
-        /// <returns></returns>
-        public async Task<BgpPeer> UpdateAsync(BgpPeer bgpPeer)
+        public async Task<BgpPeer> UpdateAsync(int bgpPeerId, BgpPeerRequest update)
         {
-            this.UnitOfWork.BgpPeerRepository.Update(bgpPeer);
+            await _director.UpdateAsync(bgpPeerId, update);
             await this.UnitOfWork.SaveAsync();
-            return await GetByIDAsync(bgpPeer.BgpPeerID, deep: true, asTrackable: false);
+            return await GetByIDAsync(bgpPeerId, deep: true, asTrackable: false);
         }
 
         public async Task DeleteAsync(int bgpPeerId)

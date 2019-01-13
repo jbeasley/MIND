@@ -1,173 +1,231 @@
 ﻿
+/* Manages the VPN wizard user interactions */
+
 (($) => {
 
-    const $attachmentSet = $('#AttachmentSet'),
-          attachmentSet = $attachmentSet[0],
-          $vpnTopologyType = $('#TopologyType'),
-          vpnTopologyType = $vpnTopologyType[0];
+    // Cache various elements used throughout
 
-    // Handle addition of attachment set to vpn
-    $('#addAttachmentSet').on('click', function (e) {
+    const $attachmentSet            = $('#AttachmentSet');
+    const attachmentSet             = $attachmentSet[0];
+    const $vpnTopologyType          = $('#TopologyType');
+    const vpnTopologyType           = $vpnTopologyType[0];
+    const $participantTenant        = $('#TenantName');
+    const participantTenant         = $participantTenant[0];
+    const $protocolType             = $('#ProtocolType');
 
-        var $grid = $('#attachment-set-grid');
+    // Handle changes to the protocol type selection
 
-        if (attachmentSet.value !== null && attachmentSet.value !== "") {
+    const handleProtocolTypeChangeEvent = () => {
+    
+        const $addressFamily         = $('#AddressFamily');
+        const addressFamily          = $addressFamily[0];
+        const $topologyType          = $('#TopologyType');
+        const topologyType           = $topologyType[0];
 
-            var $selected = $attachmentSet.find(":selected");
-            var attachmentSetName = $selected.data('name');
-            var tenantName = $selected.data('tenant-name');
-            var redundancy = $selected.data('attachment-redundancy');
-            var region = $selected.data('region-name');
+        if ($protocolType.val() === null || $protocolType.val() === "") {
 
-            var exists = $grid
-                .find('td > input[type="text"]')
-                .filter(function () {
-                    return this.value === attachmentSetName;
-                })
-                .length > 0;
+            addressFamily.selectedIndex = 0;
+            addressFamily.disabled = true;
+            topologyType.selectedIndex = 0;
+            topologyType.disabled = true;
+        }
 
-            if (exists) {
+        // Handle changes to the protocol type dropdown list selection
 
-                // The routing instance already exists in the table
-                $("#duplicateItemModal").modal();
+        $protocolType.on('change', function (e) {
+
+            if (this.value === null || this.value === "") {
+
+                addressFamily.selectedIndex = 0;
+                addressFamily.disabled = true;
+                topologyType.selectedIndex = 0;
+                topologyType.disabled = true;
             }
             else {
 
-                var arr = [];
-                arr.push({
-                    "VpnTopologyType": vpnTopologyType.value,
-                    "AttachmentSetName": attachmentSetName,
-                    "tenantName": tenantName,
-                    "region": region,
-                    "AttachmentRedundancy": redundancy
-                });
-
-                // Refresh the attachment set grid
-                refreshAttachmentSetsGrid(arr);
+                Mind.Utilities.populateElement($addressFamily, "AddressFamilies", { protocolType: this.value });
+                Mind.Utilities.populateElement($topologyType, "TopologyTypes", { protocolType: this.value });
             }
-        }
-    });
+        });
+    }
+    
+    // Handle addition of attachment set to vpn
 
-    //Bind to click event of trash buttons in the attachment set grid rows
-    $('#attachment-set-grid').on('click', '.mind-grid-delete-row', function (e) {
+    const handleAddAttachmentSetButtonClick = () => {
 
-        var deleteRowId = $(this).data('row-id');
-        var $row = $('#attachment-set-grid-row_' + deleteRowId);
-        $row.remove();
+        $('#addAttachmentSet').on('click', function (e) {
+                   
+            if (attachmentSet.value !== null && attachmentSet.value !== "") {
 
-        // Refresh the attachment set grid
-        refreshAttachmentSetsGrid();
-    });
+                const $selected = $attachmentSet.find(":selected");
 
-    // Bind to checkbox change event for all grids to set boolen value - this is needed to send correct boolean value
-    // to the controller on form submit
-    $('.mind-grid').on('change', '.mind-grid-checkbox', function (e) {
+                const exists = $('#attachment-set-grid')
+                        .find('td > input[type="text"]')
+                        .filter(function () {
+                            return this.value === $selected.data('name');
+                        })
+                        .length > 0;
 
-        this.value = this.checked;
-        var $row = $(this).parents('tr');
-        $row.data('is-hub', this.value);
-    });
+                if (exists) {
 
-    const $tenancyType = $('#TenancyType'),
-          $ownerTenantId = $('#TenantId'),
-          ownerTenantId = $ownerTenantId[0],
-          $participantTenant = $('#TenantName'),
-          participantTenant = $participantTenant[0];
+                    // The routing instance already exists in the table
 
-    // Populate the list of participant tenants based upon the tenancy type of the vpn.
-    // If the tenancy type is single then the list will contain only one tenant - the owner.
-    // If the tenancy type is multi then the list will contain all tenants.
-    $tenancyType.on('change', function (e) {
+                    Mind.Utilities.showDuplicateItemDialog('Duplicate Attachment Set', 
+                        'The selected attachment set already exists.');
+                }
+                else {
 
-        attachmentSet.selectedIndex = 0;
-        attachmentSet.disabled = true;
+                    let arr = [];
 
-        if (this.value === null || this.value === "") {
+                    arr.push({
+                        "VpnTopologyType"           : vpnTopologyType.value,
+                        "AttachmentSetName"         : $selected.data('name'),
+                        "tenantName"                : $selected.data('tenant-name'),
+                        "region"                    : $selected.data('region-name'),
+                        "AttachmentRedundancy"      : $selected.data('attachment-redundancy')
+                    });
 
-            participantTenant.selectedIndex = 0;
-            participantTenant.disabled = true;
-        }
-        else {
+                    // Refresh the attachment set grid
 
-            Mind.Utilities.populateElement($participantTenant, "ParticipantTenants", {
-                ownerTenantId: ownerTenantId.value, tenancyType: this.value
-            });
-        }
-    });
+                    refreshAttachmentSetsGrid(arr);
+                }
+            }
+        });
+    }
 
-    // Populate the list of attachment sets which belong to the selected tenant
-    $participantTenant.on('change', function (e) {
+    // Handle user interactions with various grid controls
 
-        if (this.value === null || this.value === "") {
+    const handleGridControlActions = () => {
 
-            attachmentSet.selectedIndex = 0;
-            attachmentSet.disabled = true;
-        }
-        else {
+        // Handle click of the 'delete' action button
 
-            Mind.Utilities.populateElement($attachmentSet, "AttachmentSets", {
-                tenantName: this.value
-            });
-        }
-    });
+        $('#attachment-set-grid').on('click', '.mind-grid-delete-row', function () {
+
+            const deleteRowId                 = $(this).data('row-id');
+            $('#attachment-set-grid-row_' + deleteRowId).remove();
+
+            // Refresh the attachment set grid
+
+            refreshAttachmentSetsGrid();
+        });
+
+        /* Bind to checkbox change event for all grids to set boolen value - this is needed to send correct boolean value
+        to the controller on form submit */
+
+        $('.mind-grid').on('change', '.mind-grid-checkbox', function () {
+
+            this.value                      = this.checked;
+            let $row                        = $(this).parents('tr');
+
+            $row.data('is-hub', this.value);
+        });
+    }
+
+    const handleTenancyTypeChange = () => {
+
+        const $tenancyType                  = $('#TenancyType');
+        const $ownerTenantId                = $('#TenantId');
+        const ownerTenantId                 = $ownerTenantId[0];
+
+        /* Populate the list of participant tenants based upon the tenancy type of the vpn.
+        If the tenancy type is single then the list will contain only one tenant - the owner.
+        If the tenancy type is multi then the list will contain all tenants. */
+
+        $tenancyType.on('change', function (e) {
+
+            attachmentSet.selectedIndex             = 0;
+            attachmentSet.disabled                  = true;
+
+            if (this.value === null || this.value === "") {
+
+                participantTenant.selectedIndex     = 0;
+                participantTenant.disabled          = true;
+            }
+            else {
+
+                Mind.Utilities.populateElement($participantTenant, "ParticipantTenants", {
+                    ownerTenantId: ownerTenantId.value, tenancyType: this.value
+                });
+            }
+        });
+    }
+
+    // Handle changes to selection of the participant tenant
+
+    const handleParticipantTenantChange = () => {
+
+        // Populate the list of attachment sets which belong to the selected tenant
+
+        $participantTenant.on('change', function (e) {
+
+            if (this.value === null || this.value === "") {
+
+                attachmentSet.selectedIndex         = 0;
+                attachmentSet.disabled              = true;
+            }
+            else {
+
+                Mind.Utilities.populateElement($attachmentSet, "AttachmentSets", {
+
+                    tenantName: this.value
+                });
+            }
+        });
+    }
 
     // Helpers
 
     // Refresh the attachment sets grid data
+
     function refreshAttachmentSetsGrid(arr) {
+    
+        const attachmentSetsData      = getAttachmentSetsData(arr);       
+        const data                    = JSON.stringify(attachmentSetsData);
+        const deferred                = $.Deferred();
 
-        var $grid = $('#attachment-set-grid');
-        var attachmentSetsData = getAttachmentSetsData(arr);
+        Mind.Utilities.showSpinner('Fetching data from the server....');
 
-        var $tbody = $grid.find('tbody');
-        var data = JSON.stringify(attachmentSetsData);
-        var deferred = $.Deferred();
-
-        $.ajax({
+        $.post({
             url: "GetVpnAttachmentSetsGridData",
             contentType: 'application/json; charset=utf-8',
-            type: 'POST',
-            data: data,
-            success: function (data) {
+            data: data
+        })
+         .done( (data) => {
 
-                $tbody.html(data);
-                RefreshValidation();
+            $('#attachment-set-grid').find('tbody').html(data);
+            refreshValidation();
 
-                deferred.resolve();
-            }
-        });
+            deferred.resolve();
+        })
+         .always( () => Mind.Utilities.hideSpinner() );    
 
         return deferred.promise();
     }
 
     function getAttachmentSetsData(arr) {
 
-        if (typeof (arr) === "undefined") arr = [];
-        var $grid = $('#attachment-set-grid');
-        var $rows = $grid.find('tbody tr');
+        if (typeof (arr) === "undefined") arr   = [];
+        const $rows                             = $('#attachment-set-grid').find('tbody tr');
 
         $rows.each(function () {
 
-            var $row = $(this);
-            var attachmentSetName = $row.data('name');
-            var tenantName = $row.data('tenant-name');
-            var isHub = $row.data('is-hub');
-            var region = $row.data('region');
-            var redundancy = $row.data('attachment-redundancy');
+            const $row                          = $(this);
+
             arr.push({
-                "VpnTopologyType": vpnTopologyType.value,
-                "AttachmentSetName": attachmentSetName,
-                "tenantName": tenantName,
-                "IsHub": isHub,
-                "Region": region,
-                "AttachmentRedundancy": redundancy
+                "VpnTopologyType"               : vpnTopologyType.value,
+                "AttachmentSetName"             : $row.data('name'),
+                "tenantName"                    : $row.data('tenant-name'),
+                "IsHub"                         : $row.data('is-hub'),
+                "Region"                        : $row.data('region'),
+                "AttachmentRedundancy"          : $row.data('attachment-redundancy')
             });
         });
 
         return arr;
-    }
+    } 
 
     // Re-apply validation to the form so that validation rules for the new inputs are created
+
     function refreshValidation() {
 
         var $form = $('#form');
@@ -175,5 +233,17 @@
         $form.removeData('unobtrusiveValidation');
         $.validator.unobtrusive.parse('#form');
     }
+
+    // Main
+
+    if ($protocolType.length > 0) {
+
+        handleProtocolTypeChangeEvent();
+    }
+
+    handleAddAttachmentSetButtonClick();
+    handleGridControlActions();
+    handleTenancyTypeChange();
+    handleParticipantTenantChange();
 
 })(jQuery);

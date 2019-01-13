@@ -58,6 +58,7 @@ namespace SCM.Models
         public int TenantID { get; set; }
         [Required]
         public TenantIpRoutingBehaviourEnum IpRoutingBehaviour { get; set; }
+        public TenantEnvironmentEnum TenantEnvironment { get; set; }
         [NotMapped]
         public string Name
         {

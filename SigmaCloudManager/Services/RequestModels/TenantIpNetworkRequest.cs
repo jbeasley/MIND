@@ -35,5 +35,11 @@ namespace Mind.Models.RequestModels
         /// </summary>
         /// <value>Enum member value denoting the required tenant IP routing behaviour</value>
         public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; set; }
+
+        /// <summary>
+        /// The tenant environment to which the IP network is associated.
+        /// </summary>
+        /// <value>Enum member value denoting the required tenant environment</value>
+        public TenantEnvironmentEnum TenantEnvironment { get; set; }
     }
 }

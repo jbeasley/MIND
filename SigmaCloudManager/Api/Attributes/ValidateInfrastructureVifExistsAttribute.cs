@@ -41,7 +41,7 @@ namespace Mind.Api.Attributes
                
                 if ((from result in await _unitOfWork.VifRepository.GetAsync(q =>
                         q.VifID == vifId &&
-                        q.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.ProviderInfrastructure,
+                        q.VifRole.AttachmentRole.PortPool.PortRole.PortRoleType == Mind.Models.PortRoleTypeEnum.ProviderInfrastructure,
                         AsTrackable: false)
                         select result)
                        .SingleOrDefault() == null)

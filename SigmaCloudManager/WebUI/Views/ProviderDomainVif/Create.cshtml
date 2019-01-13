@@ -13,31 +13,28 @@
     </ul>
 </div>
 <h2>Create a VIF for Attachment '@ViewBag.Attachment.Name'</h2>
-<form id="createForm" asp-action="Create">
+<form id="form" asp-action="Create">
     <hr />
+
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
     <input type="hidden" asp-for="AttachmentId" value="@ViewBag.Attachment.AttachmentId" />
+    <input type="hidden" asp-for="AttachmentRoleName" value="@ViewBag.Attachment.AttachmentRoleName" />
     <input type="hidden" asp-for="TenantId" value="@ViewBag.Attachment.TenantId" />
     <input type="hidden" asp-for="Stage" />
     <input type="hidden" asp-for="SyncToNetwork" />
-    <div id="createVifWizard">
+
+    <div id="vifWizard">
+
         <h3>Role</h3>
         <section id="role">
-            <br />
-            <div mind-alert="info" message="
-                Select a role for the vif. The selected role determines whether the vif requires attributes such as
-                IP addressing and contract bandwidth.">
-            </div>
-            <div class="form-group row">
-                <label asp-for="VifRoleName" class="col-sm-2 col-form-label"></label>
-                <div class="col-sm-10">
-                    <select asp-for="VifRoleName" class="form-control" asp-items="ViewBag.VifRole">
-                        <option value="">-- Select a Role --</option>
-                    </select>
-                    <span asp-validation-for="VifRoleName" class="text-danger"></span>
-                </div>
-            </div>
+            @await Component.InvokeAsync("VifRole", new VifRoleComponentViewModel
+        {
+            AttachmentRoleId = ViewBag.Attachment.AttachmentRoleId,
+            VifRoleName = Model?.VifRoleName
+        })
         </section>
+
         <h3>Vlan Tag</h3>
         <section id="vlan-tag">
             <br />
@@ -53,70 +50,69 @@
                 </div>
             </div>
         </section>
+
         <h3>IP Addressing</h3>
         <section id="ip-addressing">
             <div id="ipAddressingComponent">
-                @if (Model != null)
-                {
-                    @await Component.InvokeAsync("VifIpAddressing", new
-                    {
-                        attachmentId = Model.AttachmentId,
-                        currentModel = Model.Ipv4Addresses
-                    });
-                }
+                @await Component.InvokeAsync("VifIpAddressing", new
+            {
+                attachmentId = Model?.AttachmentId,
+                currentModel = Model?.Ipv4Addresses
+            })
             </div>
         </section>
+
         <h3>Contract Bandwidth</h3>
         <section id="ip-addressing">
             <div id="contractBandwidthPoolComponent">
-                @if (Model != null)
+                @await Component.InvokeAsync("ContractBandwidthPool", new ContractBandwidthComponentViewModel
+            {
+                AttachmentRoleName = Model?.AttachmentRoleName,
+                VifRoleName = Model?.VifRoleName,
+                ContractBandwidthPool = new ContractBandwidthPoolViewModel
                 {
-                    @await Component.InvokeAsync("VifContractBandwidthPool", new
-                    {
-                        attachmentId = Model.AttachmentId,
-                        vifRoleName = Model.VifRoleName,
-                        currentModel = new ContractBandwidthPoolViewModel
-                        {
-                            ContractBandwidthMbps = Model.ContractBandwidthMbps,
-                            TrustReceivedCosAndDscp = Model.TrustReceivedCosAndDscp.GetValueOrDefault()
-                        }
-                    });
+                    ContractBandwidthMbps = Model?.ContractBandwidthMbps,
+                    TrustReceivedCosAndDscp = Model != null ? Model.TrustReceivedCosAndDscp.GetValueOrDefault() : false
                 }
+            })
             </div>
         </section>
+
         <h3>BGP Peers</h3>
         <section id="bgp-peers">
             <div id="bgpPeersComponent">
                 <!-- View component for creating BGP peers -->
-                @await Component.InvokeAsync("VifBgpPeers", new
-                {
-                    attachmentId = Model?.AttachmentId,
-                    vifRoleName = Model?.VifRoleName,
-                    bgpPeerRequests = Model?.RoutingInstance?.BgpPeers
-                })
+                @await Component.InvokeAsync("RoutingInstanceBgpPeers", new BgpPeersComponentViewModel
+            {
+                AttachmentRoleName = Model?.AttachmentRoleName,
+                VifRoleName = Model?.VifRoleName,
+                BgpPeers = Model?.RoutingInstance?.BgpPeers
+            })
             </div>
         </section>
+
     </div>
 </form>
+
 <div>
     <a mind-nav-link-back-btn="true" asp-action="GetAllByAttachmentID" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId">Back to VIFs</a>
 </div>
+
 <!--Component for a form allowing the user to enter data to create or edit a BGP peer
     The component HTML must be placed outside of other page elements to avoid nesting because the browser will
     remove the <form> element from the component otherwise -->
 @await Component.InvokeAsync("BgpPeerForm")
+
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 <!-- Stage or sync to network partial view -->
 @{await Html.RenderPartialAsync("_NetworkStageOrSyncModalPartial");}
+
+
 @section Scripts {
+
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-
     @{await Html.RenderPartialAsync("_ProviderDomainVifCreateScriptsPartial");}
-    <script type="text/javascript">(function ($) {
 
-            // Initialise all tool-tips - do this after all components are loaded
-            $('[data-toggle="tooltip"]').tooltip();
-
-        }(jQuery));</script>
 }

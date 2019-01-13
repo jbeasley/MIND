@@ -1,9 +1,5 @@
-﻿using AutoMapper;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Mind.WebUI.Models;
-using SCM.Data;
-using SCM.Models;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace Mind.WebUI.ViewComponents

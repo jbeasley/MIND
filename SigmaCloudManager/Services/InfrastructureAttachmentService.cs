@@ -10,6 +10,7 @@ using SCM.Models;
 using SCM.Models.RequestModels;
 using SCM.Services;
 using Mind.Builders;
+using Mind.Models;
 
 namespace Mind.Services
 {
@@ -39,7 +40,7 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<Attachment> GetByIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await base.GetByIDAsync(id, SCM.Models.PortRoleTypeEnum.ProviderInfrastructure, deep, asTrackable);
+            return await base.GetByIDAsync(id, Mind.Models.PortRoleTypeEnum.ProviderInfrastructure, deep, asTrackable);
         }
 
         /// <summary>
@@ -51,7 +52,7 @@ namespace Mind.Services
         /// <returns></returns>
         public async Task<List<Attachment>> GetAllByDeviceIDAsync(int id, bool? deep = false, bool asTrackable = false)
         {
-            return await base.GetAllByDeviceIDAsync(id, SCM.Models.PortRoleTypeEnum.ProviderInfrastructure, deep, asTrackable);
+            return await base.GetAllByDeviceIDAsync(id, Mind.Models.PortRoleTypeEnum.ProviderInfrastructure, deep, asTrackable);
         }
 
         /// <summary>

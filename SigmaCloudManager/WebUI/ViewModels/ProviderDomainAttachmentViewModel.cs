@@ -165,6 +165,13 @@ namespace Mind.WebUI.Models
         public int? Mtu { get; private set; }
 
         /// <summary>
+        /// ID of the attachment role
+        /// </summary>
+        /// <value>Integer value denoting the ID of the attachment role</value>
+        /// <example>7001</example>
+        public int? AttachmentRoleId { get; private set; }
+
+        /// <summary>
         /// The name of the attachment role
         /// </summary>
         /// <value>String value denoting the name of an attachment role</value>

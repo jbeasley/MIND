@@ -1,10 +1,8 @@
 ﻿(($) => {
 
-    // Initialise all tool-tips
-    $('[data-toggle="tooltip"]').tooltip();
-
     // Set the checked state of the checkbox for an item in the table from stored value
     // in the cookie (if present)
+
     var attachmentId = Mind.Utilities.getCookie("provider-domain-attachment-id");
     if (attachmentId !== "") {
 
@@ -15,6 +13,7 @@
     }
 
     // Handle click event for the card and using the current attachment item context
+
     $(".custom-card").click(function (e) {
 
         e.preventDefault();
@@ -24,15 +23,18 @@
             action = $this.data('action');
 
         // Ignore the card click if an action is defined - the action is processed by the 'cardSelectionHelper.js' script
+
         if (action === undefined) 
         {
             var isTagged = $inputs.data('is-tagged');
             if ((/false/i).test(isTagged)) {
 
                 // Prevent any other events handlers defined in 'cardSelectionHelper.js' from being processed 
+
                 e.stopImmediatePropagation();
 
                 // An untagged attachment item is selected
+
                 $("#untaggedItemSelectedModal").modal();
             }
         }

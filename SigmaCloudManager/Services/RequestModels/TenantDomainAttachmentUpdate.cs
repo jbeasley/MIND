@@ -8,6 +8,7 @@ using System.Collections.ObjectModel;
 using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
+using Mind.Models.RequestModels;
 
 namespace SCM.Models.RequestModels
 { 
@@ -58,5 +59,17 @@ namespace SCM.Models.RequestModels
         /// </summary>
         /// <value>String value for notes</value>
         public string Notes { get; set; }
+
+        /// <summary>
+        /// IPv4 addresses to be assigned to the interfaces of the attachment.
+        /// </summary>
+        /// <value>A list of IPv4 addresses and subnet masks</value>
+        public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
+
+        /// <summary>
+        /// Optional parameters for creating a new routing instance to be associated with the existing attachment.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        public RoutingInstanceRequest RoutingInstance { get; set; }
     }
 }

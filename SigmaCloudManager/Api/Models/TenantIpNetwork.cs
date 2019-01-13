@@ -9,18 +9,12 @@
  */
 
 using System;
-using System.Linq;
-using System.IO;
 using System.Text;
-using System.Collections;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel.DataAnnotations;
 using System.Runtime.Serialization;
 using Newtonsoft.Json;
 
 namespace Mind.Api.Models
-{ 
+{
     /// <summary>
     /// Model of a tenant IP network - an IP network which is owned (belongs to) a tenant
     /// </summary>
@@ -84,6 +78,14 @@ namespace Mind.Api.Models
         public TenantIpRoutingBehaviourEnum? IpRoutingBehaviour { get; private set; }
 
         /// <summary>
+        /// The tenant network environment which the IP network belongs to.
+        /// </summary>
+        /// <value>Enum member value denoting the tenant environment</value>
+        /// <example>Development</example>
+        [DataMember(Name = "environment")]
+        public TenantEnvironmentEnum? TenantEnvironment { get; private set; }
+
+        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -98,6 +100,7 @@ namespace Mind.Api.Models
             sb.Append("  AllowExtranet: ").Append(AllowExtranet).Append("\n");
             sb.Append("  TenantId: ").Append(TenantId).Append("\n");
             sb.Append("  IpRoutingBehaviour: ").Append(IpRoutingBehaviour).Append("\n");
+            sb.Append("  TenantEnvironment: ").Append(TenantEnvironment).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -168,7 +171,13 @@ namespace Mind.Api.Models
                     IpRoutingBehaviour == other.IpRoutingBehaviour ||
                     IpRoutingBehaviour != null &&
                     IpRoutingBehaviour.Equals(other.IpRoutingBehaviour)
+                ) &&
+                (
+                    TenantEnvironment == other.TenantEnvironment ||
+                    TenantEnvironment != null &&
+                    TenantEnvironment.Equals(other.TenantEnvironment)
                 );
+
         }
 
         /// <summary>
@@ -195,6 +204,8 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + TenantId.GetHashCode();
                     if (IpRoutingBehaviour != null)
                     hashCode = hashCode * 59 + IpRoutingBehaviour.GetHashCode();
+                    if (TenantEnvironment != null)
+                    hashCode = hashCode * 59 + TenantEnvironment.GetHashCode();
                 return hashCode;
             }
         }

@@ -51,13 +51,6 @@ namespace Mind.Api.Models
         public List<TenantDomainBgpPeer> BgpPeers { get; private set; }
 
         /// <summary>
-        /// A list of static routes which are configured for the routing instance
-        /// </summary>
-        /// <value>A list of VpnTenantIpNetworkRoutingInstanceStaticRoute objects</value>
-        [DataMember(Name = "staticRoutes")]
-        public List<VpnTenantIpNetworkRoutingInstanceStaticRoute> StaticRoutes { get; private set; }
-
-        /// <summary>
         /// Returns the string presentation of the object
         /// </summary>
         /// <returns>String presentation of the object</returns>
@@ -68,7 +61,6 @@ namespace Mind.Api.Models
             sb.Append("  RoutingInstanceId: ").Append(RoutingInstanceId).Append("\n");
             sb.Append("  Name: ").Append(Name).Append("\n");
             sb.Append("  BgpPeers: ").Append(BgpPeers).Append("\n");
-            sb.Append("  StaticRoutes: ").Append(StaticRoutes).Append("\n");
             sb.Append("}\n");
             return sb.ToString();
         }
@@ -104,7 +96,7 @@ namespace Mind.Api.Models
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
 
-            return 
+            return
                 (
                     RoutingInstanceId == other.RoutingInstanceId ||
                     RoutingInstanceId != null &&
@@ -119,11 +111,6 @@ namespace Mind.Api.Models
                     BgpPeers == other.BgpPeers ||
                     BgpPeers != null &&
                     BgpPeers.Equals(other.BgpPeers)
-                ) &&
-                (
-                    StaticRoutes == other.StaticRoutes ||
-                    StaticRoutes != null &&
-                    StaticRoutes.Equals(other.StaticRoutes)
                 );
         }
 
@@ -143,8 +130,6 @@ namespace Mind.Api.Models
                     hashCode = hashCode * 59 + Name.GetHashCode();
                 if (BgpPeers != null)
                     hashCode = hashCode * 59 + BgpPeers.GetHashCode();
-                if (StaticRoutes != null)
-                    hashCode = hashCode * 59 + StaticRoutes.GetHashCode();
                 return hashCode;
             }
         }

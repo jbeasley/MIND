@@ -40,9 +40,9 @@ namespace Mind.Api.Controllers
     [ApiExplorerSettings(GroupName = "Provider Domain Tenant BGP Peering")]
     public class ProviderDomainBgpPeerApiController : BaseApiController
     {
-        private readonly IProviderDomainBgpPeerService _bgpPeerService;
+        private readonly IBgpPeerService _bgpPeerService;
 
-        public ProviderDomainBgpPeerApiController(IMapper mapper, IProviderDomainBgpPeerService bgpPeerService) : base(bgpPeerService, mapper)
+        public ProviderDomainBgpPeerApiController(IMapper mapper, IBgpPeerService bgpPeerService) : base(bgpPeerService, mapper)
         {
             _bgpPeerService = bgpPeerService;
         }

@@ -299,19 +299,28 @@ namespace Mind.WebUI
     public enum PortRoleTypeEnum
     {
         /// <summary>
-        /// Enum for Tenant Facing.
+        /// The tenant facing port role type. This denotes a port in the provider domain which 
+        /// faces the tenant domain (e.g. a PE port facing a CE).
         /// </summary>
         TenantFacing,
 
         /// <summary>
-        /// Enum for Provider Infrastructrure.
+        /// The provider infrastructure port role type. This denotes a port in the provider domain which 
+        /// faces other provider infrastructure devies (e.g. a PE port facing a P node).
         /// </summary>
         ProviderInfrastructure,
 
         /// <summary>
-        /// Enum for Tenant Infrastructure.
+        /// The tenant infrastructure port role type. This denotes a port in the tenant domain which 
+        /// faces other tenant infrastructure devices (e.g. a CE port facing a firewall).
         /// </summary>
-        TenantInfrastructure
+        TenantInfrastructure,
+
+        /// <summary>
+        /// The provider facing port role type. This denotes a port in the tenant domain which 
+        /// faces the provider domain (e.g. a CE port facing a PE).
+        /// </summary>
+        ProviderFacing
     }
 
     /// <summary>
@@ -359,5 +368,27 @@ namespace Mind.WebUI
         /// Staged Inconsisten enum
         /// </summary>
         StagedInconsistent = 4
+    }
+
+    /// <summary>
+    /// Enumeration of tenant environnent options
+    /// </summary>
+    /// <value>Enumerated list of tenant environment options</value>
+    public enum TenantEnvironmentEnum
+    {
+        /// <summary>
+        /// Enum for Development
+        /// </summary>
+        Development = 1,
+
+        /// <summary>
+        /// Enum for Staging
+        /// </summary>
+        Staging = 2,
+
+        /// <summary>
+        /// Enum for Production
+        /// </summary>
+        Production = 3
     }
 }

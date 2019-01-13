@@ -1,18 +1,8 @@
-using System;
-using System.ComponentModel.DataAnnotations;
 using System.Linq;
-using System.Reflection;
 using System.Threading.Tasks;
-using AutoMapper;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
-using Mind.Api.Models;
-using Mind.Services;
 using SCM.Data;
-using Mind.Api.Controllers;
-using SCM.Models;
 
 namespace Mind.WebUI.Attributes
 {
@@ -45,7 +35,7 @@ namespace Mind.WebUI.Attributes
 
                     if ((from result in await _unitOfWork.AttachmentRepository.GetAsync(q =>
                         q.AttachmentID == attachmentId
-                        && q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.TenantFacing,
+                        && q.AttachmentRole.PortPool.PortRole.PortRoleType == Mind.Models.PortRoleTypeEnum.TenantFacing,
                         AsTrackable: false)
                          select result)
                        .SingleOrDefault() != null)

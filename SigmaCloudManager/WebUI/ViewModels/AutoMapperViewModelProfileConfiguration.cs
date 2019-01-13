@@ -24,6 +24,7 @@ namespace Mind.WebUI.Models
                 
             CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.ProviderDomainAttachmentUpdateViewModel>()
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
+                .ForMember(dst => dst.TrustReceivedCosAndDscp, conf => conf.MapFrom(src => src.ContractBandwidthPool.TrustReceivedCosAndDscp))
                 .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
                 .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
 
@@ -36,6 +37,7 @@ namespace Mind.WebUI.Models
 
             CreateMap<SCM.Models.Vif, Mind.WebUI.Models.ProviderDomainVifUpdateViewModel>()
                 .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
+                .ForMember(dst => dst.TrustReceivedCosAndDscp, conf => conf.MapFrom(src => src.ContractBandwidthPool.TrustReceivedCosAndDscp))
                 .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
                 .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
 
@@ -49,6 +51,21 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.InfrastructureAttachmentUpdateViewModel>()
                 .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
 
+            CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.TenantDomainAttachmentViewModel>()
+                .ForMember(dst => dst.TenantDeviceName, conf => conf.MapFrom(src => src.Device.Name))
+                .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
+                .ForMember(dst => dst.AttachmentBandwidthGbps, conf => conf.MapFrom(src => src.AttachmentBandwidth.BandwidthGbps))
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
+                .ForMember(dst => dst.AttachmentRoleName, conf => conf.MapFrom(src => src.AttachmentRole.Name));
+
+            CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.TenantDomainAttachmentUpdateViewModel>()
+                .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo))
+                .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
+                .ForMember(dst => dst.TrustReceivedCosAndDscp, conf => conf.MapFrom(src => src.ContractBandwidthPool.TrustReceivedCosAndDscp));
+
+            CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.TenantDomainAttachmentDeleteViewModel>()
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
+
             CreateMap<SCM.Models.Vlan, Mind.WebUI.Models.VlanViewModel>();
 
             CreateMap<SCM.Models.Location, Mind.WebUI.Models.LocationViewModel>()
@@ -61,6 +78,8 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.DeviceModel, conf => conf.MapFrom(src => src.DeviceModel.Name))
                 .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
                 .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Location.SiteName))
+                .ForMember(dst => dst.SubRegionName, conf => conf.MapFrom(src => src.Location.SubRegion.Name))
+                .ForMember(dst => dst.RegionName, conf => conf.MapFrom(src => src.Location.SubRegion.Region.Name))
                 .ForMember(dst => dst.PlaneName, conf => conf.MapFrom(src => src.Plane.Name))
                 .ForMember(dst => dst.DeviceRole, conf => conf.MapFrom(src => src.DeviceRole.Name));
 
@@ -100,6 +119,10 @@ namespace Mind.WebUI.Models
             CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.ProviderDomainRoutingInstanceViewModel>()
                 .ForMember(dst => dst.ProviderDomainLocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
                 .ForMember(dst => dst.ProviderPlaneName, conf => conf.MapFrom(src => src.Device.Plane.Name));
+
+            CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.InfrastructureRoutingInstanceViewModel>()
+                .ForMember(dst => dst.IsDefault, conf => conf.MapFrom(src => src.RoutingInstanceType.IsDefault))
+                .ForMember(dst => dst.InfrastructureDeviceName, conf => conf.MapFrom(src => src.Device.Name));
 
             CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.RoutingInstanceRequestViewModel>()
                 .ForMember(dst => dst.RangeType, conf => conf.MapFrom(src => src.RouteDistinguisherRange.Type));
@@ -182,13 +205,25 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Location.SiteName))
                 .ForMember(dst => dst.DeviceModel, conf => conf.MapFrom(src => src.DeviceModel.Name))
                 .ForMember(dst => dst.DeviceRole, conf => conf.MapFrom(src => src.DeviceRole.Name))
-                .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name));
+                .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
+
+            CreateMap<SCM.Models.Device, Mind.WebUI.Models.TenantDomainDeviceUpdateViewModel>()
+                .ForMember(dst => dst.DeviceStatus, conf => conf.MapFrom(src => src.DeviceStatus.Name))
+                .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name));
 
             // View model to entity model mappings
 
             CreateMap<Mind.WebUI.Models.TenantRequestViewModel, SCM.Models.Tenant>();
             CreateMap<Mind.WebUI.Models.TenantUpdateViewModel, SCM.Models.Tenant>();
-                         
+
+            // View model to service request model mappings
+
+            CreateMap<Mind.WebUI.Models.RoutingInstanceBgpPeersRequestViewModel, Mind.Models.RequestModels.RoutingInstanceRequest>()
+                .ForMember(dst => dst.AdministratorSubField, conf => conf.Ignore())
+                .ForMember(dst => dst.AssignedNumberSubField, conf => conf.Ignore())
+                .ForMember(dst => dst.Name, conf => conf.Ignore())
+                .ForMember(dst => dst.RangeType, conf => conf.Ignore());
         }
     }
 

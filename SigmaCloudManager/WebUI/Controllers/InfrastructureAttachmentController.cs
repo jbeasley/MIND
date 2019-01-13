@@ -3,7 +3,6 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper;
 using SCM.Models.RequestModels;
 using SCM.Models;
@@ -25,12 +24,6 @@ namespace Mind.WebUI.Controllers
             base(unitOfWork, mapper)
         {
             _attachmentService = attachmentService;
-        }
-
-        [HttpGet]
-        public IActionResult GetLocationSelectorComponent(LocationSelectorViewModel locationSelectorModel)
-        {
-            return ViewComponent("LocationSelector", locationSelectorModel);
         }
 
         [HttpGet]
@@ -59,37 +52,21 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetContractBandwidthPoolComponent(string portPoolName, string attachmentRoleName,
-            int? attachmentBandwidthGbps)
+        public IActionResult GetBgpPeersComponent(BgpPeersComponentViewModel model)
         {
-            return ViewComponent("AttachmentContractBandwidthPool", new
-            {
-                portPoolName,
-                attachmentRoleName,
-                attachmentBandwidthGbps
-            });
+            return ViewComponent("RoutingInstanceBgpPeers", new { model });
         }
 
-        [HttpGet]
-        public IActionResult GetBgpPeersComponent(string portPoolName, string attachmentRoleName)
+        [HttpPost]
+        public IActionResult GetBgpPeerGridData([FromBody]List<BgpPeerRequestViewModel> bgpPeerRequests)
         {
-            return ViewComponent("AttachmentBgpPeers", new
-            {
-                portPoolName,
-                attachmentRoleName
-            });
+            return ViewComponent("RoutingInstanceBgpPeersGridData", new { bgpPeerRequests });
         }
 
         [HttpGet]
         public IActionResult GetAttachmentPortPoolAndRoleComponent(AttachmentPortPoolAndRoleComponentViewModel model)
         {
             return ViewComponent("AttachmentPortPoolAndRole", new { model });
-        }
-
-        [HttpPost]
-        public IActionResult GetBgpPeerGridData([FromBody]List<BgpPeerRequestViewModel> bgpPeerRequests)
-        {
-            return ViewComponent("BgpPeersGridData", new { bgpPeerRequests });
         }
 
         [HttpGet]
@@ -101,12 +78,13 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
+        [ValidateInfrastructureDeviceExists]
         public async Task<IActionResult> GetAllByDeviceID(int? deviceId)
         {
             var attachments = await _unitOfWork.AttachmentRepository.GetAsync(
                     q =>
                     q.DeviceID == deviceId.Value && 
-                    q.AttachmentRole.PortPool.PortRole.PortRoleType == SCM.Models.PortRoleTypeEnum.ProviderInfrastructure,
+                    q.AttachmentRole.PortPool.PortRole.PortRoleType == Mind.Models.PortRoleTypeEnum.ProviderInfrastructure,
                     query: q => q.IncludeValidationProperties(),
                     AsTrackable: false);
 
@@ -138,7 +116,14 @@ namespace Mind.WebUI.Controllers
         [ValidateInfrastructureDeviceExists]
         public async Task<IActionResult> Create(int? deviceId)
         {
-            var device = await _unitOfWork.DeviceRepository.GetByIDAsync(deviceId);
+            var device = (from result in await _unitOfWork.DeviceRepository.GetAsync(
+                        q =>
+                          q.DeviceID == deviceId,
+                          query: q =>
+                          q.IncludeDeepProperties())
+                          select result)
+                          .Single();
+
             ViewBag.Device = _mapper.Map<InfrastructureDeviceViewModel>(device);
 
             return View();

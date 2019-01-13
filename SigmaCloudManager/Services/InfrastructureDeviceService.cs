@@ -61,10 +61,9 @@ namespace Mind.Services
             return (from result in await UnitOfWork.DeviceRepository.GetAsync(
                 q =>
                     devices
-                    .Where(
-                        x => 
-                        x.DeviceID == q.DeviceID)
-                    .Any(),
+                    .Any(
+                        x =>
+                        x.DeviceID == q.DeviceID),
                     query: q => q.IncludeDeepProperties(),
                     AsTrackable: false)
                     select result)
@@ -101,10 +100,9 @@ namespace Mind.Services
             return (from result in await UnitOfWork.DeviceRepository.GetAsync(
                 q =>
                     devices
-                    .Where(
+                    .Any(
                         x =>
-                        x.DeviceID == q.DeviceID)
-                    .Any(),
+                        x.DeviceID == q.DeviceID),
                     query: q => q.IncludeDeepProperties(),
                     AsTrackable: false)
                     select result)

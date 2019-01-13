@@ -2,25 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper;
-using SCM.Models.RequestModels;
-using SCM.Models.ViewModels;
 using SCM.Models;
-using Microsoft.AspNetCore.Mvc.Filters;
 using SCM.Controllers;
 using Mind.Services;
 using SCM.Data;
 using Mind.Models;
 using Mind.Builders;
 using Mind.WebUI.Attributes;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
 using Mind.Models.RequestModels;
-using Mind.WebUI.ViewComponents;
 
 namespace Mind.WebUI.Controllers
 {
@@ -64,6 +58,8 @@ namespace Mind.WebUI.Controllers
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             PopulateIpRoutingBehavioursDropDownList();
+            PopulateEnvironmentsDropDownList();
+
             return View();
         }
 
@@ -105,7 +101,8 @@ namespace Mind.WebUI.Controllers
 
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantId);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
-            PopulateIpRoutingBehavioursDropDownList();
+            PopulateIpRoutingBehavioursDropDownList(requestModel.IpRoutingBehaviour);
+            PopulateEnvironmentsDropDownList(requestModel.TenantEnvironment);
 
             return View(requestModel);
         }
@@ -118,6 +115,7 @@ namespace Mind.WebUI.Controllers
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantIpNetwork.TenantID);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             PopulateIpRoutingBehavioursDropDownList(tenantIpNetwork.IpRoutingBehaviour);
+            PopulateEnvironmentsDropDownList(tenantIpNetwork.TenantEnvironment);
 
             return View(_mapper.Map<TenantIpNetworkUpdateViewModel>(tenantIpNetwork));
         }
@@ -178,6 +176,7 @@ namespace Mind.WebUI.Controllers
             var tenant = await _unitOfWork.TenantRepository.GetByIDAsync(tenantIpNetwork.TenantID);
             ViewBag.Tenant = _mapper.Map<TenantViewModel>(tenant);
             PopulateIpRoutingBehavioursDropDownList(update.IpRoutingBehaviour);
+            PopulateEnvironmentsDropDownList(update.TenantEnvironment);
 
             return View(_mapper.Map<TenantIpNetworkUpdateViewModel>(tenantIpNetwork));
         }
@@ -239,6 +238,15 @@ namespace Mind.WebUI.Controllers
                 .Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
 
             ViewBag.IpRoutingBehaviour = new SelectList(list, "Value", "Text");
+        }
+
+        private void PopulateEnvironmentsDropDownList(object selectedEnvironment = null)
+        {
+            IList<SelectListItem> list = Enum.GetValues(typeof(TenantEnvironmentEnum))
+                .Cast<TenantEnvironmentEnum>()
+                .Select(x => new SelectListItem { Text = x.ToString(), Value = ((int)x).ToString() }).ToList();
+
+            ViewBag.TenantEnvironment = new SelectList(list, "Value", "Text");
         }
     }
 }

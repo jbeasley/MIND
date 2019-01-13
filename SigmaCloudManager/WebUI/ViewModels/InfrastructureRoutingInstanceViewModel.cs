@@ -16,6 +16,21 @@ namespace Mind.WebUI.Models
         public int? RoutingInstanceId { get; private set; }
 
         /// <summary>
+        /// The ID of the device
+        /// </summary>
+        /// <value>An integer value denoting the ID of the device</value>
+        /// <example>1001</example>
+        public int? DeviceId { get; private set; }
+
+        /// <summary>
+        /// Gets the name of the infrastructure device.
+        /// </summary>
+        /// <value>String value denoting the name of the infrastructure device.</value>
+        /// <example>UK2-PE1</example>
+        [Display(Name = "Infrastructure Device Name")]
+        public string InfrastructureDeviceName { get; private set; }
+
+        /// <summary>
         /// The MIND system-generated name of the routing instance
         /// </summary>
         /// <value>A string value denoting the name of the routing instance</value>
@@ -38,6 +53,15 @@ namespace Mind.WebUI.Models
         /// <example>10000</example>
         [Display(Name = "Assigned Number SubField")]
         public int? AssignedNumberSubField { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this
+        /// <see cref="T:Mind.WebUI.Models.InfrastructureRoutingInstanceViewModel"/> denotes the default
+        /// routing instance for the device.
+        /// </summary>
+        /// <value><c>true</c> if is default; otherwise, <c>false</c>.</value>
+        [Display(Name = "Default")]
+        public bool IsDefault { get; private set; }
 
         /// <summary>
         /// A list of BGP peers which are configured for the routing instance

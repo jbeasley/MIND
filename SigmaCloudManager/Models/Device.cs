@@ -52,7 +52,7 @@ namespace SCM.Models
 
         public static IQueryable<Device> IncludeDeepProperties(this IQueryable<Device> query)
         {
-            return query.Include(x => x.Location)
+            return query.Include(x => x.Location.SubRegion.Region)
                         .Include(x => x.Attachments)
                         .ThenInclude(x => x.Interfaces)
                         .ThenInclude(x => x.Ports)

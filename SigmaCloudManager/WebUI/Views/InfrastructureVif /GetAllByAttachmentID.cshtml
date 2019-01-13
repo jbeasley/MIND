@@ -1,0 +1,86 @@
+@model IEnumerable<Mind.WebUI.Models.InfrastructureVifViewModel>
+@{
+    ViewData["Title"] = "Infrastructure VIFs";
+}
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/InfrastructureServices"><i class="fa" aria-hidden="true"></i>Infrastructure Services</a></li>
+        <li><a href="/InfrastructureDevice/GetAll"><i class="fa" aria-hidden="true"></i>Infrastructure Devices</a></li>
+        <li><a href="/InfrastructureAttachment/GetAllByDeviceID?deviceId=@ViewBag.Device.DeviceId"><i class="fa" aria-hidden="true"></i>Infrastructure Attachments - [@ViewBag.Device.Name]</a></li>
+        <li><a href="/InfrastructureAttachment/GetAllByTenantId?tenantId=@ViewBag.Attachment.TenantId"><i class="fa active" aria-hidden="true"></i>Attachments - [@ViewBag.Attachment.TenantName]</a></li>
+        <li><a href="#"><i class="fa active" aria-hidden="true"></i>VIFs - [@ViewBag.Attachment.Name]</a></li>
+    </ul>
+</div>
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+@if (ViewData["SuccessMessage"] != null)
+{
+    @using (Html.BeginForm("ClearCreatedAlerts", "InfrastructureVif", FormMethod.Post))
+    {
+        <input type="hidden" name="attachmentId" value="@ViewBag.Attachment.AttachmentId" />
+        <p>
+            <button type="submit" class="btn btn-info btn-default" is-clear-alerts-button></button>
+        </p>
+    }
+}
+<h2>VIFs for Attachment '@ViewBag.Attachment.Name'</h2>
+<p>
+    <a mind-create-btn-link="true" asp-action="Create" asp-route-attachmentId="@ViewBag.Attachment.AttachmentId"
+       data-toggle="tooltip" data-placement="right"
+       title="Create a VIF to connect a Tenant Domain to the Provider Domain across the tagged Attachment.
+       For example, create a VIF on a PE to connect the PE to a data-center.">Create New</a>
+</p>
+<table class="table table-striped table-hover mind-grid" id="mainGrid">
+    <thead>
+        <tr>
+            <th>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsLayer3)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody class="mind-grid-body-scroll-lg">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <div class="custom-control custom-checkbox">
+                        <input id="vif_checkbox_@item.VifId" type="checkbox" class="form-check-input custom-control-input"
+                               data-property-val="@item.VifId" data-action-url="/v1/provider-attachments/@item.AttachmentId/vifs/@item.VifId/sync" data-query-parameter="vifId=" />
+                        <label class="form-check-label custom-control-label" for="vif_checkbox_@item.VifId"></label>
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsLayer3)
+                </td>
+                <td align="right">
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-vifId="@item.VifId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-vifId="@item.VifId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-vifId="@item.VifId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<a mind-nav-link-back-btn="true" asp-controller="InfrastructureAttachment" asp-action="GetAllByDeviceID" asp-route-deviceId="@ViewBag.Attachment.DeviceId">Back to Attachments</a>
+
+<!-- List item selection modal messages partial view -->
+@{await Html.RenderPartialAsync("_ListItemsModalMessagesPartial");}
+
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_InfrastructureVifMainScriptsPartial");}
+}

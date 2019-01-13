@@ -28,7 +28,7 @@ namespace SCM.Services
         /// <param name="portRoleType"></param>
         /// <param name="asTrackable"></param>
         /// <returns></returns>
-        protected internal async virtual Task<Attachment> GetByIDAsync(int id, SCM.Models.PortRoleTypeEnum portRoleType, 
+        protected internal async virtual Task<Attachment> GetByIDAsync(int id, Mind.Models.PortRoleTypeEnum portRoleType, 
             bool? deep = false, bool asTrackable = false)
         {
             return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
@@ -50,7 +50,7 @@ namespace SCM.Services
         /// <param name="asTrackable"></param>
         /// <param name="portRoleType"></param>
         /// <returns></returns>
-        protected internal async virtual Task<List<Attachment>> GetAllByTenantIDAsync(int id, SCM.Models.PortRoleTypeEnum portRoleType,
+        protected internal async virtual Task<List<Attachment>> GetAllByTenantIDAsync(int id, Mind.Models.PortRoleTypeEnum portRoleType,
             bool? deep = false, bool asTrackable = false)
         {
             return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(
@@ -71,7 +71,7 @@ namespace SCM.Services
         /// <param name="asTrackable"></param>
         /// <param name="portRoleType"></param>
         /// <returns></returns>
-        protected internal async virtual Task<List<Attachment>> GetAllByDeviceIDAsync(int id, SCM.Models.PortRoleTypeEnum portRoleType,
+        protected internal async virtual Task<List<Attachment>> GetAllByDeviceIDAsync(int id, Mind.Models.PortRoleTypeEnum portRoleType,
             bool? deep = false, bool asTrackable = false)
         {
             return (from attachments in await UnitOfWork.AttachmentRepository.GetAsync(

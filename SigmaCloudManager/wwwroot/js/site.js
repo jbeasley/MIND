@@ -114,13 +114,29 @@ Mind.Utilities = (() => {
         });
     };
 
+     /// Show the duplicate item modal dialog
+    const showDuplicateItemDialog = (title, message) => {
+
+        var $duplicateItemModal = $('#duplicateItemModal');
+        if ($duplicateItemModal.length > 0) {
+
+            title = title == null ? "Duplicate Item" : title;
+            message = message == null ? "The selected item already exists" : message;
+            $('#duplicateItemModalLabel').empty().html(title);
+            $('#duplicateItemModalMessage').empty().html(message);
+
+            $duplicateItemModal.modal('show');            
+        }
+    }
+
     return {
 
         getCookie: getCookie,
         populateElement: populateElement,
         createWizard: createWizard,
         showSpinner: showSpinner,
-        hideSpinner: hideSpinner
+        hideSpinner: hideSpinner,
+        showDuplicateItemDialog: showDuplicateItemDialog
     };
 
 })(jQuery);

@@ -53,6 +53,8 @@
         });
     }
 
+    // Handle click events for the bundle and multiport checkbox controls
+
     function handleBundleAndMultiportCheckboxClickEvents() {
 
         $attachmentBundleAndMultiportOptionsComponent.on('click', '#MultiportRequired', () => {
@@ -68,6 +70,8 @@
         });
     }
 
+    // Handle chenges to the attachment bandwidth drop-down list
+
     function handleAttachmentBandwidthChangeEvent() {
 
         $attachmentBandwidthComponent.on('change', '#AttachmentBandwidthGbps', function (e) {
@@ -78,6 +82,11 @@
             defaultAttachmentRole();
         });
     }
+
+    // Handle changes to the port pool drop-down list
+    // Reset the IP addresssingm contract bandwidth, and BGP components. 
+    // Depending on the attachment role option which the user subquently selects, these component may
+    // be re-populated
 
     function handlePortPoolChangeEvent() {
 
@@ -103,6 +112,8 @@
         });
     }
 
+    // Handle changes to the attachment role drop-down list
+
     function handleAttachmentRoleChangeEvent() {
 
         $attachmentPortPoolAndRoleComponent.on('change', '#AttachmentRoleName', function (e) {
@@ -118,11 +129,28 @@
 
     // Helpers
 
+    // Reset the port pool drop-down list
+
     const defaultPortPool                       = () => $portPool[0].selectedIndex = 0;
+
+    // Reset the attachment role drop-down list
+
     const defaultAttachmentRole                 = () => { $attachmentRole[0].selectedIndex = 0; $attachmentRole[0].disabled = true; }
+   
+    // Clear content of the IP addressing component
+
     const clearIpAddressingComponent            = () => $ipAddressingComponent.empty();
+
+    // Clear the content of the Contract Bandwidth component
+
     const clearContractBandwidthPoolComponent   = () => $contractBandwidthPoolComponent.empty();
+
+    // Clear the BGP component
+
     const clearBgpPeersComponent                = () => $bgpPeersComponent.empty();
+
+
+    // Get the HTML for the location selector component
 
     const getLocationSelectorComponent = () => { 
 
@@ -140,6 +168,8 @@
         }
     }
 
+    // Get the HTML for the port pool/port role component
+
     const getAttachmentPortPoolAndRoleComponent = () => {
 
         if ($attachmentPortPoolAndRoleComponent.length > 0) {
@@ -150,6 +180,8 @@
                 });              
         }
     }
+
+    // Get the HTML for the attachment bandwidth component
 
     const getAttachmentBandwidthComponent = () => {
 
@@ -162,7 +194,9 @@
                 });
         }
     }
-    
+
+    // Get the HTML for the IP addressing component
+
     const getIpAddressingComponent = () => {
 
         if ($ipAddressingComponent.length > 0) {
@@ -176,10 +210,12 @@
                 attachmentBandwidthGbps: $attachmentBandwidthGbps[0].value,
                 isMultiport: $multiportRequired[0].checked
             },
-                (data) => initToolTipsAndValidation()
+                () => initToolTipsAndValidation()
             );     
         }
     }
+
+    // Get the HTML for the contract bandwidth component
 
     const getContractBandwidthPoolComponent = () => {
 
@@ -191,12 +227,13 @@
             {
                 portPoolName: $portPool[0].value,
                 attachmentRoleName: $attachmentRole[0].value,
-                attachmentBandwidthGbps: $attachmentBandwidthGbps[0].value
             },
-                (data) => initToolTipsAndValidation()
+                () => initToolTipsAndValidation()
             );
         }
     }
+
+    // Get the HTML for the BGP component
 
     const getBgpPeersComponent = () => {
 
@@ -209,10 +246,12 @@
                 portPoolName: $portPool[0].value,
                 attachmentRoleName: $attachmentRole[0].value,
             },
-                (data) => initToolTipsAndValidation()
+                () => initToolTipsAndValidation()
             );
         }
     }
+
+    // Cache jquery objects for various elements
 
     const cacheElements = () => {
 
@@ -225,13 +264,13 @@
         $attachmentRole             = $('#AttachmentRoleName');        
     }
 
+    // Initialise new tool-tips
+    // Re-initialise unobtrusive validation on the form
+
     const initToolTipsAndValidation = () => {
-
-        // Initialise new tool-tips
-
+       
         $('[data-toggle="tooltip"]').tooltip();
-
-        // Re-initialise unobtrusive validation on the form
+        
         $form.removeData("validator")
              .removeData("unobtrusiveValidation");
 
@@ -241,6 +280,7 @@
     // Main
 
     // Cache element object references
+
     cacheElements();
 
     // Bind event handlers to the various form controls

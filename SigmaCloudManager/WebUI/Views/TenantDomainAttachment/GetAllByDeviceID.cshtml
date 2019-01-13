@@ -1,0 +1,127 @@
+@model IEnumerable<Mind.WebUI.Models.TenantDomainAttachmentViewModel>
+@{
+    ViewData["Title"] = "Tenant Domain Attachments";
+}
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
+        <li><a href="/TenantDomainDevice/GetAllByTenantId?tenantId=@ViewBag.Device.TenantId"><i class="fa" aria-hidden="true"></i>Tenant Domain Devices - [@ViewBag.Device.TenantName]</a></li>
+        <li class="active"><a href="#"><i class="fa active" aria-hidden="true"></i>Tenant Domain Attachments</a></li>
+    </ul>
+</div>
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+@if (ViewData["SuccessMessage"] != null)
+{
+    @using (Html.BeginForm("ClearCreatedAlerts", "TenantDomainAttachment", FormMethod.Post))
+    {
+        <input type="hidden" name="deviceId" value="@ViewBag.Device.DeviceId" />
+        <p>
+            <button type="submit" class="btn btn-info btn-default" is-clear-alerts-button></button>
+        </p>
+    }
+}
+<h2>Attachments for Device '@ViewBag.Device.Name'</h2>
+<p>
+    <a mind-create-btn-link="true" asp-action="Create" asp-route-deviceId="@ViewBag.Device.DeviceId"
+       data-toggle="tooltip" data-placement="right"
+       title="Create an Attachment to connect this device to another device in the tenant domain or a device 
+       in the provider domain if the device supports provider domain connectivity (such as a CE device)">
+       Create New</a>
+</p>
+<table class="table table-striped table-hover mind-grid" id="mainGrid">
+    <thead>
+        <tr>
+            <th>
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Name)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.AttachmentRoleName)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsTagged)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IsLayer3)
+            </th>
+            <th></th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody class="mind-grid-body-scroll-lg">
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    <div class="custom-control custom-checkbox">
+                        <input id="attachment_checkbox_@item.AttachmentId" type="checkbox" class="form-check-input custom-control-input" data-is-tagged="@item.IsTagged"
+                               data-property-val="@item.AttachmentId" data-query-parameter="attachmentId=@item.AttachmentId" />
+                        <label class="form-check-label custom-control-label" for="attachment_checkbox_@item.AttachmentId"></label>
+                    </div>
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Name)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.AttachmentRoleName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsTagged)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.IsLayer3)
+                </td>
+                <td colspan="2" align="right">
+                    <a mind-grid-btn-link="true" asp-action="Edit" asp-route-attachmentId="@item.AttachmentId">Edit</a>
+                    <a mind-grid-btn-link="true" asp-action="Details" asp-route-attachmentId="@item.AttachmentId">Details</a>
+                    <a mind-grid-btn-link="true" asp-action="Delete" asp-route-attachmentId="@item.AttachmentId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+<input type="hidden" name="deviceId" id="deviceId" value="@ViewBag.Device.DeviceId" />
+<div class="card-deck" style="width: 27%">
+    <a href="/#" data-href="/InfastructureVif/GetAllByAttachmentId?" class="card custom-card bg-light">
+        <img class="card-img-top mx-auto d-block" src="~/images/vif.png" alt="Card image cap">
+        <div class="card-body">
+            <h5 class="card-title text-center">VIFs</h5>
+            <p class="card-text">Create and manage the lifecycle of virtual interfaces (vifs)</p>
+        </div>
+    </a>
+</div>
+<br />
+<a mind-nav-link-back-btn="true" asp-controller="InfrastructureDevice" asp-action="GetAll">Back to Devices</a>
+<div class="modal fade" id="untaggedItemSelectedModal" tabindex="-1" role="dialog" aria-labelledby="untaggedItemSelectedModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="untaggedItemSelectedModalLabel">Untagged item selected</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                Select a tagged attachment item from the list
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- List item selection modal messages partial view -->
+@{await Html.RenderPartialAsync("_ListItemsModalMessagesPartial");}
+
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_TenantDomainAttachmentMainScriptsPartial");}
+
+}

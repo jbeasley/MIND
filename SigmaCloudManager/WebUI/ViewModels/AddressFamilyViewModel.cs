@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace Mind.WebUI.Models
+﻿namespace Mind.WebUI.Models
 {
     /// <summary>
     /// Model of am address family

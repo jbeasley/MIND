@@ -9,6 +9,21 @@ namespace Mind.WebUI.Models
     public class TenantDomainDeviceUpdateViewModel : IModifiableResource
     {
         /// <summary>
+        /// Gets or sets the tenant identifier.
+        /// </summary>
+        /// <value>Integer value denoting the tenant identifier.</value>
+        public int? TenantId { get; set; }
+
+        /// <summary>
+        /// The tenant name to which the device is assigned
+        /// </summary>
+        /// <value>String value denoting tenant name to which the device is assigned</value>
+        /// <example>Red</example>
+        [Display(Name = "Tenant Name")]
+        public string TenantName { get; private set; }
+
+
+        /// <summary>
         /// Gets or sets the device identifier.
         /// </summary>
         /// <value>Integer value denoting the device identifier.</value>

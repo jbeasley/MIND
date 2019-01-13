@@ -7,15 +7,18 @@
     <ul>
         <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
         <li><a href="/Tenant/GetAll"><i class="fa" aria-hidden="true"></i> Tenants</a></li>
-        <li><a href="/TenantDomainDevice/GetAllByTenantId?tenantId=@ViewBag.Tenant.TenantId"><i class="fa active" aria-hidden="true"></i>Tenant Domain Devices - [@ViewBag.Tenant.Name]</a></li>
-        <li class="active"><a href="#"><i class="fa" aria-hidden="true"></i>Create</a></li>
+        <li><a href="/TenantDomainDevice/GetAllByTenantId?tenantId=@ViewBag.Tenant.TenantId"><i class="fa" aria-hidden="true"></i>Tenant Domain Devices - [@ViewBag.Tenant.Name]</a></li>
+        <li class="active"><a href="#"><i class="fa active" aria-hidden="true"></i>Create</a></li>
     </ul>
 </div>
 <h2>Create a Device for Tenant '@ViewBag.Tenant.Name'</h2>
-<form id="createForm" asp-action="Create">
+<form id="form" asp-action="Create">
+
     @{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+
     <input type="hidden" asp-for="TenantId" value="@ViewBag.Tenant.TenantId" />
-    <div id="createTenantDomainDeviceWizard">
+    <div id="deviceWizard">
+
         <h3>Name and Description</h3>
         <section id="name-and-description">
             <div mind-alert="info" message="
@@ -37,6 +40,7 @@
             </div>
         </section>
         <h3>Location</h3>
+
         <section id="location">
             <div mind-alert="info" message="Select a location for the new device.">
             </div>
@@ -50,6 +54,7 @@
             })
             </div>
         </section>
+
         <h3>Model and Role</h3>
         <section id="role-model">
             <!-- View component for model and role options for the device -->
@@ -60,6 +65,7 @@
             DeviceModel = Model?.DeviceModel
         })
         </section>
+
         <h3>MTU and Activation Status</h3>
         <section id="mtu-status">
             <!-- View component for MTU and status options for the device -->
@@ -69,6 +75,7 @@
             DeviceStatus = Model?.DeviceStatus
         })
         </section>
+
         <h3>Ports</h3>
         <section id="ports">
             <div id="portsComponent">
@@ -79,6 +86,7 @@
             })
             </div>
         </section>
+
     </div>
 </form>
 <div>
@@ -91,7 +99,9 @@ the user clicks the 'create' or one of the grid row edit buttons -->
 
 <!-- Loading Spinner partial view -->
 @{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
 @section Scripts {
+
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
     @{await Html.RenderPartialAsync("_TenantDomainDeviceCreateScriptsPartial");}
 }

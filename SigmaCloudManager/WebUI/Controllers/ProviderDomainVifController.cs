@@ -1,23 +1,17 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using AutoMapper;
-using SCM.Models.RequestModels;
-using SCM.Models.ViewModels;
 using SCM.Models;
-using Microsoft.AspNetCore.Mvc.Filters;
 using SCM.Controllers;
 using Mind.Services;
 using SCM.Data;
 using Mind.Models;
 using Mind.Builders;
 using Mind.WebUI.Attributes;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Mind.WebUI.Models;
 using Mind.Models.RequestModels;
 using IO.NovaAttSwagger.Client;
@@ -44,29 +38,21 @@ namespace Mind.WebUI.Controllers
         }
 
         [HttpGet]
-        public IActionResult GetContractBandwidthPoolComponent(int? attachmentId, string vifRoleName)
+        public IActionResult GetContractBandwidthPoolComponent(ContractBandwidthComponentViewModel model)
         {
-            return ViewComponent("VifContractBandwidthPool", new
-            {
-                attachmentId,
-                vifRoleName
-            });
+            return ViewComponent("ContractBandwidthPool", new { model });
         }
 
         [HttpGet]
-        public IActionResult GetBgpPeersComponent(int? attachmentId, string vifRoleName)
+        public IActionResult GetBgpPeersComponent(BgpPeersComponentViewModel model)
         {
-            return ViewComponent("VifBgpPeers", new
-            {
-                attachmentId,
-                vifRoleName
-            });
+            return ViewComponent("RoutingInstanceBgpPeers", new { model });
         }
 
         [HttpPost]
         public IActionResult GetBgpPeerGridData([FromBody]List<BgpPeerRequestViewModel> bgpPeerRequests)
         {
-            return ViewComponent("BgpPeersGridData", new { bgpPeerRequests });
+            return ViewComponent("RoutingInstanceBgpPeersGridData", new { bgpPeerRequests });
         }
 
         [HttpGet]
@@ -123,7 +109,7 @@ namespace Mind.WebUI.Controllers
                              .Single();
 
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
-            await PopulateVifRolesDropDownList(attachment.AttachmentRoleID);
+
             return View();
         }
 
@@ -180,8 +166,6 @@ namespace Mind.WebUI.Controllers
                              .Single();
 
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
-            await PopulateVifRolesDropDownList(attachment.AttachmentRoleID, requestModel.VifRoleName);
-
             return View(requestModel);
         }
 
@@ -199,10 +183,6 @@ namespace Mind.WebUI.Controllers
                              .Single();
 
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
-            if (vif.RoutingInstance != null)
-            {
-                await PopulateRoutingInstancesDropDownList(attachment.TenantID.Value, attachment.DeviceID, vif.RoutingInstance.Name);
-            }
 
             return View(_mapper.Map<ProviderDomainVifUpdateViewModel>(vif));
         }
@@ -262,11 +242,6 @@ namespace Mind.WebUI.Controllers
                         ModelState.AddNovaClientApiExceptionMessage();
                     }
                 }
-            }
-
-            if (vif.RoutingInstance != null)
-            {
-                await PopulateRoutingInstancesDropDownList(vif.Attachment.TenantID.Value, vif.Attachment.DeviceID, vif.RoutingInstance.Name);
             }
 
             var attachment = (from result in await _unitOfWork.AttachmentRepository.GetAsync(
@@ -349,30 +324,6 @@ namespace Mind.WebUI.Controllers
             ViewBag.Attachment = _mapper.Map<ProviderDomainAttachmentViewModel>(attachment);
 
             return View(_mapper.Map<ProviderDomainVifDeleteViewModel>(vif));
-        }
-
-        private async Task PopulateVifRolesDropDownList(int attachmentRoleId, object selectedVifRole = null)
-        {
-            var query = (from result in await _unitOfWork.VifRoleRepository.GetAsync(
-                         q =>
-                            q.AttachmentRoleID == attachmentRoleId)
-                            select result);
-
-            var attachmentRoles = query.ToList();
-            ViewBag.VifRole = new SelectList(_mapper.Map<List<VifRoleViewModel>>(attachmentRoles),
-                "Name", "Name", selectedVifRole);
-        }
-
-        private async Task PopulateRoutingInstancesDropDownList(int tenantId, int deviceId, object selectedRoutingInstance = null)
-        {
-            var routingInstances = await _unitOfWork.RoutingInstanceRepository.GetAsync(
-                            q =>
-                                q.TenantID == tenantId &&
-                                q.DeviceID == deviceId &&
-                                q.RoutingInstanceType.IsTenantFacingVrf);
-
-            ViewBag.RoutingInstance = new SelectList(_mapper.Map<List<RoutingInstanceViewModel>>(routingInstances),
-                "Name", "Name", selectedRoutingInstance);
         }
     }
 }

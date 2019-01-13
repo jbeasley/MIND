@@ -126,7 +126,6 @@ namespace Mind.Api.Models
         /// </summary>
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>CE-LAN-UNTAGGED</example>
-        [Required]
         [DataMember(Name = "AttachmentRoleName")]
         public string AttachmentRoleName { get; private set; }
 

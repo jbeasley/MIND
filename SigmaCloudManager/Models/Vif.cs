@@ -98,13 +98,14 @@ namespace SCM.Models
                         .ThenInclude(x => x.VpnTenantIpNetworksOut)
                         .ThenInclude(x => x.TenantIpNetwork)
                         .Include(x => x.RoutingInstance.LogicalInterfaces)
+                        .Include(x => x.RoutingInstance.RoutingInstanceType)
                         .Include(x => x.Vlans)
                         .Include(x => x.Tenant)
                         .Include(x => x.Mtu);
         }
     }
 
-    public class Vif : IModifiableResource
+    public class Vif : IModifiableResource, IEquatable<Vif>
     {
         public int VifID { get; private set; }
         public bool IsLayer3 { get; set; }
@@ -142,6 +143,56 @@ namespace SCM.Models
         public virtual Mtu Mtu { get; set; }
         public virtual ICollection<Vlan> Vlans { get; set; }
         string IModifiableResource.ConcurrencyToken => this.GetWeakETag();
+
+        public bool Equals(Vif obj)
+        {
+            if (ReferenceEquals(null, obj)) return false;
+            if (ReferenceEquals(this, obj)) return true;
+            return obj.GetType() == this.GetType() && this.Equals(obj);
+        }
+
+        /// <summary>
+        /// Gets the hash code
+        /// </summary>
+        /// <returns>Hash code</returns>
+        public override int GetHashCode()
+        {
+            unchecked // Overflow is fine, just wrap
+            {
+                var hashCode = 41;
+                hashCode = hashCode * 59 + VifID.GetHashCode();
+                hashCode = hashCode * 59 + IsLayer3.GetHashCode();
+                hashCode = hashCode * 59 + AttachmentID.GetHashCode();
+                if (Name != null)
+                    hashCode = hashCode * 59 + Name.GetHashCode();
+                hashCode = hashCode * 59 + VlanTag.GetHashCode();
+                if (TenantID != null)
+                    hashCode = hashCode * 59 + TenantID.GetHashCode();
+                if (ContractBandwidthPoolID != null)
+                    hashCode = hashCode * 59 + ContractBandwidthPoolID.GetHashCode();
+                if (RoutingInstance != null)
+                    hashCode = hashCode * 59 + RoutingInstance.GetHashCode();
+                    hashCode = hashCode * 59 + VifRoleID.GetHashCode();
+                    hashCode = hashCode * 59 + VlanTagRangeID.GetHashCode();
+                if (Vlans != null)
+                    hashCode = hashCode * 59 + Vlans.GetHashCode();
+                if (ContractBandwidthPool != null)
+                    hashCode = hashCode * 59 + ContractBandwidthPool.GetHashCode();
+                if (Attachment != null)
+                    hashCode = hashCode * 59 + Attachment.GetHashCode();
+                if (Mtu != null)
+                    hashCode = hashCode * 59 + Mtu.GetHashCode();  
+                    hashCode = hashCode * 59 + VifRoleID.GetHashCode();
+                    hashCode = hashCode * 59 + NetworkStatus.GetHashCode();
+                hashCode = hashCode * 59 + Created.GetHashCode();
+                hashCode = hashCode * 59 + ShowCreatedAlert.GetHashCode();
+                if (VifRole != null)
+                    hashCode = hashCode * 59 + VifRole.GetHashCode();
+                if (Mtu != null)
+                    hashCode = hashCode * 59 + Mtu.GetHashCode();
+                return hashCode;
+            }
+        }
 
         /// <summary>
         /// Validate the state of the vif

@@ -207,7 +207,7 @@ namespace Mind.Builders
         protected internal virtual List<PortRequestOrUpdate> PortRequests()
         {
             var requests = (List<PortRequestOrUpdate>)_args[nameof(WithPortRequestsOrUpdates)];
-            return requests.Where(request => request.PortStatus != Models.RequestModels.PortStatusTypeEnum.Assigned).ToList();
+            return requests.Where(request => request.PortId == null).ToList();
         }
 
         /// <summary>
@@ -217,7 +217,7 @@ namespace Mind.Builders
         protected internal virtual List<PortRequestOrUpdate> PortUpdates()
         {
             var requests = (List<PortRequestOrUpdate>)_args[nameof(WithPortRequestsOrUpdates)];
-            return requests.Where(request => request.PortStatus == Models.RequestModels.PortStatusTypeEnum.Assigned).ToList();
+            return requests.Where(request => request.PortId != null).ToList();
         }
 
         /// <summary>

@@ -94,23 +94,20 @@ namespace Mind.Builders
             if (_args.ContainsKey(nameof(ForPort)))
             {
                 await SetPortAsync();
-                if (_args.ContainsKey(nameof(WithConnector))) await SetConnectorAsync();
-                if (_args.ContainsKey(nameof(WithSfp))) await SetSfpAsync();
-                if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
-                if (_args.ContainsKey(nameof(AssignToTenant))) await SetTenantAsync();
             }
-            else
+            else if (_args.ContainsKey(nameof(ForDevice)))
             {
-                if (_args.ContainsKey(nameof(ForDevice))) await SetDeviceAsync();
-                if (_args.ContainsKey(nameof(WithType))) SetType();
-                if (_args.ContainsKey(nameof(WithName))) SetName();
-                if (_args.ContainsKey(nameof(WithConnector))) await SetConnectorAsync();
-                if (_args.ContainsKey(nameof(WithPortRole)) && _args.ContainsKey(nameof(WithPortPool))) await SetPortPoolAsync();
-                if (_args.ContainsKey(nameof(WithPortBandwidth))) await SetPortBandwidthAsync();
-                if (_args.ContainsKey(nameof(WithSfp))) await SetSfpAsync();
-                if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
-                if (_args.ContainsKey(nameof(AssignToTenant))) await SetTenantAsync();
+                await SetDeviceAsync();
             }
+
+            if (_args.ContainsKey(nameof(WithType))) SetType();
+            if (_args.ContainsKey(nameof(WithName))) SetName();
+            if (_args.ContainsKey(nameof(WithConnector))) await SetConnectorAsync();
+            if (_args.ContainsKey(nameof(WithPortRole)) && _args.ContainsKey(nameof(WithPortPool))) await SetPortPoolAsync();
+            if (_args.ContainsKey(nameof(WithPortBandwidth))) await SetPortBandwidthAsync();
+            if (_args.ContainsKey(nameof(WithSfp))) await SetSfpAsync();
+            if (_args.ContainsKey(nameof(WithStatus))) await SetStatusAsync();
+            if (_args.ContainsKey(nameof(AssignToTenant))) await SetTenantAsync();
 
             _port.Validate();
             return _port;
@@ -206,7 +203,7 @@ namespace Mind.Builders
             _port.PortStatus = status;
 
             // If the port status is free ensure that any tenant assignment is cleared
-            if (status.PortStatusType == PortStatusTypeEnum.Free)
+            if (status?.PortStatusType == PortStatusTypeEnum.Free)
             {
                 this._port.Tenant = null;
                 this._port.TenantID = null;

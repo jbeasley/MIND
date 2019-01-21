@@ -26,7 +26,8 @@ namespace SCM.Models
         {
             return query.Include(x => x.PortStatus)
                         .Include(x => x.Tenant)
-                        .Include(x => x.Interface);
+                        .Include(x => x.Interface.Attachment.Interfaces)
+                        .ThenInclude(x => x.Ports);
         }
 
         public static IQueryable<Port> IncludeDeepProperties(this IQueryable<Port> query)
@@ -161,6 +162,9 @@ namespace SCM.Models
 
             if (this.PortStatus.PortStatusType == PortStatusTypeEnum.Assigned) throw new IllegalDeleteAttemptException($"Port '{this.FullName}' " +
                 $"for device '{this.Device.Name}' cannot be deleted because the port status is 'Assigned'");
+
+            if (this.Interface?.Attachment != null) throw new IllegalDeleteAttemptException($"Port '{this.FullName}' for device '{this.Device.Name}' cannot be " +
+                $"deleted because the port is assigned to attachment '{this.Interface.Attachment.Name}.' Delete the attachment first.");
         }
     }
 }

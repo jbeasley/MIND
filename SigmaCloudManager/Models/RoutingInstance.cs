@@ -229,6 +229,24 @@ namespace SCM.Models
         public virtual void ValidateDelete()
         {
             var sb = new StringBuilder();
+
+            if (this.RoutingInstanceType.IsDefault)
+            {
+                sb.Append($"Routing instance '{this.Name}' cannot be deleted because it is a default routing instance.");
+            }
+
+            if (this.Vifs.Any())
+            {
+                sb.Append($"Routing instance '{this.Name}' cannot be deleted because one or more VIFs belong to the routing instance." +
+                    $"Delete the VIFs first, or remove them from the routing instance.");
+            }
+
+            if (this.Attachments.Any())
+            {
+                sb.Append($"Routing instance '{this.Name}' cannot be deleted because one or more attachments belong to the routing instance." +
+                    $"Delete the attachments first, or remove them from the routing instance.");
+            }
+
             (from attachmentSetRoutingInstance in this.AttachmentSetRoutingInstances
              from vpnAttachmentSet in attachmentSetRoutingInstance.AttachmentSet.VpnAttachmentSets
              select vpnAttachmentSet)

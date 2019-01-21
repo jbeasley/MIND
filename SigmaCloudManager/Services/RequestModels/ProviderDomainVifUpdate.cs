@@ -57,7 +57,8 @@ namespace Mind.Models.RequestModels
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 
         /// <summary>
-        /// Optional parameters for creating a new routing instance to be associated with the existing attachment.
+        /// Optional parameters for creating a new routing instance or updating an existing routing instance 
+        /// associated with the vif.
         /// </summary>
         /// <value>An object of type RoutingInstanceRequest</value>
         public RoutingInstanceRequest RoutingInstance { get; set; }

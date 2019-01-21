@@ -53,6 +53,13 @@ namespace Mind.Models.RequestModels
         public List<Ipv4AddressAndMask> Ipv4Addresses { get; set; }
 
         /// <summary>
+        /// Optional parameters for creating a new routing instance or updating an existing routing instance 
+        /// associated with the vif.
+        /// </summary>
+        /// <value>An object of type RoutingInstanceRequest</value>
+        public RoutingInstanceRequest RoutingInstance { get; set; }
+
+        /// <summary>
         /// Determines if the updated vif should use jumbo MTU
         /// </summary>
         /// <value>Boolean value denoting whether jumbo MTU should be enabled</value>

@@ -6,9 +6,13 @@
 
     const $form = $('#form');
 
+    // Determine whether the sync or stage modal form should be shown when the wizard finsihes
+
+    const showStageOrSyncModal      = (/true/i).test($('showStageOrSyncModal').val());
+
     // Create the wizard
    
-    Mind.Utilities.createWizardWithNetworkStageOrSyncModal( $('#vifWizard'), $form, true);
+    Mind.Utilities.createWizardWithNetworkStageOrSyncModal( $('#vifWizard'), $form, showStageOrSyncModal);
     
     const $attachmentRole                   = $('#AttachmentRoleName');
     const $vifRole                          = $('#VifRoleName');

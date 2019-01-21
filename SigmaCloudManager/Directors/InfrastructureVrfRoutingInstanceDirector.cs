@@ -95,6 +95,7 @@ namespace Mind.Builders
                                  .WithAdministratorSubField(request?.AdministratorSubField)
                                  .WithAssignedNumberSubField(request?.AssignedNumberSubField)
                                  .WithName(request?.Name)
+                                 .WithBgpPeers(request?.BgpPeers)
                                  .BuildAsync();
         }
     }

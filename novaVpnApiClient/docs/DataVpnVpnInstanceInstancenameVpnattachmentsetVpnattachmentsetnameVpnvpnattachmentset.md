@@ -1,0 +1,11 @@
+# IO.NovaVpnSwagger.Model.DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnameVpnvpnattachmentset
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**Name** | **string** | Name of the Attachment Set. (leaf) | [optional] 
+**IsHub** | **string** | Designate the Attachment as a hub for a hub-and-spoke IP VPN | [optional] 
+**Pe** | [**List&lt;DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVpnpe&gt;**](DataVpnVpnInstanceInstancenameVpnattachmentsetVpnattachmentsetnamePePepenameVpnpe.md) | List of PE devices which have one or more VRFs which are members of the VPN (list) | [optional] 
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+

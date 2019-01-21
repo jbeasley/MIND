@@ -22,25 +22,33 @@ namespace Mind.WebUI.ViewComponents
 
         public async Task<IViewComponentResult> InvokeAsync(RoutingInstanceSelectorComponentViewModel model)
         {
-            if (model != null)
-            {
-                if (model.TenantId.HasValue && model.DeviceId.HasValue)
-                {
-                    await PopulateRoutingInstancesDropDownList(model.TenantId.Value, 
-                            model.DeviceId.Value, model.ExistingRoutingInstanceName);
-                }
-            }
+
+            await PopulateRoutingInstancesDropDownList(
+                    tenantId:model?.TenantId,
+                    deviceId:model?.DeviceId,
+                    isTenantFacingVrf: model?.IsTenantFacingVrf,
+                    isInfrastructureVrf: model?.IsInfrastructureVrf,
+                    isDefaultRoutingIntance: model?.IsDefaultRoutingInstance,
+                    selectedRoutingInstance: model?.ExistingRoutingInstanceName);
 
             return View(model);
         }
 
-        private async Task PopulateRoutingInstancesDropDownList(int tenantId, int deviceId, object selectedRoutingInstance = null)
+        private async Task PopulateRoutingInstancesDropDownList(int? tenantId, int? deviceId,
+         bool? isTenantFacingVrf = false, bool? isInfrastructureVrf = false, bool? isDefaultRoutingIntance = false, 
+            object selectedRoutingInstance = null)
         {
-            var routingInstances = await _unitOfWork.RoutingInstanceRepository.GetAsync(
-                            q =>
-                                q.TenantID == tenantId &&
-                                q.DeviceID == deviceId &&
-                                q.RoutingInstanceType.IsTenantFacingVrf);
+            var query = (from result in await _unitOfWork.RoutingInstanceRepository.GetAsync(
+                           q =>
+                               q.RoutingInstanceType.IsTenantFacingVrf == isTenantFacingVrf.GetValueOrDefault() &&
+                               q.RoutingInstanceType.IsInfrastructureVrf == isInfrastructureVrf.GetValueOrDefault() &&
+                               q.RoutingInstanceType.IsDefault == isDefaultRoutingIntance.GetValueOrDefault())
+                         select result);
+
+            if (tenantId.HasValue) query = query.Where(x => x.TenantID == tenantId);
+            if (deviceId.HasValue) query = query.Where(x => x.DeviceID == deviceId);
+
+            var routingInstances = query.ToList();
 
             ViewBag.RoutingInstance = new SelectList(_mapper.Map<List<RoutingInstanceViewModel>>(routingInstances),
                 "Name", "Name", selectedRoutingInstance);

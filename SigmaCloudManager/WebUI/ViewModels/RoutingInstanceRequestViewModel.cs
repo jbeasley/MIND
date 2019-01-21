@@ -24,6 +24,24 @@ namespace Mind.WebUI.Models
         public int? RoutingInstanceId { get; set; }
 
         /// <summary>
+        /// Denotes if the routing instance is a tenant-facing VRF.
+        /// </summary>
+        /// <value>Boolean value which is true if the routing instance is a tenant-facing vrf</value>
+        public bool? IsTenantFacingVrf { get; set; }
+
+        /// <summary>
+        /// Denotes if the routing instance is an infrastructure VRF.
+        /// </summary>
+        /// <value>Boolean value which is true if the routing instance is an infrastrucfure vrf</value>
+        public bool? IsInfrastructureVrf { get; set; }
+
+        /// <summary>
+        /// Denotes if the routing instance is a default routing instance
+        /// </summary>
+        /// <value>Boolean value which is true if the routing instance is a default routing instance</value>
+        public bool? IsDefault { get; set; }
+
+        /// <summary>
         /// Gets or sets the  device identifier.
         /// </summary>
         /// <value>Integer denoting the device identifier.</value>

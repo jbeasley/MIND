@@ -1,0 +1,30 @@
+version: '3'
+
+services:
+  staging.api:
+    build: .
+    image: jbeasley/mind:staging
+    ports:
+      - "8081:80"
+    environment: 
+      - ASPNETCORE_ENVIRONMENT=Staging
+    networks:
+      - backend
+  production.api:
+    build: .
+    image: jbeasley/mind:latest
+    ports:
+      - "8082:80"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+  db:
+    image: mcr.microsoft.com/mssql/server:2017-latest
+    ports:
+      - "1433:1433"
+    environment:
+     - ACCEPT_EULA=Y
+     - SA_PASSWORD=Trip0001!
+    networks:
+     - backend
+networks:
+  backend:

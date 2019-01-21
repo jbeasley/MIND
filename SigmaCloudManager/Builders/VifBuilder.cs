@@ -9,7 +9,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using IO.NovaAttSwagger.Api;
 using IO.NovaAttSwagger.Client;
-using System.Text;
+using Mind.Models;
 
 namespace Mind.Builders
 {
@@ -24,7 +24,7 @@ namespace Mind.Builders
         private readonly IDataApi _novaApiClient;
 
 
-        public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType, 
+        public VifBuilder(IUnitOfWork unitOfWork, Func<RoutingInstanceType,
                           IRoutingInstanceDirector> routingInstanceDirectorFactory,
                           IDataApi novaApiClient) : base(unitOfWork)
         {
@@ -165,29 +165,39 @@ namespace Mind.Builders
                     SetIpv4();
                 }
 
-                if (_vif.VifRole.RoutingInstanceType.IsVrf)
+                // Cache the reference to the current routing instance for possible deletion later
+                var routingInstance = _vif.RoutingInstance;
+
+                if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
                 {
-                    if (_args.ContainsKey(nameof(UseExistingRoutingInstance)))
-                    {
-                        // Associate a pre-existing routing instance with the vif (may be the same routing instance as currently associated)
-                        await AssociateExistingRoutingInstanceAsync();
-                        if (_args.ContainsKey(nameof(WithRoutingInstance)))
-                        {
-                            // Perform any updates on the existing routing instance, e.g. add/modify/delete BGP peers
-                            await UpdateRoutingInstanceAsync();
-                        }
-                    }
+                    // Associate a pre-existing routing instance with the vif 
+                    //(this may even be the same routing instance as currently associated)
+                    RemoveVifFromRoutingInstance();
+                    await AssociateExistingRoutingInstanceAsync();
 
-                    else if (_args.ContainsKey(nameof(WithNewRoutingInstance)))
+                    if (_args.ContainsKey(nameof(WithRoutingInstance)))
                     {
-                        await CreateRoutingInstanceAsync();
-                    }
-
-                    else if (_args.ContainsKey(nameof(WithRoutingInstance)))
-                    {
-                        // Update the existing routing instance of the vif, e.g.add/modify/delete BGP peers
+                        // Perform any updates on the routing instance, e.g. add/modify/delete BGP peers
                         await UpdateRoutingInstanceAsync();
                     }
+                }
+
+                else if (_args.ContainsKey(nameof(WithNewRoutingInstance)))
+                {
+                    RemoveVifFromRoutingInstance();
+                    await CreateRoutingInstanceAsync();
+                }
+
+                else if (_args.ContainsKey(nameof(WithRoutingInstance)))
+                {
+                    // Update the existing routing instance, e.g.add/modify/delete BGP peers
+                    await UpdateRoutingInstanceAsync();
+                }
+
+                // Check to cleanup the cached routing instance if it is no longer being used
+                if (_args.ContainsKey(nameof(CleanUpRoutingInstance)))
+                {
+                    DeleteRoutingInstance(routingInstance);
                 }
             }
             else
@@ -299,8 +309,10 @@ namespace Mind.Builders
             {
                 await SetVifToDeleteAsync();
 
-                if (_args.ContainsKey(nameof(CleanUpRoutingInstance))) CheckDeleteRoutingInstanceFromDb();
-                if (_args.ContainsKey(nameof(CleanUpContractBandwidthPool))) CheckDeleteContractBandwidthPoolFromDb();
+                RemoveVifFromRoutingInstance();
+
+                if (_args.ContainsKey(nameof(CleanUpRoutingInstance))) DeleteRoutingInstance(_vif.RoutingInstance);
+                if (_args.ContainsKey(nameof(CleanUpContractBandwidthPool))) DeleteContractBandwidthPool();
 
                 // Check to delete the vif from the network
                 if (_args.ContainsKey(nameof(CleanUpNetwork)))
@@ -381,7 +393,7 @@ namespace Mind.Builders
                     q =>
                            q.AttachmentRoleID == _vif.Attachment.AttachmentRoleID
                            && q.Name == vifRoleName,
-                           query: q => 
+                           query: q =>
                                   q.Include(x => x.AttachmentRole.PortPool.PortRole)
                                    .Include(x => x.RoutingInstanceType),
                            AsTrackable: true)
@@ -428,7 +440,7 @@ namespace Mind.Builders
             var contractBandwidthMbps = (int)_args[nameof(WithContractBandwidth)];
             var contractBandwidth = (from contractBandwidths in await _unitOfWork.ContractBandwidthRepository.GetAsync(
                                   q =>
-                                     q.BandwidthMbps == contractBandwidthMbps, 
+                                     q.BandwidthMbps == contractBandwidthMbps,
                                      AsTrackable: true)
                                      select contractBandwidths)
                                     .SingleOrDefault();
@@ -443,7 +455,7 @@ namespace Mind.Builders
 
                 // Tenant may not be present if, for example, the vif is for a tenant domain attachment
                 TenantID = _vif.Tenant?.TenantID,
-                Name = Guid.NewGuid().ToString("N")         
+                Name = Guid.NewGuid().ToString("N")
             };
 
             _vif.ContractBandwidthPool = contractBandwidthPool;
@@ -495,6 +507,7 @@ namespace Mind.Builders
 
                 _vif.RoutingInstanceID = null;
                 _vif.RoutingInstance = routingInstance;
+                _vif.RoutingInstance.Vifs.Add(_vif);
             }
         }
 
@@ -504,7 +517,7 @@ namespace Mind.Builders
             var tenantId = _vif.Tenant?.TenantID;
 
             var existingRoutingInstance = (from routingInstances in await _unitOfWork.RoutingInstanceRepository.GetAsync(
-                                        x => 
+                                        x =>
                                            x.Name == routingInstanceName &&
                                            x.TenantID == tenantId &&
                                            x.DeviceID == _vif.Attachment.DeviceID,
@@ -545,14 +558,8 @@ namespace Mind.Builders
         {
             if (_vif.VifRole.RoutingInstanceType != null)
             {
-                var routingInstanceType = (from routingInstanceTypes in await _unitOfWork.RoutingInstanceTypeRepository.GetAsync(
-                                        q =>
-                                           q.RoutingInstanceTypeID == _vif.VifRole.RoutingInstanceType.RoutingInstanceTypeID)
-                                           select routingInstanceTypes)
-                                           .Single();
-                
                 var routingInstanceRequest = (RoutingInstanceRequest)_args[nameof(WithRoutingInstance)];
-                var routingInstanceDirector = _routingInstanceDirectorFactory(routingInstanceType);
+                var routingInstanceDirector = _routingInstanceDirectorFactory(_vif.VifRole.RoutingInstanceType);
 
                 await routingInstanceDirector.UpdateAsync(routingInstanceId: _vif.RoutingInstance.RoutingInstanceID, request: routingInstanceRequest);
             }
@@ -561,7 +568,7 @@ namespace Mind.Builders
         protected internal virtual void CreateVlans()
         {
             (from iface in _vif.Attachment.Interfaces
-            select iface)
+             select iface)
             .ToList()
             .ForEach(
                iface =>
@@ -576,7 +583,7 @@ namespace Mind.Builders
             var useJumboMtu = _args.ContainsKey(nameof(WithJumboMtu)) && (bool)_args[nameof(WithJumboMtu)];
 
             var mtu = (from mtus in await _unitOfWork.MtuRepository.GetAsync(
-                    x => 
+                    x =>
                        x.ValueIncludesLayer2Overhead == useLayer2InterfaceMtu && x.IsJumbo == useJumboMtu,
                        AsTrackable: true)
                        select mtus)
@@ -610,7 +617,7 @@ namespace Mind.Builders
             _vif.ContractBandwidthPool.ContractBandwidth = contractBandwidth;
         }
 
-        protected internal virtual async Task SetVifToDeleteAsync() 
+        protected internal virtual async Task SetVifToDeleteAsync()
         {
             var vifId = (int)_args[nameof(ForVif)];
             var vif = (from result in await _unitOfWork.VifRepository.GetAsync(
@@ -624,47 +631,41 @@ namespace Mind.Builders
             _vif = vif ?? throw new BuilderBadArgumentsException($"Could not find vif with ID '{vifId}' to delete");
         }
 
-        /// <summary>
-        /// Check to delete the routing instanc for the vif from the database. If the routing instance
-        /// is not used by any other attachment or vif than the current vif then the routing instance
-        /// can be deleted.
-        /// </summary>
-        /// <returns>An awaitable task</returns>
-        protected internal virtual void CheckDeleteRoutingInstanceFromDb() 
+        protected internal virtual void RemoveVifFromRoutingInstance()
         {
-            if (_vif.RoutingInstance != null && _vif.RoutingInstance.RoutingInstanceType.Type == RoutingInstanceTypeEnum.TenantFacingVrf)
-            {
-                // Check if the current vif is the only vif using the routing instance and no 
-                // attachments are using the routing instance. If so delete the routing instance.
-                if (!_vif.RoutingInstance.Vifs.Any(x => x.VifID != _vif.VifID) &&
-                    !_vif.RoutingInstance.Attachments.Any())
-                {
-                    _vif.RoutingInstance.ValidateDelete();
-
-                    // Delete the routing instance from the db
-                    _unitOfWork.RoutingInstanceRepository.Delete(_vif.RoutingInstance);
-                }
-            }
+            var vifs = _vif.RoutingInstance.Vifs.Where(vif => vif.VifID == _vif.VifID);
+            _vif.RoutingInstance.Vifs = _vif.RoutingInstance.Vifs.Except(vifs).ToList();
         }
 
         /// <summary>
-        /// Check to delete the contract bandwidth pool for the vif from the database. If the contract bandwidth pool
-        /// is not used by any other attachment or vif than the current vif then the contract bandwidth pool
-        /// can be deleted.
+        /// Check to delete the routing instance from the database and delete.
         /// </summary>
         /// <returns>An awaitable task</returns>
-        protected internal virtual void CheckDeleteContractBandwidthPoolFromDb() 
+        protected internal virtual void DeleteRoutingInstance(RoutingInstance routingInstance)
+        {
+            try
+            {
+                routingInstance.ValidateDelete();
+                _unitOfWork.RoutingInstanceRepository.Delete(routingInstance);
+            }
+
+            catch (IllegalDeleteAttemptException)
+            {
+                // Just catch the exception but nothing to do...
+            }
+
+        }        
+
+        /// <summary>
+        /// Check to delete the contract bandwidth pool for the vif from the database and delete.
+        /// </summary>
+        /// <returns>An awaitable task</returns>
+        protected internal virtual void DeleteContractBandwidthPool() 
         {
             if (_vif.ContractBandwidthPool != null)
             {
-                // Check if the current vif is the only vif using the contract bandwidth pool and no 
-                // attachments are using the contract bandwidth pool. If so delete the contract bandwidth pool.
-                if (!_vif.ContractBandwidthPool.Vifs.Any(x => x.VifID != _vif.VifID) &&
-                    !_vif.ContractBandwidthPool.Attachments.Any())
-                {
-                    // Delete the contract bandwidth pool from the db
-                    _unitOfWork.ContractBandwidthPoolRepository.Delete(_vif.ContractBandwidthPool);
-                }
+                _vif.ContractBandwidthPool.ValidateDelete();
+                _unitOfWork.ContractBandwidthPoolRepository.Delete(_vif.ContractBandwidthPool);
             }
         }
 

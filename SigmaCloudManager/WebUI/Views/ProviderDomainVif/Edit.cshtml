@@ -25,6 +25,10 @@
         <input type="hidden" asp-for="Stage" />
         <input type="hidden" asp-for="SyncToNetwork" />
 
+        <!-- The following input is used by the create.js and edit.js scripts to show the stage or sync modal form
+            when the user finishes the wizard -->
+        <input type="hidden" id="showStageOrSyncModal" value="true" />
+
         <div id="vifWizard">
 
             <h3>IP Address</h3>
@@ -32,10 +36,10 @@
                 <br />
                 <div id="ipAddressingComponent">
                     @await Component.InvokeAsync("VifIpAddressing", new
-                    {
-                        vifId = Model.VifId,
-                        currentModel = Model.Ipv4Addresses
-                    })
+                {
+                    vifId = Model.VifId,
+                    currentModel = Model.Ipv4Addresses
+                })
                 </div>
             </section>
 
@@ -43,36 +47,37 @@
             <section id="ip-addressing">
                 <div id="contractBandwidthPoolComponent">
                     @await Component.InvokeAsync("ContractBandwidthPool", new ContractBandwidthComponentViewModel
-                    {
-                        VifId = Model.VifId
-                    })
+                {
+                    VifId = Model.VifId
+                })
                 </div>
             </section>
 
             @if (!string.IsNullOrEmpty(Model.ExistingRoutingInstanceName))
+        {
+            <h3>Routing Instance</h3>
+            <section id="routing-instance">
+                <!-- View component for selecting an existing routing instance or to create a new routing instance
+                 for the vif -->
+                @await Component.InvokeAsync("RoutingInstanceSelector", new RoutingInstanceSelectorComponentViewModel
             {
-                <h3>Routing Instance</h3>
-                <section id="routing-instance">
-                    <!-- View component for selecting an existing routing instance or to create a new routing instance
-                         for the vif -->
-                    @await Component.InvokeAsync("RoutingInstanceSelector", new RoutingInstanceSelectorComponentViewModel
-                    {
-                        TenantId = Model.RoutingInstance.TenantId,
-                        DeviceId = Model.RoutingInstance.DeviceId,
-                        CreateNewRoutingInstance = Model.CreateNewRoutingInstance,
-                        ExistingRoutingInstanceName = Model.ExistingRoutingInstanceName
-                    })
-                </section>
-            }
+                TenantId = Model.RoutingInstance.TenantId,
+                DeviceId = Model.RoutingInstance.DeviceId,
+                IsTenantFacingVrf = Model.RoutingInstance.IsTenantFacingVrf,
+                CreateNewRoutingInstance = Model.CreateNewRoutingInstance,
+                ExistingRoutingInstanceName = Model.ExistingRoutingInstanceName
+            })
+            </section>
+    }
             <h3>BGP Peers</h3>
             <section>
                 <div id="bgpPeersComponent">
                     <!-- View component for creating/updating BGP peers -->
                     @await Component.InvokeAsync("RoutingInstanceBgpPeers", new BgpPeersComponentViewModel
-                    {
-                        VifId = Model.VifId,
-                        BgpPeers = Model.RoutingInstance?.BgpPeers
-                    })
+                {
+                    VifId = Model.VifId,
+                    BgpPeers = Model.RoutingInstance?.BgpPeers
+                })
                 </div>
             </section>
 
@@ -80,9 +85,9 @@
             <section id="mtu-options">
                 <!-- View component for setting MTU options -->
                 @await Component.InvokeAsync("MtuOptions", new MtuOptionsComponentViewModel
-                {
-                    UseJumboMtu = Model.UseJumboMtu
-                })
+            {
+                UseJumboMtu = Model.UseJumboMtu
+            })
             </section>
 
         </div>

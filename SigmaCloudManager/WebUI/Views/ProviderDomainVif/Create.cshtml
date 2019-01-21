@@ -24,15 +24,19 @@
     <input type="hidden" asp-for="Stage" />
     <input type="hidden" asp-for="SyncToNetwork" />
 
+    <!-- The following input is used by the create.js and edit.js scripts to show the stage or sync modal form 
+     when the user finishes the wizard -->
+    <input type="hidden" id="showStageOrSyncModal" value="true" />
+
     <div id="vifWizard">
 
         <h3>Role</h3>
         <section id="role">
             @await Component.InvokeAsync("VifRole", new VifRoleComponentViewModel
-        {
-            AttachmentRoleId = ViewBag.Attachment.AttachmentRoleId,
-            VifRoleName = Model?.VifRoleName
-        })
+            {
+                AttachmentRoleId = ViewBag.Attachment.AttachmentRoleId,
+                VifRoleName = Model?.VifRoleName
+            })
         </section>
 
         <h3>Vlan Tag</h3>
@@ -55,10 +59,10 @@
         <section id="ip-addressing">
             <div id="ipAddressingComponent">
                 @await Component.InvokeAsync("VifIpAddressing", new
-            {
-                attachmentId = Model?.AttachmentId,
-                currentModel = Model?.Ipv4Addresses
-            })
+                {
+                    attachmentId = Model?.AttachmentId,
+                    currentModel = Model?.Ipv4Addresses
+                })
             </div>
         </section>
 
@@ -66,15 +70,15 @@
         <section id="ip-addressing">
             <div id="contractBandwidthPoolComponent">
                 @await Component.InvokeAsync("ContractBandwidthPool", new ContractBandwidthComponentViewModel
-            {
-                AttachmentRoleName = Model?.AttachmentRoleName,
-                VifRoleName = Model?.VifRoleName,
-                ContractBandwidthPool = new ContractBandwidthPoolViewModel
                 {
-                    ContractBandwidthMbps = Model?.ContractBandwidthMbps,
-                    TrustReceivedCosAndDscp = Model != null ? Model.TrustReceivedCosAndDscp.GetValueOrDefault() : false
-                }
-            })
+                    AttachmentRoleName = Model?.AttachmentRoleName,
+                    VifRoleName = Model?.VifRoleName,
+                    ContractBandwidthPool = new ContractBandwidthPoolViewModel
+                    {
+                        ContractBandwidthMbps = Model?.ContractBandwidthMbps,
+                        TrustReceivedCosAndDscp = Model != null ? Model.TrustReceivedCosAndDscp.GetValueOrDefault() : false
+                    }
+                })
             </div>
         </section>
 
@@ -83,11 +87,11 @@
             <div id="bgpPeersComponent">
                 <!-- View component for creating BGP peers -->
                 @await Component.InvokeAsync("RoutingInstanceBgpPeers", new BgpPeersComponentViewModel
-            {
-                AttachmentRoleName = Model?.AttachmentRoleName,
-                VifRoleName = Model?.VifRoleName,
-                BgpPeers = Model?.RoutingInstance?.BgpPeers
-            })
+                {
+                    AttachmentRoleName = Model?.AttachmentRoleName,
+                    VifRoleName = Model?.VifRoleName,
+                    BgpPeers = Model?.RoutingInstance?.BgpPeers
+                })
             </div>
         </section>
 

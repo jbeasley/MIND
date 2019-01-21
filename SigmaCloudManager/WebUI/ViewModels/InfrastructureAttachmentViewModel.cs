@@ -102,11 +102,17 @@ namespace Mind.WebUI.Models
         public int? AttachmentBandwidthGbps { get; private set; }
 
         /// <summary>
+        /// The ID of the attachment role
+        /// </summary>
+        /// <value>Integer value denoting the ID of an attachment role</value>
+        /// <example>9877</example>
+        public int? AttachmentRoleId { get; private set; }
+
+        /// <summary>
         /// The name of the attachment role
         /// </summary>
         /// <value>String value denoting the name of an attachment role</value>
         /// <example>PE-P</example>
-        [Required]
         [Display(Name = "Attachment Role Name")]
         public string AttachmentRoleName { get; private set; }
 

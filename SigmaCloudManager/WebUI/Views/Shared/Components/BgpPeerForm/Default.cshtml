@@ -13,10 +13,13 @@
                     </button>
                 </div>
                 <div class="modal-body">
+
                     <!-- Store the ID of the row from the grid if we're editing an existing BGP peer  -->
                     <input type="text" id="RowId" hidden />
+
                     <!-- ID of the BGP peer if we're editing an existing BGP peer  -->
                     <input type="text" id="BgpPeerId" hidden />
+
                     <div class="form-group row">
                         <label asp-for="Ipv4PeerAddress" class="col-sm-4 col-form-label"> </label>
                         <div class="col-sm-8">
@@ -24,6 +27,7 @@
                             <span asp-validation-for="Ipv4PeerAddress" class="text-danger"></span>
                         </div>
                     </div>
+
                     <div class="form-group row">
                         <label asp-for="Peer2ByteAutonomousSystem" class="col-sm-4 col-form-label"> </label>
                         <div class="col-sm-8">
@@ -31,6 +35,7 @@
                             <span asp-validation-for="Peer2ByteAutonomousSystem" class="text-danger"></span>
                         </div>
                     </div>
+
                     <div class="form-group row">
                         <label asp-for="PeerPassword" class="col-sm-4 col-form-label"> </label>
                         <div class="col-sm-8">
@@ -38,11 +43,13 @@
                             <span asp-validation-for="PeerPassword" class="text-danger"></span>
                         </div>
                     </div>
+
                     <div mind-alert="info" message="
                         Select this checkbox if you want Bidirectional Forwarding Detection (BFD) enabled for this BGP peer.
                         BFD enables very fast detection of network failures which can cause the BGP protocol to fail. You should enable
                         this option if you care about fast failure detection and failover of routing to an alternate path.">
                     </div>
+
                     <div class="form-group row">
                         <label class="col-form-label col-sm-4" asp-for="IsBfdEnabled"></label>
                         <div class="col-sm-8">
@@ -53,11 +60,13 @@
                             </div>
                         </div>
                     </div>
+
                     <div mind-alert="info" message="
-                        Select this checkbox if the BGP speaker within the tenant domain is not within the same IP subnet
-                        as the provider side of the BGP peering connection. You should enable this option if there is one or more IP hop
-                        between the provider BGP speaker and the tenant BGP speaker, such as a router or firewall.">
+                        Enable the multi-hop option if the BGP speakers are not in the same IP subnet. For example,
+                        if there are one or more IP hops
+                        between the BGP speakers, such as a router or firewall, then multi-hop should be enabled.">
                     </div>
+
                     <div class="form-group row">
                         <label class="col-form-label col-sm-4" asp-for="IsMultiHop"></label>
                         <div class="col-sm-8">
@@ -68,9 +77,11 @@
                             </div>
                         </div>
                     </div>
+
                     <div mind-alert="info" message="
                         Specify the maximum number of routes which will be accepted.">
                     </div>
+
                     <div class="form-group row">
                         <label asp-for="MaximumRoutes" class="col-sm-4 col-form-label"> </label>
                         <div class="col-sm-8">
@@ -78,6 +89,7 @@
                             <span asp-validation-for="MaximumRoutes" class="text-danger"></span>
                         </div>
                     </div>
+
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

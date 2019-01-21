@@ -17,6 +17,12 @@ namespace Mind.Builders
             _builderFactory = builderFactory;
         }
 
+        /// <summary>
+        /// Builds a new vif
+        /// </summary>
+        /// <returns>The new vif</returns>
+        /// <param name="attachmentId">Attachment identifier referring to the parent attachment of the new vif</param>
+        /// <param name="request">Request object to build the vif</param>
         public async Task<SCM.Models.Vif> BuildAsync(int attachmentId, InfrastructureVifRequest request)
         {
             var builder = _builderFactory();
@@ -28,6 +34,26 @@ namespace Mind.Builders
                                 .UseExistingRoutingInstance(request.ExistingRoutingInstanceName)
                                 .WithRoutingInstance(request.RoutingInstance)
                                 .WithIpv4(request.Ipv4Addresses)
+                                .BuildAsync();
+        }
+
+        /// <summary>
+        /// Updates a vif
+        /// </summary>
+        /// <returns>The updated vif</returns>
+        /// <param name="vifId">Vif identifier.</param>
+        /// <param name="update">Updates to apply to the vif</param>
+        public async Task<SCM.Models.Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.InfrastructureVifUpdate update)
+        {
+            var builder = _builderFactory();
+            return await builder.ForVif(vifId)
+                                .WithNewRoutingInstance(update.CreateNewRoutingInstance)
+                                .UseExistingRoutingInstance(update.ExistingRoutingInstanceName)
+                                .WithRoutingInstance(update.RoutingInstance)
+                                .WithContractBandwidth(update.ContractBandwidthMbps)
+                                .WithExistingContractBandwidthPool(update.ExistingContractBandwidthPoolName)
+                                .WithIpv4(update.Ipv4Addresses)
+                                .WithJumboMtu(update.UseJumboMtu)
                                 .BuildAsync();
         }
 

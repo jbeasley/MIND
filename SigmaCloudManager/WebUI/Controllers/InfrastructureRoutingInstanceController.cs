@@ -57,7 +57,7 @@ namespace Mind.WebUI.Controllers
             var routingInstance = await _routingInstanceService.GetByIDAsync(routingInstanceId.Value, 
             deep: true, asTrackable: false);                                
 
-            return View(Mapper.Map<InfrastructureRoutingInstanceViewModel>(routingInstance));
+            return View(_mapper.Map<InfrastructureRoutingInstanceViewModel>(routingInstance));
         }
 
         [HttpGet]

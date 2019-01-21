@@ -11,10 +11,11 @@
     const $portComponent        = $('#portsComponent');
     
     // Define variables for caching the form and modal elements
-    var $form, $modal;
+    let $form;
+    let $modal;
 
     // Define variables for caching the input elements of the port form
-    var $portId,
+    let $portId,
         $portType,
         $portName,
         $portBandwidthGbps,
@@ -61,7 +62,7 @@
 
        // Change the 'ignore' setting in the validator so that hidden elements are validated
 
-       var validator = $form.data("validator");
+       const validator = $form.data("validator");
        validator.settings.ignore = "";
 
        // Bind to various events fired from the form and the modal elements
@@ -77,7 +78,7 @@
 
         $portFormContainer.on('change', '#PortRole',function (e) {
 
-            var $portProfileSelector = $('#portProfileSelector');
+            const $portProfileSelector = $('#portProfileSelector');
 
             // Load the list of port pools related to the selected port role
 
@@ -108,7 +109,7 @@
             
             // Check if the form was for data for an existing grid row
 
-            var rowId = $('#RowId')[0].value;
+            const rowId = $('#RowId')[0].value;
             if (rowId !== null && rowId !== "") {
 
                 // Remove the row - a new row with the new form data will be created
@@ -122,7 +123,7 @@
 
             // Create a new port record to send to the server from the form data
 
-            var arr = [];
+            let arr = [];
             arr.push({
                 "PortId"            : $portId[0].value,
                 "PortType"          : $portType[0].value,
@@ -156,7 +157,7 @@
         // Bind to the form invalid event and switch the tab to display the errors
         $form.bind("invalid-form.validate", () => {
 
-            var validator = $form.data("validator");
+            const validator = $form.data("validator");
 
             // Find the tab containing the first error in the validator and show the tab
 
@@ -174,9 +175,13 @@
     
         $portComponent.on('click', '.mind-grid-delete-row', function (e) {
 
+            // Hide tooltips to prevent any from dangling after the row is removed
+
+            hideToolTips();
+
             // Remove the row
 
-            var removeRowId = $(this).data('row-id');
+            const removeRowId = $(this).data('row-id');
             removeRow(removeRowId);
 
             // Refresh the port grid
@@ -191,9 +196,9 @@
     
         $portComponent.on('click', '.mind-grid-edit-row', function (e) {
 
-            var editRowId   = $(this).data('row-id');
-            var $row        = $('#port-grid-row_' + editRowId);
-            var data        = getRowData($row);
+            const editRowId   = $(this).data('row-id');
+            const $row        = $('#port-grid-row_' + editRowId);
+            const data        = getRowData($row);
 
             // Get form from the server and then show it
 
@@ -218,9 +223,9 @@
 
             // Copy the row
 
-            var rowId = $(this).data('row-id');
-            var $row = $('#port-grid-row_' + rowId);
-            var data = getRowData($row);
+            const rowId     = $(this).data('row-id');
+            const $row      = $('#port-grid-row_' + rowId);
+            const data      = getRowData($row);
 
             // Clear/modify the values we don't want copied to the new port
 
@@ -234,8 +239,7 @@
             is refreshed */
 
             data.IsNew              = true;
-
-            var arr                 = [];
+            let arr                 = [];
 
             arr.push(data);
 
@@ -267,7 +271,7 @@
 
     function removeRow(rowId) {
 
-        var $row = $('#port-grid-row_' + rowId);
+        const $row = $('#port-grid-row_' + rowId);
         $row.remove();
     }
 
@@ -275,32 +279,35 @@
 
     const refreshPortsGrid = (arr) => {
 
-        var $grid       = $('#port-grid');
-        var $tbody      = $grid.find('tbody');
-        var portData    = getPortData(arr);
+        const $grid       = $('#port-grid');
+        const $tbody      = $grid.find('tbody');
+        const portData    = getPortData(arr);
 
-        var data        = JSON.stringify({ Ports: portData });
-        var deferred    = $.Deferred();
+        const data        = JSON.stringify({ Ports: portData });
+        const deferred    = $.Deferred();
 
-        Mind.Utilities.showSpinner("Loading data from the server....", (e) => {
+        Mind.Utilities.showSpinner("Loading data from the server....", () => {
 
-            $.ajax({
+            $.post({
                 url: "GetPortsGridData",
                 contentType: 'application/json; charset=utf-8',
                 type: 'POST',
-                data: data,
-                success: (data) => {
+                data: data
+            })
+            .done((data) => {
+            
+                $tbody.html(data);
+                initToolTips();
 
-                    Mind.Utilities.hideSpinner();
-                    $tbody.html(data);
-                    initToolTips();
+                deferred.resolve();               
+            })
+            .always(() => {         
 
-                    deferred.resolve();
-                }
-            });
+                Mind.Utilities.hideSpinner();
+            });            
         });
 
-        return deferred.promise();
+       return deferred.promise();
     }
 
     // Sync ports grid data from the server. Sync from the server is only performed if
@@ -310,35 +317,36 @@
     
         const $deviceId     = $('#DeviceId');
         const deviceId      = $deviceId.length > 0 ? $deviceId[0].value : null;
+        const deferred      = $.Deferred();
 
         if (deviceId != null) {
 
             const $grid     = $('#port-grid');
             const $tbody    = $grid.find('tbody');
-            const data      = JSON.stringify({ "DeviceId": deviceId });
+            const data      = JSON.stringify({ "DeviceId": deviceId });            
 
-            var deferred    = $.Deferred();
+            Mind.Utilities.showSpinner("Loading data from the server....", () => {
 
-            Mind.Utilities.showSpinner("Loading data from the server....", (e) => {
-
-                $.ajax({
+                $.post({
                     url: "GetPortsGridData",
                     contentType: 'application/json; charset=utf-8',
-                    type: 'POST',
-                    data: data,
-                    success: (data) => {
+                    data: data
+                 })
+                 .done((data) => {
+                    
+                    $tbody.html(data);
+                    initToolTips();
 
-                        Mind.Utilities.hideSpinner();
-                        $tbody.html(data);
-                        initToolTips();
+                    deferred.resolve();
+                 })
+                 .always(() => {
 
-                        deferred.resolve();
-                    }
-                });
-
-                return deferred.promise();
+                     Mind.Utilities.hideSpinner();
+                 });                
             });
         }
+
+        return deferred.promise();
     }
 
     // Get the port form from the server, optionally populated 
@@ -346,22 +354,23 @@
 
     const getPortForm = (portData) => {
 
-        var deferred = $.Deferred();
+        const deferred = $.Deferred();
 
         Mind.Utilities.showSpinner("Loading data from the server....");
 
-        $.ajax({
+        $.post({
             url: "GetPortForm",
             contentType: 'application/json; charset=utf-8',
-            type: 'POST',
-            data: JSON.stringify(portData),
-            success: (data) => {
+            data: JSON.stringify(portData)
+        })
+        .done((data) => {
 
-                $portFormContainer.empty().html(data);
-                Mind.Utilities.hideSpinner();
+            $portFormContainer.empty().html(data);
+            deferred.resolve();
+        })
+        .always(() => {
 
-                deferred.resolve();
-            }
+            Mind.Utilities.hideSpinner();
         });
 
         return deferred.promise();
@@ -378,7 +387,7 @@
 
         $rows.each(function () {
 
-            var data = getRowData($(this));
+            const data = getRowData($(this));
             arr.push(data);
         });
 
@@ -431,6 +440,10 @@
     // Initialise new tool-tips
 
     const initToolTips = () => $('[data-toggle="tooltip"]').tooltip();
+
+    // Hide tool-tips
+
+    const hideToolTips = () => $('[data-toggle="tooltip"]').tooltip('hide');
     
     // Main
 

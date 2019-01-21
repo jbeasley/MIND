@@ -35,7 +35,7 @@ namespace Mind.WebUI.Models
         /// </summary>
         /// <value>A string value denoting the name of the routing instance</value>
         /// <example>db7c48eaa9864cd0b3aa6af08c8370d6</example>
-        [Display(Name = "Name")]
+        [Display(Name = "Routing Instance Name")]
         public string Name { get; private set; }
 
         /// <summary>
@@ -60,8 +60,17 @@ namespace Mind.WebUI.Models
         /// routing instance for the device.
         /// </summary>
         /// <value><c>true</c> if is default; otherwise, <c>false</c>.</value>
-        [Display(Name = "Default")]
+        [Display(Name = "Default Routing Instance")]
         public bool IsDefault { get; private set; }
+
+        /// <summary>
+        /// Gets a value indicating whether this
+        /// <see cref="T:Mind.WebUI.Models.InfrastructureRoutingInstanceViewModel"/> denotes an
+        /// infrastructure VRF routing instance for the device.
+        /// </summary>
+        /// <value><c>true</c> if is a=n infrastructure VRF; otherwise, <c>false</c>.</value>
+        [Display(Name = "Infrastructure VRF")]
+        public bool IsInfrastructureVrf { get; private set; }
 
         /// <summary>
         /// A list of BGP peers which are configured for the routing instance

@@ -80,7 +80,6 @@ namespace Mind.Builders
                                  );
 
             await Task.WhenAll(tasks);
-
             return ports;
         }
 
@@ -94,11 +93,16 @@ namespace Mind.Builders
         {
             var builder = _builderFactory();
             return await builder.ForPort(portId)
-                                 .WithConnector(update.PortConnector)
-                                 .WithSfp(update.PortSfp)
-                                 .WithStatus(update.PortStatus.ToString())
-                                 .AssignToTenant(update.TenantId)
-                                 .BuildAsync();
+                                .WithType(update.PortType)
+                                .WithName(update.PortName)
+                                .WithPortBandwidth(update.PortBandwidthGbps)
+                                .WithConnector(update.PortConnector)
+                                .WithPortRole(update.PortRole)
+                                .WithPortPool(update.PortPool)
+                                .WithSfp(update.PortSfp)
+                                .WithStatus(update.PortStatus.ToString())
+                                .AssignToTenant(update.TenantId)
+                                .BuildAsync();
         }
 
         /// <summary>

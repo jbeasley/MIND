@@ -261,6 +261,9 @@ namespace Mind.WebUI.Controllers
             var item = await _attachmentService.GetByIDAsync(attachmentId.Value, deep: true, asTrackable: false);
             if (concurrencyError.GetValueOrDefault()) ViewData.AddDeletePreconditionFailedMessage();
 
+            var device = await _unitOfWork.DeviceRepository.GetByIDAsync(item.DeviceID);
+            ViewBag.Device = _mapper.Map<InfrastructureDeviceViewModel>(device);
+
             return View(_mapper.Map<InfrastructureAttachmentDeleteViewModel>(item));
         }
 
@@ -300,6 +303,9 @@ namespace Mind.WebUI.Controllers
             {
                 ModelState.AddNovaClientApiExceptionMessage();
             }
+
+            var device = await _unitOfWork.DeviceRepository.GetByIDAsync(attachment.DeviceID);
+            ViewBag.Device = _mapper.Map<InfrastructureDeviceViewModel>(device);
 
             return View(_mapper.Map<InfrastructureAttachmentDeleteViewModel>(attachment));
         }

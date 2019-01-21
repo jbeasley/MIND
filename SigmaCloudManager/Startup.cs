@@ -302,7 +302,6 @@ namespace Mind
 
             // Infrastructure vif directors
             builder.RegisterType<InfrastructureVifDirector>().As<IInfrastructureVifDirector>();
-            builder.RegisterType<InfrastructureVifUpdateDirector>().As<IInfrastructureVifUpdateDirector>();
             builder.RegisterType<InfrastructureVifDirector>().As<IDestroyable<Vif>>().Keyed<IDestroyable<Vif>>("InfrastructureVifDirector");
 
             // Tenant domain vif directors

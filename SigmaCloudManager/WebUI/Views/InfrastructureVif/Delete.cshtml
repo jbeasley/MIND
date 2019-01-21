@@ -1,0 +1,47 @@
+@model Mind.WebUI.Models.InfrastructureVifDeleteViewModel
+
+@{
+    ViewData["Title"] = "Delete VIF";
+}
+<div id="crumbs">
+    <ul>
+        <li><a href="/Home"><i class="fa fa-home" aria-hidden="true"></i></a></li>
+        <li><a href="/InfrastructureServices"><i class="fa" aria-hidden="true"></i>Infrastructure Services</a></li>
+        <li><a href="/InfrastructureDevice/GetAll"><i class="fa" aria-hidden="true"></i>Infrastructure Devices</a></li>
+        <li><a href="/InfrastructureAttachment/GetAllByDeviceID?deviceId=@ViewBag.Attachment.DeviceId"><i class="fa" aria-hidden="true"></i>Infrastructure Attachments - [@ViewBag.Attachment.InfrastructureDeviceName]</a></li>
+        <li><a href="/InfrastructureVif/GetAllByAttachmentId?attachmentId=@Model.AttachmentId"><i class="fa" aria-hidden="true"></i>VIFs - [@Model.AttachmentName]</a></li>
+        <li><a href="#"><i class="fa active" aria-hidden="true"></i>Delete - [@Model.Name]</a></li>
+    </ul>
+</div>
+<h2>Delete VIF '@Model.Name'</h2>
+@{await Html.RenderPartialAsync("_MessagingPartial");}
+@{await Html.RenderPartialAsync("_ValidationModelErrorPartial");}
+<h3>Are you sure you want to delete this?</h3>
+<div>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Name)
+        </dt>
+        <dd>
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+    </dl>
+    <hr />
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="AttachmentId" />
+        <input type="hidden" asp-for="VifId" />
+        <input type="hidden" asp-for="RowVersion" />
+        <div class="form-actions no-color">
+            <button type="submit" id="Delete" class="btn btn-danger" asp-action="Delete" is-delete-button></button> |
+            <a mind-nav-link-back-btn="true" asp-action="GetAllByAttachmentID" asp-route-attachmentID="@Model.AttachmentId">Back to VIFs</a>
+        </div>
+    </form>
+</div>
+<!-- Loading Spinner partial view -->
+@{await Html.RenderPartialAsync("_LoadingSpinnerPartial");}
+
+@section Scripts {
+
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

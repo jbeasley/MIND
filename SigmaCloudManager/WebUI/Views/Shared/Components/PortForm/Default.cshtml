@@ -11,6 +11,7 @@
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
+
                 <div class="modal-body">
                     <!-- Store the ID of the row from the grid if we're editing an existing port  -->
                     <input type="text" id="RowId" hidden />
@@ -33,19 +34,19 @@
 
                         @if (!string.IsNullOrEmpty(Model.TenantName))
                         {
-                            <div mind-alert="warning" message="This port is assigned to tenant '@Model.TenantName' and therefore the abiity to make certain changes such as changing
+                            <div mind-alert="warning" message="This port is assigned to tenant '@Model.TenantName' and therefore the ability to make certain changes such as changing
                         the type, name, and profile parameters are disabled."></div>
                         }
                         else if (!string.IsNullOrEmpty(Model.AttachmentName))
                         {
-                            <div mind-alert="warning" message="This port is assigned to attachment '@Model.AttachmentName' and therefore the abiity to make certain changes such as changing
+                            <div mind-alert="warning" message="This port is assigned to attachment '@Model.AttachmentName' and therefore the ability to make certain changes such as changing
                                 the type, name, and profile parameters are disabled."></div>
                         }
                     }
 
                     <ul class="nav nav-pills mb-3" id="pills-tab" role="tablist">
 
-                        @if (Model.PortStatus != Mind.WebUI.PortStatusTypeEnum.Assigned)
+                        @if (Model.PortId == null || Model.PortStatus != Mind.WebUI.PortStatusTypeEnum.Assigned)
                         {
                             <li class="nav-item">
                                 <a class="nav-link active" id="pills-type-name-tab" data-toggle="pill" href="#pills-type-name" role="tab" aria-controls="pills-type-name" aria-selected="true">Type and Name</a>
@@ -77,7 +78,7 @@
                     </ul>
                     <div class="tab-content" id="pills-tabContent">
 
-                        @if (Model.PortStatus != Mind.WebUI.PortStatusTypeEnum.Assigned)
+                        @if (Model.PortId == null || Model.PortStatus != Mind.WebUI.PortStatusTypeEnum.Assigned)
                         {
                             <div class="tab-pane fade show active" id="pills-type-name" role="tabpanel" aria-labelledby="pills-type-name-tab">
                                 <div mind-alert="info" message="Enter the type of the port. For example, GigabitEthernet or TenGigabitEthernet"></div>
@@ -97,14 +98,18 @@
                                     </div>
                                 </div>
                             </div>
+
                             <div class="tab-pane fade" id="pills-bandwidth" role="tabpanel" aria-labelledby="pills-bandwidth-tab">
+
                                 <!-- View component for displaying the bandwidth dropdown list control -->
                                 @await Component.InvokeAsync("PortBandwidth", new PortBandwidthComponentViewModel
                                 {
                                     PortBandwidthGbps = Model?.PortBandwidthGbps
                                 })
                             </div>
+
                             <div class="tab-pane fade" id="pills-status" role="tabpanel" aria-labelledby="pills-status-tab">
+
                                 <!-- View component for displaying the port status dropdown list control -->
                                 @await Component.InvokeAsync("PortStatus", new PortStatusComponentViewModel
                                 {
@@ -113,6 +118,7 @@
                             </div>
 
                             <div class="tab-pane fade" id="pills-profile" role="tabpanel" aria-labelledby="pills-profile-tab">
+
                                 <!-- View component for displaying the port profile dropdown lists controls which include the
                                 port pool and port role dropdown lists  -->
                                 <div id="portProfileSelector">
@@ -127,6 +133,7 @@
                             </div>
 
                             <div class="tab-pane fade" id="pills-connector-and-sfp" role="tabpanel" aria-labelledby="pills-connector-and-sfp-tab">
+
                                 <!-- View component for displaying the port connector and SFP dropdown list controls -->
                                 @await Component.InvokeAsync("PortConnectorAndSfp", new PortConnectorAndSfpComponentViewModel
                                 {
@@ -138,6 +145,7 @@
                         else
                         {
                             <div class="tab-pane fade show active" id="pills-connector-and-sfp" role="tabpanel" aria-labelledby="pills-connector-and-sfp-tab">
+
                                 <!-- View component for displaying the port connector and SFP dropdown list controls -->
                                 @await Component.InvokeAsync("PortConnectorAndSfp", new PortConnectorAndSfpComponentViewModel
                                 {

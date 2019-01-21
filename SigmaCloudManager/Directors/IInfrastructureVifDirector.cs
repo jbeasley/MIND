@@ -11,5 +11,6 @@ namespace Mind.Builders
     public interface IInfrastructureVifDirector
     {
         Task<Vif> BuildAsync(int attachmentId, InfrastructureVifRequest request);
+        Task<Vif> UpdateAsync(int vifId, Mind.Models.RequestModels.InfrastructureVifUpdate update);
     }
 }

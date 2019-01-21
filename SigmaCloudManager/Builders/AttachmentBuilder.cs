@@ -779,20 +779,11 @@ namespace Mind.Builders
 
         /// <summary>
         /// Check the routing instance of the attachment can be deleted and delete.
-        /// The routing instance can be deleted only if it is not shared by any other attachment or vif.
         /// </summary>
         protected internal virtual void CheckDeleteRoutingInstanceFromDb()
         {
-            if (_attachment.RoutingInstance != null && _attachment.RoutingInstance.RoutingInstanceType.IsTenantFacingVrf)
-            {
-                _attachment.RoutingInstance.ValidateDelete();
-
-                if (!_attachment.RoutingInstance.Attachments.Any(x => x.AttachmentID != _attachment.AttachmentID) &&
-                    !_attachment.RoutingInstance.Vifs.Any())
-                {
-                    _unitOfWork.RoutingInstanceRepository.Delete(_attachment.RoutingInstance);
-                }
-            }
+            _attachment.RoutingInstance.ValidateDelete();
+            _unitOfWork.RoutingInstanceRepository.Delete(_attachment.RoutingInstance);
         }
 
         /// <summary>

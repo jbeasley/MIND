@@ -41,6 +41,16 @@ namespace Mind.WebUI.Models
                 .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
                 .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
 
+            CreateMap<SCM.Models.Vif, Mind.WebUI.Models.InfrastructureVifViewModel>()
+                .ForMember(dst => dst.Mtu, conf => conf.MapFrom(src => src.Mtu.MtuValue))
+                .ForMember(dst => dst.VifRoleName, conf => conf.MapFrom(src => src.VifRole.Name));
+
+            CreateMap<SCM.Models.Vif, Mind.WebUI.Models.InfrastructureVifUpdateViewModel>()
+                .ForMember(dst => dst.ContractBandwidthMbps, conf => conf.MapFrom(src => src.ContractBandwidthPool.ContractBandwidth.BandwidthMbps))
+                .ForMember(dst => dst.TrustReceivedCosAndDscp, conf => conf.MapFrom(src => src.ContractBandwidthPool.TrustReceivedCosAndDscp))
+                .ForMember(dst => dst.ExistingRoutingInstanceName, conf => conf.MapFrom(src => src.RoutingInstance.Name))
+                .ForMember(dst => dst.UseJumboMtu, conf => conf.MapFrom(src => src.Mtu.IsJumbo));
+
             CreateMap<SCM.Models.Attachment, Mind.WebUI.Models.InfrastructureAttachmentViewModel>()
                 .ForMember(dst => dst.InfrastructureDeviceName, conf => conf.MapFrom(src => src.Device.Name))
                 .ForMember(dst => dst.LocationName, conf => conf.MapFrom(src => src.Device.Location.SiteName))
@@ -122,10 +132,14 @@ namespace Mind.WebUI.Models
 
             CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.InfrastructureRoutingInstanceViewModel>()
                 .ForMember(dst => dst.IsDefault, conf => conf.MapFrom(src => src.RoutingInstanceType.IsDefault))
+                .ForMember(dst => dst.IsInfrastructureVrf, conf => conf.MapFrom(src => src.RoutingInstanceType.IsInfrastructureVrf))
                 .ForMember(dst => dst.InfrastructureDeviceName, conf => conf.MapFrom(src => src.Device.Name));
 
             CreateMap<SCM.Models.RoutingInstance, Mind.WebUI.Models.RoutingInstanceRequestViewModel>()
-                .ForMember(dst => dst.RangeType, conf => conf.MapFrom(src => src.RouteDistinguisherRange.Type));
+                .ForMember(dst => dst.RangeType, conf => conf.MapFrom(src => src.RouteDistinguisherRange.Type))
+                .ForMember(dst => dst.IsDefault, conf => conf.MapFrom(src => src.RoutingInstanceType.IsDefault))
+                .ForMember(dst => dst.IsTenantFacingVrf, conf => conf.MapFrom(src => src.RoutingInstanceType.IsTenantFacingVrf))
+                .ForMember(dst => dst.IsInfrastructureVrf, conf => conf.MapFrom(src => src.RoutingInstanceType.IsInfrastructureVrf));
 
             CreateMap<SCM.Models.AttachmentSet, Mind.WebUI.Models.AttachmentSetViewModel>()
                 .ForMember(dst => dst.TenantName, conf => conf.MapFrom(src => src.Tenant.Name))
